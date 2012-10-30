@@ -36,6 +36,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(Boost)
 
 ########################################################################
+# Standard tests
+#
+#INCLUDE(CMakeBackwardCompatibilityC)
+#INCLUDE(CMakeBackwardCompatibilityCXX)
+#INCLUDE(CheckCSourceCompiles)
+#INCLUDE(CheckCXXSourceCompiles)
+
+########################################################################
 # Set the name of the library
 
 SET(SCI_BOOST_LIBRARY boost CACHE INTERNAL "Boost library name." FORCE)
@@ -57,39 +65,39 @@ SET(SCI_BOOST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Boost include 
 
 # Better compiler check for OS X?
 IF(CMAKE_COMPILER_IS_GNUCC)
-  IF(UNIX)
-    #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  ENDIF()
+ # IF(UNIX)
+ #   #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+ #   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ # ENDIF()
 
-  IF(APPLE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    SET(CMAKE_CXX_FLAGS_DEBUG "-Wshorten-64-to-32 ${CMAKE_CXX_FLAGS_DEBUG}")
-  ENDIF()
-ENDIF()
-
-
-ADD_DEFINITIONS(-DBOOST_DATE_TIME_STATIC_LINK)
-ADD_DEFINITIONS(-DBOOST_FILESYSTEM_STATIC_LINK)
-ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
-ADD_DEFINITIONS(-DZ_PREFIX)
-ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
-
-IF(ENABLE_PIC)
-  SET_TARGET_PROPERTIES(${SCI_BOOST_LIBRARY}
-                        PROPERTIES
-                          COMPILE_FLAGS "-fPIC"
-  )
+#  IF(APPLE)
+#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+#    SET(CMAKE_CXX_FLAGS_DEBUG "-Wshorten-64-to-32 ${CMAKE_CXX_FLAGS_DEBUG}")
+#  ENDIF()
 ENDIF()
 
 ########################################################################
 # Sources
 
-# need: date_time filesystem regex system signals serialization thread program_options chrono 
+SET(BOOST_CHRONO_SRCS
+  libs/chrono/src/chrono.cpp
+  libs/chrono/src/process_cpu_clocks.cpp
+  libs/chrono/src/thread_clock.cpp
+)
 
-SET(BOOST_CHRONO_SRCS )
+SET(BOOST_DATE_TIME_SRCS
+  libs/date_time/src/gregorian/date_generators.cpp
+  libs/date_time/src/gregorian/greg_month.cpp
+  libs/date_time/src/gregorian/greg_weekday.cpp
+  libs/date_time/src/gregorian/gregorian_types.cpp
+  libs/date_time/src/posix_time/posix_time_types.cpp
+)
 
-SET(BOOST_DATE_TIME_SRCS )
+# From signals library Boost Jamfile
+SET_SOURCE_FILES_PROPERTIES(${BOOST_DATE_TIME_SRCS} PROPERTIES
+  COMPILE_DEFINITIONS DATE_TIME_INLINE
+  COMPILE_DEFINITIONS BOOST_DATE_TIME_STATIC_LINK
+)
 
 SET(BOOST_FILESYSTEM_SRCS
   libs/filesystem/src/codecvt_error_category.cpp
@@ -140,20 +148,113 @@ SET(BOOST_REGEX_SRCS
   libs/regex/src/winstances.cpp 
 )
 
-SET(BOOST_SERIALIZATION_SRCS )
+SET(BOOST_SERIALIZATION_SRCS
+  libs/serialization/src/archive_exception.cpp
+  libs/serialization/src/basic_archive.cpp
+  libs/serialization/src/basic_iarchive.cpp
+  libs/serialization/src/basic_iserializer.cpp
+  libs/serialization/src/basic_oarchive.cpp
+  libs/serialization/src/basic_oserializer.cpp
+  libs/serialization/src/basic_pointer_iserializer.cpp
+  libs/serialization/src/basic_pointer_oserializer.cpp
+  libs/serialization/src/basic_serializer_map.cpp
+  libs/serialization/src/basic_text_iprimitive.cpp
+  libs/serialization/src/basic_text_oprimitive.cpp
+  libs/serialization/src/basic_text_wiprimitive.cpp
+  libs/serialization/src/basic_text_woprimitive.cpp
+  libs/serialization/src/basic_xml_archive.cpp
+  libs/serialization/src/binary_iarchive.cpp
+  libs/serialization/src/binary_oarchive.cpp
+  libs/serialization/src/binary_wiarchive.cpp
+  libs/serialization/src/binary_woarchive.cpp
+  libs/serialization/src/codecvt_null.cpp
+  libs/serialization/src/extended_type_info.cpp
+  libs/serialization/src/extended_type_info_no_rtti.cpp
+  libs/serialization/src/extended_type_info_typeid.cpp
+  libs/serialization/src/polymorphic_iarchive.cpp
+  libs/serialization/src/polymorphic_oarchive.cpp
+  libs/serialization/src/shared_ptr_helper.cpp
+  libs/serialization/src/stl_port.cpp
+  libs/serialization/src/text_iarchive.cpp
+  libs/serialization/src/text_oarchive.cpp
+  libs/serialization/src/text_wiarchive.cpp
+  libs/serialization/src/text_woarchive.cpp
+  libs/serialization/src/utf8_codecvt_facet.cpp
+  libs/serialization/src/void_cast.cpp
+  libs/serialization/src/xml_archive_exception.cpp
+  libs/serialization/src/xml_grammar.cpp
+  libs/serialization/src/xml_iarchive.cpp
+  libs/serialization/src/xml_oarchive.cpp
+  libs/serialization/src/xml_wgrammar.cpp
+  libs/serialization/src/xml_wiarchive.cpp
+  libs/serialization/src/xml_woarchive.cpp
+)
 
-SET(BOOST_SIGNALS_SRCS )
+SET(BOOST_SIGNALS_SRCS
+  libs/signals/src/connection.cpp
+  libs/signals/src/named_slot_map.cpp
+  libs/signals/src/signal_base.cpp
+  libs/signals/src/slot.cpp
+  libs/signals/src/trackable.cpp
+)
 
-SET(BOOST_SYSTEM_SRCS )
+# From signals library Boost Jamfile
+SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
+  COMPILE_DEFINITIONS BOOST_SIGNALS_NO_LIB=1
+)
 
-SET(BOOST_THREAD_SRCS )
+SET(BOOST_SYSTEM_SRCS
+  libs/system/src/error_code.cpp
+  libs/system/src/local_free_on_destruction.hpp
+)
+
+# TODO: check this!!!
+IF(WIN32)
+  SET(BOOST_THREAD_SRCS
+   libs/thread/src/win32/thread.cpp
+   libs/thread/src/win32/tss_dll.cpp
+   libs/thread/src/win32/tss_pe.cpp)
+ELSE()
+  SET(BOOST_THREAD_SRCS
+   libs/thread/src/pthread/thread.cpp 
+   libs/thread/src/pthread/once.cpp)
+ENDIF()
+
+# From thread library Boost Jamfile
+SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
+  COMPILE_DEFINITIONS BOOST_SYSTEM_NO_DEPRECATED
+)
 
 ########################################################################
 # Configure the library
 
-ADD_LIBRARY(
-  ${SCI_BOOST_LIBRARY} STATIC
-    ${BOOST_FILESYSTEM_SRCS}
-    ${BOOST_PROGRAM_OPTIONS_SRCS}
-    ${BOOST_REGEX_SRCS}
+INCLUDE_DIRECTORIES(${SCI_BOOST_INCLUDE})
+
+ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
+  ${BOOST_CHRONO_SRCS}
+  ${BOOST_DATE_TIME_SRCS}
+  ${BOOST_FILESYSTEM_SRCS}
+  ${BOOST_PROGRAM_OPTIONS_SRCS}
+  ${BOOST_REGEX_SRCS}
+  ${BOOST_SERIALIZATION_SRCS}
+  ${BOOST_SIGNALS_SRCS}
+  ${BOOST_SYSTEM_SRCS}
 )
+
+# From Boost Jamfiles
+ADD_DEFINITIONS(-DBOOST_DATE_TIME_STATIC_LINK)
+ADD_DEFINITIONS(-DBOOST_SYSTEM_STATIC_LINK=1)
+ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB=1)
+ADD_DEFINITIONS(-DBOOST_All_STATIC_LINK=1)
+ADD_DEFINITIONS(-DBOOST_FILESYSTEM_STATIC_LINK)
+ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
+ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
+# TODO: check this
+ADD_DEFINITIONS(-DZ_PREFIX)
+
+IF(ENABLE_PIC)
+  SET_TARGET_PROPERTIES(${SCI_BOOST_LIBRARY}
+    PROPERTIES
+      COMPILE_FLAGS "-fPIC"
+  )
+ENDIF()
