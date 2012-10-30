@@ -216,9 +216,17 @@ ELSE()
    libs/thread/src/pthread/once.cpp)
 ENDIF()
 
+SET(BOOST_THREAD_SRCS
+  ${BOOST_THREAD_SRCS}
+  libs/thread/src/future.cpp
+)
+
+MESSAGE(STATUS "BOOST_THREAD_SRCS=${BOOST_THREAD_SRCS}")
+
 # From thread library Boost Jamfile
 SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
   COMPILE_DEFINITIONS BOOST_SYSTEM_NO_DEPRECATED
+  COMPILE_DEFINITIONS BOOST_THREAD_USE_LIB=1
 )
 
 ########################################################################
@@ -235,6 +243,7 @@ ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
   ${BOOST_SERIALIZATION_SRCS}
   ${BOOST_SIGNALS_SRCS}
   ${BOOST_SYSTEM_SRCS}
+  ${BOOST_THREAD_SRCS}
 )
 
 # From Boost Jamfiles
