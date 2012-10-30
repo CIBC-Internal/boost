@@ -35,13 +35,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(Boost)
 
-########################################################################
-# Standard tests
-#
-#INCLUDE(CMakeBackwardCompatibilityC)
-#INCLUDE(CMakeBackwardCompatibilityCXX)
-#INCLUDE(CheckCSourceCompiles)
-#INCLUDE(CheckCXXSourceCompiles)
+IF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
+ENDIF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
 
 ########################################################################
 # Set the name of the library
@@ -65,15 +61,15 @@ SET(SCI_BOOST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Boost include 
 
 # Better compiler check for OS X?
 IF(CMAKE_COMPILER_IS_GNUCC)
- # IF(UNIX)
- #   #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
- #   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
- # ENDIF()
+  IF(UNIX)
+    #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  ENDIF()
 
-#  IF(APPLE)
-#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-#    SET(CMAKE_CXX_FLAGS_DEBUG "-Wshorten-64-to-32 ${CMAKE_CXX_FLAGS_DEBUG}")
-#  ENDIF()
+  IF(APPLE)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    SET(CMAKE_CXX_FLAGS_DEBUG "-Wshorten-64-to-32 ${CMAKE_CXX_FLAGS_DEBUG}")
+  ENDIF()
 ENDIF()
 
 ########################################################################
