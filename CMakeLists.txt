@@ -47,7 +47,7 @@ SET(SCI_BOOST_LIBRARY boost CACHE INTERNAL "Boost library name." FORCE)
 ########################################################################
 # Enable PIC for 64-bit Linux if necessary
 
-IF(BUILD_SHARED_LIBS AND UNIX AND NOT APPLE AND NOT CYGWIN)
+IF(UNIX AND NOT APPLE AND NOT CYGWIN)
   SET(ENABLE_PIC ON)
 ENDIF()
 
