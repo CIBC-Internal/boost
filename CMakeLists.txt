@@ -59,16 +59,19 @@ SET(SCI_BOOST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Boost include 
 ########################################################################
 # Compiler flags and definitions
 
-# Better compiler check for OS X?
-IF(CMAKE_COMPILER_IS_GNUCC)
-  IF(UNIX)
-    #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  ENDIF()
+OPTION(BUILD_GNU_CXX11 "Turn on C++11 build flags for GCC" ON)
 
-  IF(APPLE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    SET(CMAKE_CXX_FLAGS_DEBUG "-Wshorten-64-to-32 ${CMAKE_CXX_FLAGS_DEBUG}")
+IF(BUILD_GNU_CXX11)
+  # Better compiler check for OS X?
+  IF(CMAKE_COMPILER_IS_GNUCC)
+    IF(UNIX)
+      #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    ENDIF()
+
+    IF(APPLE)
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    ENDIF()
   ENDIF()
 ENDIF()
 
