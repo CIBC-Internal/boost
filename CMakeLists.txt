@@ -91,7 +91,7 @@ SET(BOOST_DATE_TIME_SRCS
   libs/date_time/src/posix_time/posix_time_types.cpp
 )
 
-SET(BOOST_DATE_TIME_COMPONENT_NAME date_time${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_DATE_TIME_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_date_time${BOOST_COMPILER}${BOOST_MT})
 
 # From signals library Boost Jamfile
 SET_SOURCE_FILES_PROPERTIES(${BOOST_DATE_TIME_SRCS} PROPERTIES
@@ -114,7 +114,7 @@ SET(BOOST_FILESYSTEM_HEADERS
   libs/filesystem/src/windows_file_codecvt.hpp
 )
 
-SET(BOOST_FILESYSTEM_COMPONENT_NAME filesystem${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_FILESYSTEM_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_filesystem${BOOST_COMPILER}${BOOST_MT})
 
 SET(BOOST_PROGRAM_OPTIONS_SRCS
   libs/program_options/src/cmdline.cpp 
@@ -130,7 +130,7 @@ SET(BOOST_PROGRAM_OPTIONS_SRCS
   libs/program_options/src/winmain.cpp
 )
 
-SET(BOOST_PROGRAM_OPTIONS_COMPONENT_NAME program_options${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_PROGRAM_OPTIONS_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_program_options${BOOST_COMPILER}${BOOST_MT})
 
 SET(BOOST_REGEX_SRCS
   libs/regex/src/c_regex_traits.cpp
@@ -152,7 +152,7 @@ SET(BOOST_REGEX_SRCS
   libs/regex/src/winstances.cpp 
 )
 
-SET(BOOST_REGEX_COMPONENT_NAME regex${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_REGEX_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_regex${BOOST_COMPILER}${BOOST_MT})
 
 SET(BOOST_SERIALIZATION_SRCS
   libs/serialization/src/archive_exception.cpp
@@ -196,7 +196,7 @@ SET(BOOST_SERIALIZATION_SRCS
   libs/serialization/src/xml_woarchive.cpp
 )
 
-SET(BOOST_SERIALIZATION_COMPONENT_NAME serialization${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_SERIALIZATION_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_serialization${BOOST_COMPILER}${BOOST_MT})
 
 SET(BOOST_SIGNALS_SRCS
   libs/signals/src/connection.cpp
@@ -211,14 +211,14 @@ SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
   COMPILE_DEFINITIONS BOOST_SIGNALS_NO_LIB=1
 )
 
-SET(BOOST_SIGNALS_COMPONENT_NAME signals${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_SIGNALS_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_signals${BOOST_COMPILER}${BOOST_MT})
 
 SET(BOOST_SYSTEM_SRCS
   libs/system/src/error_code.cpp
   libs/system/src/local_free_on_destruction.hpp
 )
 
-SET(BOOST_SYSTEM_COMPONENT_NAME system${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_SYSTEM_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_system${BOOST_COMPILER}${BOOST_MT})
 
 # TODO: check this!!!
 IF(WIN32)
@@ -243,7 +243,7 @@ SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
   COMPILE_DEFINITIONS BOOST_THREAD_USE_LIB=1
 )
 
-SET(BOOST_THREAD_COMPONENT_NAME thread${BOOST_COMPILER}${BOOST_MT})
+SET(BOOST_THREAD_COMPONENT_NAME ${SCI_BOOST_LIBRARY}_thread${BOOST_COMPILER}${BOOST_MT})
 
 ########################################################################
 # Configure the library/libraries (Visual Studio 2010 (and greater?))
@@ -266,7 +266,7 @@ ADD_DEFINITIONS(-DZ_PREFIX)
 # TODO: Create a macro for adding Windows libraries
 
 # see http://www.boost.org/doc/libs/1_51_0/more/getting_started/windows.html#expected-build-output
-IF(WIN32)
+IF(WIN32 AND MSVC)
   # always building multithreaded currently
 
   ADD_LIBRARY(${BOOST_CHRONO_COMPONENT_NAME}
