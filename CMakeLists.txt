@@ -65,6 +65,7 @@ SET(BOOST_CHRONO_SRCS
   libs/chrono/src/thread_clock.cpp
 )
 
+
 SET(BOOST_DATE_TIME_SRCS
   libs/date_time/src/gregorian/date_generators.cpp
   libs/date_time/src/gregorian/greg_month.cpp
@@ -72,6 +73,7 @@ SET(BOOST_DATE_TIME_SRCS
   libs/date_time/src/gregorian/gregorian_types.cpp
   libs/date_time/src/posix_time/posix_time_types.cpp
 )
+
 
 # From signals library Boost Jamfile
 SET_SOURCE_FILES_PROPERTIES(${BOOST_DATE_TIME_SRCS} PROPERTIES
@@ -94,6 +96,7 @@ SET(BOOST_FILESYSTEM_HEADERS
   libs/filesystem/src/windows_file_codecvt.hpp
 )
 
+
 SET(BOOST_PROGRAM_OPTIONS_SRCS
   libs/program_options/src/cmdline.cpp 
   libs/program_options/src/config_file.cpp 
@@ -107,6 +110,7 @@ SET(BOOST_PROGRAM_OPTIONS_SRCS
   libs/program_options/src/variables_map.cpp 
   libs/program_options/src/winmain.cpp
 )
+
 
 SET(BOOST_REGEX_SRCS
   libs/regex/src/c_regex_traits.cpp
@@ -127,6 +131,7 @@ SET(BOOST_REGEX_SRCS
   libs/regex/src/wide_posix_api.cpp
   libs/regex/src/winstances.cpp 
 )
+
 
 SET(BOOST_SERIALIZATION_SRCS
   libs/serialization/src/archive_exception.cpp
@@ -170,6 +175,7 @@ SET(BOOST_SERIALIZATION_SRCS
   libs/serialization/src/xml_woarchive.cpp
 )
 
+
 SET(BOOST_SIGNALS_SRCS
   libs/signals/src/connection.cpp
   libs/signals/src/named_slot_map.cpp
@@ -183,10 +189,12 @@ SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
   COMPILE_DEFINITIONS BOOST_SIGNALS_NO_LIB=1
 )
 
+
 SET(BOOST_SYSTEM_SRCS
   libs/system/src/error_code.cpp
   libs/system/src/local_free_on_destruction.hpp
 )
+
 
 # TODO: check this!!!
 IF(WIN32)
@@ -211,10 +219,23 @@ SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
   COMPILE_DEFINITIONS BOOST_THREAD_USE_LIB=1
 )
 
+
 ########################################################################
 # Configure the library
 
 INCLUDE_DIRECTORIES(${SCI_BOOST_INCLUDE})
+
+# From Boost Jamfiles
+ADD_DEFINITIONS(-DBOOST_DATE_TIME_STATIC_LINK)
+ADD_DEFINITIONS(-DBOOST_SYSTEM_STATIC_LINK=1)
+ADD_DEFINITIONS(-DBOOST_All_STATIC_LINK=1)
+# BOOST_ALL_NO_LIB needs to be defined in project that links this library
+ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB=1)
+ADD_DEFINITIONS(-DBOOST_FILESYSTEM_STATIC_LINK)
+ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
+
+# TODO: check this
+ADD_DEFINITIONS(-DZ_PREFIX)
 
 ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
   ${BOOST_CHRONO_SRCS}
@@ -227,17 +248,6 @@ ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
   ${BOOST_SYSTEM_SRCS}
   ${BOOST_THREAD_SRCS}
 )
-
-# From Boost Jamfiles
-ADD_DEFINITIONS(-DBOOST_DATE_TIME_STATIC_LINK)
-ADD_DEFINITIONS(-DBOOST_SYSTEM_STATIC_LINK=1)
-ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB=1)
-ADD_DEFINITIONS(-DBOOST_All_STATIC_LINK=1)
-ADD_DEFINITIONS(-DBOOST_FILESYSTEM_STATIC_LINK)
-ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
-ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
-# TODO: check this
-ADD_DEFINITIONS(-DZ_PREFIX)
 
 IF(ENABLE_PIC)
   SET_TARGET_PROPERTIES(${SCI_BOOST_LIBRARY}
