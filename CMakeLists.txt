@@ -195,7 +195,6 @@ SET(BOOST_SYSTEM_SRCS
   libs/system/src/local_free_on_destruction.hpp
 )
 
-
 # TODO: check this!!!
 IF(WIN32)
   SET(BOOST_THREAD_SRCS
@@ -221,7 +220,7 @@ SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
 
 
 ########################################################################
-# Configure the library
+# Configure the library/libraries (Visual Studio 2010 (and greater?))
 
 INCLUDE_DIRECTORIES(${SCI_BOOST_INCLUDE})
 
@@ -251,7 +250,7 @@ ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
 
 IF(ENABLE_PIC)
   SET_TARGET_PROPERTIES(${SCI_BOOST_LIBRARY}
-    PROPERTIES
-      COMPILE_FLAGS "-fPIC"
-  )
+      PROPERTIES
+        COMPILE_FLAGS "-fPIC"
+    )
 ENDIF()
