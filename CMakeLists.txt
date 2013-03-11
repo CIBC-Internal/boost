@@ -195,6 +195,37 @@ SET(BOOST_SYSTEM_SRCS
   libs/system/src/local_free_on_destruction.hpp
 )
 
+SET(BOOST_PYTHON_SRCS
+  libs/python/src/dict.cpp
+  libs/python/src/errors.cpp
+  libs/python/src/exec.cpp
+  libs/python/src/import.cpp
+  libs/python/src/list.cpp
+  libs/python/src/long.cpp
+  libs/python/src/module.cpp
+  libs/python/src/numeric.cpp
+  libs/python/src/object_operators.cpp
+  libs/python/src/object_protocol.cpp
+  libs/python/src/slice.cpp
+  libs/python/src/str.cpp
+  libs/python/src/tuple.cpp
+  libs/python/src/wrapper.cpp
+  libs/python/src/object/class.cpp
+  libs/python/src/object/enum.cpp
+  libs/python/src/object/function.cpp
+  libs/python/src/object/function_doc_signature.cpp
+  libs/python/src/object/inheritance.cpp
+  libs/python/src/object/iterator.cpp
+  libs/python/src/object/life_support.cpp
+  libs/python/src/object/pickle_support.cpp
+  libs/python/src/object/stl_iterator.cpp
+  libs/python/src/converter/arg_to_python_base.cpp
+  libs/python/src/converter/builtin_converters.cpp
+  libs/python/src/converter/from_python.cpp
+  libs/python/src/converter/registry.cpp
+  libs/python/src/converter/type_id.cpp
+)
+
 # TODO: check this!!!
 IF(WIN32)
   SET(BOOST_THREAD_SRCS
@@ -246,6 +277,7 @@ ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
   ${BOOST_SIGNALS_SRCS}
   ${BOOST_SYSTEM_SRCS}
   ${BOOST_THREAD_SRCS}
+  ${BOOST_PYTHON_SRCS}
 )
 
 IF(ENABLE_PIC)
