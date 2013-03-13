@@ -39,6 +39,8 @@ IF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 ENDIF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
 
+INCLUDE(CheckIncludeFileCXX)
+
 ########################################################################
 # Set the name of the library
 
@@ -55,6 +57,30 @@ ENDIF()
 # Include directory
 
 SET(SCI_BOOST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Boost include directories." FORCE)
+
+########################################################################
+# TODO: TEMPORARY measure, until a Python externals library is added to SCIRun build
+# Locate python libraries, headers
+
+OPTION(BUILD_PYTHON "Build Python interface library" ON)
+
+IF(BUILD_PYTHON)
+  # this setup is targeting latest versions
+  SET(PythonLibs_FIND_VERSION "3.2")
+  FIND_PACKAGE(PythonLibs REQUIRED)
+  IF(NOT PYTHONLIBS_FOUND)
+    MESSAGE(FATAL_ERROR "Python 3.3 or 3.2 not found. Set PYTHON_INCLUDE_DIR and PYTHON_LIBRARY to the correct Python installation.")
+  ENDIF()
+
+  # make sure system config header is available
+  SET(PYTHON_CONFIG_HEADER "${PYTHON_INCLUDE_DIR}/pyconfig.h")
+
+  CHECK_INCLUDE_FILE_CXX(${PYTHON_CONFIG_HEADER} PYTHON_CONFIG_HEADER_FOUND)
+  IF (NOT PYTHON_CONFIG_HEADER_FOUND)
+    MESSAGE(FATAL_ERROR "${PYTHON_CONFIG_HEADER} was not found.")
+  ENDIF()
+ENDIF()
+
 
 ########################################################################
 # Sources
@@ -195,36 +221,48 @@ SET(BOOST_SYSTEM_SRCS
   libs/system/src/local_free_on_destruction.hpp
 )
 
-SET(BOOST_PYTHON_SRCS
-  libs/python/src/dict.cpp
-  libs/python/src/errors.cpp
-  libs/python/src/exec.cpp
-  libs/python/src/import.cpp
-  libs/python/src/list.cpp
-  libs/python/src/long.cpp
-  libs/python/src/module.cpp
-  libs/python/src/numeric.cpp
-  libs/python/src/object_operators.cpp
-  libs/python/src/object_protocol.cpp
-  libs/python/src/slice.cpp
-  libs/python/src/str.cpp
-  libs/python/src/tuple.cpp
-  libs/python/src/wrapper.cpp
-  libs/python/src/object/class.cpp
-  libs/python/src/object/enum.cpp
-  libs/python/src/object/function.cpp
-  libs/python/src/object/function_doc_signature.cpp
-  libs/python/src/object/inheritance.cpp
-  libs/python/src/object/iterator.cpp
-  libs/python/src/object/life_support.cpp
-  libs/python/src/object/pickle_support.cpp
-  libs/python/src/object/stl_iterator.cpp
-  libs/python/src/converter/arg_to_python_base.cpp
-  libs/python/src/converter/builtin_converters.cpp
-  libs/python/src/converter/from_python.cpp
-  libs/python/src/converter/registry.cpp
-  libs/python/src/converter/type_id.cpp
-)
+IF(BUILD_PYTHON)
+  SET(BOOST_PYTHON_SRCS
+    libs/python/src/dict.cpp
+    libs/python/src/errors.cpp
+    libs/python/src/exec.cpp
+    libs/python/src/import.cpp
+    libs/python/src/list.cpp
+    libs/python/src/long.cpp
+    libs/python/src/module.cpp
+    libs/python/src/numeric.cpp
+    libs/python/src/object_operators.cpp
+    libs/python/src/object_protocol.cpp
+    libs/python/src/slice.cpp
+    libs/python/src/str.cpp
+    libs/python/src/tuple.cpp
+    libs/python/src/wrapper.cpp
+    libs/python/src/object/class.cpp
+    libs/python/src/object/enum.cpp
+    libs/python/src/object/function.cpp
+    libs/python/src/object/function_doc_signature.cpp
+    libs/python/src/object/inheritance.cpp
+    libs/python/src/object/iterator.cpp
+    libs/python/src/object/life_support.cpp
+    libs/python/src/object/pickle_support.cpp
+    libs/python/src/object/stl_iterator.cpp
+    libs/python/src/converter/arg_to_python_base.cpp
+    libs/python/src/converter/builtin_converters.cpp
+    libs/python/src/converter/from_python.cpp
+    libs/python/src/converter/registry.cpp
+    libs/python/src/converter/type_id.cpp
+  )
+
+  # From python library Boost Jamfile
+  SET_SOURCE_FILES_PROPERTIES(${BOOST_PYTHON_SRCS} PROPERTIES
+    COMPILE_DEFINITIONS BOOST_PYTHON_STATIC_LIB=1
+    COMPILE_DEFINITIONS BOOST_PYTHON_SOURCE=1
+    COMPILE_DEFINITIONS_DEBUG BOOST_DEBUG_PYTHON=1
+  )
+  #INCLUDE_DIRECTORIES(${SCI_PYTHON_INCLUDE})
+  # TODO: temporary
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
+ENDIF()
 
 # TODO: check this!!!
 IF(WIN32)
@@ -279,6 +317,11 @@ ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
   ${BOOST_THREAD_SRCS}
   ${BOOST_PYTHON_SRCS}
 )
+
+IF(BUILD_PYTHON)
+  #TARGET_LINK_LIBRARIES(${SCI_BOOST_LIBRARY} ${SCI_PYTHON_LIBRARY})
+  TARGET_LINK_LIBRARIES(${SCI_BOOST_LIBRARY} ${PYTHON_LIBRARIES})
+ENDIF()
 
 IF(ENABLE_PIC)
   SET_TARGET_PROPERTIES(${SCI_BOOST_LIBRARY}
