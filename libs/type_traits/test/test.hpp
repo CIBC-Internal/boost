@@ -21,7 +21,7 @@
 #include <typeinfo>
 
 #ifdef __BORLANDC__
-// we have to turn off these warnings overwise we get swamped by the things:
+// we have to turn off these warnings otherwise we get swamped by the things:
 #pragma option -w-8008 -w-8066
 #endif
 
@@ -260,7 +260,7 @@ struct nothrow_copy_UDT
 {
    nothrow_copy_UDT();
    nothrow_copy_UDT(const nothrow_copy_UDT&)throw();
-   ~nothrow_copy_UDT(){};
+   ~nothrow_copy_UDT(){}
    nothrow_copy_UDT& operator=(const nothrow_copy_UDT&);
    bool operator==(const nothrow_copy_UDT&)const
    { return true; }
@@ -275,6 +275,18 @@ struct nothrow_assign_UDT
    bool operator==(const nothrow_assign_UDT&)const
    { return true; }
 };
+
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+struct nothrow_move_UDT
+{
+   nothrow_move_UDT();
+   nothrow_move_UDT(nothrow_move_UDT&&) throw();
+   nothrow_move_UDT& operator=(nothrow_move_UDT&&) throw();
+   bool operator==(const nothrow_move_UDT&)const
+   { return true; }
+};
+#endif
+
 
 struct nothrow_construct_UDT
 {

@@ -8,8 +8,8 @@
 // See http://www.boost.org/libs/move for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-
-#include <boost/move/move.hpp>
+#include <boost/move/detail/config_begin.hpp>
+#include <boost/move/utility.hpp>
 #include "../example/movable.hpp"
 #include <boost/static_assert.hpp>
 
@@ -64,7 +64,7 @@ movable create_movable()
 {  return movable(); }
 int main()
 {
-   #if defined(BOOST_NO_RVALUE_REFERENCES)
+   #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
    BOOST_STATIC_ASSERT((boost::has_nothrow_move<movable>::value == true));
    BOOST_STATIC_ASSERT((boost::has_nothrow_move<copyable>::value == false));
    BOOST_STATIC_ASSERT((boost::has_move_emulation_enabled<copyable>::value == false));
@@ -108,7 +108,8 @@ int main()
       movable m2(boost::move(m));
       movable m3(move_return_function2());
 	}
-   //limitations_test();
 
    return 0;
 }
+
+#include <boost/move/detail/config_end.hpp>
