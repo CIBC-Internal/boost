@@ -27,6 +27,15 @@ using namespace boost;
 #define BOOST_LCAST_NO_WCHAR_T
 #endif
 
+
+#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS) && !defined(_LIBCPP_VERSION)
+#define BOOST_LC_RUNU16
+#endif
+
+#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS) && !defined(_LIBCPP_VERSION)
+#define BOOST_LC_RUNU32
+#endif
+
 struct class_with_user_defined_sream_operators {
     int i;
 
@@ -46,24 +55,39 @@ template <class RngT>
 void do_test_iterator_range_impl(const RngT& rng)
 {
     BOOST_CHECK_EQUAL(lexical_cast<int>(rng), 1);
+    BOOST_CHECK_EQUAL(lexical_cast<int>(rng.begin(), rng.size()), 1);
     BOOST_CHECK_EQUAL(lexical_cast<unsigned int>(rng), 1u);
+    BOOST_CHECK_EQUAL(lexical_cast<unsigned int>(rng.begin(), rng.size()), 1u);
     BOOST_CHECK_EQUAL(lexical_cast<short>(rng), 1);
+    BOOST_CHECK_EQUAL(lexical_cast<short>(rng.begin(), rng.size()), 1);
     BOOST_CHECK_EQUAL(lexical_cast<unsigned short>(rng), 1u);
+    BOOST_CHECK_EQUAL(lexical_cast<unsigned short>(rng.begin(), rng.size()), 1u);
     BOOST_CHECK_EQUAL(lexical_cast<long int>(rng), 1);
+    BOOST_CHECK_EQUAL(lexical_cast<long int>(rng.begin(), rng.size()), 1);
     BOOST_CHECK_EQUAL(lexical_cast<unsigned long int>(rng), 1u);
+    BOOST_CHECK_EQUAL(lexical_cast<unsigned long int>(rng.begin(), rng.size()), 1u);
 
 #ifdef BOOST_STL_SUPPORTS_NEW_UNICODE_LOCALES
     BOOST_CHECK_EQUAL(lexical_cast<float>(rng), 1.0f);
+    BOOST_CHECK_EQUAL(lexical_cast<float>(rng.begin(), rng.size()), 1.0f);
     BOOST_CHECK_EQUAL(lexical_cast<double>(rng), 1.0);
+    BOOST_CHECK_EQUAL(lexical_cast<double>(rng.begin(), rng.size()), 1.0);
+#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
     BOOST_CHECK_EQUAL(lexical_cast<long double>(rng), 1.0L);
+    BOOST_CHECK_EQUAL(lexical_cast<long double>(rng.begin(), rng.size()), 1.0L);
+#endif
     BOOST_CHECK_EQUAL(lexical_cast<class_with_user_defined_sream_operators>(rng), 1);
 #endif
 #if defined(BOOST_HAS_LONG_LONG)
     BOOST_CHECK_EQUAL(lexical_cast<boost::ulong_long_type>(rng), 1u);
+    BOOST_CHECK_EQUAL(lexical_cast<boost::ulong_long_type>(rng.begin(), rng.size()), 1u);
     BOOST_CHECK_EQUAL(lexical_cast<boost::long_long_type>(rng), 1);
+    BOOST_CHECK_EQUAL(lexical_cast<boost::long_long_type>(rng.begin(), rng.size()), 1);
 #elif defined(BOOST_HAS_MS_INT64)
     BOOST_CHECK_EQUAL(lexical_cast<unsigned __int64>(rng), 1u);
+    BOOST_CHECK_EQUAL(lexical_cast<unsigned __int64>(rng.begin(), rng.size()), 1u);
     BOOST_CHECK_EQUAL(lexical_cast<__int64>(rng), 1);
+    BOOST_CHECK_EQUAL(lexical_cast<__int64>(rng.begin(), rng.size()), 1);
 #endif
 }
 
@@ -106,12 +130,16 @@ void test_it_range_using_char(CharT* one, CharT* eleven)
 
     BOOST_CHECK_EQUAL(lexical_cast<float>(rng1), 1.0f);
     BOOST_CHECK_EQUAL(lexical_cast<double>(rng1), 1.0);
+#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
     BOOST_CHECK_EQUAL(lexical_cast<long double>(rng1), 1.0L);
+#endif
     BOOST_CHECK_EQUAL(lexical_cast<class_with_user_defined_sream_operators>(rng1), 1);
 
     BOOST_CHECK_EQUAL(lexical_cast<float>(crng2), 1.0f);
     BOOST_CHECK_EQUAL(lexical_cast<double>(crng2), 1.0);
+#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
     BOOST_CHECK_EQUAL(lexical_cast<long double>(crng2), 1.0L);
+#endif
     BOOST_CHECK_EQUAL(lexical_cast<class_with_user_defined_sream_operators>(crng2), 1);
 
 #ifndef BOOST_LCAST_NO_WCHAR_T
@@ -121,7 +149,7 @@ void test_it_range_using_char(CharT* one, CharT* eleven)
     BOOST_CHECK(lexical_cast<std::wstring>(crng2) == L"1");
 #endif
 
-#if !defined(BOOST_NO_CHAR16_T) && !defined(BOOST_NO_UNICODE_LITERALS) && defined(BOOST_STL_SUPPORTS_NEW_UNICODE_LOCALES)
+#if defined(BOOST_LC_RUNU16) && defined(BOOST_STL_SUPPORTS_NEW_UNICODE_LOCALES)
     typedef std::basic_string<char16_t> my_char16_string;
     BOOST_CHECK(lexical_cast<my_char16_string>(rng1) == u"1");
     BOOST_CHECK(lexical_cast<my_char16_string>(crng1) == u"1");
@@ -129,7 +157,7 @@ void test_it_range_using_char(CharT* one, CharT* eleven)
     BOOST_CHECK(lexical_cast<my_char16_string>(crng2) == u"1");
 #endif
 
-#if !defined(BOOST_NO_CHAR32_T) && !defined(BOOST_NO_UNICODE_LITERALS) && defined(BOOST_STL_SUPPORTS_NEW_UNICODE_LOCALES)
+#if defined(BOOST_LC_RUNU32) && defined(BOOST_STL_SUPPORTS_NEW_UNICODE_LOCALES)
     typedef std::basic_string<char32_t> my_char32_string;
     BOOST_CHECK(lexical_cast<my_char32_string>(rng1) == U"1");
     BOOST_CHECK(lexical_cast<my_char32_string>(crng1) == U"1");
@@ -181,7 +209,7 @@ void test_wchar_iterator_ranges()
 
 void test_char16_iterator_ranges()
 {
-#if !defined(BOOST_NO_CHAR16_T) && !defined(BOOST_NO_UNICODE_LITERALS)
+#if defined(BOOST_LC_RUNU16)
     typedef char16_t test_char_type;
     test_char_type data1[] = u"1";
     test_char_type data2[] = u"11";
@@ -193,7 +221,7 @@ void test_char16_iterator_ranges()
 
 void test_char32_iterator_ranges()
 {
-#if !defined(BOOST_NO_CHAR32_T) && !defined(BOOST_NO_UNICODE_LITERALS)
+#if defined(BOOST_LC_RUNU32)
     typedef char32_t test_char_type;
     test_char_type data1[] = U"1";
     test_char_type data2[] = U"11";

@@ -35,9 +35,11 @@ using boost::math::negative_binomial_distribution;
 #include <boost/math/special_functions/gamma.hpp>
   using boost::math::lgamma;  // log gamma
 
-#include <boost/test/test_exec_monitor.hpp> // for test_main
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // for test_main
 #include <boost/test/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE
 #include "table_type.hpp"
+#include "test_out_of_range.hpp"
 
 #include <iostream>
 using std::cout;
@@ -302,6 +304,13 @@ if(std::numeric_limits<RealType>::is_specialized)
   // Wolfram       0.517304753506834882009032744488738352004003696396461766326713
   // JM nonLanczos 0.51730475350664229 differs at the 13th decimal digit.
   // MathCAD       0.51730475342603199 differs at 10th decimal digit.
+
+  // Error tests:
+  check_out_of_range<negative_binomial_distribution<RealType> >(20, 0.5);
+  BOOST_CHECK_THROW(negative_binomial_distribution<RealType>(0, 0.5), std::domain_error);
+  BOOST_CHECK_THROW(negative_binomial_distribution<RealType>(-2, 0.5), std::domain_error);
+  BOOST_CHECK_THROW(negative_binomial_distribution<RealType>(20, -0.5), std::domain_error);
+  BOOST_CHECK_THROW(negative_binomial_distribution<RealType>(20, 1.5), std::domain_error);
 }
  // End of single spot tests using RealType
 
@@ -790,7 +799,7 @@ if(std::numeric_limits<RealType>::is_specialized)
   return;
 } // template <class RealType> void test_spots(RealType) // Any floating-point type RealType.
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
   // Check that can generate negative_binomial distribution using the two convenience methods:
   using namespace boost::math;
@@ -831,8 +840,8 @@ int test_main(int, char* [])
       "to pass.</note>" << std::cout;
 #endif
 
-  return 0;
-} // int test_main(int, char* [])
+  
+} // BOOST_AUTO_TEST_CASE( test_main )
 
 /*
 

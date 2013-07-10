@@ -17,7 +17,8 @@
 //#include <pch.hpp> // include directory libs/math/src/tr1/ is needed.
 
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
-#include <boost/test/test_exec_monitor.hpp> // Boost.Test
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // Boost.Test
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/skew_normal.hpp>
@@ -30,6 +31,7 @@ using std::endl;
 using std::setprecision;
 #include <limits>
 using std::numeric_limits;
+#include "test_out_of_range.hpp"
 
 template <class RealType>
 void check_skew_normal(RealType mean, RealType scale, RealType shape, RealType x, RealType p, RealType q, RealType tol)
@@ -370,7 +372,7 @@ void test_spots(RealType)
 
         skew_normal_distribution<RealType> dist(static_cast<RealType>(0.l), static_cast<RealType>(1.l), static_cast<RealType>(4.l));
 
-        cout << "pdf(dist, 0) = " << pdf(dist, 0) <<  ", pdf(dist, 0.45) = " << pdf(dist, 0.45) << endl;
+       // cout << "pdf(dist, 0) = " << pdf(dist, 0) <<  ", pdf(dist, 0.45) = " << pdf(dist, 0.45) << endl;
        // BOOST_CHECK_CLOSE(mode(dist), boost::math::constants::root_two<RealType>() / 2, tol5);
         BOOST_CHECK_CLOSE(mode(dist), static_cast<RealType>(0.41697299497388863932L), tol1000);
       }
@@ -436,13 +438,17 @@ void test_spots(RealType)
            , static_cast<RealType>(0.8638862008406084244563L), tol1000);
       }
 
-
+      BOOST_CHECK_THROW(cdf(skew_normal_distribution<RealType>(0, 0, 0), 0), std::domain_error);
+      BOOST_CHECK_THROW(cdf(skew_normal_distribution<RealType>(0, -1, 0), 0), std::domain_error);
+      BOOST_CHECK_THROW(quantile(skew_normal_distribution<RealType>(0, 1, 0), -1), std::domain_error);
+      BOOST_CHECK_THROW(quantile(skew_normal_distribution<RealType>(0, 1, 0), 2), std::domain_error);
+      check_out_of_range<skew_normal_distribution<RealType> >(1, 1, 1);
     }
 
 
 } // template <class RealType>void test_spots(RealType)
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
 
 
@@ -491,8 +497,8 @@ int test_main(int, char* [])
     "to pass.</note>" << std::cout;
 #endif
   /*      */
-  return 0;
-} // int test_main(int, char* [])
+  
+} // BOOST_AUTO_TEST_CASE( test_main )
 
 /*
 

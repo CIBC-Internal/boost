@@ -5,7 +5,7 @@
  * accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * $Id: test_seed_seq.cpp 79771 2012-07-27 18:15:55Z jewillco $
+ * $Id: test_seed_seq.cpp 83381 2013-03-09 22:55:05Z eric_niebler $
  */
 
 #include <boost/random/seed_seq.hpp>

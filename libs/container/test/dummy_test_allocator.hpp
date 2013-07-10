@@ -26,11 +26,11 @@
 #include <boost/container/detail/mpl.hpp>
 #include <boost/container/detail/version_type.hpp>
 #include <boost/container/detail/multiallocation_chain.hpp>
-#include <boost/move/move.hpp>
+#include <boost/container/throw_exception.hpp>
+#include <boost/move/utility.hpp>
 #include <memory>
 #include <algorithm>
 #include <cstddef>
-#include <stdexcept>
 #include <cassert>
 
 //!\file
@@ -55,7 +55,7 @@ class simple_allocator
    {}
 
    T* allocate(std::size_t n)
-   {  return (T*)::new char[sizeof(T)*n];  }
+   { return (T*)::new char[sizeof(T)*n];  }
 
    void deallocate(T*p, std::size_t)
    { delete[] ((char*)p);}
@@ -111,7 +111,7 @@ class dummy_test_allocator
    dummy_test_allocator(const dummy_test_allocator<T2> &)
    {}
 
-   pointer address(reference value) 
+   pointer address(reference value)
    {  return pointer(container_detail::addressof(value));  }
 
    const_pointer address(const_reference value) const
@@ -168,8 +168,8 @@ class dummy_test_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   multiallocation_chain allocate_individual(size_type)
-   {  return multiallocation_chain(); }
+   void allocate_individual(size_type, multiallocation_chain &)
+   {}
 
    //!Allocates many elements of size == 1 in a contiguous block
    //!of memory. The minimum number to be allocated is min_elements,
@@ -177,7 +177,7 @@ class dummy_test_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   void deallocate_individual(multiallocation_chain)
+   void deallocate_individual(multiallocation_chain &)
    {}
 
    //!Allocates many elements of size elem_size in a contiguous block
@@ -186,7 +186,7 @@ class dummy_test_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   void deallocate_many(multiallocation_chain)
+   void deallocate_many(multiallocation_chain &)
    {}
 };
 
@@ -314,15 +314,20 @@ class propagation_test_allocator
    friend bool operator!=(const propagation_test_allocator &, const propagation_test_allocator &)
    {  return false;  }
 
+   void swap(propagation_test_allocator &r)
+   {
+      ++this->swaps_; ++r.swaps_;
+      boost::container::swap_dispatch(this->id_, r.id_);
+      boost::container::swap_dispatch(this->ctr_copies_, r.ctr_copies_);
+      boost::container::swap_dispatch(this->ctr_moves_, r.ctr_moves_);
+      boost::container::swap_dispatch(this->assign_copies_, r.assign_copies_);
+      boost::container::swap_dispatch(this->assign_moves_, r.assign_moves_);
+      boost::container::swap_dispatch(this->swaps_, r.swaps_);
+   }
+
    friend void swap(propagation_test_allocator &l, propagation_test_allocator &r)
    {
-      ++l.swaps_; ++r.swaps_;
-      container_detail::do_swap(l.id_, r.id_);
-      container_detail::do_swap(l.ctr_copies_, r.ctr_copies_);
-      container_detail::do_swap(l.ctr_moves_, r.ctr_moves_);
-      container_detail::do_swap(l.assign_copies_, r.assign_copies_);
-      container_detail::do_swap(l.assign_moves_, r.assign_moves_);
-      container_detail::do_swap(l.swaps_, r.swaps_);
+      l.swap(r);
    }
 
    unsigned int id_;

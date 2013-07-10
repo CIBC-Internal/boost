@@ -18,7 +18,9 @@
 #include <vector>
 #include <functional>
 #include "print_container.hpp"
-#include <boost/move/move.hpp>
+#include "input_from_forward_iterator.hpp"
+#include <boost/move/utility.hpp>
+#include <boost/move/iterator.hpp>
 #include <string>
 
 namespace boost{
@@ -146,7 +148,7 @@ int list_test (bool copied_allocators_equal = true)
    const int max = 100;
    typedef list_push_data_function<DoublyLinked> push_data_t;
 
-   try{
+   BOOST_TRY{
       MyBoostList *boostlist = new MyBoostList;
       MyStdList *stdlist = new MyStdList;
 
@@ -177,7 +179,20 @@ int list_test (bool copied_allocators_equal = true)
             aux_vect2[i] = -1;
          }
          boostlist->assign(boost::make_move_iterator(&aux_vect[0])
-                        ,boost::make_move_iterator(&aux_vect[50]));
+                          ,boost::make_move_iterator(&aux_vect[50]));
+         stdlist->assign(&aux_vect2[0], &aux_vect2[50]);
+         if(!CheckEqualContainers(boostlist, stdlist)) return 1;
+
+         for(int i = 0; i < 50; ++i){
+            IntType move_me(-1);
+            aux_vect[i] = boost::move(move_me);
+         }
+
+         for(int i = 0; i < 50; ++i){
+            aux_vect2[i] = -1;
+         }
+         boostlist->assign(boost::make_move_iterator(make_input_from_forward_iterator(&aux_vect[0]))
+                          ,boost::make_move_iterator(make_input_from_forward_iterator(&aux_vect[50])));
          stdlist->assign(&aux_vect2[0], &aux_vect2[50]);
          if(!CheckEqualContainers(boostlist, stdlist)) return 1;
       }
@@ -206,10 +221,36 @@ int list_test (bool copied_allocators_equal = true)
          for(int i = 0; i < 50; ++i){
             aux_vect2[i] = -1;
          }
-         boostlist->insert(boostlist->begin()
+         typename MyBoostList::iterator old_begin = boostlist->begin();
+         typename MyBoostList::iterator it_insert =
+            boostlist->insert(boostlist->begin()
                         ,boost::make_move_iterator(&aux_vect[0])
                         ,boost::make_move_iterator(&aux_vect[50]));
+         if(it_insert != boostlist->begin() || std::distance(it_insert, old_begin) != 50)
+            return 1;
+
          stdlist->insert(stdlist->begin(), &aux_vect2[0], &aux_vect2[50]);
+         if(!CheckEqualContainers(boostlist, stdlist))
+            return 1;
+
+         for(int i = 0; i < 50; ++i){
+            IntType move_me(-1);
+            aux_vect[i] = boost::move(move_me);
+         }
+
+         for(int i = 0; i < 50; ++i){
+            aux_vect2[i] = -1;
+         }
+
+         old_begin = boostlist->begin();
+         it_insert = boostlist->insert(boostlist->end()
+                        ,boost::make_move_iterator(make_input_from_forward_iterator(&aux_vect[0]))
+                        ,boost::make_move_iterator(make_input_from_forward_iterator(&aux_vect[50])));
+         if(std::distance(it_insert, boostlist->end()) != 50)
+            return 1;
+         stdlist->insert(stdlist->end(), &aux_vect2[0], &aux_vect2[50]);
+         if(!CheckEqualContainers(boostlist, stdlist))
+            return 1;
       }
 
       boostlist->unique();
@@ -297,9 +338,10 @@ int list_test (bool copied_allocators_equal = true)
       delete boostlist;
       delete stdlist;
    }
-   catch(...){
-      throw;
+   BOOST_CATCH(...){
+      BOOST_RETHROW;
    }
+   BOOST_CATCH_END
    return 0;
 }
 

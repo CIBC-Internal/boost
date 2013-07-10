@@ -8,6 +8,14 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifdef _MSC_VER
+#  pragma warning(disable: 4100) // unreferenced formal parameter.
+// Seems an entirely spurious warning - formal parameter T IS used - get error if /* T */
+//#  pragma warning(disable: 4535) // calling _set_se_translator() requires /EHa (in Boost.test)
+// Enable C++ Exceptions Yes With SEH Exceptions (/EHa) prevents warning 4535.
+#  pragma warning(disable: 4127) // conditional expression is constant
+#endif
+
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 using ::boost::math::concepts::real_concept;
 
@@ -15,8 +23,11 @@ using ::boost::math::concepts::real_concept;
 using boost::math::chi_squared_distribution;
 using boost::math::chi_squared;
 
-#include <boost/test/test_exec_monitor.hpp> // for test_main
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // for test_main
 #include <boost/test/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE
+
+#include "test_out_of_range.hpp"
 
 #include <iostream>
 using std::cout;
@@ -279,14 +290,14 @@ double lower_critical_values[][6] = {
 };
 
 template <class RealType> // Any floating-point type RealType.
-void test_spots(RealType)
+void test_spots(RealType T)
 {
   // Basic sanity checks, test data is to three decimal places only
   // so set tolerance to 0.001 expressed as a persentage.
 
   RealType tolerance = 0.001f * 100;
 
-  cout << "Tolerance = " << tolerance << "%." << endl;
+  cout << "Tolerance for type " << typeid(T).name()  << " is " << tolerance << " %" << endl;
 
   using boost::math::chi_squared_distribution;
   using  ::boost::math::chi_squared;
@@ -519,9 +530,12 @@ void test_spots(RealType)
     BOOST_CHECK_EQUAL(
        ceil(chi_squared_distribution<RealType>::find_degrees_of_freedom(
          -10, 0.05f, 0.01f, 100)), static_cast<RealType>(2826));
+
+    check_out_of_range<boost::math::chi_squared_distribution<RealType> >(1); // (All) valid constructor parameter values.
+
 } // template <class RealType>void test_spots(RealType)
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
   BOOST_MATH_CONTROL_FP;
   // Check that can generate chi_squared distribution using the two convenience methods:
@@ -539,20 +553,19 @@ int test_main(int, char* [])
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #endif
-  return 0;
-} // int test_main(int, char* [])
+} // BOOST_AUTO_TEST_CASE( test_main )
 
 /*
 
 Output:
 
-Autorun "i:\boost-06-05-03-1300\libs\math\test\Math_test\debug\test_chi_squared.exe"
-Running 1 test case...
-Tolerance = 0.1%.
-Tolerance = 0.1%.
-Tolerance = 0.1%.
-Tolerance = 0.1%.
-*** No errors detected
+Description: Autorun "J:\Cpp\MathToolkit\test\Math_test\Debug\test_chi_squared.exe"
+  Running 1 test case...
+  Tolerance for type float is 0.1 %
+  Tolerance for type double is 0.1 %
+  Tolerance for type long double is 0.1 %
+  Tolerance for type class boost::math::concepts::real_concept is 0.1 %
+
 
 */
 

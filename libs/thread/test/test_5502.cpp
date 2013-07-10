@@ -1,3 +1,8 @@
+// Copyright (C) 2010 Vicente Botet
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
+//  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
 // bm.cpp
 
 //  g++ test.cpp -lboost_thread-mt && ./a.out
@@ -7,7 +12,7 @@
 int XXX = 20;
 int YYY = 10;
 
-#include <boost/thread.hpp>
+#include <boost/thread/thread_only.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
 //#include <unistd.h>

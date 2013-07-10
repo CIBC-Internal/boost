@@ -18,8 +18,10 @@
 using ::boost::math::concepts::real_concept;
 
 //#include <boost/math/tools/test.hpp>
-#include <boost/test/test_exec_monitor.hpp> // for test_main
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // for test_main
 #include <boost/test/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE_FRACTION
+#include "test_out_of_range.hpp"
 
 #include <boost/math/distributions/inverse_chi_squared.hpp> // for inverse_chisquared_distribution
 using boost::math::inverse_chi_squared_distribution;
@@ -142,6 +144,7 @@ void test_spots(RealType)
   BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad1(-1), std::domain_error); // negative degrees_of_freedom.
   BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad2(1, -1), std::domain_error); // negative scale.
   BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad3(-1, -1), std::domain_error); // negative scale and degrees_of_freedom.
+  check_out_of_range<boost::math::inverse_chi_squared_distribution<RealType> >(1, 1);
 
   inverse_chi_squared_distribution<RealType> ichsq;
 
@@ -302,7 +305,7 @@ void test_spots(RealType)
 } // template <class RealType>void test_spots(RealType)
 
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
   BOOST_MATH_CONTROL_FP;
 
@@ -494,8 +497,8 @@ int test_main(int, char* [])
 #endif
 
  /*    */
-  return 0;
-} // int test_main(int, char* [])
+  
+} // BOOST_AUTO_TEST_CASE( test_main )
 
 /*
 

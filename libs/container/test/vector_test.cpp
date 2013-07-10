@@ -15,7 +15,7 @@
 #include <functional>
 
 #include <boost/container/vector.hpp>
-#include <boost/move/move.hpp>
+#include <boost/move/utility.hpp>
 #include "check_equal_containers.hpp"
 #include "movable_int.hpp"
 #include "expand_bwd_test_allocator.hpp"
@@ -38,6 +38,17 @@ template class boost::container::vector<test::movable_and_copyable_int,
 
 template class boost::container::vector<test::movable_and_copyable_int,
    std::allocator<test::movable_and_copyable_int> >;
+
+namespace container_detail {
+
+#ifndef BOOST_CONTAINER_VECTOR_ITERATOR_IS_POINTER
+
+template class vector_const_iterator<int*>;
+template class vector_iterator<int*>;
+
+#endif   //BOOST_CONTAINER_VECTOR_ITERATOR_IS_POINTER
+
+}
 
 }}
 
@@ -148,12 +159,13 @@ int main()
    v.push_back(Test());
 
    const test::EmplaceOptions Options = (test::EmplaceOptions)(test::EMPLACE_BACK | test::EMPLACE_BEFORE);
-   if(!boost::container::test::test_emplace
-      < vector<test::EmplaceInt>, Options>())
+   if(!boost::container::test::test_emplace< vector<test::EmplaceInt>, Options>()){
       return 1;
+   }
 
-   if(!boost::container::test::test_propagate_allocator<vector>())
+   if(!boost::container::test::test_propagate_allocator<vector>()){
       return 1;
+   }
 
    return 0;
 

@@ -32,7 +32,9 @@ void do_test_on_empty_input(T& v)
     BOOST_CHECK_THROW(lexical_cast<int>(v), bad_lexical_cast);
     BOOST_CHECK_THROW(lexical_cast<float>(v), bad_lexical_cast);
     BOOST_CHECK_THROW(lexical_cast<double>(v), bad_lexical_cast);
+#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
     BOOST_CHECK_THROW(lexical_cast<long double>(v), bad_lexical_cast);
+#endif
     BOOST_CHECK_THROW(lexical_cast<unsigned int>(v), bad_lexical_cast);
     BOOST_CHECK_THROW(lexical_cast<unsigned short>(v), bad_lexical_cast);
 #if defined(BOOST_HAS_LONG_LONG)
@@ -84,12 +86,12 @@ void test_empty_string()
 #endif
 
 // Currently, no compiler and STL library fully support char16_t and char32_t
-//#ifndef BOOST_NO_CHAR16_T
+//#ifndef BOOST_NO_CXX11_CHAR16_T
 //    std::basic_string<char16_t> v16w;
 //    do_test_on_empty_input(v16w);
 //    BOOST_CHECK_THROW(lexical_cast<char16_t>(v16w), bad_lexical_cast);
 //#endif
-//#ifndef BOOST_NO_CHAR32_T
+//#ifndef BOOST_NO_CXX11_CHAR32_T
 //    std::basic_string<char32_t> v32w;
 //    do_test_on_empty_input(v32w);
 //    BOOST_CHECK_THROW(lexical_cast<char32_t>(v32w), bad_lexical_cast);

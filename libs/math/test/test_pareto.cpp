@@ -24,12 +24,14 @@
 #endif
 
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
-#include <boost/test/test_exec_monitor.hpp> // Boost.Test
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // Boost.Test
 #include <boost/test/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/pareto.hpp>
     using boost::math::pareto_distribution;
 #include <boost/math/tools/test.hpp>
+#include "test_out_of_range.hpp"
 
 #include <iostream>
    using std::cout;
@@ -232,9 +234,21 @@ void test_spots(RealType)
       kurtosis_excess(pareto15), kurtosis(pareto15) - static_cast<RealType>(3L), tol5eps);
     // Check kurtosis excess = kurtosis - 3;
 
+    // Error condition checks:
+    check_out_of_range<pareto_distribution<RealType> >(1, 1);
+    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(0, 1), 0), std::domain_error);
+    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(1, 0), 0), std::domain_error);
+    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(-1, 1), 0), std::domain_error);
+    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(1, -1), 0), std::domain_error);
+
+    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(1, 1), 0), std::domain_error);
+    BOOST_CHECK_THROW(cdf(pareto_distribution<RealType>(1, 1), 0), std::domain_error);
+
+    BOOST_CHECK_THROW(quantile(pareto_distribution<RealType>(1, 1), -1), std::domain_error);
+    BOOST_CHECK_THROW(quantile(pareto_distribution<RealType>(1, 1), 2), std::domain_error);
 } // template <class RealType>void test_spots(RealType)
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
   // Check that can generate pareto distribution using the two convenience methods:
    boost::math::pareto myp1(1., 1); // Using typedef
@@ -315,8 +329,8 @@ int test_main(int, char* [])
       "to pass.</note>" << std::cout;
 #endif
 
-   return 0;
-} // int test_main(int, char* [])
+   
+} // BOOST_AUTO_TEST_CASE( test_main )
 
 /*
 

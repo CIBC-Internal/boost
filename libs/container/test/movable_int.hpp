@@ -13,7 +13,8 @@
 
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/detail/workaround.hpp>
-#include <boost/move/move.hpp>
+#include <boost/move/utility.hpp>
+#include <ostream>
 
 namespace boost {
 namespace container {
@@ -52,30 +53,42 @@ class movable_int
    movable_int & operator= (int i)
    {  this->m_int = i;  return *this;  }
 
-   bool operator ==(const movable_int &mi) const
-   {  return this->m_int == mi.m_int;   }
+   ~movable_int()
+   {  this->m_int = 0;  }
 
-   bool operator !=(const movable_int &mi) const
-   {  return this->m_int != mi.m_int;   }
+   friend bool operator ==(const movable_int &l, const movable_int &r)
+   {  return l.m_int == r.m_int;   }
 
-   bool operator <(const movable_int &mi) const
-   {  return this->m_int < mi.m_int;   }
+   friend bool operator !=(const movable_int &l, const movable_int &r)
+   {  return l.m_int != r.m_int;   }
 
-   bool operator <=(const movable_int &mi) const
-   {  return this->m_int <= mi.m_int;   }
+   friend bool operator <(const movable_int &l, const movable_int &r)
+   {  return l.m_int < r.m_int;   }
 
-   bool operator >=(const movable_int &mi) const
-   {  return this->m_int >= mi.m_int;   }
+   friend bool operator <=(const movable_int &l, const movable_int &r)
+   {  return l.m_int <= r.m_int;   }
 
-   bool operator >(const movable_int &mi) const
-   {  return this->m_int > mi.m_int;   }
+   friend bool operator >=(const movable_int &l, const movable_int &r)
+   {  return l.m_int >= r.m_int;   }
+
+   friend bool operator >(const movable_int &l, const movable_int &r)
+   {  return l.m_int > r.m_int;   }
 
    int get_int() const
    {  return m_int;  }
 
+   friend bool operator==(const movable_int &l, int r)
+   {  return l.get_int() == r;   }
+
+   friend bool operator==(int l, const movable_int &r)
+   {  return l == r.get_int();   }
+
    private:
    int m_int;
 };
+
+inline movable_int produce_movable_int()
+{  return movable_int();  }
 
 template<class E, class T>
 std::basic_ostream<E, T> & operator<<
@@ -85,7 +98,6 @@ std::basic_ostream<E, T> & operator<<
     os << p.get_int();
     return os;
 }
-
 
 template<>
 struct is_copyable<movable_int>
@@ -114,6 +126,9 @@ class movable_and_copyable_int
       :  m_int(mmi.m_int)
    {  mmi.m_int = 0; }
 
+   ~movable_and_copyable_int()
+   {  this->m_int = 0;  }
+
    movable_and_copyable_int &operator= (BOOST_COPY_ASSIGN_REF(movable_and_copyable_int) mi)
    {  this->m_int = mi.m_int;    return *this;  }
 
@@ -123,30 +138,39 @@ class movable_and_copyable_int
    movable_and_copyable_int & operator= (int i)
    {  this->m_int = i;  return *this;  }
 
-   bool operator ==(const movable_and_copyable_int &mi) const
-   {  return this->m_int == mi.m_int;   }
+   friend bool operator ==(const movable_and_copyable_int &l, const movable_and_copyable_int &r)
+   {  return l.m_int == r.m_int;   }
 
-   bool operator !=(const movable_and_copyable_int &mi) const
-   {  return this->m_int != mi.m_int;   }
+   friend bool operator !=(const movable_and_copyable_int &l, const movable_and_copyable_int &r)
+   {  return l.m_int != r.m_int;   }
 
-   bool operator <(const movable_and_copyable_int &mi) const
-   {  return this->m_int < mi.m_int;   }
+   friend bool operator <(const movable_and_copyable_int &l, const movable_and_copyable_int &r)
+   {  return l.m_int < r.m_int;   }
 
-   bool operator <=(const movable_and_copyable_int &mi) const
-   {  return this->m_int <= mi.m_int;   }
+   friend bool operator <=(const movable_and_copyable_int &l, const movable_and_copyable_int &r)
+   {  return l.m_int <= r.m_int;   }
 
-   bool operator >=(const movable_and_copyable_int &mi) const
-   {  return this->m_int >= mi.m_int;   }
+   friend bool operator >=(const movable_and_copyable_int &l, const movable_and_copyable_int &r)
+   {  return l.m_int >= r.m_int;   }
 
-   bool operator >(const movable_and_copyable_int &mi) const
-   {  return this->m_int > mi.m_int;   }
+   friend bool operator >(const movable_and_copyable_int &l, const movable_and_copyable_int &r)
+   {  return l.m_int > r.m_int;   }
 
    int get_int() const
    {  return m_int;  }
 
+   friend bool operator==(const movable_and_copyable_int &l, int r)
+   {  return l.get_int() == r;   }
+
+   friend bool operator==(int l, const movable_and_copyable_int &r)
+   {  return l == r.get_int();   }
+
    private:
    int m_int;
 };
+
+inline movable_and_copyable_int produce_movable_and_copyable_int()
+{  return movable_and_copyable_int();  }
 
 template<class E, class T>
 std::basic_ostream<E, T> & operator<<
@@ -181,30 +205,45 @@ class copyable_int
    copyable_int & operator= (int i)
    {  this->m_int = i;  return *this;  }
 
-   bool operator ==(const copyable_int &mi) const
-   {  return this->m_int == mi.m_int;   }
+   copyable_int & operator= (const copyable_int &ci)
+   {  this->m_int = ci.m_int;  return *this;  }
 
-   bool operator !=(const copyable_int &mi) const
-   {  return this->m_int != mi.m_int;   }
+   ~copyable_int()
+   {  this->m_int = 0;  }
 
-   bool operator <(const copyable_int &mi) const
-   {  return this->m_int < mi.m_int;   }
+   friend bool operator ==(const copyable_int &l, const copyable_int &r)
+   {  return l.m_int == r.m_int;   }
 
-   bool operator <=(const copyable_int &mi) const
-   {  return this->m_int <= mi.m_int;   }
+   friend bool operator !=(const copyable_int &l, const copyable_int &r)
+   {  return l.m_int != r.m_int;   }
 
-   bool operator >=(const copyable_int &mi) const
-   {  return this->m_int >= mi.m_int;   }
+   friend bool operator <(const copyable_int &l, const copyable_int &r)
+   {  return l.m_int < r.m_int;   }
 
-   bool operator >(const copyable_int &mi) const
-   {  return this->m_int > mi.m_int;   }
+   friend bool operator <=(const copyable_int &l, const copyable_int &r)
+   {  return l.m_int <= r.m_int;   }
+
+   friend bool operator >=(const copyable_int &l, const copyable_int &r)
+   {  return l.m_int >= r.m_int;   }
+
+   friend bool operator >(const copyable_int &l, const copyable_int &r)
+   {  return l.m_int > r.m_int;   }
 
    int get_int() const
    {  return m_int;  }
 
+   friend bool operator==(const copyable_int &l, int r)
+   {  return l.get_int() == r;   }
+
+   friend bool operator==(int l, const copyable_int &r)
+   {  return l == r.get_int();   }
+
    private:
    int m_int;
 };
+
+inline copyable_int produce_copyable_int()
+{  return copyable_int();  }
 
 template<class E, class T>
 std::basic_ostream<E, T> & operator<<
@@ -235,6 +274,9 @@ class non_copymovable_int
       :  m_int(a)
    {}
 
+   ~non_copymovable_int()
+   {  m_int = 0;  }
+
    bool operator ==(const non_copymovable_int &mi) const
    {  return this->m_int == mi.m_int;   }
 
@@ -256,9 +298,16 @@ class non_copymovable_int
    int get_int() const
    {  return m_int;  }
 
+   friend bool operator==(const non_copymovable_int &l, int r)
+   {  return l.get_int() == r;   }
+
+   friend bool operator==(int l, const non_copymovable_int &r)
+   {  return l == r.get_int();   }
+
    private:
    int m_int;
 };
+
 
 }  //namespace test {
 }  //namespace container {

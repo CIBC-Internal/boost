@@ -8,6 +8,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#ifndef BOOST_CONTAINER_TEST_VECTOR_TEST_HEADER
+#define BOOST_CONTAINER_TEST_VECTOR_TEST_HEADER
+
 #include <boost/container/detail/config_begin.hpp>
 #include <algorithm>
 #include <memory>
@@ -16,7 +19,7 @@
 #include <functional>
 #include <list>
 
-#include <boost/move/move.hpp>
+#include <boost/move/utility.hpp>
 #include <boost/container/detail/mpl.hpp>
 #include "print_container.hpp"
 #include "check_equal_containers.hpp"
@@ -24,6 +27,11 @@
 #include <string>
 #include <vector>
 #include "emplace_test.hpp"
+#include "input_from_forward_iterator.hpp"
+#include <boost/move/utility.hpp>
+#include <boost/move/iterator.hpp>
+#include <boost/detail/no_exceptions_support.hpp>
+#include "insert_test.hpp"
 
 namespace boost{
 namespace container {
@@ -73,6 +81,17 @@ bool vector_copyable_only(V1 *boostvector, V2 *stdvector, boost::container::cont
       stdvector->push_back(int(3));
       if(!test::CheckEqualContainers(boostvector, stdvector)) return false;
    }
+   {
+      V1 *pv1 = new V1(*boostvector);
+      V2 *pv2 = new V2(*stdvector);
+      boostvector->clear();
+      stdvector->clear();
+      boostvector->assign(pv1->begin(), pv1->end());
+      stdvector->assign(pv2->begin(), pv2->end());
+      if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
+      delete pv1;
+      delete pv2;
+   }
 
    return true;
 }
@@ -84,8 +103,12 @@ int vector_test()
    typedef typename MyBoostVector::value_type     IntType;
    const int max = 100;
 
+   if(!test_range_insertion<MyBoostVector>()){
+      return 1;
+   }
+
    {
-      try{
+      BOOST_TRY{
          MyBoostVector *boostvector = new MyBoostVector;
          MyStdVector *stdvector = new MyStdVector;
          boostvector->resize(100);
@@ -133,10 +156,11 @@ int vector_test()
             for(int i = 0; i < 50; ++i){
                aux_vect2[i] = -1;
             }
-
-            boostvector->insert(boostvector->end()
+            typename MyBoostVector::iterator insert_it =
+               boostvector->insert(boostvector->end()
                               ,boost::make_move_iterator(&aux_vect[0])
                               ,boost::make_move_iterator(aux_vect + 50));
+            if(std::size_t(std::distance(insert_it, boostvector->end())) != 50) return 1;
             stdvector->insert(stdvector->end(), aux_vect2, aux_vect2 + 50);
             if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
 
@@ -147,22 +171,47 @@ int vector_test()
             if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
          }
          {
+            boostvector->resize(100);
+            stdvector->resize(100);
+            if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
+
             IntType aux_vect[50];
             for(int i = 0; i < 50; ++i){
-               IntType new_int(-1);
+               IntType new_int(-i);
                aux_vect[i] = boost::move(new_int);
             }
             int aux_vect2[50];
             for(int i = 0; i < 50; ++i){
-               aux_vect2[i] = -1;
+               aux_vect2[i] = -i;
             }
-            boostvector->insert(boostvector->begin()
+            typename MyBoostVector::size_type old_size = boostvector->size();
+            typename MyBoostVector::iterator insert_it =
+               boostvector->insert(boostvector->begin() + old_size/2
                               ,boost::make_move_iterator(&aux_vect[0])
                               ,boost::make_move_iterator(aux_vect + 50));
-            stdvector->insert(stdvector->begin(), aux_vect2, aux_vect2 + 50);
+            if(boostvector->begin() + old_size/2 != insert_it) return 1;
+            stdvector->insert(stdvector->begin() + old_size/2, aux_vect2, aux_vect2 + 50);
+            if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
+
+            for(int i = 0; i < 50; ++i){
+               IntType new_int(-i);
+               aux_vect[i] = boost::move(new_int);
+            }
+
+            for(int i = 0; i < 50; ++i){
+               aux_vect2[i] = -i;
+            }
+            old_size = boostvector->size();
+            //Now try with input iterators instead
+            insert_it = boostvector->insert(boostvector->begin() + old_size/2
+                              ,boost::make_move_iterator(make_input_from_forward_iterator(&aux_vect[0]))
+                              ,boost::make_move_iterator(make_input_from_forward_iterator(aux_vect + 50))
+                           );
+            if(boostvector->begin() + old_size/2 != insert_it) return 1;
+            stdvector->insert(stdvector->begin() + old_size/2, aux_vect2, aux_vect2 + 50);
             if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
          }
-/*
+/*       //deque has no reserve
          boostvector->reserve(boostvector->size()*2);
          stdvector->reserve(stdvector->size()*2);
          if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
@@ -175,13 +224,32 @@ int vector_test()
          MyStdVector(*stdvector).swap(*stdvector);
          if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
 
+         {  //push_back with not enough capacity
          IntType push_back_this(1);
          boostvector->push_back(boost::move(push_back_this));
          stdvector->push_back(int(1));
          boostvector->push_back(IntType(1));
          stdvector->push_back(int(1));
-
          if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
+         }
+
+         {  //test back()
+         const IntType test_this(1);
+         if(test_this != boostvector->back())   return 1;
+         }
+         {  //pop_back with enough capacity
+         boostvector->pop_back();
+         boostvector->pop_back();
+         stdvector->pop_back();
+         stdvector->pop_back();
+
+         IntType push_back_this(1);
+         boostvector->push_back(boost::move(push_back_this));
+         stdvector->push_back(int(1));
+         boostvector->push_back(IntType(1));
+         stdvector->push_back(int(1));
+         if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
+         }
 
          if(!vector_copyable_only(boostvector, stdvector
                         ,container_detail::bool_<boost::container::test::is_copyable<IntType>::value>())){
@@ -204,14 +272,22 @@ int vector_test()
          //Test insertion from list
          {
             std::list<int> l(50, int(1));
-            boostvector->insert(boostvector->begin(), l.begin(), l.end());
+            typename MyBoostVector::iterator it_insert =
+               boostvector->insert(boostvector->begin(), l.begin(), l.end());
+            if(boostvector->begin() != it_insert) return 1;
             stdvector->insert(stdvector->begin(), l.begin(), l.end());
             if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
             boostvector->assign(l.begin(), l.end());
             stdvector->assign(l.begin(), l.end());
             if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
+
+            boostvector->clear();
+            stdvector->clear();
+            boostvector->assign(make_input_from_forward_iterator(l.begin()), make_input_from_forward_iterator(l.end()));
+            stdvector->assign(l.begin(), l.end());
+            if(!test::CheckEqualContainers(boostvector, stdvector)) return 1;
          }
-/*
+/*       deque has no reserve or capacity
          std::size_t cap = boostvector->capacity();
          boostvector->reserve(cap*2);
          stdvector->reserve(cap*2);
@@ -238,11 +314,15 @@ int vector_test()
          delete stdvector;
          delete boostvector;
       }
-      catch(std::exception &ex){
+      BOOST_CATCH(std::exception &ex){
+         #ifndef BOOST_NO_EXCEPTIONS
          std::cout << ex.what() << std::endl;
+         #endif
          return 1;
       }
+      BOOST_CATCH_END
    }
+
    std::cout << std::endl << "Test OK!" << std::endl;
    return 0;
 }
@@ -252,3 +332,5 @@ int vector_test()
 }  //namespace boost{
 
 #include <boost/container/detail/config_end.hpp>
+
+#endif //BOOST_CONTAINER_TEST_VECTOR_TEST_HEADER

@@ -11,8 +11,10 @@
 #include <boost/math/distributions/logistic.hpp>
     using boost::math::logistic_distribution;
 
-#include <boost/test/test_exec_monitor.hpp> // Boost.Test
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // Boost.Test
 #include <boost/test/floating_point_comparison.hpp>
+#include "test_out_of_range.hpp"
 
 
 #include <iostream>
@@ -215,6 +217,17 @@ void test_spots(RealType T)
    //1. domain errors for scale and location
    //2. x being NAN
    //3. Probabilies being outside (0,1)
+   check_out_of_range<logistic_distribution<RealType> >(0, 1);
+   if(std::numeric_limits<RealType>::has_infinity)
+   {
+      RealType inf = std::numeric_limits<RealType>::infinity();
+      BOOST_CHECK_EQUAL(pdf(logistic_distribution<RealType>(0, 1), inf), 0);
+      BOOST_CHECK_EQUAL(pdf(logistic_distribution<RealType>(0, 1), -inf), 0);
+      BOOST_CHECK_EQUAL(cdf(logistic_distribution<RealType>(0, 1), inf), 1);
+      BOOST_CHECK_EQUAL(cdf(logistic_distribution<RealType>(0, 1), -inf), 0);
+      BOOST_CHECK_EQUAL(cdf(complement(logistic_distribution<RealType>(0, 1), inf)), 0);
+      BOOST_CHECK_EQUAL(cdf(complement(logistic_distribution<RealType>(0, 1), -inf)), 1);
+   }
 
    //location/scale can't be infinity
    if(std::numeric_limits<RealType>::has_infinity) {
@@ -303,7 +316,7 @@ void test_spots(RealType T)
 } // template <class RealType>void test_spots(RealType)
 
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
   // Check that can generate logistic distribution using the two convenience methods:
    boost::math::logistic mycexp1(1.); // Using typedef
@@ -325,6 +338,6 @@ int test_main(int, char* [])
       "to pass.</note>" << std::cout;
 #endif
 
-   return 0;
-} // int test_main(int, char* [])
+   
+} // BOOST_AUTO_TEST_CASE( test_main )
 

@@ -21,13 +21,15 @@
 #include "check_equal_containers.hpp"
 #include "dummy_test_allocator.hpp"
 #include "movable_int.hpp"
-#include <boost/move/move.hpp>
+#include <boost/move/utility.hpp>
+#include <boost/move/iterator.hpp>
 #include <boost/container/detail/mpl.hpp>
 #include <boost/container/detail/type_traits.hpp>
 #include <string>
 #include "emplace_test.hpp"
 #include "propagate_allocator_test.hpp"
 #include "vector_test.hpp"
+#include <boost/detail/no_exceptions_support.hpp>
 
 using namespace boost::container;
 
@@ -63,7 +65,7 @@ bool deque_copyable_only(V1 *cntdeque, V2 *stddeque, container_detail::true_type
    typedef typename V1::value_type IntType;
    std::size_t size = cntdeque->size();
    stddeque->insert(stddeque->end(), 50, 1);
-   cntdeque->insert(cntdeque->end(), 50, 1);
+   cntdeque->insert(cntdeque->end(), 50, IntType(1));
    if(!test::CheckEqualContainers(cntdeque, stddeque)) return false;
    {
       IntType move_me(1);
@@ -142,14 +144,13 @@ bool do_test()
    typedef deque<IntType>  MyCntDeque;
    typedef std::deque<int> MyStdDeque;
    const int max = 100;
-   try{
+   BOOST_TRY{
       //Shared memory allocator must be always be initialized
       //since it has no default constructor
       MyCntDeque *cntdeque = new MyCntDeque;
       MyStdDeque *stddeque = new MyStdDeque;
       //Compare several shared memory deque operations with std::deque
-      int i;
-      for(i = 0; i < max*100; ++i){
+      for(int i = 0; i < max*100; ++i){
          IntType move_me(i);
          cntdeque->insert(cntdeque->end(), boost::move(move_me));
          stddeque->insert(stddeque->end(), i);
@@ -159,7 +160,7 @@ bool do_test()
       cntdeque->clear();
       stddeque->clear();
 
-      for(i = 0; i < max*100; ++i){
+      for(int i = 0; i < max*100; ++i){
          IntType move_me(i);
          cntdeque->push_back(boost::move(move_me));
          stddeque->push_back(i);
@@ -169,7 +170,7 @@ bool do_test()
       cntdeque->clear();
       stddeque->clear();
 
-      for(i = 0; i < max*100; ++i){
+      for(int i = 0; i < max*100; ++i){
          IntType move_me(i);
          cntdeque->push_front(boost::move(move_me));
          stddeque->push_front(i);
@@ -206,6 +207,20 @@ bool do_test()
          stddeque->insert(stddeque->end(), aux_vect2, aux_vect2 + 50);
          if(!test::CheckEqualContainers(cntdeque, stddeque)) return false;
 
+         for(int i = 0; i < 50; ++i){
+            IntType move_me (i);
+            aux_vect[i] = boost::move(move_me);
+         }
+         for(int i = 0; i < 50; ++i){
+            aux_vect2[i] = i;
+         }
+
+         cntdeque->insert(cntdeque->begin()+cntdeque->size()
+                           ,boost::make_move_iterator(&aux_vect[0])
+                           ,boost::make_move_iterator(aux_vect + 50));
+         stddeque->insert(stddeque->begin()+stddeque->size(), aux_vect2, aux_vect2 + 50);
+         if(!test::CheckEqualContainers(cntdeque, stddeque)) return false;
+
          for(int i = 0, j = static_cast<int>(cntdeque->size()); i < j; ++i){
             cntdeque->erase(cntdeque->begin());
             stddeque->erase(stddeque->begin());
@@ -239,7 +254,7 @@ bool do_test()
 
       if(!test::CheckEqualContainers(cntdeque, stddeque)) return false;
 
-      for(i = 0; i < max; ++i){
+      for(int i = 0; i < max; ++i){
          IntType move_me(i);
          cntdeque->insert(cntdeque->begin(), boost::move(move_me));
          stddeque->insert(stddeque->begin(), i);
@@ -268,10 +283,13 @@ bool do_test()
       delete cntdeque;
       delete stddeque;
    }
-   catch(std::exception &ex){
+   BOOST_CATCH(std::exception &ex){
+      #ifndef BOOST_NO_EXCEPTIONS
       std::cout << ex.what() << std::endl;
+      #endif
       return false;
    }
+   BOOST_CATCH_END
   
    std::cout << std::endl << "Test OK!" << std::endl;
    return true;

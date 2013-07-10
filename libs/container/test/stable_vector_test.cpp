@@ -30,14 +30,21 @@ namespace boost {
 namespace container {
 
 //Explicit instantiation to detect compilation errors
-template class stable_vector<test::movable_and_copyable_int, 
+template class stable_vector<test::movable_and_copyable_int,
    test::dummy_test_allocator<test::movable_and_copyable_int> >;
 
-template class stable_vector<test::movable_and_copyable_int, 
+template class stable_vector<test::movable_and_copyable_int,
    test::simple_allocator<test::movable_and_copyable_int> >;
 
-template class stable_vector<test::movable_and_copyable_int, 
+template class stable_vector<test::movable_and_copyable_int,
    std::allocator<test::movable_and_copyable_int> >;
+
+namespace stable_vector_detail{
+
+template class iterator< int, int &, int *>;
+template class iterator< int, const int &, const int *>;
+
+}
 
 }}
 

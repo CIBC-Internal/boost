@@ -8,8 +8,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
-// #define BOOST_GEOMETRY_OVERLAY_NO_THROW
-// #define TEST_WITH_SVG
+//#define BOOST_GEOMETRY_OVERLAY_NO_THROW
+//#define TEST_WITH_SVG
+//#define HAVE_TTMATH
 
 #include <iostream>
 #include <iomanip>
@@ -20,7 +21,7 @@
 #include <boost/type_traits/is_same.hpp>
 
 #ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#  include <boost/geometry/contrib/ttmath_stub.hpp>
 #endif
 
 #include <geometry_test_common.hpp>
@@ -61,7 +62,7 @@
 
 
 #if defined(TEST_WITH_SVG)
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 #include <boost/geometry/strategies/strategies.hpp>
@@ -270,7 +271,7 @@ struct test_traverse
                         out << "vx: " << turn.operations[0].enriched.travels_to_vertex_index
                          << " -> ip: "  << turn.operations[0].enriched.travels_to_ip_index;
                     }
-                    out << " ";
+                    out << " / ";
                     if (turn.operations[1].enriched.next_ip_index != -1)
                     {
                         out << "ip: " << turn.operations[1].enriched.next_ip_index;
@@ -280,7 +281,7 @@ struct test_traverse
                         out << "vx: " << turn.operations[1].enriched.travels_to_vertex_index
                          << " -> ip: " << turn.operations[1].enriched.travels_to_ip_index;
                     }
-
+                    
                     out << std::endl;
 
                     /*out
@@ -633,8 +634,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             2, 16, case_53[0], case_53[2]);
     if (test_self_tangencies)
     {
-        // The st_st version might generate one ring with area zero, which is OK
-        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 3, 20, case_54[0], case_54[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 2, 20, case_54[0], case_54[2]);
         test_traverse<polygon, polygon, operation_union>::apply("54_st_iet", 2, 20, case_54[0], case_54[3]);
         test_traverse<polygon, polygon, operation_union>::apply("54_iet_st", 2, 20, case_54[1], case_54[2]);
     }
@@ -786,6 +786,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     // the chance is 50% that the segments are not sorted correctly and the wrong
     // decision is taken.
     // Solved now (by sorting on sides in those cases)
+    if (! is_float_on_non_msvc)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_1",
                 3, 16.887537949472005, dz_1[0], dz_1[1]);
@@ -884,8 +885,10 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
 #if defined(_MSC_VER)
         double const expected = if_typed_tt<T>(3.63794e-17, 0.0);
+        int expected_count = if_typed_tt<T>(1, 0);
 #else
         double const expected = if_typed<T, long double>(2.77555756156289135106e-17, 0.0);
+        int expected_count = if_typed<T, long double>(1, 0);
 #endif
 
         // Calculate intersection/union of two triangles. Robustness case.
@@ -893,7 +896,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         // (which is even not accomplished by SQL Server/PostGIS)
         std::string const caseid = "ggl_list_20110820_christophe";
         test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
-            1, expected,
+            expected_count, expected,
             ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
         test_traverse<polygon, polygon, operation_union>::apply(caseid, 
             1, 67.3550722317627, 
@@ -905,7 +908,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         buffer_rt_f[0], buffer_rt_f[1]);
     test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f", 
         1, 0.0002943725152286, 
-        buffer_rt_f[0], buffer_rt_f[1]);
+        buffer_rt_f[0], buffer_rt_f[1], 0.01);
 
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g", 
         1, 16.571, 
@@ -924,6 +927,25 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes43", 
         1, 30, 
         buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
+
+
+    if (boost::is_same<T, double>::value)
+    {
+        test_traverse<polygon, polygon, operation_union>::apply("buffer_mp2", 
+                2, 36.7535642, buffer_mp2[0], buffer_mp2[1], 0.01);
+    }
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rr",
+            1, 6.41, collinear_opposite_right[0], collinear_opposite_right[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_ll",
+            1, 11.75, collinear_opposite_left[0], collinear_opposite_left[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_ss",
+            1, 6, collinear_opposite_straight[0], collinear_opposite_straight[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_lr",
+            1, 8.66, collinear_opposite_left[0], collinear_opposite_right[1]);
+    test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rl",
+            1, 9, collinear_opposite_right[0], collinear_opposite_left[1]);
+
+    test_traverse<polygon, polygon, operation_intersection>::apply("ticket_7462", 1, 0.220582, ticket_7462[0], ticket_7462[1]);
 
 #ifdef BOOST_GEOMETRY_OVERLAY_NO_THROW
     {

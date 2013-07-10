@@ -12,8 +12,10 @@
 #include <boost/math/distributions/exponential.hpp>
     using boost::math::exponential_distribution;
 
-#include <boost/test/test_exec_monitor.hpp> // Boost.Test
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp> // Boost.Test
 #include <boost/test/floating_point_comparison.hpp>
+#include "test_out_of_range.hpp"
 
 #include <iostream>
    using std::cout;
@@ -250,9 +252,19 @@ void test_spots(RealType T)
        quantile(dist, RealType(2)),
        std::domain_error);
 
+   check_out_of_range<exponential_distribution<RealType> >(2);
+   BOOST_CHECK_THROW(exponential_distribution<RealType>(0), std::domain_error);
+   BOOST_CHECK_THROW(exponential_distribution<RealType>(-1), std::domain_error);
+   if(std::numeric_limits<RealType>::has_infinity)
+   {
+      RealType inf = std::numeric_limits<RealType>::infinity();
+      BOOST_CHECK_EQUAL(pdf(exponential_distribution<RealType>(2), inf), 0);
+      BOOST_CHECK_EQUAL(cdf(exponential_distribution<RealType>(2), inf), 1);
+      BOOST_CHECK_EQUAL(cdf(complement(exponential_distribution<RealType>(2), inf)), 0);
+   }
 } // template <class RealType>void test_spots(RealType)
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE( test_main )
 {
   // Check that can generate exponential distribution using the two convenience methods:
    boost::math::exponential mycexp1(1.); // Using typedef
@@ -274,8 +286,7 @@ int test_main(int, char* [])
       "to pass.</note>" << std::cout;
 #endif
 
-   return 0;
-} // int test_main(int, char* [])
+} // BOOST_AUTO_TEST_CASE( test_main )
 
 /*
 
