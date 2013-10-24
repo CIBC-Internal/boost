@@ -42,6 +42,19 @@ ENDIF(NOT WIN32 AND NOT CMAKE_BUILD_TYPE)
 INCLUDE(CheckIncludeFileCXX)
 
 ########################################################################
+# Set up compiler config
+
+SET(HAVE_CLANG OFF)
+SET(HAVE_GCC OFF)
+
+IF(APPLE)
+  # WARNING: CMake compiler variables may change!!!
+  IF("${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ID}" MATCHES ".*[Cc]lang")
+    SET(HAVE_CLANG ON)
+  ENDIF()
+ENDIF()
+
+########################################################################
 # Set the name of the library
 
 SET(SCI_BOOST_LIBRARY boost CACHE INTERNAL "Boost library name." FORCE)
@@ -479,9 +492,7 @@ SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
 
 
 IF(APPLE)
-  # WARNING: CMake compiler variables may change!!!
-  IF("${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ID}" MATCHES ".*[Cc]lang")
-    MESSAGE(STATUS "FOUND CLANG!!!")
+  IF(HAVE_CLANG)
     SET_SOURCE_FILES_PROPERTIES(${BOOST_THREAD_SRCS} PROPERTIES
       COMPILE_FLAGS "-Wno-delete-non-virtual-dtor"
     )
