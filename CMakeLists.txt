@@ -47,6 +47,13 @@ INCLUDE(CheckIncludeFileCXX)
 SET(HAVE_CLANG OFF)
 SET(HAVE_GCC OFF)
 
+SET(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build Boost with shared libraries." FORCE)
+
+IF(NOT WIN32)
+  # default for Mac OS X, needed for Linux to link static library
+  SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+ENDIF()
+
 IF(APPLE)
   # WARNING: CMake compiler variables may change!!!
   IF("${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ID}" MATCHES ".*[Cc]lang")
@@ -59,12 +66,6 @@ ENDIF()
 
 SET(SCI_BOOST_LIBRARY boost CACHE INTERNAL "Boost library name." FORCE)
 
-########################################################################
-# Enable PIC for 64-bit Linux if necessary
-
-IF(UNIX AND NOT APPLE AND NOT CYGWIN)
-  SET(ENABLE_PIC ON)
-ENDIF()
 
 ########################################################################
 # Include directory
@@ -544,11 +545,4 @@ ADD_LIBRARY(${SCI_BOOST_LIBRARY} STATIC
 
 IF(BUILD_PYTHON)
   TARGET_LINK_LIBRARIES(${SCI_BOOST_LIBRARY} ${SCI_PYTHON_LIBRARY})
-ENDIF()
-
-IF(ENABLE_PIC)
-  SET_TARGET_PROPERTIES(${SCI_BOOST_LIBRARY}
-      PROPERTIES
-        COMPILE_FLAGS "-fPIC"
-    )
 ENDIF()
