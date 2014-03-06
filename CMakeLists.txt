@@ -73,7 +73,6 @@ SET(SCI_BOOST_LIBRARY boost CACHE INTERNAL "Boost library name." FORCE)
 SET(SCI_BOOST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Boost include directories." FORCE)
 
 ########################################################################
-# TODO: TEMPORARY measure, until a Python externals library is added to SCIRun build
 # Locate python libraries, headers
 
 OPTION(BUILD_PYTHON "Build Python interface library" ON)
@@ -519,7 +518,10 @@ ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB=1)
 ADD_DEFINITIONS(-DBOOST_FILESYSTEM_STATIC_LINK)
 ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
 ADD_DEFINITIONS(-DBOOST_THREAD_STATIC_LINK)
-ADD_DEFINITIONS(-DBOOST_PYTHON_STATIC_LIB)
+
+IF(BUILD_PYTHON)
+  ADD_DEFINITIONS(-DBOOST_PYTHON_STATIC_LIB)
+ENDIF()
 
 # TODO: check this
 ADD_DEFINITIONS(-DZ_PREFIX)
