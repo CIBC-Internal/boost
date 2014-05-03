@@ -57,7 +57,19 @@ set(BJAM_CONFIG_FILE_SOURCE project-config.jam.in)
 set(BJAM_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam)
 configure_file(${BJAM_CONFIG_FILE_SOURCE} ${BJAM_CONFIG_FILE} @ONLY NEWLINE_STYLE UNIX)
 
-set(B2_COMMAND "echo \"Run b2\"")
+if (WINDOWS)
+  set(BOOTSTRAP_COMMAND "TODO")
+else ()
+  # assuming *nix platforms that support bash scripts
+  set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.sh")
+endif()
 
+set(BOOTSTRAP_ARGS "--prefix=${CMAKE_CURRENT_BINARY_DIR}")
+
+add_custom_target(bootstrap ALL COMMAND ${BOOTSTRAP_COMMAND} ${BOOTSTRAP_ARGS} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_custom_command(TARGET bootstrap POST_BUILD COMMAND rm -f project-config.jam WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(B2_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/b2")
+set(B2_ARGS "variant=release" "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "link=static" "threading=multi" "linkflags=-stdlib=libc++" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
 # run b2 with build-dir, stagedir
-add_custom_target(Boost ALL COMMAND ${B2_COMMAND} DEPENDS ${BJAM_CONFIG_FILE})
+add_custom_target(boost ALL COMMAND ${B2_COMMAND} ${B2_ARGS} DEPENDS bootstrap WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
