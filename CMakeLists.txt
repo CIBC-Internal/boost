@@ -24,13 +24,15 @@
 #  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #  DEALINGS IN THE SOFTWARE.
 
+# borrowed some code from https://github.com/maidsafe/MaidSafe/blob/master/cmake_modules/add_boost.cmake
+
 cmake_minimum_required(VERSION 2.8)
 project(Boost)
 
 if (APPLE)
   set(BOOST_TOOLSET "darwin")
 elseif (WINDOWS)
-  set(BOOST_TOOLSET "TODO")
+  set(BOOST_TOOLSET "msvc")
 elseif (UNIX)
   set(BOOST_TOOLSET "gcc")
 else ()
@@ -58,18 +60,41 @@ set(BJAM_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam)
 configure_file(${BJAM_CONFIG_FILE_SOURCE} ${BJAM_CONFIG_FILE} @ONLY NEWLINE_STYLE UNIX)
 
 if (WINDOWS)
-  set(BOOTSTRAP_COMMAND "TODO")
+  set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.bat")
 else ()
   # assuming *nix platforms that support bash scripts
   set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.sh")
 endif()
 
+# not sure if this has any effect on Windows, but not rejected either
 set(BOOTSTRAP_ARGS "--prefix=${CMAKE_CURRENT_BINARY_DIR}")
 
 add_custom_target(bootstrap ALL COMMAND ${BOOTSTRAP_COMMAND} ${BOOTSTRAP_ARGS} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_custom_command(TARGET bootstrap POST_BUILD COMMAND rm -f project-config.jam WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(B2_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/b2")
-set(B2_ARGS "variant=release" "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "link=static" "threading=multi" "linkflags=-stdlib=libc++" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
+
+set(B2_ARGS "variant=release" "link=static" "threading=multi")
+if (APPLE)
+  #set(B2_ARGS "variant=release" "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "link=static" "threading=multi" "linkflags=-stdlib=libc++" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
+  list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "linkflags=-stdlib=libc++")
+elseif(WINDOWS)
+  # 64-bit build only
+  set(TOOLSET "msvc")
+  if (MSVC10)
+    set(TOOLSET "msvc-10.0")
+  elseif(MSVC11)
+    set(TOOLSET "msvc-11.0")
+  elseif(MSVC12)
+    set(TOOLSET "msvc-12.0")
+  endif()
+ 
+  #set(B2_ARGS "variant=release" "toolset=${TOOLSET}" "architecture=x86" "address-model=64" "link=static" "threading=multi" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
+  # to force 64-bit build: "architecture=x86" "address-model=64"
+  list(APPEND B2_ARGS "toolset=${TOOLSET}")
+endif()
+
+list(APPEND B2_ARGS "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
+
 # run b2 with build-dir, stagedir
 add_custom_target(boost ALL COMMAND ${B2_COMMAND} ${B2_ARGS} DEPENDS bootstrap WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
