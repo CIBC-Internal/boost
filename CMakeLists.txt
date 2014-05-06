@@ -31,7 +31,7 @@ project(Boost)
 
 if (APPLE)
   set(BOOST_TOOLSET "darwin")
-elseif (WINDOWS)
+elseif (WIN32)
   set(BOOST_TOOLSET "msvc")
 elseif (UNIX)
   set(BOOST_TOOLSET "gcc")
@@ -59,7 +59,7 @@ set(BJAM_CONFIG_FILE_SOURCE project-config.jam.in)
 set(BJAM_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam)
 configure_file(${BJAM_CONFIG_FILE_SOURCE} ${BJAM_CONFIG_FILE} @ONLY NEWLINE_STYLE UNIX)
 
-if (WINDOWS)
+if (WIN32)
   set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.bat")
 else ()
   # assuming *nix platforms that support bash scripts
@@ -70,7 +70,7 @@ endif()
 set(BOOTSTRAP_ARGS "--prefix=${CMAKE_CURRENT_BINARY_DIR}")
 
 add_custom_target(bootstrap ALL COMMAND ${BOOTSTRAP_COMMAND} ${BOOTSTRAP_ARGS} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_custom_command(TARGET bootstrap POST_BUILD COMMAND rm -f project-config.jam WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_custom_command(TARGET bootstrap POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove project-config.jam WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(B2_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/b2")
 
@@ -78,7 +78,7 @@ set(B2_ARGS "variant=release" "link=static" "threading=multi")
 if (APPLE)
   #set(B2_ARGS "variant=release" "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "link=static" "threading=multi" "linkflags=-stdlib=libc++" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
   list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "linkflags=-stdlib=libc++")
-elseif(WINDOWS)
+elseif(WIN32)
   # 64-bit build only
   set(TOOLSET "msvc")
   if (MSVC10)
@@ -89,9 +89,10 @@ elseif(WINDOWS)
     set(TOOLSET "msvc-12.0")
   endif()
  
+  MESSAGE(STATUS "Configuring Windows build with toolset ${TOOLSET}")
   #set(B2_ARGS "variant=release" "toolset=${TOOLSET}" "architecture=x86" "address-model=64" "link=static" "threading=multi" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
-  # to force 64-bit build: "architecture=x86" "address-model=64"
-  list(APPEND B2_ARGS "toolset=${TOOLSET}")
+  # to force 64-bit build: "address-model=64"
+  list(APPEND B2_ARGS "toolset=${TOOLSET}" "architecture=x86")
 endif()
 
 list(APPEND B2_ARGS "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
