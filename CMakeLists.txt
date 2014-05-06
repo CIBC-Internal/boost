@@ -103,7 +103,7 @@ endif()
 
 if(APPLE)
   #set(B2_ARGS "variant=release" "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "link=static" "threading=multi" "linkflags=-stdlib=libc++" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
-  list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "linkflags=-stdlib=libc++")
+  list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "linkflags=-stdlib=libc++" "--layout=tagged")
 elseif(WIN32)
   # 64-bit build only
   set(TOOLSET "msvc")
@@ -123,7 +123,7 @@ elseif(WIN32)
 		 "architecture=x86"
 		 "--disable-icu")
 elseif(UNIX)
-  list(APPEND B2_ARGS "cxxflags=-fPIC")
+  list(APPEND B2_ARGS "cxxflags=-fPIC" "--layout=tagged")
 endif()
 
 if(NOT BUILD_WITH_PYTHON)
