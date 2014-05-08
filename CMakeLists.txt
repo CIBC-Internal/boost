@@ -42,10 +42,11 @@ endif()
 option(BUILD_PYTHON "Build Python interface library" OFF)
 option(FORCE_64BIT_BUILD "Force build to be 64 bit" OFF)
 
-if(NOT BUILD_WITH_PYTHON)
+if(NOT BUILD_PYTHON)
   set(SCI_PYTHON_PATH "UNKNOWN")
   # should be major.minor
   set(SCI_PYTHON_VERSION "UNKNOWN")
+else()
   set(SCI_PYTHON_CONFIG "using python : ${SCI_PYTHON_VERSION} : ${SCI_PYTHON_PATH} ;" )
 endif()
 
@@ -133,7 +134,7 @@ elseif(UNIX)
   list(APPEND B2_ARGS "cxxflags=-fPIC")
 endif()
 
-if(NOT BUILD_WITH_PYTHON)
+if(NOT BUILD_PYTHON)
   list(APPEND B2_ARGS
          "--without-python")
 endif()
