@@ -95,17 +95,25 @@ else()
   set(B2_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/b2")
 endif()
 
-set(B2_ARGS "variant=release,debug" "link=static" "threading=multi")
+if (CMAKE_GENERATOR MATCHES "Makefiles" AND CMAKE_BUILD_TYPE MATCHES "Debug")
+  set(VARIANT "debug")
+elseif(CMAKE_GENERATOR MATCHES "Makefiles")
+  # build type may not necessarily be set and release is a safe default
+  set(VARIANT "release")
+else()
+  SET(VARIANT "release,debug")
+endif()
+
+
+set(B2_ARGS "variant=${VARIANT}" "link=static" "threading=multi")
 
 if(FORCE_64BIT_BUILD)
   list(APPEND B2_ARGS "address-model=64")
 endif()
 
 if(APPLE)
-  #set(B2_ARGS "variant=release" "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "link=static" "threading=multi" "linkflags=-stdlib=libc++" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
   list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "linkflags=-stdlib=libc++")
 elseif(WIN32)
-  # 64-bit build only
   set(TOOLSET "msvc")
   if(MSVC10)
     set(TOOLSET "msvc-10.0")
@@ -115,8 +123,7 @@ elseif(WIN32)
     set(TOOLSET "msvc-12.0")
   endif()
 
-  MESSAGE(STATUS "Configuring Windows build with toolset ${TOOLSET}")
-  #set(B2_ARGS "variant=release" "toolset=${TOOLSET}" "architecture=x86" "address-model=64" "link=static" "threading=multi" "--build-dir=${CMAKE_CURRENT_BINARY_DIR}" "--stagedir=${CMAKE_CURRENT_BINARY_DIR}/libs")
+  message(STATUS "Configuring Windows build with toolset ${TOOLSET}")
   # list libraries and exit: --show-libraries
   list(APPEND B2_ARGS
         "toolset=${TOOLSET}"
@@ -157,4 +164,4 @@ add_custom_target(boost ALL
     DEPENDS bootstrap
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-MESSAGE(STATUS "Build boost using: ${B2_COMMAND}, with arg list:${B2_ARGS}")
+message(STATUS "Build boost using: ${B2_COMMAND}, with arg list: [${B2_ARGS}]")
