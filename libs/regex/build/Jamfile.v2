@@ -113,10 +113,14 @@ if ! $(disable-icu)
    }
 
 
-exe has_icu : ./has_icu_test.cpp  : $(ICU_OPTS) ;
-explicit has_icu ;
+  exe has_icu : ./has_icu_test.cpp  : $(ICU_OPTS) ;
+  explicit has_icu ;
 
-alias icu_options : : : : [ check-target-builds has_icu : $(ICU_OPTS) : ] ;
+  alias icu_options : : : : [ check-target-builds has_icu : $(ICU_OPTS) : ] ;
+}
+else
+{
+  alias icu_options : ;
 }
 
 SOURCES = 
