@@ -29,8 +29,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(Boost)
 
-message(STATUS "CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
-
 if(APPLE)
   set(BOOST_TOOLSET "darwin")
 elseif(WIN32)
@@ -39,6 +37,7 @@ elseif(UNIX)
   # CMAKE_CXX_COMPILER_ID Clang definitely available in cmake 2.8.10 and newer
   if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     set(BOOST_TOOLSET "clang")
+    set(BOOST_UNIX_CLANG ON)
   else()
     set(BOOST_TOOLSET "gcc")
   endif()
@@ -82,11 +81,15 @@ if(WIN32)
   set(BOOTSTRAP_COMMAND "${WIN32_BOOTSTRAP_COMMAND}")
 else()
   # assuming *nix platforms that support bash scripts
-  set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.sh")
+  #set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.sh")
+  set(BOOTSTRAP_COMMAND "./bootstrap.sh")
 endif()
 
 # not sure if this has any effect on Windows, but not rejected either
 set(BOOTSTRAP_ARGS "--prefix=${CMAKE_CURRENT_BINARY_DIR}")
+if(BOOST_UNIX_CLANG)
+  set(BOOTSTRAP_ARGS "--with-toolset=clang ${BOOTSTRAP_ARGS}")
+endif()
 
 add_custom_target(bootstrap ALL
   COMMAND ${BOOTSTRAP_COMMAND} ${BOOTSTRAP_ARGS}
@@ -138,6 +141,9 @@ elseif(WIN32)
         "architecture=x86"
         "--disable-icu")
 elseif(UNIX)
+  if(BOOST_UNIX_CLANG)
+    list(APPEND B2_ARGS "toolset=clang")
+  endif()
   list(APPEND B2_ARGS "cxxflags=-fPIC")
 endif()
 
