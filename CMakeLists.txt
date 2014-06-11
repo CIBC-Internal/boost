@@ -29,13 +29,15 @@
 cmake_minimum_required(VERSION 2.8)
 project(Boost)
 
+message(STATUS "CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
+
 if(APPLE)
   set(BOOST_TOOLSET "darwin")
 elseif(WIN32)
   set(BOOST_TOOLSET "msvc")
 elseif(UNIX)
-  # CMAKE_CXX_COMPILER_ID clang definitely available in cmake 2.8.10 and newer
-  if(${CMAKE_CXX_COMPILER_ID} MATCHES "clang")
+  # CMAKE_CXX_COMPILER_ID Clang definitely available in cmake 2.8.10 and newer
+  if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     set(BOOST_TOOLSET "clang")
   else()
     set(BOOST_TOOLSET "gcc")
