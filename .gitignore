@@ -3,3 +3,4 @@ bjam*
 bootstrap.log
 tools/build/v2/engine/bin.*
 tools/build/v2/engine/bootstrap
+tools/build/src
