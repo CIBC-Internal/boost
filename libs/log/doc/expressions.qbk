@@ -1,5 +1,5 @@
 [/
-              Copyright Andrey Semashev 2007 - 2013.
+              Copyright Andrey Semashev 2007 - 2015.
      Distributed under the Boost Software License, Version 1.0.
         (See accompanying file LICENSE_1_0.txt or copy at
               http://www.boost.org/LICENSE_1_0.txt)
@@ -216,6 +216,7 @@ The attribute can also be identified by an attribute keyword or name and type.
 
     // Supporting headers
     #include <``[boost_log_support_regex_hpp]``>
+    #include <``[boost_log_support_std_regex_hpp]``>
     #include <``[boost_log_support_xpressive_hpp]``>
     #include <``[boost_log_support_spirit_qi_hpp]``>
     #include <``[boost_log_support_spirit_classic_hpp]``>
@@ -362,10 +363,15 @@ The first argument names the attribute and the second is the format string. The 
 
 [table Named scope format placeholders
     [[Placeholder][Meaning][Example]]
-    [[%n]         [Scope name]["void foo()"]]
-    [[%f]         [Source file name of the scope]["foo.cpp"]]
+    [[%n]         [Scope name]["void bar::foo()"]]
+    [[%c]         [Function name, if the scope is denoted with `BOOST_LOG_FUNCTION`, otherwise the full scope name. See the note below.]["bar::foo"]]
+    [[%C]         [Function name, without the function scope, if the scope is denoted with `BOOST_LOG_FUNCTION`, otherwise the full scope name. See the note below.]["foo"]]
+    [[%f]         [Source file name of the scope]["/home/user/project/foo.cpp"]]
+    [[%F]         [Source file name of the scope, without the path]["foo.cpp"]]
     [[%l]         [Line number in the source file]["45"]]
 ]
+
+[note As described in the [link log.detailed.attributes.named_scope named scope] attribute description, it is possible to use `BOOST_LOG_FUNCTION` macro to automatically generate scope names from the enclosing function name. Unfortunately, the actual format of the generated strings is compiler-dependent and in many cases it includes the complete signature of the function. When "%c" or "%C" format flag is specified, the library attempts to parse the generated string to extract the function name. Since C++ syntax is very context dependent and complex, it is not possible to parse function signature correctly in all cases, so the library is basically guessing. Depending on the string format, this may fail or produce incorrect results. In particular, type conversion operators can pose problems for the parser. In case if the parser fails to recognize the function signature the library falls back to using the whole string (i.e. behave equivalent to the "%n" flag). To alleviate the problem the user can replace the problematic `BOOST_LOG_FUNCTION` usage with the `BOOST_LOG_NAMED_SCOPE` macro and explicitly write the desired scope name. Scope names denoted with `BOOST_LOG_NAMED_SCOPE` will not be interpreted by the library and will be output as is. In general, for portability and runtime performance reasons it is preferable to always use `BOOST_LOG_NAMED_SCOPE` and "%n" format flag.]
 
 While the format string describes the presentation of each named scope in the list, the following named arguments allow to customize the list traversal and formatting:
 
@@ -373,6 +379,8 @@ While the format string describes the presentation of each named scope in the li
 * `iteration`. The argument describes the direction of iteration through scopes. Can have values `forward` (default) or `reverse`.
 * `delimiter`. The argument can be used to specify the delimiters between scopes. The default delimiter depends on the `iteration` argument. If `iteration == forward` the default `delimiter` will be "->", otherwise it will be "<-".
 * `depth`. The argument can be used to limit the number of scopes to put to log. The formatter will print `depth` innermost scopes and, if there are more scopes left, append an ellipsis to the written sequence. By default the formatter will write all scope names.
+* `incomplete_marker`. The argument can be used to specify the string that is used to indicate that the list has been limited by the `depth` argument. By default the "..." string is used as the marker.
+* `empty_marker`. The argument can be used to specify the string to output in case if the scope list is empty. By default nothing is output in this case.
 
 Here are a few usage examples:
 
@@ -400,7 +408,7 @@ Here are a few usage examples:
     );
 
     // Puts the scope stack in forward order, no more than 2 inner scopes:
-    // ... -> outer scope -> inner scope
+    // ... outer scope -> inner scope
     sink->set_formatter
     (
         expr::stream
@@ -412,7 +420,7 @@ Here are a few usage examples:
     );
 
     // Puts the scope stack in reverse order, no more than 2 inner scopes:
-    // inner scope <- outer scope <- ...
+    // inner scope <- outer scope <<and more>>...
     sink->set_formatter
     (
         expr::stream
@@ -420,8 +428,11 @@ Here are a few usage examples:
                 "Scopes",
                 keywords::format = "%n",
                 keywords::iteration = expr::reverse,
+                keywords::incomplete_marker = " <<and more>>..."
                 keywords::depth = 2)
     );
+
+[tip An empty string can be specified as the `incomplete_marker` parameter, in which case there will be no indication that the list was truncated.]
 
 [endsect]
 
@@ -473,7 +484,7 @@ There are times when one would like to additionally post-process the composed st
 
     #include <``[boost_log_expressions_formatters_xml_decorator_hpp]``>
 
-This decorator replaces XML special characters (&, <, > and \') with the corresponding tokens (`&amp;`, `&lt;`, `&gt;` and `&apos;`, correspondingly). The usage is as follows:
+This decorator replaces XML special characters (&, <, >, \" and \') with the corresponding tokens (`&amp;`, `&lt;`, `&gt;`, `&quot;` and `&apos;`, correspondingly). The usage is as follows:
 
     xml_sink->set_formatter
     (

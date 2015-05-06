@@ -2,7 +2,7 @@
 # 
 #  The MIT License
 # 
-#  Copyright (c) 2014 Scientific Computing and Imaging Institute,
+#  Copyright (c) 2015 Scientific Computing and Imaging Institute,
 #  University of Utah.
 # 
 #  
@@ -47,13 +47,22 @@ endif()
 
 option(BUILD_PYTHON "Build Python interface library" OFF)
 option(FORCE_64BIT_BUILD "Force build to be 64 bit" OFF)
+option(FORCE_QUIET_BUILD "Suppress all informational messages" ON)
+option(SHARED_BUILD "Build shared libraries (static is default)." OFF)
+# TODO: set in superbuild
+option(STATIC_RUNTIME_LINK "Link to static C++ runtime." OFF)
+set(N_PARALLEL_BUILD_COMMANDS "4" CACHE STRING "Run up to N build commands in parallel")
 
-if(NOT BUILD_PYTHON)
-  set(SCI_PYTHON_PATH "UNKNOWN")
-  # should be major.minor
-  set(SCI_PYTHON_VERSION "UNKNOWN")
-else()
-  set(SCI_PYTHON_CONFIG "using python : ${SCI_PYTHON_VERSION} : ${SCI_PYTHON_PATH} ;" )
+if(BUILD_PYTHON)
+  if(Python_DIR)
+    find_package(Python CONFIGS PythonConfig.cmake HINTS ${Python_DIR} NO_SYSTEM_ENVIRONMENT_PATH)
+    if(NOT Python_FOUND)
+      message(FATAL_ERROR "Python library not found in ${Python_DIR}")
+    endif()
+    include(${SCI_PYTHON_USE_FILE})
+  else()
+    message(FATAL_ERROR "Python  library is required to compile Boost when BUILD_PYTHON is on.")
+  endif()
 endif()
 
 if(WIN32)
@@ -69,12 +78,8 @@ else()
   set(BOOST_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
-# all libraries built if empty
-set(BOOST_LIBRARIES "")
-
-set(BJAM_CONFIG_FILE_SOURCE project-config.jam.in)
-set(BJAM_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam)
-configure_file(${BJAM_CONFIG_FILE_SOURCE} ${BJAM_CONFIG_FILE} @ONLY NEWLINE_STYLE UNIX)
+# set libary list empty in project config file and set libaries on command line
+set(BOOST_LIBRARIES)
 
 if(WIN32)
   file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.bat" WIN32_BOOTSTRAP_COMMAND)
@@ -88,16 +93,34 @@ endif()
 # not sure if this has any effect on Windows, but not rejected either
 set(BOOTSTRAP_ARGS "--prefix=${CMAKE_CURRENT_BINARY_DIR}")
 if(BOOST_UNIX_CLANG)
-  set(BOOTSTRAP_ARGS "--with-toolset=clang ${BOOTSTRAP_ARGS}")
+  list(APPEND BOOTSTRAP_ARGS "--with-toolset=clang")
 endif()
+
+if(SCI_BOOST_LIBRARIES)
+  set(BOOTSTRAP_LIB_LIST)
+  # trailing comma is OK
+  foreach(lib ${SCI_BOOST_LIBRARIES})
+    set(BOOTSTRAP_LIB_LIST "${BOOTSTRAP_LIB_LIST}${lib},")
+  endforeach()
+  if(BUILD_PYTHON)
+    set(BOOTSTRAP_LIB_LIST "${BOOTSTRAP_LIB_LIST}python")
+  endif()
+  list(APPEND BOOTSTRAP_ARGS "--with-libraries=${BOOTSTRAP_LIB_LIST}")
+endif()
+
+if (BUILD_PYTHON)
+ list(APPEND BOOTSTRAP_ARGS
+    "--with-python=${SCI_PYTHON_EXE}"
+    "--with-python-root=${SCI_PYTHON_ROOT}"
+    "--with-python-version=${SCI_PYTHON_VERSION_SHORT}"
+  )
+endif()
+
 
 add_custom_target(bootstrap ALL
   COMMAND ${BOOTSTRAP_COMMAND} ${BOOTSTRAP_ARGS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_custom_command(TARGET bootstrap
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E remove project-config.jam
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})  
+
 
 if(WIN32)
   file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/b2${CMAKE_EXECUTABLE_SUFFIX}" WIN32_B2_COMMAND)
@@ -115,15 +138,27 @@ else()
   SET(VARIANT "release,debug")
 endif()
 
+set(B2_ARGS "variant=${VARIANT}" "threading=multi")
 
-set(B2_ARGS "variant=${VARIANT}" "link=static" "threading=multi")
+if(SHARED_BUILD)
+  list(APPEND B2_ARGS "link=shared")
+else()
+  list(APPEND B2_ARGS "link=static")
+endif()
+
+if(STATIC_RUNTIME_LINK)
+  list(APPEND B2_ARGS "runtime-link=static")
+else()
+  list(APPEND B2_ARGS "runtime-link=shared")
+endif()
 
 if(FORCE_64BIT_BUILD)
   list(APPEND B2_ARGS "address-model=64")
 endif()
 
 if(APPLE)
-  list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "linkflags=-stdlib=libc++")
+  # For use of -Wno-c99-extensions flag, see Boost ticket #10276 
+  list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "cxxflags=-Wno-c99-extensions" "linkflags=-stdlib=libc++")
 elseif(WIN32)
   set(TOOLSET "msvc")
   if(MSVC10)
@@ -142,40 +177,70 @@ elseif(WIN32)
         "--disable-icu")
 elseif(UNIX)
   if(BOOST_UNIX_CLANG)
-    list(APPEND B2_ARGS "toolset=clang")
+    # For use of -Wno-c99-extensions flag, see Boost ticket #10276 
+    list(APPEND B2_ARGS "toolset=clang" "cxxflags=-Wno-c99-extensions")
   endif()
   list(APPEND B2_ARGS "cxxflags=-fPIC")
 endif()
 
-if(NOT BUILD_PYTHON)
-  list(APPEND B2_ARGS
-         "--without-python")
-endif()
+foreach(flag ${SCI_BOOST_CXX_FLAGS})
+  list(APPEND B2_ARGS "cxxflags=${flag}")
+endforeach()
 
 # run b2 with build-dir, stagedir
 # not currently supporting zlib, bzip2
-# explicitly ignoring libraries not included in old CMake build
-# that are problematic on Windows
+
+if(FORCE_QUIET_BUILD)
+  list(APPEND B2_ARGS "-d0")
+endif()
+
+list(APPEND B2_ARGS
+  "-j${N_PARALLEL_BUILD_COMMANDS}"
+  "-q"
+  "-sNO_ZLIB=1"
+  "-sNO_BZIP2=1"
+  "--build-type=complete"
+  "--build-dir=${CMAKE_CURRENT_BINARY_DIR}"
+  "--stagedir=${CMAKE_CURRENT_BINARY_DIR}"
+  "--layout=tagged"
+  "stage")
 
 # TODO: figure out how to build release and debug versions in separate
 # directories for IDEs, then change --build-type to minimal
 # and --layout to system
-list(APPEND B2_ARGS
-        "-sNO_ZLIB=1"
-        "-sNO_BZIP2=1"
-        "--without-iostreams"
-        "--without-locale"
-        "--without-log"
-        "--without-math"
-        "--build-type=complete"
-        "--build-dir=${CMAKE_CURRENT_BINARY_DIR}"
-        "--stagedir=${CMAKE_CURRENT_BINARY_DIR}"
-        "--layout=tagged"
-        "stage")
+if(SCI_BOOST_LIBRARIES)
+  foreach(lib ${SCI_BOOST_LIBRARIES})
+    list(APPEND B2_ARGS "--with-${lib}")
+  endforeach()
+
+    if (BUILD_PYTHON)
+      # --python-include does not appear to do anything (Boost 1.57)
+      list(APPEND B2_ARGS
+        "--with-python"
+        "--python-lib=${SCI_PYTHON_LIBRARY_DIR}"
+        "include=${SCI_PYTHON_INCLUDE}"
+     )
+    endif()
+  else()
+    # reasonable defaults for SCI software,
+    # explicitly ignoring libraries not included in old CMake build
+    # that are problematic on Windows
+    list(APPEND B2_ARGS
+      "--without-iostreams"
+      "--without-locale"
+      "--without-log"
+      "--without-math")
+
+    if(NOT BUILD_PYTHON)
+      list(APPEND B2_ARGS
+        "--without-python")
+    endif()
+endif()
 
 add_custom_target(boost ALL
   COMMAND ${B2_COMMAND} ${B2_ARGS}
     DEPENDS bootstrap
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
+message(STATUS "Booststrap boost using: ${BOOTSTRAP_COMMAND}, with arg list: [${BOOTSTRAP_ARGS}]")
 message(STATUS "Build boost using: ${B2_COMMAND}, with arg list: [${B2_ARGS}]")

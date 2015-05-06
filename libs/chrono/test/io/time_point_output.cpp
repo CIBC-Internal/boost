@@ -1,4 +1,5 @@
 //  Copyright 2011 Vicente J. Botet Escriba
+//  Copyright (c) Microsoft Corporation 2014
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
 
@@ -75,7 +76,25 @@ void test_good_utc_fmt_system_clock(const char* str, const char* fmt, D d)
 
   std::ostringstream out;
   boost::chrono::time_point<Clock, D> tp(d);
+  boost::chrono::time_fmt_io_saver<> fmts(out);
+  boost::chrono::timezone_io_saver tzs(out);
   out << time_fmt(boost::chrono::timezone::utc, fmt)  << tp;
+  BOOST_TEST(out.good());
+  std::cout << "Expected= " << str << std::endl;
+  std::cout << "Obtained= " << out.str() << std::endl;
+  BOOST_TEST_EQ( out.str() , std::string(str) );
+}
+
+template <typename D>
+void test_good_utc_fmt_system_clock2(const char* str, const char* fmt, D d)
+{
+  typedef boost::chrono::system_clock Clock;
+
+  std::ostringstream out;
+  boost::chrono::time_point<Clock, D> tp(d);
+  boost::chrono::time_fmt_io_saver<> fmts(out, fmt);
+  boost::chrono::timezone_io_saver tzs(out, boost::chrono::timezone::utc);
+  out << tp;
   BOOST_TEST(out.good());
   std::cout << "Expected= " << str << std::endl;
   std::cout << "Obtained= " << out.str() << std::endl;
@@ -180,6 +199,14 @@ void check_all_system_clock()
   test_good_utc_fmt_system_clock ("% 1970-01-01 02:00", "%% %Y-%m-%d %R", hours(2));
   test_good_utc_fmt_system_clock ("1970-01-01 02:00 Thursday January", "%Y-%m-%d %R %A %B", hours(2));
 #endif
+  test_good_utc_fmt_system_clock2("1970-01-01 02:00:00", "%Y-%m-%d %H:%M:%S", hours(2));
+  test_good_utc_fmt_system_clock2("1970-01-01 02", "%Y-%m-%d %H", hours(2));
+#if ! defined(BOOST_CHRONO_WINDOWS_API)
+  test_good_utc_fmt_system_clock2 ("1970-01-01 02:00:00", "%Y-%m-%d %T", hours(2));
+  test_good_utc_fmt_system_clock2 ("1970-01-01 02:00", "%Y-%m-%d %R", hours(2));
+  test_good_utc_fmt_system_clock2 ("% 1970-01-01 02:00", "%% %Y-%m-%d %R", hours(2));
+  test_good_utc_fmt_system_clock2 ("1970-01-01 02:00 Thursday January", "%Y-%m-%d %R %A %B", hours(2));
+#endif
 }
 
 
@@ -189,7 +216,7 @@ void check_all_system_clock()
 void test_gmtime(std::time_t t)
 {
   std::cout << "t    " << t << std::endl;
-  puts(ctime(&t));
+  std::puts(ctime(&t));
   std::tm tm;
   std::memset(&tm, 0, sizeof(std::tm));
   if (boost::chrono::detail::internal_gmtime(&t, &tm))
@@ -266,12 +293,14 @@ int main()
 #if defined(BOOST_CHRONO_HAS_PROCESS_CLOCKS)
   std::cout << "process_real_cpu_clock=" << std::endl;
   check_all<boost::chrono::process_real_cpu_clock> ();
+#if ! BOOST_OS_WINDOWS || BOOST_PLAT_WINDOWS_DESKTOP
   std::cout << "process_user_cpu_clock=" << std::endl;
   check_all<boost::chrono::process_user_cpu_clock> ();
   std::cout << "process_system_cpu_clock=" << std::endl;
   check_all<boost::chrono::process_system_cpu_clock> ();
   std::cout << "process_cpu_clock=" << std::endl;
   check_all<boost::chrono::process_cpu_clock> ();
+#endif
 #endif
 
 #if BOOST_CHRONO_INTERNAL_GMTIME
