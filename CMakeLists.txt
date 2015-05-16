@@ -61,7 +61,7 @@ if(BUILD_PYTHON)
     endif()
     include(${SCI_PYTHON_USE_FILE})
   else()
-    message(FATAL_ERROR "Python  library is required to compile Boost when BUILD_PYTHON is on.")
+    message(FATAL_ERROR "Python library is required to compile Boost when BUILD_PYTHON is on.")
   endif()
 endif()
 
