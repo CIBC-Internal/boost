@@ -109,11 +109,26 @@ if(SCI_BOOST_LIBRARIES)
 endif()
 
 if (BUILD_PYTHON)
- list(APPEND BOOTSTRAP_ARGS
-    "--with-python=${SCI_PYTHON_EXE}"
-    "--with-python-root=${SCI_PYTHON_ROOT}"
-    "--with-python-version=${SCI_PYTHON_VERSION_SHORT}"
-  )
+  if(WIN32)
+    # TO_NATIVE_PATH does not escape backslashes
+    file(TO_NATIVE_PATH "${SCI_PYTHON_EXE}" TMP)
+    string(REPLACE "\\" "\\\\" WIN32_PYTHON_EXE ${TMP})
+    file(TO_NATIVE_PATH "${SCI_PYTHON_INCLUDE}" TMP)
+    string(REPLACE "\\" "\\\\" WIN32_PYTHON_INCLUDE ${TMP})
+    file(TO_NATIVE_PATH "${SCI_PYTHON_LIBRARY_DIR}" TMP)
+    string(REPLACE "\\" "\\\\" WIN32_PYTHON_LIBRARY_DIR ${TMP})
+	configure_file(user-config.jam.in user-config.jam @ONLY)
+    list(APPEND BOOTSTRAP_ARGS
+	  "--user-config=user-config.jam"
+    )
+  else()
+    # TODO: try user-config.jam instead...
+    list(APPEND BOOTSTRAP_ARGS
+      "--with-python=${SCI_PYTHON_EXE}"
+      "--with-python-root=${SCI_PYTHON_ROOT}"
+      "--with-python-version=${SCI_PYTHON_VERSION_SHORT}"
+    )
+  endif()
 endif()
 
 
