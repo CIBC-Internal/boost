@@ -117,11 +117,13 @@ if (BUILD_PYTHON)
     string(REPLACE "\\" "\\\\" WIN32_PYTHON_INCLUDE ${TMP})
     file(TO_NATIVE_PATH "${SCI_PYTHON_LIBRARY_DIR}" TMP)
     string(REPLACE "\\" "\\\\" WIN32_PYTHON_LIBRARY_DIR ${TMP})
-	configure_file(user-config.jam.in user-config.jam @ONLY)
+    configure_file(user-config.jam.in user-config.jam @ONLY)
+    file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/user-config.jam" USER_CONFIG_PATH)
     list(APPEND BOOTSTRAP_ARGS
-	  "--user-config=user-config.jam"
+      "--user-config=${USER_CONFIG_PATH}"
     )
   else()
+    set(USER_CONFIG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/user-config.jam")
     # TODO: try user-config.jam instead...
     list(APPEND BOOTSTRAP_ARGS
       "--with-python=${SCI_PYTHON_EXE}"
@@ -187,9 +189,9 @@ elseif(WIN32)
   message(STATUS "Configuring Windows build with toolset ${TOOLSET}")
   # list libraries and exit: --show-libraries
   list(APPEND B2_ARGS
-        "toolset=${TOOLSET}"
-        "architecture=x86"
-        "--disable-icu")
+    "toolset=${TOOLSET}"
+    "architecture=x86"
+    "--disable-icu")
 elseif(UNIX)
   if(BOOST_UNIX_CLANG)
     # For use of -Wno-c99-extensions flag, see Boost ticket #10276 
@@ -228,28 +230,35 @@ if(SCI_BOOST_LIBRARIES)
     list(APPEND B2_ARGS "--with-${lib}")
   endforeach()
 
-    if (BUILD_PYTHON)
+  if(BUILD_PYTHON)
+    if(WIN32)
+      list(APPEND B2_ARGS
+        "--with-python"
+        "--user-config=${USER_CONFIG_PATH}"
+      )
+    else()
       # --python-include does not appear to do anything (Boost 1.57)
       list(APPEND B2_ARGS
         "--with-python"
         "--python-lib=${SCI_PYTHON_LIBRARY_DIR}"
         "include=${SCI_PYTHON_INCLUDE}"
-     )
+      )
     endif()
-  else()
-    # reasonable defaults for SCI software,
-    # explicitly ignoring libraries not included in old CMake build
-    # that are problematic on Windows
-    list(APPEND B2_ARGS
-      "--without-iostreams"
-      "--without-locale"
-      "--without-log"
-      "--without-math")
+  endif()
+else()
+  # reasonable defaults for SCI software,
+  # explicitly ignoring libraries not included in old CMake build
+  # that are problematic on Windows
+  list(APPEND B2_ARGS
+    "--without-iostreams"
+    "--without-locale"
+    "--without-log"
+    "--without-math")
 
-    if(NOT BUILD_PYTHON)
-      list(APPEND B2_ARGS
-        "--without-python")
-    endif()
+  if(NOT BUILD_PYTHON)
+    list(APPEND B2_ARGS
+    "--without-python")
+  endif()
 endif()
 
 add_custom_target(boost ALL
