@@ -124,7 +124,8 @@ if (BUILD_PYTHON)
     )
   else()
     set(USER_CONFIG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/user-config.jam")
-    # TODO: try user-config.jam instead...
+    # bootstrap.sh does not take --user-config arg
+    # TODO: check future versions
     list(APPEND BOOTSTRAP_ARGS
       "--with-python=${SCI_PYTHON_EXE}"
       "--with-python-root=${SCI_PYTHON_ROOT}"
