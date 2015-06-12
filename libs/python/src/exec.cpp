@@ -86,7 +86,7 @@ object BOOST_PYTHON_DECL exec_file(str filename, object global, object local)
   char *f = python::extract<char *>(filename);
 
   // Let python open the file to avoid potential binary incompatibilities.
-#if PY_VERSION_HEX >= 0x03400000
+#if PY_VERSION_HEX >= 0x03040000
   FILE *fs = _Py_fopen(f, "r");
 #elif PY_VERSION_HEX >= 0x03000000
   PyObject *fo = Py_BuildValue("s", f);
