@@ -46,12 +46,18 @@ else()
 endif()
 
 option(BUILD_PYTHON "Build Python interface library" OFF)
-option(FORCE_64BIT_BUILD "Force build to be 64 bit" OFF)
+option(FORCE_64BIT_BUILD "Force build to be 64 bit" ON)
+mark_as_advanced(FORCE_64BIT_BUILD)
 option(FORCE_QUIET_BUILD "Suppress all informational messages" ON)
 option(SHARED_BUILD "Build shared libraries (static is default)." OFF)
 # TODO: set in superbuild
 option(STATIC_RUNTIME_LINK "Link to static C++ runtime." OFF)
 set(N_PARALLEL_BUILD_COMMANDS "4" CACHE STRING "Run up to N build commands in parallel")
+
+if(WIN32)
+  option(FORCE_X86_ARCH "Force build to use x86 arch (Windows builds only)" ON)
+  mark_as_advanced(FORCE_X86_ARCH)
+endif()
 
 if(BUILD_PYTHON)
   if(Python_DIR)
@@ -191,8 +197,10 @@ elseif(WIN32)
   # list libraries and exit: --show-libraries
   list(APPEND B2_ARGS
     "toolset=${TOOLSET}"
-    "architecture=x86"
     "--disable-icu")
+  if (FORCE_X86_ARCH)
+    list(APPEND B2_ARGS "architecture=x86")
+  endif()
 elseif(UNIX)
   if(BOOST_UNIX_CLANG)
     # For use of -Wno-c99-extensions flag, see Boost ticket #10276 
