@@ -89,4 +89,6 @@
 # ---------------------
 
 # Configure specific Python version.
-using python : @SCI_PYTHON_VERSION_SHORT@ : @WIN32_PYTHON_EXE@ : @WIN32_PYTHON_INCLUDE@ : @WIN32_PYTHON_LIBRARY_DIR@ ;
+using python : @SCI_PYTHON_VERSION_SHORT@ : @WIN32_PYTHON_EXE@ : @WIN32_PYTHON_INCLUDE@ : @WIN32_PYTHON_LIBRARY_DIR@ : <python-debugging>off ;
+
+using python : @SCI_PYTHON_VERSION_SHORT@ : @WIN32_PYTHON_DEBUG_EXE@ : @WIN32_PYTHON_INCLUDE@ : @WIN32_PYTHON_LIBRARY_DIR@ : <python-debugging>on ;

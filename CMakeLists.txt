@@ -119,6 +119,8 @@ if (BUILD_PYTHON)
     # TO_NATIVE_PATH does not escape backslashes
     file(TO_NATIVE_PATH "${SCI_PYTHON_EXE}" TMP)
     string(REPLACE "\\" "\\\\" WIN32_PYTHON_EXE ${TMP})
+    file(TO_NATIVE_PATH "${SCI_PYTHON_DEBUG_EXE}" TMP)
+    string(REPLACE "\\" "\\\\" WIN32_PYTHON_DEBUG_EXE ${TMP})
     file(TO_NATIVE_PATH "${SCI_PYTHON_INCLUDE}" TMP)
     string(REPLACE "\\" "\\\\" WIN32_PYTHON_INCLUDE ${TMP})
     file(TO_NATIVE_PATH "${SCI_PYTHON_LIBRARY_DIR}" TMP)
