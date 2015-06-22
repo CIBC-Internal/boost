@@ -155,16 +155,7 @@ else()
   set(B2_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/b2")
 endif()
 
-if (CMAKE_GENERATOR MATCHES "Makefiles" AND CMAKE_BUILD_TYPE MATCHES "Debug")
-  set(VARIANT "debug")
-elseif(CMAKE_GENERATOR MATCHES "Makefiles")
-  # build type may not necessarily be set and release is a safe default
-  set(VARIANT "release")
-else()
-  SET(VARIANT "release,debug")
-endif()
-
-set(B2_ARGS "variant=${VARIANT}" "threading=multi")
+set(B2_ARGS "threading=multi")
 
 if(SHARED_BUILD)
   list(APPEND B2_ARGS "link=shared")
@@ -272,10 +263,36 @@ else()
   endif()
 endif()
 
-add_custom_target(boost ALL
-  COMMAND ${B2_COMMAND} ${B2_ARGS}
-    DEPENDS bootstrap
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set(VARIANT_DEBUG "variant=debug")
+if(BUILD_PYTHON)
+  list(APPEND VARIANT_DEBUG "python-debugging=on")
+endif()
+set(VARIANT_RELEASE "variant=release")
+
+if (CMAKE_GENERATOR MATCHES "Makefiles" AND CMAKE_BUILD_TYPE MATCHES "Debug")
+  # build type may not necessarily be set and release is a safe default
+  add_custom_target(boost ALL
+    COMMAND ${B2_COMMAND} ${B2_ARGS} ${VARIANT_DEBUG}
+      DEPENDS bootstrap
+     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+elseif(CMAKE_GENERATOR MATCHES "Makefiles")
+  # build type may not necessarily be set and release is a safe default
+  add_custom_target(boost ALL
+    COMMAND ${B2_COMMAND} ${B2_ARGS} ${VARIANT_RELEASE}
+      DEPENDS bootstrap
+     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+else()
+  add_custom_target(boost ALL
+    COMMAND ${B2_COMMAND} ${B2_ARGS} ${VARIANT_DEBUG}
+      DEPENDS bootstrap
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${B2_COMMAND} ${B2_ARGS} ${VARIANT_RELEASE}
+      DEPENDS bootstrap
+     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+endif()
 
 message(STATUS "Booststrap boost using: ${BOOTSTRAP_COMMAND}, with arg list: [${BOOTSTRAP_ARGS}]")
 message(STATUS "Build boost using: ${B2_COMMAND}, with arg list: [${B2_ARGS}]")
