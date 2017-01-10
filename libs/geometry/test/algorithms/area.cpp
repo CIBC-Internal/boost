@@ -5,6 +5,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2015, 2016.
+// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -56,7 +61,24 @@ void test_all()
 
     // ccw
     test_geometry<bg::model::polygon<P, false> >
-            ("POLYGON((0 0,0 7,4 2,2 0,0 0), (1 1,2 1,2 2,1 2,1 1))", -15.0);
+        ("POLYGON((0 0,0 7,4 2,2 0,0 0), (1 1,2 1,2 2,1 2,1 1))", -15.0);
+
+    test_geometry<bg::model::polygon<P, false> >
+        ("POLYGON((1 0,0 1,-1 0,0 -1,1 0))", 2);
+
+    typedef typename bg::coordinate_type<P>::type coord_type;
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<coord_type, double>::value)))
+    {
+        test_geometry<bg::model::polygon<P, false, false> >
+            ("POLYGON((100000001 100000000, 100000000 100000001, \
+                       99999999 100000000, 100000000  99999999))", 2);
+    }
+    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<coord_type, float>::value)))
+    {
+        test_geometry<bg::model::polygon<P, false, false> >
+            ("POLYGON((100001 100000, 100000 100001, \
+                       99999 100000, 100000  99999))", 2);
+    }
 }
 
 template <typename Point>
@@ -144,6 +166,81 @@ void test_spherical(bool polar = false)
     bg::read_wkt("POLYGON((0 40,0 44,4 44,4 40,0 40),(1 41,3 42,2 43,1 41))", geometry);
     area = bg::area(geometry, spherical_earth);
     BOOST_CHECK_CLOSE(area, 133233.844876, 0.001); // SQL Server gives: 133353.335
+
+    // around 0 meridian
+    {
+        bg::read_wkt("POLYGON((-10 0,-10 10,0 10,0 0,-10 0))", geometry);
+        ct area1 = bg::area(geometry);
+        bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0))", geometry);
+        ct area2 = bg::area(geometry);
+        bg::read_wkt("POLYGON((-5 0,-5 10,5 10,5 0,-5 0))", geometry);
+        ct area3 = bg::area(geometry);
+        BOOST_CHECK_CLOSE(area1, area2, 0.001);
+        BOOST_CHECK_CLOSE(area2, area3, 0.001);
+        BOOST_CHECK_CLOSE(area1, 0.0303822, 0.001);
+    }
+    {
+        bg::read_wkt("POLYGON((-10 -5,-10 5,0 5,0 -5,-10 -5))", geometry);
+        ct area1 = bg::area(geometry);
+        bg::read_wkt("POLYGON((0 -5,0 5,10 5,10 -5,0 -5))", geometry);
+        ct area2 = bg::area(geometry);
+        bg::read_wkt("POLYGON((-5 -5,-5 5,5 5,5 -5,-5 -5))", geometry);
+        ct area3 = bg::area(geometry);
+        BOOST_CHECK_CLOSE(area1, area2, 0.001);
+        BOOST_CHECK_CLOSE(area2, area3, 0.001);
+        BOOST_CHECK_CLOSE(area1, 0.0305, 0.001);
+    }
+    // around 180 meridian
+    {
+        bg::read_wkt("POLYGON((-180 0,-180 10,-170 10,-170 0,-180 0))", geometry);
+        ct area1 = bg::area(geometry);
+        bg::read_wkt("POLYGON((175 0,175 10,-175 10,-175 0,175 0))", geometry);
+        ct area2 = bg::area(geometry);
+        bg::read_wkt("POLYGON((170 0,170 10,180 10,180 0,170 0))", geometry);
+        ct area3 = bg::area(geometry);
+        bg::read_wkt("POLYGON((170 0,170 10,-180 10,-180 0,170 0))", geometry);
+        ct area4 = bg::area(geometry);
+        bg::read_wkt("POLYGON((180 0,180 10,-170 10,-170 0,180 0))", geometry);
+        ct area5 = bg::area(geometry);
+        BOOST_CHECK_CLOSE(area1, area2, 0.001);
+        BOOST_CHECK_CLOSE(area2, area3, 0.001);
+        BOOST_CHECK_CLOSE(area3, area4, 0.001);
+        BOOST_CHECK_CLOSE(area4, area5, 0.001);
+        BOOST_CHECK_CLOSE(area1, 0.0303822, 0.001);
+    }
+    {
+        bg::read_wkt("POLYGON((-180 -5,-180 5,-170 5,-170 -5,-180 -5))", geometry);
+        ct area1 = bg::area(geometry);
+        bg::read_wkt("POLYGON((175 -5,175 5,-175 5,-175 -5,175 -5))", geometry);
+        ct area2 = bg::area(geometry);
+        bg::read_wkt("POLYGON((170 -5,170 5,180 5,180 -5,170 -5))", geometry);
+        ct area3 = bg::area(geometry);
+        bg::read_wkt("POLYGON((170 -5,170 5,-180 5,-180 -5,170 -5))", geometry);
+        ct area4 = bg::area(geometry);
+        bg::read_wkt("POLYGON((180 -5,180 5,-170 5,-170 -5,180 -5))", geometry);
+        ct area5 = bg::area(geometry);
+        BOOST_CHECK_CLOSE(area1, area2, 0.001);
+        BOOST_CHECK_CLOSE(area2, area3, 0.001);
+        BOOST_CHECK_CLOSE(area3, area4, 0.001);
+        BOOST_CHECK_CLOSE(area4, area5, 0.001);
+        BOOST_CHECK_CLOSE(area1, 0.0305, 0.001);
+    }
+    // around poles
+#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+    {
+        bg::read_wkt("POLYGON((0 80,-90 80,-180 80,90 80,0 80))", geometry);
+        ct area1 = bg::area(geometry);
+        bg::read_wkt("POLYGON((0 80,-90 80,180 80,90 80,0 80))", geometry);
+        ct area2 = bg::area(geometry);
+        bg::read_wkt("POLYGON((0 -80,90 -80,-180 -80,-90 -80,0 -80))", geometry);
+        ct area3 = bg::area(geometry);
+        bg::read_wkt("POLYGON((0 -80,90 -80,180 -80,-90 -80,0 -80))", geometry);
+        ct area4 = bg::area(geometry);
+        BOOST_CHECK_CLOSE(area1, area2, 0.001);
+        BOOST_CHECK_CLOSE(area2, area3, 0.001);
+        BOOST_CHECK_CLOSE(area3, area4, 0.001);
+    }
+#endif
 
     {
         bg::model::ring<Point> aurha; // a'dam-utr-rott.-den haag-a'dam

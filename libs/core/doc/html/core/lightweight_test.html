@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>lightweight_test</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Boost.Core">
 <link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Boost.Core">
 <link rel="prev" href="is_same.html" title="is_same">
@@ -34,7 +34,7 @@
 </dl></div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp86586656"></a>Authors</h3></div></div></div>
+<a name="idp75271760"></a>Authors</h3></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
           Peter Dimov
@@ -65,6 +65,7 @@
 <a name="core.lightweight_test.header_boost_core_lightweight_te.synopsis"></a><a class="link" href="lightweight_test.html#core.lightweight_test.header_boost_core_lightweight_te.synopsis" title="Synopsis">Synopsis</a>
 </h4></div></div></div>
 <pre class="programlisting"><span class="preprocessor">#define</span> <span class="identifier">BOOST_TEST</span><span class="special">(</span><span class="identifier">expression</span><span class="special">)</span> <span class="comment">/*unspecified*/</span>
+<span class="preprocessor">#define</span> <span class="identifier">BOOST_TEST_NOT</span><span class="special">(</span><span class="identifier">expression</span><span class="special">)</span> <span class="comment">/*unspecified*/</span>
 <span class="preprocessor">#define</span> <span class="identifier">BOOST_ERROR</span><span class="special">(</span><span class="identifier">message</span><span class="special">)</span> <span class="comment">/*unspecified*/</span>
 <span class="preprocessor">#define</span> <span class="identifier">BOOST_TEST_EQ</span><span class="special">(</span><span class="identifier">expr1</span><span class="special">,</span> <span class="identifier">expr2</span><span class="special">)</span> <span class="comment">/*unspecified*/</span>
 <span class="preprocessor">#define</span> <span class="identifier">BOOST_TEST_NE</span><span class="special">(</span><span class="identifier">expr1</span><span class="special">,</span> <span class="identifier">expr2</span><span class="special">)</span> <span class="comment">/*unspecified*/</span>
@@ -85,6 +86,17 @@
 <p>
           If expression is false increases the error count and outputs a message
           containing <code class="computeroutput"><span class="identifier">expression</span></code>.
+        </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="core.lightweight_test.header_boost_core_lightweight_te.boost_test_not"></a><a class="link" href="lightweight_test.html#core.lightweight_test.header_boost_core_lightweight_te.boost_test_not" title="BOOST_TEST_NOT">BOOST_TEST_NOT</a>
+</h4></div></div></div>
+<pre class="programlisting"><span class="identifier">BOOST_TEST_NOT</span><span class="special">(</span><span class="identifier">expression</span><span class="special">)</span>
+</pre>
+<p>
+          If expression is true increases the error count and outputs a message containing
+          <code class="computeroutput"><span class="special">!(</span><span class="identifier">expression</span><span class="special">)</span></code>.
         </p>
 </div>
 <div class="section">

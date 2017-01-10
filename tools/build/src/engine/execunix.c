@@ -64,8 +64,6 @@ static int get_free_cmdtab_slot();
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 static clock_t tps;
-static int old_time_initialized;
-static struct tms old_time;
 
 /* We hold stdout & stderr child process information in two element arrays
  * indexed as follows.
@@ -164,11 +162,11 @@ void exec_cmd
     if ( DEBUG_EXECCMD )
     {
         int i;
-        printf( "Using shell: " );
+        out_printf( "Using shell: " );
         list_print( shell );
-        printf( "\n" );
+        out_printf( "\n" );
         for ( i = 0; argv[ i ]; ++i )
-            printf( "    argv[%d] = '%s'\n", i, argv[ i ] );
+            out_printf( "    argv[%d] = '%s'\n", i, argv[ i ] );
     }
 
     /* Create pipes for collecting child output. */
@@ -176,13 +174,6 @@ void exec_cmd
     {
         perror( "pipe" );
         exit( EXITBAD );
-    }
-
-    /* Initialize old_time only once. */
-    if ( !old_time_initialized )
-    {
-        times( &old_time );
-        old_time_initialized = 1;
     }
 
     /* Start the command */
@@ -513,6 +504,7 @@ void exec_wait()
                 int status;
                 int rstat;
                 timing_info time_info;
+                struct rusage cmd_usage;
 
                 /* We found a terminated child process - our search is done. */
                 finished = 1;
@@ -523,12 +515,12 @@ void exec_wait()
                     close_streams( i, ERR );
 
                 /* Reap the child and release resources. */
-                while ( ( pid = waitpid( cmdtab[ i ].pid, &status, 0 ) ) == -1 )
+                while ( ( pid = wait4( cmdtab[ i ].pid, &status, 0, &cmd_usage ) ) == -1 )
                     if ( errno != EINTR )
                         break;
                 if ( pid != cmdtab[ i ].pid )
                 {
-                    printf( "unknown pid %d with errno = %d\n", pid, errno );
+                    err_printf( "unknown pid %d with errno = %d\n", pid, errno );
                     exit( EXITBAD );
                 }
 
@@ -539,15 +531,10 @@ void exec_wait()
                         : EXIT_OK;
 
                 {
-                    struct tms new_time;
-                    times( &new_time );
-                    time_info.system = (double)( new_time.tms_cstime -
-                        old_time.tms_cstime ) / CLOCKS_PER_SEC;
-                    time_info.user   = (double)( new_time.tms_cutime -
-                        old_time.tms_cutime ) / CLOCKS_PER_SEC;
+                    time_info.system = ((double)(cmd_usage.ru_stime.tv_sec)*1000000.0+(double)(cmd_usage.ru_stime.tv_usec))/1000000.0;
+                    time_info.user   = ((double)(cmd_usage.ru_utime.tv_sec)*1000000.0+(double)(cmd_usage.ru_utime.tv_usec))/1000000.0;
                     timestamp_copy( &time_info.start, &cmdtab[ i ].start_dt );
                     timestamp_current( &time_info.end );
-                    old_time = new_time;
                 }
 
                 /* Drive the completion. */
@@ -592,7 +579,7 @@ static int get_free_cmdtab_slot()
     for ( slot = 0; slot < MAXJOBS; ++slot )
         if ( !cmdtab[ slot ].pid )
             return slot;
-    printf( "no slots for child!\n" );
+    err_printf( "no slots for child!\n" );
     exit( EXITBAD );
 }
 

@@ -24,30 +24,29 @@
 #include "expand_bwd_test_template.hpp"
 #include "propagate_allocator_test.hpp"
 #include "default_init_test.hpp"
+#include "../../intrusive/test/iterator_test.hpp"
 
 using namespace boost::container;
 
-typedef test::dummy_test_allocator<char>           DummyCharAllocator;
-typedef basic_string<char, std::char_traits<char>, DummyCharAllocator> DummyString;
-typedef test::dummy_test_allocator<DummyString>    DummyStringAllocator;
-typedef test::dummy_test_allocator<wchar_t>              DummyWCharAllocator;
-typedef basic_string<wchar_t, std::char_traits<wchar_t>, DummyWCharAllocator> DummyWString;
-typedef test::dummy_test_allocator<DummyWString>         DummyWStringAllocator;
+typedef test::simple_allocator<char>           SimpleCharAllocator;
+typedef basic_string<char, std::char_traits<char>, SimpleCharAllocator> SimpleString;
+typedef test::simple_allocator<SimpleString>    SimpleStringAllocator;
+typedef test::simple_allocator<wchar_t>              SimpleWCharAllocator;
+typedef basic_string<wchar_t, std::char_traits<wchar_t>, SimpleWCharAllocator> SimpleWString;
+typedef test::simple_allocator<SimpleWString>         SimpleWStringAllocator;
 
 namespace boost {
 namespace container {
 
 //Explicit instantiations of container::basic_string
-template class basic_string<char,    std::char_traits<char>, DummyCharAllocator>;
-template class basic_string<wchar_t, std::char_traits<wchar_t>, DummyWCharAllocator>;
-template class basic_string<char,    std::char_traits<char>, test::simple_allocator<char> >;
-template class basic_string<wchar_t, std::char_traits<wchar_t>, test::simple_allocator<wchar_t> >;
+template class basic_string<char,    std::char_traits<char>, SimpleCharAllocator>;
+template class basic_string<wchar_t, std::char_traits<wchar_t>, SimpleWCharAllocator>;
 template class basic_string<char,    std::char_traits<char>, std::allocator<char> >;
 template class basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >;
 
 //Explicit instantiation of container::vectors of container::strings
-template class vector<DummyString, DummyStringAllocator>;
-template class vector<DummyWString, DummyWStringAllocator>;
+template class vector<SimpleString, SimpleStringAllocator>;
+template class vector<SimpleWString, SimpleWStringAllocator>;
 
 }}
 
@@ -70,6 +69,32 @@ bool CheckEqualStringVector(StrVector1 *strvect1, StrVector2 *strvect2)
    StringEqual comp;
    return boost::container::algo_equal(strvect1->begin(), strvect1->end(),
                      strvect2->begin(), comp);
+}
+
+template<class ForwardIt>
+ForwardIt unique(ForwardIt first, ForwardIt const last)
+{
+   if(first == last){
+      ForwardIt i = first;
+      //Find first adjacent pair
+      while(1){
+         if(++i == last){
+            return last;
+         }
+         else if(*first == *i){
+            break;
+         }
+         ++first;
+      }
+      //Now overwrite skipping adjacent elements
+      while (++i != last) {
+         if (!(*first == *i)) {
+            *(++first) = boost::move(*i);
+         }
+      }
+      ++first;
+   }
+   return first;
 }
 
 template<class CharType>
@@ -322,9 +347,9 @@ int string_test()
 
       if(!CheckEqualStringVector(boostStringVect, stdStringVect)) return 1;
 
-      boostStringVect->erase(std::unique(boostStringVect->begin(), boostStringVect->end()),
+      boostStringVect->erase(::unique(boostStringVect->begin(), boostStringVect->end()),
                            boostStringVect->end());
-      stdStringVect->erase(std::unique(stdStringVect->begin(), stdStringVect->end()),
+      stdStringVect->erase(::unique(stdStringVect->begin(), stdStringVect->end()),
                            stdStringVect->end());
       if(!CheckEqualStringVector(boostStringVect, stdStringVect)) return 1;
 
@@ -413,6 +438,37 @@ int string_test()
          if(!StringEqual()(bs4, ss4)){
             return 1;
          }
+
+         //Check front/back/begin/end
+
+         if(bs4.front() != *ss4.begin())
+            return 1;
+
+         if(bs4.back() != *(ss4.end()-1))
+            return 1;
+
+         bs4.pop_back();
+         ss4.erase(ss4.end()-1);
+         if(!StringEqual()(bs4, ss4)){
+            return 1;
+         }
+
+         if(*bs4.begin() != *ss4.begin())
+            return 1;
+         if(*bs4.cbegin() != *ss4.begin())
+            return 1;
+         if(*bs4.rbegin() != *ss4.rbegin())
+            return 1;
+         if(*bs4.crbegin() != *ss4.rbegin())
+            return 1;
+         if(*(bs4.end()-1) != *(ss4.end()-1))
+            return 1;
+         if(*(bs4.cend()-1) != *(ss4.end()-1))
+            return 1;
+         if(*(bs4.rend()-1) != *(ss4.rend()-1))
+            return 1;
+         if(*(bs4.crend()-1) != *(ss4.rend()-1))
+            return 1;
       }
 
       //When done, delete vector
@@ -481,6 +537,26 @@ int main()
    if(!test::default_init_test< basic_string<wchar_t, std::char_traits<wchar_t>, test::default_init_allocator<wchar_t> > >()){
       std::cerr << "Default init test failed" << std::endl;
       return 1;
+   }
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::basic_string<char> cont_int;
+      cont_int a; a.push_back(char(1)); a.push_back(char(2)); a.push_back(char(3));
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
+   {
+      typedef boost::container::basic_string<wchar_t> cont_int;
+      cont_int a; a.push_back(wchar_t(1)); a.push_back(wchar_t(2)); a.push_back(wchar_t(3));
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
    }
 
    return 0;

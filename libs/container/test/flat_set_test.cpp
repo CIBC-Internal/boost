@@ -12,8 +12,6 @@
 #include <set>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/allocator.hpp>
-#include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 
 #include "print_container.hpp"
 #include "dummy_test_allocator.hpp"
@@ -24,6 +22,7 @@
 #include "container_common_tests.hpp"
 #include <vector>
 #include <boost/container/detail/flat_tree.hpp>
+#include "../../intrusive/test/iterator_test.hpp"
 
 using namespace boost::container;
 
@@ -36,74 +35,26 @@ namespace container {
 template class flat_set
    < test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_set
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
    , test::simple_allocator<test::movable_and_copyable_int>
    >;
 
 template class flat_set
    < test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , std::allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_set
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
    , allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_set
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool<test::movable_and_copyable_int>
-   >;
-
-template class flat_set
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator<test::movable_and_copyable_int>
    >;
 
 //flat_multiset
 template class flat_multiset
    < test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_multiset
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
    , test::simple_allocator<test::movable_and_copyable_int>
    >;
 
 template class flat_multiset
    < test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , std::allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_multiset
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
    , allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_multiset
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool<test::movable_and_copyable_int>
-   >;
-
-template class flat_multiset
-   < test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator<test::movable_and_copyable_int>
    >;
 
 namespace container_detail {
@@ -111,15 +62,6 @@ namespace container_detail {
 //Instantiate base class as previous instantiations don't instantiate inherited members
 template class flat_tree
    < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , identity<test::movable_and_copyable_int>
-   , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_tree
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
    , identity<test::movable_and_copyable_int>
    , std::less<test::movable_and_copyable_int>
    , test::simple_allocator<test::movable_and_copyable_int>
@@ -127,34 +69,9 @@ template class flat_tree
 
 template class flat_tree
    < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , identity<test::movable_and_copyable_int>
-   , std::less<test::movable_and_copyable_int>
-   , std::allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_tree
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
    , identity<test::movable_and_copyable_int>
    , std::less<test::movable_and_copyable_int>
    , allocator<test::movable_and_copyable_int>
-   >;
-
-template class flat_tree
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , identity<test::movable_and_copyable_int>
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool<test::movable_and_copyable_int>
-   >;
-
-template class flat_tree
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , identity<test::movable_and_copyable_int>
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator<test::movable_and_copyable_int>
    >;
 
 }  //container_detail {
@@ -270,6 +187,24 @@ bool flat_tree_ordered_insertion_test()
       }
       fmset.insert(ordered_range, int_even_mset.begin(), int_even_mset.end());
       int_mset4.insert(int_even_mset.begin(), int_even_mset.end());
+      if(!CheckEqualContainers(int_mset4, fmset))
+         return false;
+
+      //Re-re-insertion using in-place merge
+      fmset.reserve(fmset.size() + int_mset2.size());
+      fmset.insert(ordered_range, int_mset2.begin(), int_mset2.end());
+      std::multiset<int> int_mset5(int_mset2);
+      int_mset4.insert(int_mset5.begin(), int_mset5.end());
+      if(!CheckEqualContainers(int_mset4, fmset))
+         return false;
+      //Re-re-insertion of even
+      std::multiset<int> int_even_mset2;
+      for(std::size_t i = 0; i < NumElements; i+=2){
+         int_even_mset2.insert(static_cast<int>(i));
+      }
+      fmset.reserve(fmset.size() + int_even_mset2.size());
+      fmset.insert(ordered_range, int_even_mset2.begin(), int_even_mset2.end());
+      int_mset4.insert(int_even_mset2.begin(), int_even_mset2.end());
       if(!CheckEqualContainers(int_mset4, fmset))
          return false;
    }
@@ -569,16 +504,6 @@ int main()
       std::cerr << "test_set_variants< allocator<void> > failed" << std::endl;
       return 1;
    }
-   //       boost::container::node_allocator
-   if(test_set_variants< node_allocator<void> >()){
-      std::cerr << "test_set_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_set_variants< adaptive_pool<void> >()){
-      std::cerr << "test_set_variants< adaptive_pool<void> > failed" << std::endl;
-      return 1;
-   }
 
    ////////////////////////////////////
    //    Emplace testing
@@ -604,6 +529,26 @@ int main()
 
    if(!boost::container::test::test_propagate_allocator<boost_container_flat_multiset>())
       return 1;
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::flat_set<int> cont_int;
+      cont_int a; a.insert(0); a.insert(1); a.insert(2);
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
+   {
+      typedef boost::container::flat_multiset<int> cont_int;
+      cont_int a; a.insert(0); a.insert(1); a.insert(2);
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
 
    return 0;
 }

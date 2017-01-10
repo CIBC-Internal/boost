@@ -32,14 +32,53 @@ private:
 
 template<int> struct X { };
 
+
+#if __cplusplus < 201400L
+// Some C++14 compilers reject this (clang), some C++11 compilers reject "constexpr const" (GCC-4.6)
+constexpr A a = 42;
+#else
 constexpr const A a = 42;
+#endif
 
 X<a> xx; // OK: unique conversion to int
+
+// virtual function
+struct B
+{
+   virtual void vf() {}
+};
+struct C : B
+{
+   constexpr C() {}
+};
+
+// aggregate initialization
+struct D
+{
+   int val[2];
+   constexpr D() : val() {}
+};
+
+// virtual base
+struct E
+{
+};
+struct F : virtual E
+{
+};
+constexpr F& f(F& out) { return out; }
 
 int test()
 {
   int i = square(5);
   quiet_warning(i);
+
+  switch (i)
+  {
+  case a:
+    break;
+  }
+
   return 0;
 }
 

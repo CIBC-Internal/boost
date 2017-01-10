@@ -23,8 +23,12 @@ else:
 
 if 'DOXYGEN_XML2QBK' in os.environ:
     doxygen_xml2qbk_cmd = os.environ['DOXYGEN_XML2QBK']
+elif '--doxygen-xml2qbk' in sys.argv:
+    doxygen_xml2qbk_cmd = sys.argv[sys.argv.index('--doxygen-xml2qbk')+1]
 else:
     doxygen_xml2qbk_cmd = 'doxygen_xml2qbk'
+os.environ['PATH'] = os.environ['PATH']+os.pathsep+os.path.dirname(doxygen_xml2qbk_cmd)
+doxygen_xml2qbk_cmd = os.path.basename(doxygen_xml2qbk_cmd)
 
 cmd = doxygen_xml2qbk_cmd
 cmd = cmd + " --xml doxy/doxygen_output/xml/%s.xml"
@@ -66,6 +70,9 @@ def struct_to_quickbook(section):
 def class_to_quickbook(section):
     run_command(cmd % ("classboost_1_1geometry_1_1" + section.replace("_", "__"), section))
 
+def class_to_quickbook2(classname, section):
+    run_command(cmd % ("classboost_1_1geometry_1_1" + classname, section))
+
 def strategy_to_quickbook(section):
     p = section.find("::")
     ns = section[:p]
@@ -83,10 +90,11 @@ call_doxygen()
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
     , "convex_hull", "crosses", "difference", "disjoint", "distance" 
-    , "envelope", "equals", "expand", "for_each", "is_simple", "is_valid"
-    , "intersection", "intersects", "length", "num_geometries"
-    , "num_interior_rings", "num_points", "num_segments", "overlaps"
-    , "perimeter", "reverse", "simplify", "sym_difference", "touches"
+    , "envelope", "equals", "expand", "for_each", "is_empty"
+    , "is_simple", "is_valid", "intersection", "intersects", "length"
+    , "num_geometries", "num_interior_rings", "num_points"
+    , "num_segments", "overlaps", "perimeter", "relate", "relation"
+    , "reverse", "simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
@@ -112,7 +120,8 @@ models = ["point", "linestring", "box"
 
 strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
     , "distance::pythagoras_point_box", "distance::haversine"
-    , "distance::cross_track", "distance::projected_point"
+    , "distance::cross_track", "distance::cross_track_point_box"
+    , "distance::projected_point"
     , "within::winding", "within::franklin", "within::crossings_multiply"
     , "area::surveyor", "area::huiller"
     , "buffer::point_circle", "buffer::point_square"
@@ -171,9 +180,14 @@ group_to_quickbook("svg")
 class_to_quickbook("svg_mapper")
 group_to_quickbook("wkt")
 
+class_to_quickbook2("de9im_1_1matrix", "de9im_matrix")
+class_to_quickbook2("de9im_1_1mask", "de9im_mask")
+class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
+
 os.chdir("index")
 execfile("make_qbk.py")
 os.chdir("..")
 
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
-run_command("b2")
+if "--release-build" not in sys.argv:
+    run_command("b2")

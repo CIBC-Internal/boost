@@ -12,6 +12,7 @@
 
 import "class" : new ;
 import common ;
+import cygwin ;
 import feature ;
 import fortran ;
 import generators ;
@@ -96,7 +97,8 @@ rule init ( version ? : command * : options * )
                 ;
             if $(tool-command)
             {
-                local tool-command-string = $(tool-command:J=" ") ;
+                local tool-command-string = \"$(tool-command)\" ;
+                tool-command-string = $(tool-command-string:J=" ") ;
                 local tool-version = [ MATCH "^([0-9.]+)" :
                     [ SHELL "$(tool-command-string) -dumpversion" ] ] ;
                 if $(tool-version) != $(version)
@@ -153,9 +155,11 @@ rule init ( version ? : command * : options * )
     # Information about the gcc command...
     #   The command.
     local command = $(tool-command) ;
-    #   The 'command' variable can have multiple elements but when calling the
-    # SHELL builtin we need a single string.
-    local command-string = $(command:J=" ") ;
+    #   The 'command' variable can have multiple elements but when calling the    
+    # SHELL builtin we need a single string, and we need to quote elements
+    # with spaces.
+    local command-string = \"$(command)\" ;
+    command-string = $(command-string:J=" ") ;
     #   The root directory of the tool install.
     local root = [ feature.get-values <root> : $(options) ] ;
     #   The bin directory where to find the command to execute.
@@ -228,13 +232,9 @@ rule init ( version ? : command * : options * )
     # programs as needed to prefer using their installation specific versions.
     # This is essential for correct use of MinGW and for cross-compiling.
 
-    local nl = "
-" ;
-
     # - Archive builder.
     local archiver = [ common.get-invocation-command gcc
-        : [ NORMALIZE_PATH [ MATCH "(.*)[$(nl)]+" :
-            [ SHELL "$(command-string) -print-prog-name=ar" ] ] ]
+        : [ .get-prog-name $(command-string) : ar : $(flavor) ]
         : [ feature.get-values <archiver> : $(options) ]
         : $(bin)
         : search-path ] ;
@@ -246,8 +246,7 @@ rule init ( version ? : command * : options * )
 
     # - Ranlib.
     local ranlib = [ common.get-invocation-command gcc
-        : [ NORMALIZE_PATH [ MATCH "(.*)[$(nl)]+" :
-            [ SHELL "$(command-string) -print-prog-name=ranlib" ] ] ]
+        : [ .get-prog-name $(command-string) : ranlib : $(flavor) ]
         : [ feature.get-values <ranlib> : $(options) ]
         : $(bin)
         : search-path ] ;
@@ -281,6 +280,19 @@ if [ os.name ] = NT
     # thus avoiding command-line length limitations.
     # TODO: Set JAMSHELL on specific targets instead of globally.
     JAMSHELL = % ;
+}
+
+# Uses -print-prog-name to get the name of the tool.
+# Converts the path to native form if using cygwin.
+rule .get-prog-name ( command-string : tool : flavor ? )
+{
+    local prog-name = [ NORMALIZE_PATH [ MATCH "(.*)[\n]+" :
+        [ SHELL "$(command-string) -print-prog-name=$(tool)" ] ] ] ;
+    if $(flavor) != mingw && [ os.name ] = NT
+    {
+        prog-name = [ cygwin.cygwin-to-windows-path $(prog-name) ] ;
+    }
+    return $(prog-name) ;
 }
 
 generators.register-c-compiler gcc.compile.c++.preprocess : CPP : PREPROCESSED_CPP : <toolset>gcc ;
@@ -451,7 +463,7 @@ rule setup-address-model ( targets * : sources * : properties * )
         else
         {
             local arch = [ feature.get-values architecture : $(properties) ] ;
-            if $(arch) != arm
+            if $(arch) = power || $(arch) = sparc || $(arch) = x86
             {
                 if $(model) = 32
                 {
@@ -1138,8 +1150,7 @@ cpu-flags gcc OPTIONS : x86 : c3-2 : -march=c3-2 ;
 ##
 cpu-flags gcc OPTIONS : x86 : atom : -march=atom ;
 # Sparc
-cpu-flags gcc OPTIONS : sparc : c3 : -mcpu=c3 : default ;
-cpu-flags gcc OPTIONS : sparc : v7 : -mcpu=v7 ;
+cpu-flags gcc OPTIONS : sparc : v7 : -mcpu=v7 : default ;
 cpu-flags gcc OPTIONS : sparc : cypress : -mcpu=cypress ;
 cpu-flags gcc OPTIONS : sparc : v8 : -mcpu=v8 ;
 cpu-flags gcc OPTIONS : sparc : supersparc : -mcpu=supersparc ;

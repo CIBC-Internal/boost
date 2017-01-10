@@ -16,8 +16,6 @@
 
 #include <boost/container/deque.hpp>
 #include <boost/container/allocator.hpp>
-#include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 
 #include "print_container.hpp"
 #include "check_equal_containers.hpp"
@@ -33,6 +31,7 @@
 #include "vector_test.hpp"
 #include "default_init_test.hpp"
 #include <boost/core/no_exceptions_support.hpp>
+#include "../../intrusive/test/iterator_test.hpp"
 
 using namespace boost::container;
 
@@ -45,24 +44,8 @@ template class boost::container::deque
  , test::simple_allocator<test::movable_and_copyable_int> >;
 
 template class boost::container::deque
- < test::movable_and_copyable_int
- , test::dummy_test_allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::deque
- < test::movable_and_copyable_int
- , std::allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::deque
    < test::movable_and_copyable_int
    , allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::deque
-   < test::movable_and_copyable_int
-   , adaptive_pool<test::movable_and_copyable_int> >;
-
-template class boost::container::deque
-   < test::movable_and_copyable_int
-   , node_allocator<test::movable_and_copyable_int> >;
 
 }}
 
@@ -387,16 +370,6 @@ int main ()
       std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
       return 1;
    }
-   //       boost::container::node_allocator
-   if(test_cont_variants< node_allocator<void> >()){
-      std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_cont_variants< adaptive_pool<void> >()){
-      std::cerr << "test_cont_variants< adaptive_pool<void> > failed" << std::endl;
-      return 1;
-   }
    ////////////////////////////////////
    //    Default init test
    ////////////////////////////////////
@@ -426,7 +399,18 @@ int main ()
       < boost::container::deque<int> >()) {
       return 1;
    }
-   return 0;
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::deque<int> cont_int;
+      cont_int a; a.push_back(0); a.push_back(1); a.push_back(2);
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
 
    return 0;
 }

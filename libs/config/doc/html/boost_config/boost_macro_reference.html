@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Boost Macro Reference</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="Boost.Config">
 <link rel="up" href="../index.html" title="Boost.Config">
 <link rel="prev" href="../index.html" title="Boost.Config">
@@ -41,6 +41,8 @@
       that describe C++14 features not supported</a></span></dt>
 <dt><span class="section"><a href="boost_macro_reference.html#boost_config.boost_macro_reference.macros_that_allow_use_of_c__14_features_with_c__11_or_earlier_compilers">Macros
       that allow use of C++14 features with C++11 or earlier compilers</a></span></dt>
+<dt><span class="section"><a href="boost_macro_reference.html#boost_config.boost_macro_reference.macros_that_describe_c__17_features_not_supported">Macros
+      that describe C++17 features not supported</a></span></dt>
 <dt><span class="section"><a href="boost_macro_reference.html#boost_config.boost_macro_reference.boost_helper_macros">Boost
       Helper Macros</a></span></dt>
 <dt><span class="section"><a href="boost_macro_reference.html#boost_config.boost_macro_reference.boost_informational_macros">Boost
@@ -1423,6 +1425,25 @@
                 <p>
                   The platform has the functions <code class="computeroutput"><span class="identifier">expm1</span></code>,
                   <code class="computeroutput"><span class="identifier">expm1f</span></code> and <code class="computeroutput"><span class="identifier">expm1l</span></code> in <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">math</span><span class="special">.</span><span class="identifier">h</span><span class="special">&gt;</span></code>
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">BOOST_HAS_FLOAT128</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  Compiler
+                </p>
+              </td>
+<td>
+                <p>
+                  The compiler has <code class="computeroutput"><span class="identifier">__float128</span></code>
+                  as a native type which is distinct from all the regular C++ floating
+                  point types.
                 </p>
               </td>
 </tr>
@@ -2962,6 +2983,19 @@
 <tr>
 <td>
                 <p>
+                  <code class="computeroutput"><span class="identifier">BOOST_NO_CXX11_NUMERIC_LIMITS</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  The standard library <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">limits</span><span class="special">&gt;</span></code>
+                  header does not support the C++11 version of <code class="computeroutput"><span class="identifier">numeric_limits</span></code>.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
                   <code class="computeroutput"><span class="identifier">BOOST_NO_CXX11_RANGE_BASED_FOR</span></code>
                 </p>
               </td>
@@ -3079,6 +3113,19 @@
 <td>
                 <p>
                   The compiler does not support template aliases.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">BOOST_NO_CXX11_THREAD_LOCAL</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  The compiler does not support the <code class="computeroutput"><span class="keyword">thread_local</span></code>
+                  storage specifier.
                 </p>
               </td>
 </tr>
@@ -3571,6 +3618,18 @@
 <tr>
 <td>
                 <p>
+                  <code class="computeroutput"><span class="identifier">BOOST_NO_CXX14_HDR_SHARED_MUTEX</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  The standard library does not provide header &lt;shared_mutex&gt;.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
                   <code class="computeroutput"><span class="identifier">BOOST_NO_CXX14_INITIALIZED_LAMBDA_CAPTURES</span></code>
                 </p>
               </td>
@@ -3651,6 +3710,46 @@
                 <p>
                   This macro works similar to BOOST_CONSTEXPR, but expands to <code class="computeroutput"><span class="keyword">constexpr</span></code> only if the C++14 "relaxed"
                   <code class="computeroutput"><span class="keyword">constexpr</span></code> is available.
+                </p>
+              </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="boost_config.boost_macro_reference.macros_that_describe_c__17_features_not_supported"></a><a class="link" href="boost_macro_reference.html#boost_config.boost_macro_reference.macros_that_describe_c__17_features_not_supported" title="Macros that describe C++17 features not supported">Macros
+      that describe C++17 features not supported</a>
+</h3></div></div></div>
+<p>
+        The following macros describe features in the 2016 ISO C++ standard, formerly
+        known as C++1z, that are not yet supported by a particular compiler or library.
+      </p>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                <p>
+                  Macro
+                </p>
+              </th>
+<th>
+                <p>
+                  Description
+                </p>
+              </th>
+</tr></thead>
+<tbody><tr>
+<td>
+                <p>
+                  <code class="computeroutput"><span class="identifier">BOOST_NO_CXX17_STD_INVOKE</span></code>
+                </p>
+              </td>
+<td>
+                <p>
+                  The compiler does not support <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">invoke</span><span class="special">()</span></code>.
                 </p>
               </td>
 </tr></tbody>
@@ -5591,7 +5690,7 @@
           </li>
 </ul></div>
 <p>
-        See <a href="http://svn.boost.org/trac/boost/wiki/Guidelines/Separate" target="_top">Guidelines
+        See <a href="http://www.boost.org/development/separate_compilation.html" target="_top">Guidelines
         for Authors of Boost Libraries Containing Separate Source</a>
       </p>
 <div class="section">

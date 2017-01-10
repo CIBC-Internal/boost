@@ -386,7 +386,7 @@ namespace minimal
         }
 
         template <class Y>
-        pointer allocate(size_type n, const_ptr<Y> u)
+        pointer allocate(size_type n, const_ptr<Y>)
         {
             return pointer(static_cast<T*>(::operator new(n * sizeof(T))));
         }
@@ -447,7 +447,7 @@ namespace minimal
     {
     public:
         typedef T value_type;
-        template <class U> struct rebind { typedef cxx11_allocator<U> other; };
+        //template <class U> struct rebind { typedef cxx11_allocator<U> other; };
 
         cxx11_allocator() {}
         template <class Y> cxx11_allocator(cxx11_allocator<Y> const&) {}
@@ -462,7 +462,7 @@ namespace minimal
         }
 
         template <class Y>
-        T* allocate(std::size_t n, const_ptr<Y> u) {
+        T* allocate(std::size_t n, const_ptr<Y>) {
             return static_cast<T*>(::operator new(n * sizeof(T)));
         }
 

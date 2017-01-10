@@ -77,7 +77,21 @@ void assign_tests2(T*, test::random_generator generator)
     BOOST_DEDUCED_TYPENAME T::allocator_type al2(2);
     
     typedef BOOST_DEDUCED_TYPENAME T::allocator_type allocator_type;
-    
+
+    std::cerr<<"assign_tests2.0 - empty container\n";
+    {
+        test::check_instances check_;
+
+        T x1(0, hf1, eq1);
+        T x2(0, hf2, eq2);
+        x2 = x1;
+        BOOST_TEST(test::equivalent(x1.hash_function(), hf1));
+        BOOST_TEST(test::equivalent(x1.key_eq(), eq1));
+        BOOST_TEST(test::equivalent(x2.hash_function(), hf1));
+        BOOST_TEST(test::equivalent(x2.key_eq(), eq1));
+        test::check_container(x1, x2);
+    }
+
     std::cerr<<"assign_tests2.1\n";
     {
         test::check_instances check_;
@@ -236,6 +250,7 @@ boost::unordered_multimap<test::object, test::object,
 
 using test::default_generator;
 using test::generate_collisions;
+using test::limited_range;
 
 template <typename T>
 bool is_propagate(T*)
@@ -256,7 +271,7 @@ UNORDERED_TEST(assign_tests1, (
         (test_set_prop_assign)(test_multiset_prop_assign)(test_map_prop_assign)(test_multimap_prop_assign)
         (test_set_no_prop_assign)(test_multiset_no_prop_assign)(test_map_no_prop_assign)(test_multimap_no_prop_assign)
     )
-    ((default_generator)(generate_collisions))
+    ((default_generator)(generate_collisions)(limited_range))
 )
 
 UNORDERED_TEST(assign_tests2, (
@@ -264,7 +279,7 @@ UNORDERED_TEST(assign_tests2, (
         (test_set_prop_assign)(test_multiset_prop_assign)(test_map_prop_assign)(test_multimap_prop_assign)
         (test_set_no_prop_assign)(test_multiset_no_prop_assign)(test_map_no_prop_assign)(test_multimap_no_prop_assign)
     )
-    ((default_generator)(generate_collisions))
+    ((default_generator)(generate_collisions)(limited_range))
 )
 
 #if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)

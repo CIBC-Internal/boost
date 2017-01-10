@@ -11,8 +11,6 @@
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/allocator.hpp>
-#include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 #include <boost/container/detail/flat_tree.hpp>
 
 #include "print_container.hpp"
@@ -22,6 +20,7 @@
 #include "propagate_allocator_test.hpp"
 #include "container_common_tests.hpp"
 #include "emplace_test.hpp"
+#include "../../intrusive/test/iterator_test.hpp"
 
 #include <vector>
 #include <map>
@@ -35,13 +34,6 @@ namespace container {
 //Explicit instantiation to detect compilation errors
 
 //flat_map
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
 
 template class flat_map
    < test::movable_and_copyable_int
@@ -64,22 +56,6 @@ template class flat_map
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
    , allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator
       < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
    >;
 
@@ -88,47 +64,7 @@ template class flat_multimap
    < test::movable_and_copyable_int
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
    , test::simple_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , std::allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator
       < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
    >;
 
@@ -462,16 +398,6 @@ int main()
       std::cerr << "test_map_variants< allocator<void> > failed" << std::endl;
       return 1;
    }
-   //       boost::container::node_allocator
-   if(test_map_variants< node_allocator<void> >()){
-      std::cerr << "test_map_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_map_variants< adaptive_pool<void> >()){
-      std::cerr << "test_map_variants< adaptive_pool<void> > failed" << std::endl;
-      return 1;
-   }
 
    if(!boost::container::test::test_map_support_for_initialization_list_for<flat_map<int, int> >())
       return 1;
@@ -497,6 +423,26 @@ int main()
 
    if(!boost::container::test::test_propagate_allocator<boost_container_flat_multimap>())
       return 1;
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::flat_map<int, int> cont_int;
+      cont_int a; a.insert(cont_int::value_type(0, 9)); a.insert(cont_int::value_type(1, 9)); a.insert(cont_int::value_type(2, 9));
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
+   {
+      typedef boost::container::flat_multimap<int, int> cont_int;
+      cont_int a; a.insert(cont_int::value_type(0, 9)); a.insert(cont_int::value_type(1, 9)); a.insert(cont_int::value_type(2, 9));
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
 
    return 0;
 }

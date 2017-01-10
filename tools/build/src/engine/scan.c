@@ -11,6 +11,7 @@
 
 #include "jam.h"
 #include "scan.h"
+#include "output.h"
 
 #include "constants.h"
 #include "jambase.h"
@@ -72,7 +73,7 @@ void yyerror( char const * s )
      * will hold the information about where the token started while incp will
      * hold the information about where reading it broke.
      */
-    printf( "%s:%d: %s at %s\n", object_str( yylval.file ), yylval.line, s,
+    out_printf( "%s:%d: %s at %s\n", object_str( yylval.file ), yylval.line, s,
             symdump( &yylval ) );
     ++anyerrors;
 }
@@ -100,6 +101,22 @@ void yyfparse( OBJECT * s )
     /* If the filename is "+", it means use the internal jambase. */
     if ( !strcmp( object_str( s ), "+" ) )
         i->strings = jambase;
+}
+
+
+/*
+ * yyfdone() - cleanup after we're done parsing a file.
+ */
+void yyfdone( void )
+{
+    include * const i = incp;
+    incp = i->next;
+
+    /* Close file, free name. */
+    if(i->file && (i->file != stdin))
+        fclose(i->file);
+    object_free(i->fname);
+    BJAM_FREE((char *)i);
 }
 
 
@@ -156,17 +173,9 @@ int yyline()
         }
     }
 
-    /* This include is done. Free it up and return EOF so yyparse() returns to
+    /* This include is done. Return EOF so yyparse() returns to
      * parse_file().
      */
-
-    incp = i->next;
-
-    /* Close file, free name. */
-    if ( i->file && ( i->file != stdin ) )
-        fclose( i->file );
-    object_free( i->fname );
-    BJAM_FREE( (char *)i );
 
     return EOF;
 }
@@ -361,7 +370,7 @@ int yylex()
     }
 
     if ( DEBUG_SCAN )
-        printf( "scan %s\n", symdump( &yylval ) );
+        out_printf( "scan %s\n", symdump( &yylval ) );
 
     return yylval.type;
 

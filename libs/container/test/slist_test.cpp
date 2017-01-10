@@ -9,9 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/slist.hpp>
-#include <boost/container/allocator.hpp>
 #include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 
 #include <memory>
 #include "dummy_test_allocator.hpp"
@@ -19,6 +17,7 @@
 #include "list_test.hpp"
 #include "propagate_allocator_test.hpp"
 #include "emplace_test.hpp"
+#include "../../intrusive/test/iterator_test.hpp"
 
 using namespace boost::container;
 
@@ -29,22 +28,6 @@ namespace container {
 template class boost::container::slist
    < test::movable_and_copyable_int
    , test::simple_allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::slist
-   < test::movable_and_copyable_int
-   , test::dummy_test_allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::slist
-   < test::movable_and_copyable_int
-   , std::allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::slist
-   < test::movable_and_copyable_int
-   , allocator<test::movable_and_copyable_int> >;
-
-template class boost::container::slist
-   < test::movable_and_copyable_int
-   , adaptive_pool<test::movable_and_copyable_int> >;
 
 template class boost::container::slist
    < test::movable_and_copyable_int
@@ -196,19 +179,9 @@ int main ()
       std::cerr << "test_cont_variants< std::allocator<void> > failed" << std::endl;
       return 1;
    }
-   //       boost::container::allocator
-   if(test_cont_variants< allocator<void> >()){
-      std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
-      return 1;
-   }
    //       boost::container::node_allocator
    if(test_cont_variants< node_allocator<void> >()){
       std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_cont_variants< adaptive_pool<void> >()){
-      std::cerr << "test_cont_variants< adaptive_pool<void> > failed" << std::endl;
       return 1;
    }
 
@@ -228,8 +201,23 @@ int main ()
    if(!boost::container::test::test_propagate_allocator<boost_container_slist>())
       return 1;
 
+   ////////////////////////////////////
+   //    Initializer lists
+   ////////////////////////////////////
    if(!test_support_for_initializer_list())
       return 1;
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::slist<int> vector_int;
+      vector_int a; a.push_front(2); a.push_front(1); a.push_front(0);
+      boost::intrusive::test::test_iterator_forward< boost::container::slist<int> >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
 }
 
 #include <boost/container/detail/config_end.hpp>

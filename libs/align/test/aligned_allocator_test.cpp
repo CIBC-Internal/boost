@@ -1,15 +1,14 @@
 /*
- (c) 2014 Glen Joseph Fernandes
- glenjofe at gmail dot com
+(c) 2014 Glen Joseph Fernandes
+<glenjofe -at- gmail.com>
 
- Distributed under the Boost Software
- License, Version 1.0.
- http://boost.org/LICENSE_1_0.txt
+Distributed under the Boost Software
+License, Version 1.0.
+http://boost.org/LICENSE_1_0.txt
 */
 #include <boost/align/aligned_allocator.hpp>
 #include <boost/align/is_aligned.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include <cstddef>
 #include <cstring>
 
 template<std::size_t Alignment>
@@ -19,7 +18,7 @@ void test_allocate()
         boost::alignment::aligned_allocator<int, Alignment> a;
         int* p = a.allocate(1);
         BOOST_TEST(p != 0);
-        BOOST_TEST(boost::alignment::is_aligned(Alignment, p));
+        BOOST_TEST(boost::alignment::is_aligned(p, Alignment));
         std::memset(p, 0, 1);
         a.deallocate(p, 1);
     }

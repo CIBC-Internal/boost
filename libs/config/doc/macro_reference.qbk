@@ -348,6 +348,9 @@ The platform has the POSIX header `<dirent.h>`.
 [[`BOOST_HAS_EXPM1`][Platform][
 The platform has the functions `expm1`, `expm1f` and `expm1l` in `<math.h>`
 ]]
+[[`BOOST_HAS_FLOAT128`][Compiler][
+The compiler has `__float128` as a native type which is distinct
+from all the regular C++ floating point types.]]
 [[`BOOST_HAS_FTIME`][Platform][
 The platform has the Win32 API type FTIME.
 ]]
@@ -670,6 +673,9 @@ compilers implementing an early draft of the C++11 standard (in particular, inco
 ]]
 [[`BOOST_NO_CXX11_NULLPTR`][The compiler does not support `nullptr`. 
 ]]
+[[`BOOST_NO_CXX11_NUMERIC_LIMITS`][The standard library `<limits>` header does
+not support the C++11 version of `numeric_limits`. 
+]]
 [[`BOOST_NO_CXX11_RANGE_BASED_FOR`][The compiler does not support
 range-based for statements. 
 ]]
@@ -695,6 +701,8 @@ scoped enumerations (`enum class`).
 <unordered_map> and <unordered_set>. 
 ]]
 [[`BOOST_NO_CXX11_TEMPLATE_ALIASES`][The compiler does not support template aliases. 
+]]
+[[`BOOST_NO_CXX11_THREAD_LOCAL`][The compiler does not support the `thread_local` storage specifier. 
 ]]
 [[`BOOST_NO_CXX11_TRAILING_RESULT_TYPES`][The compiler does not support the new function result type
 specification syntax (e.g. `auto foo(T) -> T;`).]]
@@ -894,6 +902,7 @@ Foo foo = { 0 };
 [[`BOOST_NO_CXX14_DECLTYPE_AUTO`][The compiler does not support `decltype(auto)`.]]
 [[`BOOST_NO_CXX14_DIGIT_SEPARATORS`][The compiler does not support digit separators (e.g. `1'000'000`).]]
 [[`BOOST_NO_CXX14_GENERIC_LAMBDAS`][The compiler does not support generic lambda (e.g. `[](auto v){ }`).]]
+[[`BOOST_NO_CXX14_HDR_SHARED_MUTEX`][The standard library does not provide header <shared_mutex>.]]
 [[`BOOST_NO_CXX14_INITIALIZED_LAMBDA_CAPTURES`][The compiler does not support initialized lambda capture (e.g. `[foo = 42]{ }`).]]
 [[`BOOST_NO_CXX14_RETURN_TYPE_DEDUCTION`][The compiler does not support return type deduction for normal functions (e.g. `auto f() { return val; }`).]]
 [[`BOOST_NO_CXX14_VARIABLE_TEMPLATES`][The compiler does not support variable template (e.g. `template <class T> T kibi = T(1024);`).]]
@@ -911,6 +920,18 @@ provide compliant C++14 support.
 [table
 [[Macro ][ Description ]]
 [[`BOOST_CXX14_CONSTEXPR`][This macro works similar to BOOST_CONSTEXPR, but expands to `constexpr` only if the C++14 "relaxed" `constexpr` is available.]]
+]
+
+[endsect]
+
+[section Macros that describe C++17 features not supported]
+
+The following macros describe features in the 2016 ISO C++ standard, formerly known as C++1z,
+that are not yet supported by a particular compiler or library.
+
+[table
+[[Macro ][Description ]]
+[[`BOOST_NO_CXX17_STD_INVOKE`][The compiler does not support `std::invoke()`.]]
 ]
 
 [endsect]
@@ -1353,7 +1374,7 @@ include separate source code, and are intended to address several issues:
 * Fixing the ABI of the compiled library
 * Selecting which compiled library to link against based upon the compilers settings
 
-See [@http://svn.boost.org/trac/boost/wiki/Guidelines/Separate Guidelines for Authors of Boost Libraries Containing Separate Source] 
+See [@http://www.boost.org/development/separate_compilation.html Guidelines for Authors of Boost Libraries Containing Separate Source]
 
 [section Macros controlling shared library symbol visibility]
 

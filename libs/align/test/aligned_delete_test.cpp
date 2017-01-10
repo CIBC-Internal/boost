@@ -1,32 +1,28 @@
 /*
- (c) 2014 Glen Joseph Fernandes
- glenjofe at gmail dot com
+(c) 2014 Glen Joseph Fernandes
+<glenjofe -at- gmail.com>
 
- Distributed under the Boost Software
- License, Version 1.0.
- http://boost.org/LICENSE_1_0.txt
+Distributed under the Boost Software
+License, Version 1.0.
+http://boost.org/LICENSE_1_0.txt
 */
 #include <boost/align/aligned_alloc.hpp>
 #include <boost/align/aligned_delete.hpp>
 #include <boost/align/alignment_of.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <new>
-#include <cstddef>
 
 template<class T>
 class type {
 public:
     static int count;
-
     type()
         : value() {
         count++;
     }
-
     ~type() {
         count--;
     }
-
 private:
     T value;
 };
@@ -42,7 +38,7 @@ T* aligned_new()
     if (p) {
         return ::new(p) T();
     } else {
-        throw std::bad_alloc();
+        return 0;
     }
 }
 
@@ -56,6 +52,7 @@ void test()
 }
 
 class C { };
+union U { };
 
 int main()
 {
@@ -72,6 +69,7 @@ int main()
     test<C>();
     test<int C::*>();
     test<int (C::*)()>();
+    test<U>();
 
     return boost::report_errors();
 }

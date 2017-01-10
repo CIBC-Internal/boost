@@ -189,10 +189,22 @@ EOL;
               <para>A const_local_iterator object can be used to iterate through a single bucket.</para>
             </description>
           </typedef>
+          <constructor>
+            <postconditions>
+              <code><methodname>size</methodname>() == 0</code>
+            </postconditions>
+            <description>
+              <para>Constructs an empty container using hasher() as the hash function, key_equal() as the key equality predicate, allocator_type() as the allocator and a maximum load factor of 1.0.</para>
+            </description>
+            <requires>
+              <para>If the defaults are used, <code>hasher</code>, <code>key_equal</code> and
+                <code>allocator_type</code> need to be <code>DefaultConstructible</code>.
+              </para>
+            </requires>
+          </constructor>
           <constructor specifiers="explicit">
             <parameter name="n">
               <paramtype>size_type</paramtype>
-              <default><emphasis>implementation-defined</emphasis></default>
             </parameter>
             <parameter name="hf">
               <paramtype>hasher const&amp;</paramtype>
@@ -246,7 +258,12 @@ EOL;
               <default>allocator_type()</default>
             </parameter>
             <description>
-              <para>Constructs an empty container with at least n buckets, using hf as the hash function, eq as the key equality predicate, a as the allocator and a maximum load factor of 1.0 and inserts the elements from [f, l) into it.</para>
+              <para>Constructs an empty container with at least <code>n</code> buckets,
+              using <code>hf</code> as the hash function,
+              <code>eq</code> as the key equality predicate,
+              <code>a</code> as the allocator and a maximum load factor of 1.0
+              and inserts the elements from [f, l) into it.
+              </para>
             </description>
             <requires>
               <para>If the defaults are used, <code>hasher</code>, <code>key_equal</code> and
@@ -310,6 +327,168 @@ EOL;
                 <para>Constructs an container, copying <code>x</code>'s contained elements, hash function, predicate, maximum load factor, but using allocator <code>a</code>.</para>
             </description>
           </constructor>
+          <constructor>
+            <parameter name="x">
+              <paramtype><?php echo $name; ?> &amp;&amp;</paramtype>
+            </parameter>
+            <parameter name="a">
+              <paramtype>Allocator const&amp;</paramtype>
+            </parameter>
+            <description>
+              <para>Construct a container moving <code>x</code>'s contained elements, and having the hash function, predicate and maximum load factor, but using allocate <code>a</code>.</para>
+            </description>
+            <notes>
+              <para>This is implemented using Boost.Move.</para>
+            </notes>
+            <requires>
+              <para>
+                <code>value_type</code> is move insertable.
+              </para>
+            </requires>
+          </constructor>
+          <constructor>
+            <parameter name="il">
+              <paramtype>initializer_list&lt;value_type&gt;</paramtype>
+            </parameter>
+            <parameter name="n">
+              <paramtype>size_type</paramtype>
+              <default><emphasis>implementation-defined</emphasis></default>
+            </parameter>
+            <parameter name="hf">
+              <paramtype>hasher const&amp;</paramtype>
+              <default>hasher()</default>
+            </parameter>
+            <parameter name="eq">
+              <paramtype>key_equal const&amp;</paramtype>
+              <default>key_equal()</default>
+            </parameter>
+            <parameter name="a">
+              <paramtype>allocator_type const&amp;</paramtype>
+              <default>allocator_type()</default>
+            </parameter>
+            <description>
+              <para>Constructs an empty container with at least <code>n</code> buckets,
+                using <code>hf</code> as the hash function,
+                <code>eq</code> as the key equality predicate,
+                <code>a</code> as the allocator and a maximum load factor of 1.0
+                and inserts the elements from <code>il</code> into it.
+              </para>
+            </description>
+            <requires>
+              <para>If the defaults are used, <code>hasher</code>, <code>key_equal</code> and
+                <code>allocator_type</code> need to be <code>DefaultConstructible</code>.
+              </para>
+            </requires>
+          </constructor>
+          <constructor>
+            <parameter name="n">
+              <paramtype>size_type</paramtype>
+            </parameter>
+            <parameter name="a">
+              <paramtype>allocator_type const&amp;</paramtype>
+            </parameter>
+            <postconditions>
+              <code><methodname>size</methodname>() == 0</code>
+            </postconditions>
+            <description>
+              <para>Constructs an empty container with at least <code>n</code> buckets,
+              using <code>hf</code> as the hash function,
+              the default hash function and key equality predicate,
+              <code>a</code> as the allocator and a maximum load factor of 1.0.</para>
+            </description>
+            <requires>
+              <para><code>hasher</code> and <code>key_equal</code> need to be <code>DefaultConstructible</code>.
+              </para>
+            </requires>
+          </constructor>
+          <constructor>
+            <parameter name="n">
+              <paramtype>size_type</paramtype>
+            </parameter>
+            <parameter name="hf">
+              <paramtype>hasher const&amp;</paramtype>
+            </parameter>
+            <parameter name="a">
+              <paramtype>allocator_type const&amp;</paramtype>
+            </parameter>
+            <postconditions>
+              <code><methodname>size</methodname>() == 0</code>
+            </postconditions>
+            <description>
+              <para>Constructs an empty container with at least <code>n</code> buckets,
+              using <code>hf</code> as the hash function,
+              the default key equality predicate,
+              <code>a</code> as the allocator and a maximum load factor of 1.0.</para>
+            </description>
+            <requires>
+              <para><code>key_equal</code> needs to be <code>DefaultConstructible</code>.
+              </para>
+            </requires>
+          </constructor>
+          <constructor>
+            <template>
+              <template-type-parameter name="InputIterator">
+              </template-type-parameter>
+            </template>
+            <parameter name="f">
+              <paramtype>InputIterator</paramtype>
+            </parameter>
+            <parameter name="l">
+              <paramtype>InputIterator</paramtype>
+            </parameter>
+            <parameter name="n">
+              <paramtype>size_type</paramtype>
+            </parameter>
+            <parameter name="a">
+              <paramtype>allocator_type const&amp;</paramtype>
+            </parameter>
+            <description>
+              <para>Constructs an empty container with at least <code>n</code> buckets,
+              using  <code>a</code> as the allocator, with the
+              default hash function and key equality predicate
+              and a maximum load factor of 1.0
+              and inserts the elements from [f, l) into it.
+              </para>
+            </description>
+            <requires>
+              <para><code>hasher</code>, <code>key_equal</code> need to be <code>DefaultConstructible</code>.
+              </para>
+            </requires>
+          </constructor>
+          <constructor>
+            <template>
+              <template-type-parameter name="InputIterator">
+              </template-type-parameter>
+            </template>
+            <parameter name="f">
+              <paramtype>InputIterator</paramtype>
+            </parameter>
+            <parameter name="l">
+              <paramtype>InputIterator</paramtype>
+            </parameter>
+            <parameter name="n">
+              <paramtype>size_type</paramtype>
+            </parameter>
+            <parameter name="hf">
+              <paramtype>hasher const&amp;</paramtype>
+            </parameter>
+            <parameter name="a">
+              <paramtype>allocator_type const&amp;</paramtype>
+            </parameter>
+            <description>
+              <para>Constructs an empty container with at least <code>n</code> buckets,
+              using <code>hf</code> as the hash function,
+              <code>a</code> as the allocator, with the
+              default key equality predicate
+              and a maximum load factor of 1.0
+              and inserts the elements from [f, l) into it.
+              </para>
+            </description>
+            <requires>
+              <para><code>key_equal</code> needs to be <code>DefaultConstructible</code>.
+              </para>
+            </requires>
+          </constructor>
           <destructor>
             <notes>
               <para>The destructor is applied to every element, and all memory is deallocated</para>
@@ -355,6 +534,21 @@ EOL;
             <requires>
               <para>
                 <code>value_type</code> is move constructible.
+              </para>
+            </requires>
+          </method>
+          <method name="operator=">
+            <parameter>
+              <paramtype>initializer_list&lt;value_type&gt;</paramtype>
+            </parameter>
+            <type><?php echo $name; ?>&amp;</type>
+            <description>
+              <para>Assign from values in initializer list. All existing elements are either overwritten by the new elements or destroyed.</para>
+            </description>
+            <requires>
+              <para>
+                <code>value_type</code> is <code>CopyInsertable</code> into the container and
+                <code>CopyAssignable</code>.
               </para>
             </requires>
           </method>
@@ -640,7 +834,35 @@ EOL;
               </parameter>
               <type>void</type>
               <description>
-                <para>Inserts a range of elements into the container. Elements are inserted if and only if there is no element in the container with an equivalent <?php echo $key_name; ?>.</para>
+                <para>Inserts a range of elements into the container.
+<?php if (!$equivalent_keys): ?>
+                Elements are inserted if and only if there is no element in the container with an equivalent <?php echo $key_name; ?>.
+<?php endif; ?>
+                </para>
+              </description>
+              <requires>
+                <para><code>value_type</code> is <code>EmplaceConstructible</code> into
+                  <code>X</code> from <code>*first</code>.</para>
+              </requires>
+              <throws>
+                <para>When inserting a single element, if an exception is thrown by an operation other than a call to <code>hasher</code> the function has no effect.</para>
+              </throws>
+              <notes>
+                <para>Can invalidate iterators, but only if the insert causes the load factor to be greater to or equal to the maximum load factor.</para>
+                <para>Pointers and references to elements are never invalidated.</para>
+              </notes>
+            </method>
+            <method name="insert">
+              <parameter name="il">
+                <paramtype>initializer_list&lt;value_type&gt;</paramtype>
+              </parameter>
+              <type>void</type>
+              <description>
+                <para>Inserts a range of elements into the container.
+                <?php if (!$equivalent_keys): ?>
+                Elements are inserted if and only if there is no element in the container with an equivalent <?php echo $key_name; ?>.
+                <?php endif; ?>
+                </para>
               </description>
               <requires>
                 <para><code>value_type</code> is <code>EmplaceConstructible</code> into

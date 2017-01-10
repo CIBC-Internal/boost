@@ -89,8 +89,9 @@ void container_test(X& r, T const&)
 
     // size_type can represent any non-negative value type of difference_type
     // I'm not sure about either of these tests...
-    size_type max_diff((std::numeric_limits<difference_type>::max)());
-    difference_type converted_diff(max_diff);
+    size_type max_diff = static_cast<size_type>(
+            (std::numeric_limits<difference_type>::max)());
+    difference_type converted_diff(static_cast<difference_type>(max_diff));
     BOOST_TEST((std::numeric_limits<difference_type>::max)()
             == converted_diff);
 
@@ -100,7 +101,18 @@ void container_test(X& r, T const&)
         static_cast<comparison_type>(
             (std::numeric_limits<difference_type>::max)()));
 
+    // Constructors
+
     // I don't test the runtime post-conditions here.
+
+#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+    // It isn't specified in the container requirements that the no argument
+    // constructor is implicit, but it is defined that way in the concrete
+    // container specification.
+    X u_implicit = {};
+    sink(u_implicit);
+#endif
+
     X u;
     BOOST_TEST(u.size() == 0);
     BOOST_TEST(X().size() == 0);
@@ -111,6 +123,8 @@ void container_test(X& r, T const&)
     sink(X(a));
     X u2(a);
     X u3 = a;
+    X u4(rvalue(a_const));
+    X u5 = rvalue(a_const);
 
     a.swap(b);
     boost::swap(a, b);
@@ -120,12 +134,25 @@ void container_test(X& r, T const&)
 
     typedef BOOST_DEDUCED_TYPENAME X::allocator_type allocator_type;
     test::check_return_type<allocator_type>::equals(a_const.get_allocator());
+
+    allocator_type m = a.get_allocator();
+    sink(X(m));
+    X c(m);
+    sink(X(a_const, m));
+    X c2(a_const, m);
+    sink(X(rvalue(a_const), m));
+    X c3(rvalue(a_const), m);
     
     // Avoid unused variable warnings:
 
     sink(u);
     sink(u2);
     sink(u3);
+    sink(u4);
+    sink(u5);
+    sink(c);
+    sink(c2);
+    sink(c3);
 }
 
 template <class X>
@@ -148,6 +175,7 @@ void unordered_destructible_test(X&)
     X* ptr = new X();
     X& a1 = *ptr;
     (&a1)->~X();
+    ::operator delete((void*)(&a1));
 
     X a,b;
     X const a_const;
@@ -245,6 +273,9 @@ void unordered_map_test(X& r, Key const& k, T const& v)
     r.emplace(k, v);
     r.emplace(k_lvalue, v_lvalue);
     r.emplace(rvalue(k), rvalue(v));
+
+    r.emplace(boost::unordered::piecewise_construct,
+            boost::make_tuple(k), boost::make_tuple(v));
 }
 
 template <class X>
@@ -353,6 +384,7 @@ void unordered_test(X& x, Key& k, Hash& hf, Pred& eq)
     typedef BOOST_DEDUCED_TYPENAME
         boost::iterator_reference<const_local_iterator>::type
         const_local_iterator_reference;
+    typedef BOOST_DEDUCED_TYPENAME X::allocator_type allocator_type;
 
     BOOST_STATIC_ASSERT((boost::is_same<Key, key_type>::value));
     //boost::function_requires<boost::CopyConstructibleConcept<key_type> >();
@@ -385,14 +417,28 @@ void unordered_test(X& x, Key& k, Hash& hf, Pred& eq)
     BOOST_STATIC_ASSERT((boost::is_same<const_local_iterator_reference,
         const_iterator_reference>::value));
 
+    X a;
+    allocator_type m = a.get_allocator();
+
+    // Constructors
+
     X(10, hf, eq);
-    X a(10, hf, eq);
+    X a1(10, hf, eq);
     X(10, hf);
     X a2(10, hf);
     X(10);
     X a3(10);
     X();
     X a4;
+
+    X(10, hf, eq, m);
+    X a1a(10, hf, eq, m);
+    X(10, hf, m);
+    X a2a(10, hf, m);
+    X(10, m);
+    X a3a(10, m);
+    (X(m));
+    X a4a(m);
 
     test::check_return_type<size_type>::equals(a.erase(k));
 
@@ -436,9 +482,14 @@ void unordered_test(X& x, Key& k, Hash& hf, Pred& eq)
     // Avoid unused variable warnings:
 
     sink(a);
+    sink(a1);
     sink(a2);
     sink(a3);
     sink(a4);
+    sink(a1a);
+    sink(a2a);
+    sink(a3a);
+    sink(a4a);
 }
 
 template <class X, class Key, class T, class Hash, class Pred>
@@ -448,14 +499,17 @@ void unordered_copyable_test(X& x, Key& k, T& t, Hash& hf, Pred& eq)
 
     typedef BOOST_DEDUCED_TYPENAME X::iterator iterator;
     typedef BOOST_DEDUCED_TYPENAME X::const_iterator const_iterator;
+    typedef BOOST_DEDUCED_TYPENAME X::allocator_type allocator_type;
 
     X a;
+    allocator_type m = a.get_allocator();
 
     BOOST_DEDUCED_TYPENAME X::value_type* i = 0;
     BOOST_DEDUCED_TYPENAME X::value_type* j = 0;
 
-    X(i, j, 10, hf, eq);
+    // Constructors
 
+    X(i, j, 10, hf, eq);
     X a5(i, j, 10, hf, eq);
     X(i, j, 10, hf);
     X a6(i, j, 10, hf);
@@ -464,10 +518,37 @@ void unordered_copyable_test(X& x, Key& k, T& t, Hash& hf, Pred& eq)
     X(i, j);
     X a8(i, j);
 
+    X(i, j, 10, hf, eq, m);
+    X a5a(i, j, 10, hf, eq, m);
+    X(i, j, 10, hf, m);
+    X a6a(i, j, 10, hf, m);
+    X(i, j, 10, m);
+    X a7a(i, j, 10, m);
+
+    // Not specified for some reason (maybe ambiguity with another constructor?)
+    //X(i, j, m);
+    //X a8a(i, j, m);
+    //sink(a8a);
+
+#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+    std::size_t min_buckets = 10;
+    X({t});
+    X({t}, min_buckets);
+    X({t}, min_buckets, hf);
+    X({t}, min_buckets, hf, eq);
+    //X({t}, m);
+    X({t}, min_buckets, m);
+    X({t}, min_buckets, hf, m);
+    X({t}, min_buckets, hf, eq, m);
+#endif
+
     X const b;
     sink(X(b));
     X a9(b);
     a = b;
+
+    sink(X(b, m));
+    X a9a(b, m);
 
     const_iterator q = a.cbegin();
 
@@ -475,6 +556,17 @@ void unordered_copyable_test(X& x, Key& k, T& t, Hash& hf, Pred& eq)
     test::check_return_type<iterator>::equals(a.emplace_hint(q, t));
 
     a.insert(i, j);
+#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+    std::initializer_list<T> list = {t};
+    a.insert(list);
+    a.insert({t,t,t});
+
+#if !BOOST_WORKAROUND(BOOST_MSVC, < 1900)
+    a.insert({});
+    a.insert({t});
+    a.insert({t,t});
+#endif
+#endif
 
     X a10;
     a10.insert(t);
@@ -489,6 +581,10 @@ void unordered_copyable_test(X& x, Key& k, T& t, Hash& hf, Pred& eq)
     sink(a7);
     sink(a8);
     sink(a9);
+    sink(a5a);
+    sink(a6a);
+    sink(a7a);
+    sink(a9a);
 }
 
 template <class X, class Key, class T, class Hash, class Pred>
@@ -498,6 +594,7 @@ void unordered_movable_test(X& x, Key& k, T& /* t */, Hash& hf, Pred& eq)
 
     typedef BOOST_DEDUCED_TYPENAME X::iterator iterator;
     typedef BOOST_DEDUCED_TYPENAME X::const_iterator const_iterator;
+    typedef BOOST_DEDUCED_TYPENAME X::allocator_type allocator_type;
 
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
     X x1(rvalue_default<X>());
@@ -506,8 +603,13 @@ void unordered_movable_test(X& x, Key& k, T& /* t */, Hash& hf, Pred& eq)
     x2 = boost::move(x1);
 #endif
 
+    X a;
+    allocator_type m = a.get_allocator();
+
     test::minimal::constructor_param* i = 0; 
     test::minimal::constructor_param* j = 0;
+
+    // Constructors
 
     X(i, j, 10, hf, eq);
     X a5(i, j, 10, hf, eq);
@@ -518,7 +620,17 @@ void unordered_movable_test(X& x, Key& k, T& /* t */, Hash& hf, Pred& eq)
     X(i, j);
     X a8(i, j);
 
-    X a;
+    X(i, j, 10, hf, eq, m);
+    X a5a(i, j, 10, hf, eq, m);
+    X(i, j, 10, hf, m);
+    X a6a(i, j, 10, hf, m);
+    X(i, j, 10, m);
+    X a7a(i, j, 10, m);
+
+    // Not specified for some reason (maybe ambiguity with another constructor?)
+    //X(i, j, m);
+    //X a8a(i, j, m);
+    //sink(a8a);
 
     const_iterator q = a.cbegin();
 
@@ -552,6 +664,9 @@ void unordered_movable_test(X& x, Key& k, T& /* t */, Hash& hf, Pred& eq)
     sink(a6);
     sink(a7);
     sink(a8);
+    sink(a5a);
+    sink(a6a);
+    sink(a7a);
     sink(a10);
 }
 

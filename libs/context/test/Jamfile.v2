@@ -12,6 +12,7 @@ import modules ;
 import os ;
 import testing ;
 import toolset ;
+import ../../config/checks/config : requires ;
 
 project boost/context/test
     : requirements
@@ -25,6 +26,63 @@ project boost/context/test
       <threading>multi
     ;
 
-test-suite "context" :
-    [ run test_context.cpp ]
-    ;
+test-suite minimal :
+[ run test_invoke.cpp :
+    : :
+    [ requires cxx11_auto_declarations
+               cxx11_constexpr
+               cxx11_defaulted_functions
+               cxx11_final
+               cxx11_hdr_thread
+               cxx11_hdr_tuple
+               cxx11_lambdas
+               cxx11_noexcept
+               cxx11_nullptr
+               cxx11_rvalue_references
+               cxx11_template_aliases
+               cxx11_thread_local
+               cxx11_variadic_templates ] ]
+
+[ run test_apply.cpp :
+    : :
+    [ requires cxx11_auto_declarations
+               cxx11_constexpr
+               cxx11_defaulted_functions
+               cxx11_final
+               cxx11_hdr_thread
+               cxx11_hdr_tuple
+               cxx11_lambdas
+               cxx11_noexcept
+               cxx11_nullptr
+               cxx11_rvalue_references
+               cxx11_template_aliases
+               cxx11_thread_local
+               cxx11_variadic_templates ] ]
+
+[ run test_fcontext.cpp :
+    : :
+    ]
+
+[ run test_execution_context.cpp :
+    : :
+    [ requires cxx11_auto_declarations
+               cxx11_constexpr
+               cxx11_defaulted_functions
+               cxx11_final
+               cxx11_hdr_thread
+               cxx11_hdr_tuple
+               cxx11_lambdas
+               cxx11_noexcept
+               cxx11_nullptr
+               cxx11_rvalue_references
+               cxx11_template_aliases
+               cxx11_thread_local
+               cxx11_variadic_templates ] ] ;
+
+test-suite full :
+    minimal ;
+
+test-suite extra ;
+
+explicit minimal ;
+explicit extra ;

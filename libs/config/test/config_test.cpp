@@ -1,4 +1,4 @@
-//  This file was automatically generated on Mon Oct 13 13:09:12 2014
+//  This file was automatically generated on Mon Dec 12 19:37:08 2016
 //  by libs/config/tools/generate.cpp
 //  Copyright John Maddock 2002-4.
 //  Use, modification and distribution are subject to the 
@@ -252,6 +252,11 @@ namespace boost_no_cxx11_smart_ptr = empty_boost;
 #else
 namespace boost_no_cxx11_std_align = empty_boost;
 #endif
+#ifndef BOOST_NO_CXX11_THREAD_LOCAL
+#include "boost_no_cxx11_thread_local.ipp"
+#else
+namespace boost_no_cxx11_thread_local = empty_boost;
+#endif
 #ifndef BOOST_NO_CXX11_TRAILING_RESULT_TYPES
 #include "boost_no_cxx11_trailing_result_types.ipp"
 #else
@@ -280,12 +285,17 @@ namespace boost_no_cxx14_decltype_auto = empty_boost;
 #ifndef BOOST_NO_CXX14_DIGIT_SEPARATORS
 #include "boost_no_cxx14_digit_separator.ipp"
 #else
-namespace boost_no_cxx14_digit_separator = empty_boost;
+namespace boost_no_cxx14_digit_separators = empty_boost;
 #endif
 #ifndef BOOST_NO_CXX14_GENERIC_LAMBDAS
 #include "boost_no_cxx14_generic_lambda.ipp"
 #else
 namespace boost_no_cxx14_generic_lambdas = empty_boost;
+#endif
+#ifndef BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#include "boost_no_cxx14_hdr_shared_mutex.ipp"
+#else
+namespace boost_no_cxx14_hdr_shared_mutex = empty_boost;
 #endif
 #ifndef BOOST_NO_CXX14_INITIALIZED_LAMBDA_CAPTURES
 #include "boost_no_cxx14_lambda_capture.ipp"
@@ -302,10 +312,25 @@ namespace boost_no_cxx14_aggregate_nsdmi = empty_boost;
 #else
 namespace boost_no_cxx14_return_type_deduction = empty_boost;
 #endif
+#ifndef BOOST_NO_CXX14_STD_EXCHANGE
+#include "boost_no_cxx14_std_exchange.ipp"
+#else
+namespace boost_no_cxx14_std_exchange = empty_boost;
+#endif
 #ifndef BOOST_NO_CXX14_VARIABLE_TEMPLATES
 #include "boost_no_cxx14_var_templ.ipp"
 #else
 namespace boost_no_cxx14_variable_templates = empty_boost;
+#endif
+#ifndef BOOST_NO_CXX17_STD_APPLY
+#include "boost_no_cxx17_std_apply.ipp"
+#else
+namespace boost_no_cxx17_std_apply = empty_boost;
+#endif
+#ifndef BOOST_NO_CXX17_STD_INVOKE
+#include "boost_no_cxx17_std_invoke.ipp"
+#else
+namespace boost_no_cxx17_std_invoke = empty_boost;
 #endif
 #ifndef BOOST_NO_CXX11_HDR_FUNCTIONAL
 #include "boost_no_cxx_hdr_functional.ipp"
@@ -748,6 +773,11 @@ namespace boost_has_dirent_h = empty_boost;
 #else
 namespace boost_has_expm1 = empty_boost;
 #endif
+#ifdef BOOST_HAS_FLOAT128
+#include "boost_has_float128.ipp"
+#else
+namespace boost_has_float128 = empty_boost;
+#endif
 #ifdef BOOST_HAS_FTIME
 #include "boost_has_ftime.ipp"
 #else
@@ -1009,6 +1039,11 @@ int main( int, char *[] )
    if(0 != boost_has_expm1::test())
    {
       std::cerr << "Failed test for BOOST_HAS_EXPM1 at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_has_float128::test())
+   {
+      std::cerr << "Failed test for BOOST_HAS_FLOAT128 at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
    if(0 != boost_has_ftime::test())
@@ -1476,6 +1511,11 @@ int main( int, char *[] )
       std::cerr << "Failed test for BOOST_NO_CXX11_STD_ALIGN at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
+   if(0 != boost_no_cxx11_thread_local::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_CXX11_THREAD_LOCAL at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
    if(0 != boost_no_cxx11_trailing_result_types::test())
    {
       std::cerr << "Failed test for BOOST_NO_CXX11_TRAILING_RESULT_TYPES at: " << __FILE__ << ":" << __LINE__ << std::endl;
@@ -1501,7 +1541,7 @@ int main( int, char *[] )
       std::cerr << "Failed test for BOOST_NO_CXX14_DECLTYPE_AUTO at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
-   if(0 != boost_no_cxx14_digit_separator::test())
+   if(0 != boost_no_cxx14_digit_separators::test())
    {
       std::cerr << "Failed test for BOOST_NO_CXX14_DIGIT_SEPARATORS at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
@@ -1509,6 +1549,11 @@ int main( int, char *[] )
    if(0 != boost_no_cxx14_generic_lambdas::test())
    {
       std::cerr << "Failed test for BOOST_NO_CXX14_GENERIC_LAMBDAS at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_no_cxx14_hdr_shared_mutex::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_CXX14_HDR_SHARED_MUTEX at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
    if(0 != boost_no_cxx14_initialized_lambda_captures::test())
@@ -1526,9 +1571,24 @@ int main( int, char *[] )
       std::cerr << "Failed test for BOOST_NO_CXX14_RETURN_TYPE_DEDUCTION at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
+   if(0 != boost_no_cxx14_std_exchange::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_CXX14_STD_EXCHANGE at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
    if(0 != boost_no_cxx14_variable_templates::test())
    {
       std::cerr << "Failed test for BOOST_NO_CXX14_VARIABLE_TEMPLATES at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_no_cxx17_std_apply::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_CXX17_STD_APPLY at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_no_cxx17_std_invoke::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_CXX17_STD_INVOKE at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
    if(0 != boost_no_cxx11_hdr_functional::test())
