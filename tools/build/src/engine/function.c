@@ -1,5 +1,6 @@
 /*
  * Copyright 2011 Steven Watanabe
+ * Copyright 2016 Rene Rivera
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -11,6 +12,7 @@
 #include "class.h"
 #include "compile.h"
 #include "constants.h"
+#include "debugger.h"
 #include "filesys.h"
 #include "frames.h"
 #include "lists.h"
@@ -19,19 +21,22 @@
 #include "rules.h"
 #include "search.h"
 #include "variable.h"
+#include "output.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef OS_CYGWIN
-# include <cygwin/version.h>
-# include <sys/cygwin.h>
-# ifdef CYGWIN_VERSION_CYGWIN_CONV
-#  include <errno.h>
-# endif
-# include <windows.h>
+/* *
+#define FUNCTION_DEBUG_PROFILE
+/* */
+
+#ifndef FUNCTION_DEBUG_PROFILE
+#undef PROFILE_ENTER_LOCAL
+#define PROFILE_ENTER_LOCAL(x) static int unused_LOCAL_##x = 0
+#undef PROFILE_EXIT_LOCAL
+#define PROFILE_EXIT_LOCAL(x)
 #endif
 
 int glob( char const * s, char const * c );
@@ -118,6 +123,9 @@ void backtrace_line( FRAME * );
 #define INSTR_APPEND_STRINGS               53
 #define INSTR_WRITE_FILE                   54
 #define INSTR_OUTPUT_STRINGS               55
+
+#define INSTR_DEBUG_LINE                   67
+#define INSTR_FOR_POP                      70
 
 typedef struct instruction
 {
@@ -449,7 +457,7 @@ static LIST * function_call_rule( JAM_FUNCTION * function, FRAME * frame,
     if ( list_empty( first ) )
     {
         backtrace_line( frame );
-        printf( "warning: rulename %s expands to empty string\n", unexpanded );
+        out_printf( "warning: rulename %s expands to empty string\n", unexpanded );
         backtrace( frame );
         list_free( first );
         for ( i = 0; i < n_args; ++i )
@@ -501,11 +509,11 @@ static LIST * function_call_member_rule( JAM_FUNCTION * function, FRAME * frame,
 
     frame->file = file;
     frame->line = line;
-    
+
     if ( list_empty( first ) )
     {
         backtrace_line( frame );
-        printf( "warning: object is empty\n" );
+        out_printf( "warning: object is empty\n" );
         backtrace( frame );
 
         list_free( first );
@@ -580,9 +588,9 @@ static LIST * function_call_member_rule( JAM_FUNCTION * function, FRAME * frame,
         }
     }
 
+    list_free( first );
     result = evaluate_rule( rule, real_rulename, inner );
     frame_free( inner );
-    object_free( rulename );
     object_free( real_rulename );
     return result;
 }
@@ -751,74 +759,30 @@ static void var_edit_file( char const * in, string * out, VAR_EDITS * edits )
         string_append( out, in );
 }
 
+
 /*
- * var_edit_cyg2win() - conversion of a cygwin to a Windows path.
- *
- * FIXME: skip grist
+ * var_edit_translate_path() - translate path to os native format.
  */
 
-#ifdef OS_CYGWIN
-static void var_edit_cyg2win( string * out, size_t pos, VAR_EDITS * edits )
+static void var_edit_translate_path( string * out, size_t pos, VAR_EDITS * edits )
 {
     if ( edits->to_windows )
     {
-    #ifdef CYGWIN_VERSION_CYGWIN_CONV
-        /* Use new Cygwin API added with Cygwin 1.7. Old one had no error
-         * handling and has been deprecated.
-         */
-        char * dynamicBuffer = 0;
-        char buffer[ MAX_PATH + 1001 ];
-        char const * result = buffer;
-        cygwin_conv_path_t const conv_type = CCP_POSIX_TO_WIN_A | CCP_RELATIVE;
-        ssize_t const apiResult = cygwin_conv_path( conv_type, out->value + pos,
-            buffer, sizeof( buffer ) / sizeof( *buffer ) );
-        assert( apiResult == 0 || apiResult == -1 );
-        assert( apiResult || strlen( result ) < sizeof( buffer ) / sizeof(
-            *buffer ) );
-        if ( apiResult )
-        {
-            result = 0;
-            if ( errno == ENOSPC )
-            {
-                ssize_t const size = cygwin_conv_path( conv_type, out->value +
-                    pos, NULL, 0 );
-                assert( size >= -1 );
-                if ( size > 0 )
-                {
-                    dynamicBuffer = (char *)BJAM_MALLOC_ATOMIC( size );
-                    if ( dynamicBuffer )
-                    {
-                        ssize_t const apiResult = cygwin_conv_path( conv_type,
-                            out->value + pos, dynamicBuffer, size );
-                        assert( apiResult == 0 || apiResult == -1 );
-                        if ( !apiResult )
-                        {
-                            result = dynamicBuffer;
-                            assert( strlen( result ) < size );
-                        }
-                    }
-                }
-            }
-        }
-    #else  /* CYGWIN_VERSION_CYGWIN_CONV */
-        /* Use old Cygwin API deprecated with Cygwin 1.7. */
-        char result[ MAX_PATH + 1 ];
-        cygwin_conv_to_win32_path( out->value + pos, result );
-        assert( strlen( result ) <= MAX_PATH );
-    #endif  /* CYGWIN_VERSION_CYGWIN_CONV */
-        if ( result )
+        string result[ 1 ];
+        int translated;
+
+        /* Translate path to os native format. */
+        translated = path_translate_to_os( out->value + pos, result );
+        if ( translated )
         {
             string_truncate( out, pos );
-            string_append( out, result );
+            string_append( out, result->value );
             edits->to_slashes = 0;
         }
-    #ifdef CYGWIN_VERSION_CYGWIN_CONV
-        if ( dynamicBuffer )
-            BJAM_FREE( dynamicBuffer );
-    #endif
+
+        string_free( result );
     }
 }
-#endif  /* OS_CYGWIN */
 
 
 /*
@@ -827,8 +791,8 @@ static void var_edit_cyg2win( string * out, size_t pos, VAR_EDITS * edits )
 
 static void var_edit_shift( string * out, size_t pos, VAR_EDITS * edits )
 {
-#ifdef OS_CYGWIN
-    var_edit_cyg2win( out, pos, edits );
+#if defined( OS_CYGWIN ) || defined( OS_VMS )
+    var_edit_translate_path( out, pos, edits );
 #endif
 
     if ( edits->upshift || edits->downshift || edits->to_slashes )
@@ -1313,7 +1277,7 @@ static void dynamic_array_push_impl( struct dynamic_array * const array,
 
 #define dynamic_array_push( array, value ) (dynamic_array_push_impl(array, &value, sizeof(value)))
 #define dynamic_array_at( type, array, idx ) (((type *)(array)->data)[idx])
-
+#define dynamic_array_pop( array ) (--(array)->size)
 
 /*
  * struct compiler
@@ -1323,6 +1287,16 @@ struct label_info
 {
     int absolute_position;
     struct dynamic_array uses[ 1 ];
+};
+
+#define LOOP_INFO_BREAK 0
+#define LOOP_INFO_CONTINUE 1
+
+struct loop_info
+{
+    int type;
+    int label;
+    int cleanup_depth;
 };
 
 struct stored_rule
@@ -1341,6 +1315,8 @@ typedef struct compiler
     struct dynamic_array labels[ 1 ];
     struct dynamic_array rules[ 1 ];
     struct dynamic_array actions[ 1 ];
+    struct dynamic_array cleanups[ 1 ];
+    struct dynamic_array loop_scopes[ 1 ];
 } compiler;
 
 static void compiler_init( compiler * c )
@@ -1350,6 +1326,8 @@ static void compiler_init( compiler * c )
     dynamic_array_init( c->labels );
     dynamic_array_init( c->rules );
     dynamic_array_init( c->actions );
+    dynamic_array_init( c->cleanups );
+    dynamic_array_init( c->loop_scopes );
 }
 
 static void compiler_free( compiler * c )
@@ -1363,6 +1341,8 @@ static void compiler_free( compiler * c )
     dynamic_array_free( c->labels );
     dynamic_array_free( c->constants );
     dynamic_array_free( c->code );
+    dynamic_array_free( c->cleanups );
+    dynamic_array_free( c->loop_scopes );
 }
 
 static void compile_emit_instruction( compiler * c, instruction instr )
@@ -1426,6 +1406,82 @@ static int compile_emit_constant( compiler * c, OBJECT * value )
     OBJECT * copy = object_copy( value );
     dynamic_array_push( c->constants, copy );
     return c->constants->size - 1;
+}
+
+static void compile_push_cleanup( compiler * c, unsigned int op_code, int arg )
+{
+    instruction instr;
+    instr.op_code = op_code;
+    instr.arg = arg;
+    dynamic_array_push( c->cleanups, instr );
+}
+
+static void compile_pop_cleanup( compiler * c )
+{
+    dynamic_array_pop( c->cleanups );
+}
+
+static void compile_emit_cleanups( compiler * c, int end )
+{
+    int i;
+    for ( i = c->cleanups->size; --i >= end; )
+    {
+        compile_emit_instruction( c, dynamic_array_at( instruction, c->cleanups, i ) );
+    }
+}
+
+static void compile_emit_loop_jump( compiler * c, int type )
+{
+    struct loop_info * info = NULL;
+    int i;
+    for ( i = c->loop_scopes->size; --i >= 0; )
+    {
+        struct loop_info * elem = &dynamic_array_at( struct loop_info, c->loop_scopes, i );
+        if ( elem->type == type )
+        {
+            info = elem;
+            break;
+        }
+    }
+    if ( info == NULL )
+    {
+        printf( "warning: ignoring break statement used outside of loop\n" );
+        return;
+    }
+    compile_emit_cleanups( c, info->cleanup_depth );
+    compile_emit_branch( c, INSTR_JUMP, info->label );
+}
+
+static void compile_push_break_scope( compiler * c, int label )
+{
+    struct loop_info info;
+    info.type = LOOP_INFO_BREAK;
+    info.label = label;
+    info.cleanup_depth = c->cleanups->size;
+    dynamic_array_push( c->loop_scopes, info );
+}
+
+static void compile_push_continue_scope( compiler * c, int label )
+{
+    struct loop_info info;
+    info.type = LOOP_INFO_CONTINUE;
+    info.label = label;
+    info.cleanup_depth = c->cleanups->size;
+    dynamic_array_push( c->loop_scopes, info );
+}
+
+static void compile_pop_break_scope( compiler * c )
+{
+    assert( c->loop_scopes->size > 0 );
+    assert( dynamic_array_at( struct loop_info, c->loop_scopes, c->loop_scopes->size - 1 ).type == LOOP_INFO_BREAK );
+    dynamic_array_pop( c->loop_scopes );
+}
+
+static void compile_pop_continue_scope( compiler * c )
+{
+    assert( c->loop_scopes->size > 0 );
+    assert( dynamic_array_at( struct loop_info, c->loop_scopes, c->loop_scopes->size - 1 ).type == LOOP_INFO_CONTINUE );
+    dynamic_array_pop( c->loop_scopes );
 }
 
 static int compile_emit_rule( compiler * c, OBJECT * name, PARSE * parse,
@@ -1991,7 +2047,7 @@ static int current_line;
 
 static void parse_error( char const * message )
 {
-    printf( "%s:%d: %s\n", current_file, current_line, message );
+    out_printf( "%s:%d: %s\n", current_file, current_line, message );
 }
 
 
@@ -2380,6 +2436,10 @@ static void compile_append_chain( PARSE * parse, compiler * c )
 
 static void compile_parse( PARSE * parse, compiler * c, int result_location )
 {
+#ifdef JAM_DEBUGGER
+    if ( debug_is_debugging() )
+        compile_emit( c, INSTR_DEBUG_LINE, parse->line );
+#endif
     if ( parse->type == PARSE_APPEND )
     {
         compile_append_chain( parse, c );
@@ -2397,7 +2457,7 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
             int f = compile_new_label( c );
             int end = compile_new_label( c );
 
-            printf( "%s:%d: Conditional used as list (check operator "
+            out_printf( "%s:%d: Conditional used as list (check operator "
                 "precedence).\n", object_str( parse->file ), parse->line );
 
             /* Emit the condition */
@@ -2416,6 +2476,7 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
         int var = compile_emit_constant( c, parse->string );
         int top = compile_new_label( c );
         int end = compile_new_label( c );
+        int continue_ = compile_new_label( c );
 
         /*
          * Evaluate the list.
@@ -2428,6 +2489,7 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
             compile_emit( c, INSTR_PUSH_EMPTY, 0 );
             compile_emit( c, INSTR_PUSH_LOCAL, var );
             compile_emit( c, INSTR_SWAP, 1 );
+            compile_push_cleanup( c, INSTR_POP_LOCAL, var );
         }
 
         compile_emit( c, INSTR_FOR_INIT, 0 );
@@ -2435,14 +2497,26 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
         compile_emit_branch( c, INSTR_FOR_LOOP, end );
         compile_emit( c, INSTR_SET, var );
 
+        compile_push_break_scope( c, end );
+        compile_push_cleanup( c, INSTR_FOR_POP, 0 );
+        compile_push_continue_scope( c, continue_ );
+
         /* Run the loop body */
         compile_parse( parse->right, c, RESULT_NONE );
 
+        compile_pop_continue_scope( c );
+        compile_pop_cleanup( c );
+        compile_pop_break_scope( c );
+
+        compile_set_label( c, continue_ );
         compile_emit_branch( c, INSTR_JUMP, top );
         compile_set_label( c, end );
 
         if ( parse->num )
+        {
+            compile_pop_cleanup( c );
             compile_emit( c, INSTR_POP_LOCAL, var );
+        }
 
         adjust_result( c, RESULT_NONE, result_location);
     }
@@ -2473,6 +2547,7 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
             : RESULT_RETURN;
         int test = compile_new_label( c );
         int top = compile_new_label( c );
+        int end = compile_new_label( c );
         /* Make sure that we return an empty list if the loop runs zero times.
          */
         adjust_result( c, RESULT_NONE, nested_result );
@@ -2480,10 +2555,15 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
         compile_emit_branch( c, INSTR_JUMP, test );
         compile_set_label( c, top );
         /* Emit the loop body. */
+        compile_push_break_scope( c, end );
+        compile_push_continue_scope( c, test );
         compile_parse( parse->right, c, nested_result );
+        compile_pop_continue_scope( c );
+        compile_pop_break_scope( c );
         /* Emit the condition. */
         compile_set_label( c, test );
         compile_condition( parse->left, c, 1, top );
+        compile_set_label( c, end );
 
         adjust_result( c, nested_result, result_location );
     }
@@ -2501,7 +2581,9 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
             : RESULT_RETURN;
         compile_parse( parse->left, c, RESULT_STACK );
         compile_emit( c, INSTR_PUSH_MODULE, 0 );
+        compile_push_cleanup( c, INSTR_POP_MODULE, 0 );
         compile_parse( parse->right, c, nested_result );
+        compile_pop_cleanup( c );
         compile_emit( c, INSTR_POP_MODULE, 0 );
         adjust_result( c, nested_result, result_location );
     }
@@ -2515,8 +2597,10 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
         else
             compile_emit( c, INSTR_PUSH_EMPTY, 0 );
         compile_emit( c, INSTR_CLASS, 0 );
+        compile_push_cleanup( c, INSTR_POP_MODULE, 0 );
         compile_parse( parse->right, c, RESULT_NONE );
         compile_emit( c, INSTR_BIND_MODULE_VARIABLES, 0 );
+        compile_pop_cleanup( c );
         compile_emit( c, INSTR_POP_MODULE, 0 );
 
         adjust_result( c, RESULT_NONE, result_location );
@@ -2566,7 +2650,9 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
                 var_parse_group_free( group );
                 compile_parse( parse->right, c, RESULT_STACK );
                 compile_emit( c, INSTR_PUSH_LOCAL, name );
+                compile_push_cleanup( c, INSTR_POP_LOCAL, name );
                 compile_parse( parse->third, c, nested_result );
+                compile_pop_cleanup( c );
                 compile_emit( c, INSTR_POP_LOCAL, name );
             }
             else
@@ -2575,7 +2661,9 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
                 var_parse_group_free( group );
                 compile_parse( parse->right, c, RESULT_STACK );
                 compile_emit( c, INSTR_PUSH_LOCAL_GROUP, 0 );
+                compile_push_cleanup( c, INSTR_POP_LOCAL_GROUP, 0 );
                 compile_parse( parse->third, c, nested_result );
+                compile_pop_cleanup( c );
                 compile_emit( c, INSTR_POP_LOCAL_GROUP, 0 );
             }
         }
@@ -2584,7 +2672,9 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
             compile_parse( parse->left, c, RESULT_STACK );
             compile_parse( parse->right, c, RESULT_STACK );
             compile_emit( c, INSTR_PUSH_LOCAL_GROUP, 0 );
+            compile_push_cleanup( c, INSTR_POP_LOCAL_GROUP, 0 );
             compile_parse( parse->third, c, nested_result );
+            compile_pop_cleanup( c );
             compile_emit( c, INSTR_POP_LOCAL_GROUP, 0 );
         }
         adjust_result( c, nested_result, result_location );
@@ -2632,7 +2722,9 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
                 int end = compile_new_label( c );
                 compile_parse( parse->left, c, RESULT_STACK );
                 compile_emit_branch( c, INSTR_PUSH_ON, end );
+                compile_push_cleanup( c, INSTR_POP_ON, 0 );
                 var_parse_group_compile( group, c );
+                compile_pop_cleanup( c );
                 compile_emit( c, INSTR_POP_ON, 0 );
                 compile_set_label( c, end );
             }
@@ -2643,7 +2735,9 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
             int end = compile_new_label( c );
             compile_parse( parse->left, c, RESULT_STACK );
             compile_emit_branch( c, INSTR_PUSH_ON, end );
+            compile_push_cleanup( c, INSTR_POP_ON, 0 );
             compile_parse( parse->right, c, RESULT_STACK );
+            compile_pop_cleanup( c );
             compile_emit( c, INSTR_POP_ON, 0 );
             compile_set_label( c, end );
         }
@@ -2809,6 +2903,20 @@ static void compile_parse( PARSE * parse, compiler * c, int result_location )
         adjust_result( c, RESULT_NONE, result_location );
         compile_set_label( c, switch_end );
     }
+    else if ( parse->type == PARSE_RETURN )
+    {
+        compile_parse( parse->left, c, RESULT_RETURN );
+        compile_emit_cleanups( c, 0 );
+        compile_emit( c, INSTR_RETURN, 0 ); /* 0 for return in the middle of a function. */
+    }
+    else if ( parse->type == PARSE_BREAK )
+    {
+        compile_emit_loop_jump( c, LOOP_INFO_BREAK );
+    }
+    else if ( parse->type == PARSE_CONTINUE )
+    {
+        compile_emit_loop_jump( c, LOOP_INFO_CONTINUE );
+    }
     else if ( parse->type == PARSE_NULL )
         adjust_result( c, RESULT_NONE, result_location );
     else
@@ -2871,7 +2979,7 @@ FUNCTION * function_compile( PARSE * parse )
     JAM_FUNCTION * result;
     compiler_init( c );
     compile_parse( parse, c, RESULT_RETURN );
-    compile_emit( c, INSTR_RETURN, 0 );
+    compile_emit( c, INSTR_RETURN, 1 );
     result = compile_to_function( c );
     compiler_free( c );
     result->file = object_copy( parse->file );
@@ -2891,7 +2999,7 @@ FUNCTION * function_compile_actions( char const * actions, OBJECT * file,
     compiler_init( c );
     var_parse_actions_compile( parse, c );
     var_parse_actions_free( parse );
-    compile_emit( c, INSTR_RETURN, 0 );
+    compile_emit( c, INSTR_RETURN, 1 );
     result = compile_to_function( c );
     compiler_free( c );
     result->file = object_copy( file );
@@ -2925,17 +3033,17 @@ static void argument_error( char const * message, FUNCTION * procedure,
     extern void print_source_line( FRAME * );
     LOL * actual = frame->args;
     backtrace_line( frame->prev );
-    printf( "*** argument error\n* rule %s ( ", frame->rulename );
+    out_printf( "*** argument error\n* rule %s ( ", frame->rulename );
     argument_list_print( procedure->formal_arguments,
         procedure->num_formal_arguments );
-    printf( " )\n* called with: ( " );
+    out_printf( " )\n* called with: ( " );
     lol_print( actual );
-    printf( " )\n* %s %s\n", message, arg ? object_str ( arg ) : "" );
+    out_printf( " )\n* %s %s\n", message, arg ? object_str ( arg ) : "" );
     function_location( procedure, &frame->file, &frame->line );
     print_source_line( frame );
-    printf( "see definition of rule '%s' being called\n", frame->rulename );
+    out_printf( "see definition of rule '%s' being called\n", frame->rulename );
     backtrace( frame->prev );
-    exit( 1 );
+    exit( EXITBAD );
 }
 
 static void type_check_range( OBJECT * type_name, LISTITER iter, LISTITER end,
@@ -3226,9 +3334,9 @@ static void argument_compiler_add( struct argument_compiler * c, OBJECT * arg,
 
         if ( is_type_name( object_str( arg ) ) )
         {
-            printf( "%s:%d: missing argument name before type name: %s\n",
+            err_printf( "%s:%d: missing argument name before type name: %s\n",
                 object_str( file ), line, object_str( arg ) );
-            exit( 1 );
+            exit( EXITBAD );
         }
 
         c->arg.arg_name = object_copy( arg );
@@ -3274,9 +3382,9 @@ static struct arg_list arg_compile_impl( struct argument_compiler * c,
     case ARGUMENT_COMPILER_DONE:
         break;
     case ARGUMENT_COMPILER_FOUND_TYPE:
-        printf( "%s:%d: missing argument name after type name: %s\n",
+        err_printf( "%s:%d: missing argument name after type name: %s\n",
             object_str( file ), line, object_str( c->arg.type_name ) );
-        exit( 1 );
+        exit( EXITBAD );
     case ARGUMENT_COMPILER_FOUND_OBJECT:
         dynamic_array_push( c->args, c->arg );
         break;
@@ -3398,19 +3506,19 @@ static void argument_list_print( struct arg_list * args, int num_args )
         for ( i = 0; i < num_args; ++i )
         {
             int j;
-            if ( i ) printf( " : " );
+            if ( i ) out_printf( " : " );
             for ( j = 0; j < args[ i ].size; ++j )
             {
                 struct argument * formal_arg = &args[ i ].args[ j ];
-                if ( j ) printf( " " );
+                if ( j ) out_printf( " " );
                 if ( formal_arg->type_name )
-                    printf( "%s ", object_str( formal_arg->type_name ) );
-                printf( "%s", object_str( formal_arg->arg_name ) );
+                    out_printf( "%s ", object_str( formal_arg->type_name ) );
+                out_printf( "%s", object_str( formal_arg->arg_name ) );
                 switch ( formal_arg->flags )
                 {
-                case ARG_OPTIONAL: printf( " ?" ); break;
-                case ARG_PLUS:     printf( " +" ); break;
-                case ARG_STAR:     printf( " *" ); break;
+                case ARG_OPTIONAL: out_printf( " ?" ); break;
+                case ARG_PLUS:     out_printf( " +" ); break;
+                case ARG_STAR:     out_printf( " *" ); break;
                 }
             }
         }
@@ -3522,7 +3630,9 @@ FUNCTION * function_bind_variables( FUNCTION * f, module_t * module,
             case INSTR_SET: op_code = INSTR_SET_FIXED; break;
             case INSTR_APPEND: op_code = INSTR_APPEND_FIXED; break;
             case INSTR_DEFAULT: op_code = INSTR_DEFAULT_FIXED; break;
-            case INSTR_RETURN: return (FUNCTION *)new_func;
+            case INSTR_RETURN:
+                if( code->arg == 1 ) return (FUNCTION *)new_func;
+                else continue;
             case INSTR_CALL_MEMBER_RULE:
             case INSTR_CALL_RULE: ++i; continue;
             case INSTR_PUSH_MODULE:
@@ -3560,6 +3670,71 @@ FUNCTION * function_bind_variables( FUNCTION * f, module_t * module,
             {
                 code->op_code = op_code;
                 code->arg = module_add_fixed_var( module, key, counter );
+            }
+        }
+    }
+}
+
+LIST * function_get_variables( FUNCTION * f )
+{
+    if ( f->type == FUNCTION_BUILTIN )
+        return L0;
+#ifdef HAVE_PYTHON
+    if ( f->type == FUNCTION_PYTHON )
+        return L0;
+#endif
+    {
+        JAM_FUNCTION * func = (JAM_FUNCTION *)f;
+        LIST * result = L0;
+        instruction * code;
+        int i;
+        assert( f->type == FUNCTION_JAM );
+        if ( func->generic ) func = ( JAM_FUNCTION * )func->generic;
+
+        for ( i = 0; ; ++i )
+        {
+            OBJECT * var;
+            code = func->code + i;
+            switch ( code->op_code )
+            {
+            case INSTR_PUSH_LOCAL: break;
+            case INSTR_RETURN: return result;
+            case INSTR_CALL_MEMBER_RULE:
+            case INSTR_CALL_RULE: ++i; continue;
+            case INSTR_PUSH_MODULE:
+                {
+                    int depth = 1;
+                    ++i;
+                    while ( depth > 0 )
+                    {
+                        code = func->code + i;
+                        switch ( code->op_code )
+                        {
+                        case INSTR_PUSH_MODULE:
+                        case INSTR_CLASS:
+                            ++depth;
+                            break;
+                        case INSTR_POP_MODULE:
+                            --depth;
+                            break;
+                        case INSTR_CALL_RULE:
+                            ++i;
+                            break;
+                        }
+                        ++i;
+                    }
+                    --i;
+                }
+            default: continue;
+            }
+            var = func->constants[ code->arg ];
+            if ( !( object_equal( var, constant_TMPDIR ) ||
+                    object_equal( var, constant_TMPNAME ) ||
+                    object_equal( var, constant_TMPFILE ) ||
+                    object_equal( var, constant_STDOUT ) ||
+                    object_equal( var, constant_STDERR ) ) )
+            {
+                result = list_push_back( result, var );
             }
         }
     }
@@ -3674,20 +3849,39 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
     LIST * result = L0;
     void * saved_stack = s->data;
 
+    PROFILE_ENTER_LOCAL(function_run);
+
+#ifdef JAM_DEBUGGER
+    frame->function = function_;
+#endif
+
     if ( function_->type == FUNCTION_BUILTIN )
     {
+        PROFILE_ENTER_LOCAL(function_run_FUNCTION_BUILTIN);
         BUILTIN_FUNCTION const * const f = (BUILTIN_FUNCTION *)function_;
         if ( function_->formal_arguments )
             argument_list_check( function_->formal_arguments,
                 function_->num_formal_arguments, function_, frame );
-        return f->func( frame, f->flags );
+
+        debug_on_enter_function( frame, f->base.rulename, NULL, -1 );
+        result = f->func( frame, f->flags );
+        debug_on_exit_function( f->base.rulename );
+        PROFILE_EXIT_LOCAL(function_run_FUNCTION_BUILTIN);
+        PROFILE_EXIT_LOCAL(function_run);
+        return result;
     }
 
 #ifdef HAVE_PYTHON
     else if ( function_->type == FUNCTION_PYTHON )
     {
+        PROFILE_ENTER_LOCAL(function_run_FUNCTION_PYTHON);
         PYTHON_FUNCTION * f = (PYTHON_FUNCTION *)function_;
-        return call_python_function( f, frame );
+        debug_on_enter_function( frame, f->base.rulename, NULL, -1 );
+        result = call_python_function( f, frame );
+        debug_on_exit_function( f->base.rulename );
+        PROFILE_EXIT_LOCAL(function_run_FUNCTION_PYTHON);
+        PROFILE_EXIT_LOCAL(function_run);
+        return result;
     }
 #endif
 
@@ -3698,6 +3892,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             function_->num_formal_arguments, function_, frame, s );
 
     function = (JAM_FUNCTION *)function_;
+    debug_on_enter_function( frame, function->base.rulename, function->file, function->line );
     code = function->code;
     for ( ; ; )
     {
@@ -3709,31 +3904,50 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
          */
 
         case INSTR_PUSH_EMPTY:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_EMPTY);
             stack_push( s, L0 );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_EMPTY);
             break;
+        }
 
         case INSTR_PUSH_CONSTANT:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_CONSTANT);
             OBJECT * value = function_get_constant( function, code->arg );
             stack_push( s, list_new( object_copy( value ) ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_CONSTANT);
             break;
         }
 
         case INSTR_PUSH_ARG:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_ARG);
             stack_push( s, frame_get_local( frame, code->arg ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_ARG);
             break;
+        }
 
         case INSTR_PUSH_VAR:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_VAR);
             stack_push( s, function_get_variable( function, frame, code->arg ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_VAR);
             break;
+        }
 
         case INSTR_PUSH_VAR_FIXED:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_VAR_FIXED);
             stack_push( s, list_copy( frame->module->fixed_variables[ code->arg
                 ] ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_VAR_FIXED);
             break;
+        }
 
         case INSTR_PUSH_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_GROUP);
             LIST * value = L0;
             LISTITER iter;
             LISTITER end;
@@ -3744,121 +3958,183 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                     function, frame, list_item( iter ) ) );
             list_free( l );
             stack_push( s, value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_GROUP);
             break;
         }
 
         case INSTR_PUSH_APPEND:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_APPEND);
             r = stack_pop( s );
             l = stack_pop( s );
             stack_push( s, list_append( l, r ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_APPEND);
             break;
+        }
 
         case INSTR_SWAP:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_SWAP);
             l = stack_top( s );
             stack_set( s, 0, stack_at( s, code->arg ) );
             stack_set( s, code->arg, l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_SWAP);
             break;
+        }
 
         case INSTR_POP:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP);
             list_free( stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_POP);
             break;
+        }
 
         /*
          * Branch instructions
          */
 
         case INSTR_JUMP:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP);
             code += code->arg;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP);
             break;
+        }
 
         case INSTR_JUMP_EMPTY:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_EMPTY);
             l = stack_pop( s );
             if ( !list_cmp( l, L0 ) ) code += code->arg;
             list_free( l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_EMPTY);
             break;
+        }
 
         case INSTR_JUMP_NOT_EMPTY:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_NOT_EMPTY);
             l = stack_pop( s );
             if ( list_cmp( l, L0 ) ) code += code->arg;
             list_free( l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_NOT_EMPTY);
             break;
+        }
 
         case INSTR_JUMP_LT:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_LT);
             r = stack_pop( s );
             l = stack_pop( s );
             if ( list_cmp( l, r ) < 0 ) code += code->arg;
             list_free( l );
             list_free( r );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_LT);
             break;
+        }
 
         case INSTR_JUMP_LE:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_LE);
             r = stack_pop( s );
             l = stack_pop( s );
             if ( list_cmp( l, r ) <= 0 ) code += code->arg;
             list_free( l );
             list_free( r );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_LE);
             break;
+        }
 
         case INSTR_JUMP_GT:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_GT);
             r = stack_pop( s );
             l = stack_pop( s );
             if ( list_cmp( l, r ) > 0 ) code += code->arg;
             list_free( l );
             list_free( r );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_GT);
             break;
+        }
 
         case INSTR_JUMP_GE:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_GE);
             r = stack_pop( s );
             l = stack_pop( s );
             if ( list_cmp( l, r ) >= 0 ) code += code->arg;
             list_free( l );
             list_free( r );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_GE);
             break;
+        }
 
         case INSTR_JUMP_EQ:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_EQ);
             r = stack_pop( s );
             l = stack_pop( s );
             if ( list_cmp( l, r ) == 0 ) code += code->arg;
             list_free( l );
             list_free( r );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_EQ);
             break;
+        }
 
         case INSTR_JUMP_NE:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_NE);
             r = stack_pop(s);
             l = stack_pop(s);
             if ( list_cmp(l, r) != 0 ) code += code->arg;
             list_free(l);
             list_free(r);
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_NE);
             break;
+        }
 
         case INSTR_JUMP_IN:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_IN);
             r = stack_pop(s);
             l = stack_pop(s);
             if ( list_is_sublist( l, r ) ) code += code->arg;
             list_free(l);
             list_free(r);
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_IN);
             break;
+        }
 
         case INSTR_JUMP_NOT_IN:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_NOT_IN);
             r = stack_pop( s );
             l = stack_pop( s );
             if ( !list_is_sublist( l, r ) ) code += code->arg;
             list_free( l );
             list_free( r );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_NOT_IN);
             break;
+        }
 
         /*
          * For
          */
 
         case INSTR_FOR_INIT:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_FOR_INIT);
             l = stack_top( s );
             *(LISTITER *)stack_allocate( s, sizeof( LISTITER ) ) =
                 list_begin( l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_FOR_INIT);
             break;
+        }
 
         case INSTR_FOR_LOOP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_FOR_LOOP);
             LISTITER iter = *(LISTITER *)stack_get( s );
             stack_deallocate( s, sizeof( LISTITER ) );
             l = stack_top( s );
@@ -3874,6 +4150,16 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                 *(LISTITER *)stack_allocate( s, sizeof( LISTITER ) ) = iter;
                 stack_push( s, r );
             }
+            PROFILE_EXIT_LOCAL(function_run_INSTR_FOR_LOOP);
+            break;
+        }
+
+        case INSTR_FOR_POP:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_FOR_POP);
+            stack_deallocate( s, sizeof( LISTITER ) );
+            list_free( stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_FOR_POP);
             break;
         }
 
@@ -3883,6 +4169,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_JUMP_NOT_GLOB:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_JUMP_NOT_GLOB);
             char const * pattern;
             char const * match;
             l = stack_pop( s );
@@ -3894,6 +4181,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             else
                 list_free( stack_pop( s ) );
             list_free( l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_JUMP_NOT_GLOB);
             break;
         }
 
@@ -3902,20 +4190,29 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
          */
 
         case INSTR_SET_RESULT:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_SET_RESULT);
             list_free( result );
             if ( !code->arg )
                 result = stack_pop( s );
             else
                 result = list_copy( stack_top( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_SET_RESULT);
             break;
+        }
 
         case INSTR_PUSH_RESULT:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_RESULT);
             stack_push( s, result );
             result = L0;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_RESULT);
             break;
+        }
 
         case INSTR_RETURN:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_RETURN);
             if ( function_->formal_arguments )
                 argument_list_pop( function_->formal_arguments,
                     function_->num_formal_arguments, frame, s );
@@ -3925,12 +4222,15 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                 frame->file = function->file;
                 frame->line = function->line;
                 backtrace_line( frame );
-                printf( "error: stack check failed.\n" );
+                out_printf( "error: stack check failed.\n" );
                 backtrace( frame );
                 assert( saved_stack == s->data );
             }
 #endif
             assert( saved_stack == s->data );
+            debug_on_exit_function( function->base.rulename );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_RETURN);
+            PROFILE_EXIT_LOCAL(function_run);
             return result;
         }
 
@@ -3940,38 +4240,49 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_PUSH_LOCAL:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_LOCAL);
             LIST * value = stack_pop( s );
             stack_push( s, function_swap_variable( function, frame, code->arg,
                 value ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_LOCAL);
             break;
         }
 
         case INSTR_POP_LOCAL:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_LOCAL);
             function_set_variable( function, frame, code->arg, stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_POP_LOCAL);
             break;
+        }
 
         case INSTR_PUSH_LOCAL_FIXED:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_LOCAL_FIXED);
             LIST * value = stack_pop( s );
             LIST * * ptr = &frame->module->fixed_variables[ code->arg ];
             assert( code->arg < frame->module->num_fixed_variables );
             stack_push( s, *ptr );
             *ptr = value;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_LOCAL_FIXED);
             break;
         }
 
         case INSTR_POP_LOCAL_FIXED:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_LOCAL_FIXED);
             LIST * value = stack_pop( s );
             LIST * * ptr = &frame->module->fixed_variables[ code->arg ];
             assert( code->arg < frame->module->num_fixed_variables );
             list_free( *ptr );
             *ptr = value;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_POP_LOCAL_FIXED);
             break;
         }
 
         case INSTR_PUSH_LOCAL_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_LOCAL_GROUP);
             LIST * const value = stack_pop( s );
             LISTITER iter;
             LISTITER end;
@@ -3982,11 +4293,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                     list_item( iter ), list_copy( value ) ) );
             list_free( value );
             stack_push( s, l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_LOCAL_GROUP);
             break;
         }
 
         case INSTR_POP_LOCAL_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_LOCAL_GROUP);
             LISTITER iter;
             LISTITER end;
             r = stack_pop( s );
@@ -3997,6 +4310,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                 function_set_named_variable( function, frame, list_item( iter ),
                     stack_pop( s ) );
             list_free( l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_POP_LOCAL_GROUP);
             break;
         }
 
@@ -4006,6 +4320,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_PUSH_ON:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_ON);
             LIST * targets = stack_top( s );
             if ( !list_empty( targets ) )
             {
@@ -4022,11 +4337,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                 stack_push( s, L0 );
                 code += code->arg;
             }
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_ON);
             break;
         }
 
         case INSTR_POP_ON:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_ON);
             LIST * result = stack_pop( s );
             LIST * targets = stack_pop( s );
             if ( !list_empty( targets ) )
@@ -4036,11 +4353,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             }
             list_free( targets );
             stack_push( s, result );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_POP_ON);
             break;
         }
 
         case INSTR_SET_ON:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_SET_ON);
             LIST * targets = stack_pop( s );
             LIST * value = stack_pop( s );
             LIST * vars = stack_pop( s );
@@ -4059,11 +4378,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             list_free( vars );
             list_free( targets );
             stack_push( s, value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_SET_ON);
             break;
         }
 
         case INSTR_APPEND_ON:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND_ON);
             LIST * targets = stack_pop( s );
             LIST * value = stack_pop( s );
             LIST * vars = stack_pop( s );
@@ -4082,11 +4403,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             list_free( vars );
             list_free( targets );
             stack_push( s, value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPEND_ON);
             break;
         }
 
         case INSTR_DEFAULT_ON:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_DEFAULT_ON);
             LIST * targets = stack_pop( s );
             LIST * value = stack_pop( s );
             LIST * vars = stack_pop( s );
@@ -4105,12 +4428,14 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             list_free( vars );
             list_free( targets );
             stack_push( s, value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_DEFAULT_ON);
             break;
         }
 
         /* [ on $(target) return $(variable) ] */
         case INSTR_GET_ON:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_GET_ON);
             LIST * targets = stack_pop( s );
             LIST * result = L0;
             if ( !list_empty( targets ) )
@@ -4133,7 +4458,9 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                     result = var_get( frame->module, varname ) ;
                 }
             }
+            list_free( targets );
             stack_push( s, list_copy( result ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_GET_ON);
             break;
         }
 
@@ -4142,39 +4469,56 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
          */
 
         case INSTR_SET:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_SET);
             function_set_variable( function, frame, code->arg,
                 stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_SET);
             break;
+        }
 
         case INSTR_APPEND:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND);
             function_append_variable( function, frame, code->arg,
                 stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPEND);
             break;
+        }
 
         case INSTR_DEFAULT:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_DEFAULT);
             function_default_variable( function, frame, code->arg,
                 stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_DEFAULT);
             break;
+        }
 
         case INSTR_SET_FIXED:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_SET_FIXED);
             LIST * * ptr = &frame->module->fixed_variables[ code->arg ];
             assert( code->arg < frame->module->num_fixed_variables );
             list_free( *ptr );
             *ptr = stack_pop( s );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_SET_FIXED);
             break;
         }
 
         case INSTR_APPEND_FIXED:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND_FIXED);
             LIST * * ptr = &frame->module->fixed_variables[ code->arg ];
             assert( code->arg < frame->module->num_fixed_variables );
             *ptr = list_append( *ptr, stack_pop( s ) );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPEND_FIXED);
             break;
         }
 
         case INSTR_DEFAULT_FIXED:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_DEFAULT_FIXED);
             LIST * * ptr = &frame->module->fixed_variables[ code->arg ];
             LIST * value = stack_pop( s );
             assert( code->arg < frame->module->num_fixed_variables );
@@ -4182,11 +4526,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                 *ptr = value;
             else
                 list_free( value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_DEFAULT_FIXED);
             break;
         }
 
         case INSTR_SET_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_SET_GROUP);
             LIST * value = stack_pop( s );
             LIST * vars = stack_pop( s );
             LISTITER iter = list_begin( vars );
@@ -4196,11 +4542,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                     list_copy( value ) );
             list_free( vars );
             list_free( value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_SET_GROUP);
             break;
         }
 
         case INSTR_APPEND_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND_GROUP);
             LIST * value = stack_pop( s );
             LIST * vars = stack_pop( s );
             LISTITER iter = list_begin( vars );
@@ -4210,11 +4558,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                     ), list_copy( value ) );
             list_free( vars );
             list_free( value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPEND_GROUP);
             break;
         }
 
         case INSTR_DEFAULT_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_DEFAULT_GROUP);
             LIST * value = stack_pop( s );
             LIST * vars = stack_pop( s );
             LISTITER iter = list_begin( vars );
@@ -4224,6 +4574,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                     iter ), list_copy( value ) );
             list_free( vars );
             list_free( value );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_DEFAULT_GROUP);
             break;
         }
 
@@ -4233,31 +4584,43 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_CALL_RULE:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_CALL_RULE);
             char const * unexpanded = object_str( function_get_constant(
                 function, code[ 1 ].op_code ) );
             LIST * result = function_call_rule( function, frame, s, code->arg,
                 unexpanded, function->file, code[ 1 ].arg );
             stack_push( s, result );
             ++code;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_CALL_RULE);
             break;
         }
 
         case INSTR_CALL_MEMBER_RULE:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_CALL_MEMBER_RULE);
             OBJECT * rule_name = function_get_constant( function, code[1].op_code );
             LIST * result = function_call_member_rule( function, frame, s, code->arg, rule_name, function->file, code[1].arg );
             stack_push( s, result );
             ++code;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_CALL_MEMBER_RULE);
             break;
         }
 
         case INSTR_RULE:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_RULE);
             function_set_rule( function, frame, s, code->arg );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_RULE);
             break;
+        }
 
         case INSTR_ACTIONS:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_ACTIONS);
             function_set_actions( function, frame, s, code->arg );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_ACTIONS);
             break;
+        }
 
         /*
          * Variable expansion
@@ -4265,6 +4628,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_APPLY_MODIFIERS:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_MODIFIERS);
             int n;
             int i;
             l = stack_pop( s );
@@ -4276,18 +4640,24 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             for ( i = 0; i < code->arg; ++i )
                 list_free( stack_pop( s ) );  /* pop modifiers */
             stack_push( s, l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_MODIFIERS);
             break;
         }
 
         case INSTR_APPLY_INDEX:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX);
             l = apply_subscript( s );
             list_free( stack_pop( s ) );
             list_free( stack_pop( s ) );
             stack_push( s, l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_INDEX);
             break;
+        }
 
         case INSTR_APPLY_INDEX_MODIFIERS:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX_MODIFIERS);
             int i;
             int n;
             l = stack_pop( s );
@@ -4302,11 +4672,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             for ( i = 0; i < code->arg; ++i )
                 list_free( stack_pop( s ) );  /* pop modifiers */
             stack_push( s, l );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_INDEX_MODIFIERS);
             break;
         }
 
         case INSTR_APPLY_MODIFIERS_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_MODIFIERS_GROUP);
             int i;
             LIST * const vars = stack_pop( s );
             int const n = expand_modifiers( s, code->arg );
@@ -4325,11 +4697,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             for ( i = 0; i < code->arg; ++i )
                 list_free( stack_pop( s ) );  /* pop modifiers */
             stack_push( s, result );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_MODIFIERS_GROUP);
             break;
         }
 
         case INSTR_APPLY_INDEX_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX_GROUP);
             LIST * vars = stack_pop( s );
             LIST * result = L0;
             LISTITER iter = list_begin( vars );
@@ -4344,11 +4718,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             list_free( vars );
             list_free( stack_pop( s ) );
             stack_push( s, result );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_INDEX_GROUP);
             break;
         }
 
         case INSTR_APPLY_INDEX_MODIFIERS_GROUP:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPLY_INDEX_MODIFIERS_GROUP);
             int i;
             LIST * const vars = stack_pop( s );
             LIST * const r = stack_pop( s );
@@ -4371,11 +4747,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             for ( i = 0; i < code->arg; ++i )
                 list_free( stack_pop( s ) );  /* pop modifiers */
             stack_push( s, result );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPLY_INDEX_MODIFIERS_GROUP);
             break;
         }
 
         case INSTR_COMBINE_STRINGS:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_COMBINE_STRINGS);
             size_t const buffer_size = code->arg * sizeof( expansion_item );
             LIST * * const stack_pos = stack_get( s );
             expansion_item * items = stack_allocate( s, buffer_size );
@@ -4388,11 +4766,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             for ( i = 0; i < code->arg; ++i )
                 list_free( stack_pop( s ) );
             stack_push( s, result );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_COMBINE_STRINGS);
             break;
         }
 
         case INSTR_GET_GRIST:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_GET_GRIST);
             LIST * vals = stack_pop( s );
             LIST * result = L0;
             LISTITER iter, end;
@@ -4418,11 +4798,13 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
             list_free( vals );
             stack_push( s, result );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_GET_GRIST);
             break;
         }
 
         case INSTR_INCLUDE:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_INCLUDE);
             LIST * nt = stack_pop( s );
             if ( !list_empty( nt ) )
             {
@@ -4450,7 +4832,11 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
                 popsettings( root_module(), t->settings );
 
                 parse_file( t->boundname, frame );
+#ifdef JAM_DEBUGGER
+                frame->function = function_;
+#endif
             }
+            PROFILE_EXIT_LOCAL(function_run_INSTR_INCLUDE);
             break;
         }
 
@@ -4460,6 +4846,7 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
         case INSTR_PUSH_MODULE:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_PUSH_MODULE);
             LIST * const module_name = stack_pop( s );
             module_t * const outer_module = frame->module;
             frame->module = !list_empty( module_name )
@@ -4468,19 +4855,23 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             list_free( module_name );
             *(module_t * *)stack_allocate( s, sizeof( module_t * ) ) =
                 outer_module;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_PUSH_MODULE);
             break;
         }
 
         case INSTR_POP_MODULE:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_POP_MODULE);
             module_t * const outer_module = *(module_t * *)stack_get( s );
             stack_deallocate( s, sizeof( module_t * ) );
             frame->module = outer_module;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_POP_MODULE);
             break;
         }
 
         case INSTR_CLASS:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_CLASS);
             LIST * bases = stack_pop( s );
             LIST * name = stack_pop( s );
             OBJECT * class_module = make_class_module( name, bases, frame );
@@ -4491,25 +4882,33 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
             *(module_t * *)stack_allocate( s, sizeof( module_t * ) ) =
                 outer_module;
+            PROFILE_EXIT_LOCAL(function_run_INSTR_CLASS);
             break;
         }
 
         case INSTR_BIND_MODULE_VARIABLES:
+        {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_BIND_MODULE_VARIABLES);
             module_bind_variables( frame->module );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_BIND_MODULE_VARIABLES);
             break;
+        }
 
         case INSTR_APPEND_STRINGS:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_APPEND_STRINGS);
             string buf[ 1 ];
             string_new( buf );
             combine_strings( s, code->arg, buf );
             stack_push( s, list_new( object_new( buf->value ) ) );
             string_free( buf );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_APPEND_STRINGS);
             break;
         }
 
         case INSTR_WRITE_FILE:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_WRITE_FILE);
             string buf[ 1 ];
             char const * out;
             OBJECT * tmp_filename = 0;
@@ -4527,17 +4926,46 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             {
                 int err_redir = strcmp( "STDERR", out ) == 0;
                 string result[ 1 ];
+
                 tmp_filename = path_tmpfile();
-                string_new( result );
+
+                /* Construct os-specific cat command. */
+                {
+                    char * command = "cat";
+                    char * quote = "\"";
+                    char * redirect = "1>&2";
+
                 #ifdef OS_NT
-                string_append( result, "type \"" );
-                #else
-                string_append( result, "cat \"" );
+                    command = "type";
+                    quote = "\"";
+                #elif defined( OS_VMS )
+                    command = "pipe type";
+                    quote = "";
+
+                    /* Get tmp file name is os-format. */
+                    {
+                        string os_filename[ 1 ];
+
+                        string_new( os_filename );
+                        path_translate_to_os( object_str( tmp_filename ), os_filename );
+                        object_free( tmp_filename );
+                        tmp_filename = object_new( os_filename->value );
+                        string_free( os_filename );
+                    }
                 #endif
-                string_append( result, object_str( tmp_filename ) );
-                string_push_back( result, '\"' );
-                if ( err_redir )
-                    string_append( result, " 1>&2" );
+
+                    string_new( result );
+                    string_append( result, command );
+                    string_append( result, " " );
+                    string_append( result, quote );
+                    string_append( result, object_str( tmp_filename ) );
+                    string_append( result, quote );
+                    if ( err_redir )
+                    {
+                        string_append( result, " " );
+                        string_append( result, redirect );
+                    }
+                }
 
                 /* Replace STDXXX with the temporary file. */
                 list_free( stack_pop( s ) );
@@ -4566,16 +4994,16 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
 
                 if ( !out_file )
                 {
-                    printf( "failed to write output file '%s'!\n",
+                    err_printf( "failed to write output file '%s'!\n",
                         out_name->value );
                     exit( EXITBAD );
                 }
                 string_free( out_name );
             }
 
-            if ( out_debug ) printf( "\nfile %s\n", out );
+            if ( out_debug ) out_printf( "\nfile %s\n", out );
             if ( out_file ) fputs( buf->value, out_file );
-            if ( out_debug ) fputs( buf->value, stdout );
+            if ( out_debug ) out_puts( buf->value );
             if ( out_file )
             {
                 fflush( out_file );
@@ -4585,21 +5013,32 @@ LIST * function_run( FUNCTION * function_, FRAME * frame, STACK * s )
             if ( tmp_filename )
                 object_free( tmp_filename );
 
-            if ( out_debug ) fputc( '\n', stdout );
+            if ( out_debug ) out_putc( '\n' );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_WRITE_FILE);
             break;
         }
 
         case INSTR_OUTPUT_STRINGS:
         {
+            PROFILE_ENTER_LOCAL(function_run_INSTR_OUTPUT_STRINGS);
             string * const buf = *(string * *)( (char *)stack_get( s ) + (
                 code->arg * sizeof( LIST * ) ) );
             combine_strings( s, code->arg, buf );
+            PROFILE_EXIT_LOCAL(function_run_INSTR_OUTPUT_STRINGS);
+            break;
+        }
+
+        case INSTR_DEBUG_LINE:
+        {
+            debug_on_instruction( frame, function->file, code->arg );
             break;
         }
 
         }
         ++code;
     }
+
+    PROFILE_EXIT_LOCAL(function_run);
 }
 
 
@@ -4833,7 +5272,7 @@ static LIST * call_python_function( PYTHON_FUNCTION * function, FRAME * frame )
             {
                 OBJECT * s = python_to_string( PyList_GetItem( py_result, i ) );
                 if ( !s )
-                    fprintf( stderr,
+                    err_printf(
                         "Non-string object returned by Python call.\n" );
                 else
                     result = list_push_back( result, s );
@@ -4864,7 +5303,7 @@ static LIST * call_python_function( PYTHON_FUNCTION * function, FRAME * frame )
     else
     {
         PyErr_Print();
-        fprintf( stderr, "Call failed\n" );
+        err_printf( "Call failed\n" );
     }
 
     return result;

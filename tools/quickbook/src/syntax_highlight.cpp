@@ -34,7 +34,7 @@ namespace quickbook
 
         // State
         bool support_callouts;
-        boost::string_ref marked_text;
+        quickbook::string_view marked_text;
 
         syntax_highlight_actions(quickbook::state& state, bool is_block) :
             state(state),
@@ -129,7 +129,7 @@ namespace quickbook
     void syntax_highlight_actions::mark_text(parse_iterator first,
             parse_iterator last)
     {
-        marked_text = boost::string_ref(first.base(), last.base() - first.base());
+        marked_text = quickbook::string_view(first.base(), last.base() - first.base());
     }
 
     void syntax_highlight_actions::callout(parse_iterator, parse_iterator)
@@ -390,7 +390,11 @@ namespace quickbook
                     =
                     *(  (+cl::space_p)                  [plain_char]
                     |   macro
-                    |   escape          
+                    |   escape
+                    |   cl::eps_p(ph::var(self.actions.support_callouts))
+                    >>  (   line_callout                [callout]
+                        |   inline_callout              [callout]
+                        )
                     |   comment
                     |   keyword                         [span("keyword")]
                     |   identifier                      [span("identifier")]
@@ -426,6 +430,19 @@ namespace quickbook
                             >> *cl::anychar_p
                         )
                     )                                   [post_escape_back]
+                    ;
+
+                inline_callout
+                    =   "#<" >> *cl::space_p >>
+                        (*(cl::anychar_p - cl::eol_p))  [mark_text]
+                    ;
+
+                line_callout
+                    =   cl::confix_p(
+                            "#<<" >> *cl::space_p,
+                            (*cl::anychar_p)            [mark_text],
+                            (cl::eol_p | cl::end_p)
+                        )
                     ;
 
                 comment
@@ -482,7 +499,8 @@ namespace quickbook
             }
 
             cl::rule<Scanner>
-                            program, macro, comment, special, string_, string_prefix, 
+                            program, macro, inline_callout, line_callout,
+                            comment, special, string_, string_prefix,
                             short_string, long_string, number, identifier, keyword, 
                             escape, string_char;
 

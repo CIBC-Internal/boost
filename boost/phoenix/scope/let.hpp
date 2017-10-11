@@ -119,7 +119,7 @@ namespace boost { namespace phoenix
 
             locals_type locals = initialize_locals(proto::value(vars_), ctx);
 
-            typedef typename result<let_eval(Vars const&, Map const&, Expr const &, Context const &)>::type result_type;
+            //typedef typename result<let_eval(Vars const&, Map const&, Expr const &, Context const &)>::type result_type;
 
             scoped_environment<
                 env_type
@@ -136,7 +136,7 @@ namespace boost { namespace phoenix
             //strm << vsize << std::endl;
             //int size = strm.str().length();
             //BOOST_ASSERT(size >= 0);
-            result_type r = eval(expr, phoenix::context(env, phoenix::actions(ctx)));
+            return eval(expr, phoenix::context(env, phoenix::actions(ctx)));
             // typedef is_value<result_type> is_val;
             //if(is_val::value) This seems always to be true
             //{
@@ -144,7 +144,7 @@ namespace boost { namespace phoenix
             // }
             //if (is_val(r) ) std::cout << "let returns val" << std::endl;
             //std::cout << "result is " << r << std::endl;
-            return r;
+            //return r;
         }
     };
 
@@ -193,7 +193,11 @@ namespace boost { namespace phoenix
 #define BOOST_PHOENIX_SCOPE_ACTOR_GEN_NAME let_actor_gen
 #define BOOST_PHOENIX_SCOPE_ACTOR_GEN_FUNCTION let
 #define BOOST_PHOENIX_SCOPE_ACTOR_GEN_CONST
+#if defined(BOOST_PHOENIX_NO_VARIADIC_SCOPE)
+    #include <boost/phoenix/scope/detail/cpp03/local_gen.hpp>
+#else
     #include <boost/phoenix/scope/detail/local_gen.hpp>
+#endif
 #undef BOOST_PHOENIX_SCOPE_ACTOR_GEN_NAME
 #undef BOOST_PHOENIX_SCOPE_ACTOR_GEN_FUNCTION
 #undef BOOST_PHOENIX_SCOPE_ACTOR_GEN_CONST

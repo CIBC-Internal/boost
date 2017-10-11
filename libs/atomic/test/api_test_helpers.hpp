@@ -7,10 +7,13 @@
 #ifndef BOOST_ATOMIC_API_TEST_HELPERS_HPP
 #define BOOST_ATOMIC_API_TEST_HELPERS_HPP
 
+#include <boost/atomic.hpp>
 #include <cstring>
 #include <boost/config.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include <boost/atomic.hpp>
+#include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_unsigned.hpp>
 
 /* provide helpers that exercise whether the API
 functions of "boost::atomic" provide the correct
@@ -198,13 +201,13 @@ void test_additive_wrap(T value)
 {
     {
         boost::atomic<T> a(value);
-        T n = a.fetch_add(1) + 1;
-        BOOST_TEST( a.compare_exchange_strong(n, n) );
+        T n = a.fetch_add(1) + (T)1;
+        BOOST_TEST( a.load() == n );
     }
     {
         boost::atomic<T> a(value);
-        T n = a.fetch_sub(1) - 1;
-        BOOST_TEST( a.compare_exchange_strong(n, n) );
+        T n = a.fetch_sub(1) - (T)1;
+        BOOST_TEST( a.load() == n );
     }
 }
 
@@ -257,7 +260,7 @@ void test_bit_operators(T value, T delta)
 }
 
 template<typename T>
-void test_integral_api(void)
+void do_test_integral_api(boost::false_type)
 {
     BOOST_TEST( sizeof(boost::atomic<T>) >= sizeof(T));
 
@@ -271,11 +274,25 @@ void test_integral_api(void)
     /* test for signed overflow/underflow */
     test_additive_operators<T, T>(((T)-1) >> (sizeof(T) * 8 - 1), 1);
     test_additive_operators<T, T>(1 + (((T)-1) >> (sizeof(T) * 8 - 1)), 1);
+}
 
-    test_additive_wrap<T>(0);
-    test_additive_wrap<T>((T) -1);
-    test_additive_wrap<T>(((T)-1) << (sizeof(T) * 8 - 1));
-    test_additive_wrap<T>(~ (((T)-1) << (sizeof(T) * 8 - 1)));
+template<typename T>
+void do_test_integral_api(boost::true_type)
+{
+    do_test_integral_api<T>(boost::false_type());
+
+    test_additive_wrap<T>(0u);
+    BOOST_CONSTEXPR_OR_CONST T all_ones = ~(T)0u;
+    test_additive_wrap<T>(all_ones);
+    BOOST_CONSTEXPR_OR_CONST T max_signed_twos_compl = all_ones >> 1;
+    test_additive_wrap<T>(all_ones ^ max_signed_twos_compl);
+    test_additive_wrap<T>(max_signed_twos_compl);
+}
+
+template<typename T>
+inline void test_integral_api(void)
+{
+    do_test_integral_api<T>(boost::is_unsigned<T>());
 }
 
 template<typename T>
@@ -290,11 +307,12 @@ void test_pointer_api(void)
     test_additive_operators<T*>(&values[1], 1);
 
     test_base_operators<void*>(&values[0], &values[1], &values[2]);
-    test_additive_operators_with_type<void*, int, char*>(&values[1], 1);
 
+#if defined(BOOST_HAS_INTPTR_T)
     boost::atomic<void *> ptr;
-    boost::atomic<intptr_t> integral;
+    boost::atomic<boost::intptr_t> integral;
     BOOST_TEST( ptr.is_lock_free() == integral.is_lock_free() );
+#endif
 }
 
 enum test_enum {
@@ -329,6 +347,24 @@ test_struct_api(void)
         BOOST_TEST( sa.is_lock_free() == si.is_lock_free() );
     }
 }
+
+template<typename T>
+struct test_struct_x2 {
+    typedef T value_type;
+    value_type i, j;
+    inline bool operator==(const test_struct_x2 & c) const {return i == c.i && j == c.j;}
+    inline bool operator!=(const test_struct_x2 & c) const {return i != c.i && j != c.j;}
+};
+
+template<typename T>
+void
+test_struct_x2_api(void)
+{
+    T a = {1, 1}, b = {2, 2}, c = {3, 3};
+
+    test_base_operators(a, b, c);
+}
+
 struct large_struct {
     long data[64];
 

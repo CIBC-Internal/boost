@@ -25,12 +25,11 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 
-#include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
+#include <boost/geometry/strategies/cartesian/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/policies/relate/intersection_points.hpp>
 #include <boost/geometry/policies/relate/direction.hpp>
-//#include <boost/geometry/policies/relate/de9im.hpp>
 #include <boost/geometry/policies/relate/tupled.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>

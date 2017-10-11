@@ -29,7 +29,28 @@ void expected_results()
       ".*",                          // platform
       ".*",                          // test type(s)
       ".*Negative.*",                // test data group
-      ".*", 350, 40);                // test function
+      ".*", 550, 40);                // test function
+   add_expected_result(
+      ".*",                          // compiler
+      ".*",                          // stdlib
+      ".*",                          // platform
+      ".*cpp_dec_float.*",           // test type(s)
+      ".*Near the Positive Root.*",  // test data group
+      ".*", 2500, 200);              // test function
+   add_expected_result(
+      ".*",                          // compiler
+      ".*",                          // stdlib
+      ".*",                          // platform
+      ".*mpfr_float_backend<0>.*",           // test type(s)
+      ".*Near the Positive Root.*",  // test data group
+      ".*", 30000, 2000);              // test function
+   add_expected_result(
+      ".*",                          // compiler
+      ".*",                          // stdlib
+      ".*",                          // platform
+      ".*",                          // test type(s)
+      ".*Near the Positive Root.*",  // test data group
+      ".*", 6000, 1000);              // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib

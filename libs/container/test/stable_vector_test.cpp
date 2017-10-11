@@ -7,14 +7,12 @@
 // See http://www.boost.org/libs/container for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-
+#define STABLE_VECTOR_ENABLE_INVARIANT_CHECKING
 #include <boost/container/detail/config_begin.hpp>
 #include <memory>
 
 #include <boost/container/stable_vector.hpp>
-#include <boost/container/allocator.hpp>
 #include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 
 #include "check_equal_containers.hpp"
 #include "movable_int.hpp"
@@ -24,6 +22,7 @@
 #include "propagate_allocator_test.hpp"
 #include "vector_test.hpp"
 #include "default_init_test.hpp"
+#include "../../intrusive/test/iterator_test.hpp"
 
 using namespace boost::container;
 
@@ -32,21 +31,7 @@ namespace container {
 
 //Explicit instantiation to detect compilation errors
 template class stable_vector<test::movable_and_copyable_int,
-   test::dummy_test_allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector<test::movable_and_copyable_int,
    test::simple_allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector<test::movable_and_copyable_int,
-   std::allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector
-   < test::movable_and_copyable_int
-   , allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector
-   < test::movable_and_copyable_int
-   , adaptive_pool<test::movable_and_copyable_int> >;
 
 template class stable_vector
    < test::movable_and_copyable_int
@@ -158,19 +143,9 @@ int main()
       std::cerr << "test_cont_variants< std::allocator<void> > failed" << std::endl;
       return 1;
    }
-   //       boost::container::allocator
-   if(test_cont_variants< allocator<void> >()){
-      std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
-      return 1;
-   }
    //       boost::container::node_allocator
    if(test_cont_variants< node_allocator<void> >()){
       std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_cont_variants< adaptive_pool<void> >()){
-      std::cerr << "test_cont_variants< adaptive_pool<void> > failed" << std::endl;
       return 1;
    }
 
@@ -204,6 +179,18 @@ int main()
    {
        std::cerr << "test_methods_with_initializer_list_as_argument failed" << std::endl;
        return 1;
+   }
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::stable_vector<int> cont_int;
+      cont_int a; a.push_back(0); a.push_back(1); a.push_back(2);
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
    }
 
    return 0;

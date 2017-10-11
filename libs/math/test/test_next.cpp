@@ -6,10 +6,13 @@
 #include <pch.hpp>
 
 #include <boost/math/concepts/real_concept.hpp>
+#include <boost/math/tools/test.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/math/special_functions/next.hpp>
+#include <boost/math/special_functions/ulp.hpp>
+#include <boost/multiprecision/cpp_bin_float.hpp>
 #include <iostream>
 #include <iomanip>
 
@@ -57,6 +60,36 @@ void test_value(const T& val, const char* name)
    {
       BOOST_CHECK_EQUAL(float_distance(float_advance(float_next(float_next(val)), 4), float_next(float_next(val))), -4);
       BOOST_CHECK_EQUAL(float_distance(float_advance(float_next(float_next(val)), -4), float_next(float_next(val))), 4);
+   }
+   if(val > 0)
+   {
+      T n = val + ulp(val);
+      T fn = float_next(val);
+      if(n > fn)
+      {
+         BOOST_CHECK_LE(ulp(val), boost::math::tools::min_value<T>());
+      }
+      else
+      {
+         BOOST_CHECK_EQUAL(fn, n);
+      }
+   }
+   else if(val == 0)
+   {
+      BOOST_CHECK_GE(boost::math::tools::min_value<T>(), ulp(val));
+   }
+   else
+   {
+      T n = val - ulp(val);
+      T fp = float_prior(val);
+      if(n < fp)
+      {
+         BOOST_CHECK_LE(ulp(val), boost::math::tools::min_value<T>());
+      }
+      else
+      {
+         BOOST_CHECK_EQUAL(fp, n);
+      }
    }
 }
 
@@ -142,18 +175,55 @@ void test_values(const T& val, const char* name)
    {
       BOOST_CHECK_EQUAL(boost::math::float_prior(std::numeric_limits<T>::infinity()), (std::numeric_limits<T>::max)());
       BOOST_CHECK_EQUAL(boost::math::float_next(-std::numeric_limits<T>::infinity()), -(std::numeric_limits<T>::max)());
-      BOOST_CHECK_THROW(boost::math::float_prior(-std::numeric_limits<T>::infinity()), std::domain_error);
-      BOOST_CHECK_THROW(boost::math::float_next(std::numeric_limits<T>::infinity()), std::domain_error);
+      BOOST_MATH_CHECK_THROW(boost::math::float_prior(-std::numeric_limits<T>::infinity()), std::domain_error);
+      BOOST_MATH_CHECK_THROW(boost::math::float_next(std::numeric_limits<T>::infinity()), std::domain_error);
       if(boost::math::policies:: BOOST_MATH_OVERFLOW_ERROR_POLICY == boost::math::policies::throw_on_error)
       {
-         BOOST_CHECK_THROW(boost::math::float_prior(-(std::numeric_limits<T>::max)()), std::overflow_error);
-         BOOST_CHECK_THROW(boost::math::float_next((std::numeric_limits<T>::max)()), std::overflow_error);
+         BOOST_MATH_CHECK_THROW(boost::math::float_prior(-(std::numeric_limits<T>::max)()), std::overflow_error);
+         BOOST_MATH_CHECK_THROW(boost::math::float_next((std::numeric_limits<T>::max)()), std::overflow_error);
       }
       else
       {
          BOOST_CHECK_EQUAL(boost::math::float_prior(-(std::numeric_limits<T>::max)()), -std::numeric_limits<T>::infinity());
          BOOST_CHECK_EQUAL(boost::math::float_next((std::numeric_limits<T>::max)()), std::numeric_limits<T>::infinity());
       }
+   }
+   //
+   // We need to test float_distance over mulyiple orders of magnitude,
+   // the only way to get an accurate true result is to count the representations
+   // between the two end points, but we can only really do this for type float:
+   //
+   if (std::numeric_limits<T>::is_specialized && (std::numeric_limits<T>::digits < 30) && (std::numeric_limits<T>::radix == 2))
+   {
+      T left, right, dist, fresult;
+      boost::uintmax_t result;
+
+      left = static_cast<T>(0.1);
+      right = left * static_cast<T>(4.2);
+      dist = boost::math::float_distance(left, right);
+      // We have to use a wider integer type for the accurate count, since there
+      // aren't enough bits in T to get a true result if the values differ
+      // by more than a factor of 2:
+      result = 0;
+      for (; left != right; ++result, left = boost::math::float_next(left));
+      fresult = static_cast<T>(result);
+      BOOST_CHECK_EQUAL(fresult, dist);
+
+      left = static_cast<T>(-0.1);
+      right = left * static_cast<T>(4.2);
+      dist = boost::math::float_distance(right, left);
+      result = 0;
+      for (; left != right; ++result, left = boost::math::float_prior(left));
+      fresult = static_cast<T>(result);
+      BOOST_CHECK_EQUAL(fresult, dist);
+
+      left = static_cast<T>(-1.1) * (std::numeric_limits<T>::min)();
+      right = static_cast<T>(-4.1) * left;
+      dist = boost::math::float_distance(left, right);
+      result = 0;
+      for (; left != right; ++result, left = boost::math::float_next(left));
+      fresult = static_cast<T>(result);
+      BOOST_CHECK_EQUAL(fresult, dist);
    }
 }
 
@@ -165,6 +235,15 @@ BOOST_AUTO_TEST_CASE( test_main )
    test_values(1.0L, "long double");
    test_values(boost::math::concepts::real_concept(0), "real_concept");
 #endif
+
+   //
+   // Test some multiprecision types:
+   //
+   test_values(boost::multiprecision::cpp_bin_float_quad(0), "cpp_bin_float_quad");
+   // This is way to slow to test routinely:
+   //test_values(boost::multiprecision::cpp_bin_float_single(0), "cpp_bin_float_single");
+   test_values(boost::multiprecision::cpp_bin_float_50(0), "cpp_bin_float_50");
+
 #if defined(TEST_SSE2)
 
 #ifdef _MSC_VER

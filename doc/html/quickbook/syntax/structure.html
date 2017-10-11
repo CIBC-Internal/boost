@@ -1,11 +1,12 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Document Structure</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../../quickbook.html" title="Chapter&#160;41.&#160;Quickbook 1.6">
+<link rel="up" href="../../quickbook.html" title="Chapter&#160;51.&#160;Quickbook 1.6">
 <link rel="prev" href="../syntax.html" title="Syntax Summary">
 <link rel="next" href="phrase.html" title="Phrase Level Elements">
 </head>
@@ -317,6 +318,27 @@ Chapter contents....
         are converted to underscore and all upper-case are converted to lower case.
         Thus: "The Section Title" will be normalized to "the_section_title".
       </p>
+<p>
+        The end of the section can also have an optional id, this is just used to
+        check that it matches the opening of the section.
+      </p>
+<pre class="programlisting">[section:matching Section with an id]
+
+[/...]
+
+[endsect:matching]
+</pre>
+<p>
+        It won't match a generated id, only one that's explicitly specified, so this
+        will be an error, even if quickbook generates the id <code class="computeroutput">generated</code>
+        for the section:
+      </p>
+<pre class="programlisting">[section Generated]
+
+[/...]
+
+[endsect:generated]
+</pre>
 <p>
         Sections can nest, and that results in a hierarchy in the table of contents.
       </p>

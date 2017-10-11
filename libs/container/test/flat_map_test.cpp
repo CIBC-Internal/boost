@@ -11,8 +11,6 @@
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/allocator.hpp>
-#include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 #include <boost/container/detail/flat_tree.hpp>
 
 #include "print_container.hpp"
@@ -22,6 +20,7 @@
 #include "propagate_allocator_test.hpp"
 #include "container_common_tests.hpp"
 #include "emplace_test.hpp"
+#include "../../intrusive/test/iterator_test.hpp"
 
 #include <vector>
 #include <map>
@@ -35,13 +34,6 @@ namespace container {
 //Explicit instantiation to detect compilation errors
 
 //flat_map
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
 
 template class flat_map
    < test::movable_and_copyable_int
@@ -64,22 +56,6 @@ template class flat_map
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
    , allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator
       < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
    >;
 
@@ -88,47 +64,7 @@ template class flat_multimap
    < test::movable_and_copyable_int
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , test::dummy_test_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
    , test::simple_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , std::allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , adaptive_pool
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_multimap
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , node_allocator
       < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
    >;
 
@@ -282,6 +218,116 @@ bool flat_tree_ordered_insertion_test()
       fmap.insert(ordered_unique_range, int_even_map.begin(), int_even_map.end());
       int_map4.insert(int_even_map.begin(), int_even_map.end());
       if(!CheckEqualContainers(int_map4, fmap))
+         return false;
+   }
+
+   return true;
+}
+
+template< class RandomIt >
+void random_shuffle( RandomIt first, RandomIt last )
+{
+   typedef typename boost::container::iterator_traits<RandomIt>::difference_type difference_type;
+   difference_type n = last - first;
+   for (difference_type i = n-1; i > 0; --i) {
+      difference_type j = std::rand() % (i+1);
+      if(j != i) {
+         boost::adl_move_swap(first[i], first[j]);
+      }
+   }
+}
+
+bool flat_tree_extract_adopt_test()
+{
+   using namespace boost::container;
+   const std::size_t NumElements = 100;
+
+   //extract/adopt map
+   {
+      //Construction insertion
+      flat_map<int, int> fmap;
+
+      for(std::size_t i = 0; i != NumElements; ++i){
+         fmap.emplace(static_cast<int>(i), -static_cast<int>(i));
+      }
+
+      flat_map<int, int> fmap_copy(fmap);
+      flat_map<int, int>::sequence_type seq(fmap.extract_sequence());
+      if(!fmap.empty())
+         return false;
+      if(!CheckEqualContainers(seq, fmap_copy))
+         return false;
+
+      seq.insert(seq.end(), fmap_copy.begin(), fmap_copy.end());
+      boost::container::test::random_shuffle(seq.begin(), seq.end());
+      fmap.adopt_sequence(boost::move(seq));
+      if(!CheckEqualContainers(fmap, fmap_copy))
+         return false;
+   }
+
+   //extract/adopt map, ordered_unique_range
+   {
+      //Construction insertion
+      flat_map<int, int> fmap;
+
+      for(std::size_t i = 0; i != NumElements; ++i){
+         fmap.emplace(static_cast<int>(i), -static_cast<int>(i));
+      }
+
+      flat_map<int, int> fmap_copy(fmap);
+      flat_map<int, int>::sequence_type seq(fmap.extract_sequence());
+      if(!fmap.empty())
+         return false;
+      if(!CheckEqualContainers(seq, fmap_copy))
+         return false;
+
+      fmap.adopt_sequence(ordered_unique_range, boost::move(seq));
+      if(!CheckEqualContainers(fmap, fmap_copy))
+         return false;
+   }
+
+   //extract/adopt multimap
+   {
+      //Construction insertion
+      flat_multimap<int, int> fmmap;
+
+      for(std::size_t i = 0; i != NumElements; ++i){
+         fmmap.emplace(static_cast<int>(i), -static_cast<int>(i));
+         fmmap.emplace(static_cast<int>(i), -static_cast<int>(i));
+      }
+
+      flat_multimap<int, int> fmmap_copy(fmmap);
+      flat_multimap<int, int>::sequence_type seq(fmmap.extract_sequence());
+      if(!fmmap.empty())
+         return false;
+      if(!CheckEqualContainers(seq, fmmap_copy))
+         return false;
+
+      boost::container::test::random_shuffle(seq.begin(), seq.end());
+      fmmap.adopt_sequence(boost::move(seq));
+      if(!CheckEqualContainers(fmmap, fmmap_copy))
+         return false;
+   }
+
+   //extract/adopt multimap, ordered_range
+   {
+      //Construction insertion
+      flat_multimap<int, int> fmmap;
+
+      for(std::size_t i = 0; i != NumElements; ++i){
+         fmmap.emplace(static_cast<int>(i), -static_cast<int>(i));
+         fmmap.emplace(static_cast<int>(i), -static_cast<int>(i));
+      }
+
+      flat_multimap<int, int> fmmap_copy(fmmap);
+      flat_multimap<int, int>::sequence_type seq(fmmap.extract_sequence());
+      if(!fmmap.empty())
+         return false;
+      if(!CheckEqualContainers(seq, fmmap_copy))
+         return false;
+
+      fmmap.adopt_sequence(ordered_range, boost::move(seq));
+      if(!CheckEqualContainers(fmmap, fmmap_copy))
          return false;
    }
 
@@ -450,6 +496,16 @@ int main()
    }
 
    ////////////////////////////////////
+   //    Extract/Adopt test
+   ////////////////////////////////////
+   if(!flat_tree_extract_adopt_test()){
+      return 1;
+   }
+
+   if (!boost::container::test::instantiate_constructors<flat_map<int, int>, flat_multimap<int, int> >())
+      return 1;
+
+   ////////////////////////////////////
    //    Testing allocator implementations
    ////////////////////////////////////
    //       std::allocator
@@ -460,16 +516,6 @@ int main()
    //       boost::container::allocator
    if(test_map_variants< allocator<void> >()){
       std::cerr << "test_map_variants< allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::node_allocator
-   if(test_map_variants< node_allocator<void> >()){
-      std::cerr << "test_map_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_map_variants< adaptive_pool<void> >()){
-      std::cerr << "test_map_variants< adaptive_pool<void> > failed" << std::endl;
       return 1;
    }
 
@@ -497,6 +543,26 @@ int main()
 
    if(!boost::container::test::test_propagate_allocator<boost_container_flat_multimap>())
       return 1;
+
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::flat_map<int, int> cont_int;
+      cont_int a; a.insert(cont_int::value_type(0, 9)); a.insert(cont_int::value_type(1, 9)); a.insert(cont_int::value_type(2, 9));
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
+   {
+      typedef boost::container::flat_multimap<int, int> cont_int;
+      cont_int a; a.insert(cont_int::value_type(0, 9)); a.insert(cont_int::value_type(1, 9)); a.insert(cont_int::value_type(2, 9));
+      boost::intrusive::test::test_iterator_random< cont_int >(a);
+      if(boost::report_errors() != 0) {
+         return 1;
+      }
+   }
 
    return 0;
 }

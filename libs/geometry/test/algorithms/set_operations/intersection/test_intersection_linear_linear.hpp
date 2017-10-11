@@ -1,18 +1,20 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_INTERSECTION_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_TEST_INTERSECTION_LINEAR_LINEAR_HPP
 
 #include <limits>
 
-#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/type_traits/is_same.hpp>
+
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
 #include <from_wkt.hpp>
@@ -24,6 +26,25 @@
 // intersection of (linear) geometries
 //==================================================================
 //==================================================================
+
+template <typename Geometry1, typename Geometry2, typename MultiLineString>
+inline void check_result(Geometry1 const& geometry1,
+                         Geometry2 const& geometry2,
+                         MultiLineString const& mls_output,
+                         MultiLineString const& mls_int1,
+                         MultiLineString const& mls_int2,
+                         std::string const& case_id,
+                         double tolerance)
+{
+    BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
+                         || equals::apply(mls_int2, mls_output, tolerance),
+                         "case id: " << case_id
+                         << ", intersection L/L: " << bg::wkt(geometry1)
+                         << " " << bg::wkt(geometry2)
+                         << " -> Expected: " << bg::wkt(mls_int1)
+                         << " or: " << bg::wkt(mls_int2)
+                         << " computed: " << bg::wkt(mls_output) );
+}
 
 template
 <
@@ -52,16 +73,20 @@ private:
         linestring_vector ls_vector_output;
         linestring_deque ls_deque_output;
 
+        // Check normal behaviour
         bg::intersection(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
-                             || equals::apply(mls_int2, mls_output, tolerance),
-                             "case id: " << case_id
-                             << ", intersection L/L: " << bg::wkt(geometry1)
-                             << " " << bg::wkt(geometry2)
-                             << " -> Expected: " << bg::wkt(mls_int1)
-                             << " or: " << bg::wkt(mls_int2)
-                             << " computed: " << bg::wkt(mls_output) );
+        check_result(geometry1, geometry2, mls_output, mls_int1, mls_int2, case_id, tolerance);
+
+        // Check strategy passed explicitly
+        typedef typename bg::strategy::relate::services::default_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        bg::clear(mls_output);
+        bg::intersection(geometry1, geometry2, mls_output, strategy_type());
+
+        check_result(geometry1, geometry2, mls_output, mls_int1, mls_int2, case_id, tolerance);
 
         set_operation_output("intersection", case_id,
                              geometry1, geometry2, mls_output);
@@ -70,7 +95,7 @@ private:
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
         std::cout << "intersection : " << bg::wkt(mls_output) << std::endl;
         std::cout << "expected intersection : " << bg::wkt(mls_int1)
-                  << std::endl;
+                  << " or: " << bg::wkt(mls_int2) << std::endl;
         std::cout << std::endl;
         std::cout << "************************************" << std::endl;
         std::cout << std::endl;
@@ -108,21 +133,14 @@ private:
         bg::clear(mls_output);
         bg::intersection(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
-                             || equals::apply(mls_int2, mls_output, tolerance),
-                             "case id: " << case_id
-                             << ", intersection L/L: " << bg::wkt(geometry1)
-                             << " " << bg::wkt(geometry2)
-                             << " -> Expected: " << bg::wkt(mls_int1)
-                             << " or: " << bg::wkt(mls_int2)
-                             << " computed: " << bg::wkt(mls_output) );
+        check_result(geometry1, geometry2, mls_output, mls_int1, mls_int2, case_id, tolerance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry1) << std::endl;
         std::cout << "intersection : " << bg::wkt(mls_output) << std::endl;
-        std::cout << "expected intersection : " << bg::wkt(mls_int2)
-                  << std::endl;
+        std::cout << "expected intersection : " << bg::wkt(mls_int1)
+                  << " or: " << bg::wkt(mls_int2) << std::endl;
         std::cout << std::endl;
         std::cout << "************************************" << std::endl;
         std::cout << std::endl;
@@ -193,14 +211,27 @@ public:
         Geometry2 rg2(geometry2);
         bg::reverse<Geometry2>(rg2);
 
-        test_get_turns_ll_invariance<>::apply(geometry1, geometry2);
+        typedef typename bg::tag_cast
+            <
+                Geometry1, bg::linear_tag
+            >::type tag1_type;
+
+        typedef typename bg::tag_cast
+            <
+                Geometry2, bg::linear_tag
+            >::type tag2_type;
+
+        bool const are_linear
+            = boost::is_same<tag1_type, bg::linear_tag>::value
+            && boost::is_same<tag2_type, bg::linear_tag>::value;
+
+        test_get_turns_ll_invariance<are_linear>::apply(geometry1, geometry2);
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl
                   << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
                   << std::endl << std::endl;
 #endif
-        test_get_turns_ll_invariance<>::apply(rg1, geometry2);
-
+        test_get_turns_ll_invariance<are_linear>::apply(rg1, geometry2);
 
         base_test(geometry1, geometry2, mls_int1, mls_int2, case_id, tolerance);
         //        base_test(rg1, rg2, mls_int1, mls_int2);

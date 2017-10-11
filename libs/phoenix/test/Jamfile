@@ -10,6 +10,8 @@
 # bring in rules for testing
 import testing ;
 
+import ../../config/checks/config : requires ;
+
 project
     : requirements
         <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE
@@ -53,11 +55,16 @@ test-suite phoenix_function :
     [ run function/adapt_function.cpp ]
     [ run function/function_tests.cpp ]
     [ run function/lazy_argument_tests.cpp ]
+#    [ run function/lazy_compose_tests.cpp ]
+#    [ run function/lazy_fold_tests.cpp ]
     [ run function/lazy_list_tests.cpp ]
     [ run function/lazy_list2_tests.cpp ]
     [ run function/lazy_list3_tests.cpp ]
     [ run function/lazy_make_pair_tests.cpp ]
+#    [ run function/lazy_ptr_tests.cpp ]
+#    [ run function/lazy_scan_tests.cpp ]
     [ run function/lazy_templated_struct_tests.cpp ]
+#    [ run function/lazy_thunk_tests.cpp ]
     [ run function/lazy_operator_tests.cpp ]
 #    [ run function/function_tests_phx2.cpp ]
     ;
@@ -92,6 +99,18 @@ test-suite phoenix_container :
     [ run container/container_tests5b.cpp ] 
     [ run container/container_tests6a.cpp ] 
     [ run container/container_tests6b.cpp ] 
+    [ run container/container_tests7a.cpp ]
+    [ run container/container_tests7b.cpp ]
+    [ run container/container_tests8a.cpp ]
+    [ run container/container_tests8b.cpp : : : [ requires cxx11_hdr_unordered_map ] ]
+    [ run container/container_tests9a.cpp : : : [ requires cxx11_hdr_unordered_map ] ]
+    [ run container/container_tests9b.cpp : : : [ requires cxx11_hdr_unordered_map ] ]
+    [ run container/container_tests10a.cpp : : : [ requires cxx11_hdr_unordered_map ] ]
+    [ run container/container_tests10b.cpp : : : [ requires cxx11_hdr_unordered_map ] ]
+    [ run container/container_tests11a.cpp : : : [ requires cxx11_hdr_unordered_set ] ]
+    [ run container/container_tests11b.cpp : : : [ requires cxx11_hdr_unordered_set ] ]
+    [ run container/container_tests12a.cpp : : : [ requires cxx11_hdr_unordered_set ] ]
+    [ run container/container_tests12b.cpp : : : [ requires cxx11_hdr_unordered_set ] ]
     ;
 
 test-suite phoenix_scope :
@@ -134,7 +153,9 @@ test-suite phoenix_scope :
 
 test-suite phoenix_algorithm :
     [ run algorithm/for_each.cpp ]
+    [ run algorithm/for_each2.cpp ]
     [ run algorithm/for_test.cpp ]
+    [ run algorithm/for_test2.cpp ]
     [ run algorithm/iteration.cpp ]
     [ run algorithm/transformation1.cpp ]
     [ run algorithm/transformation2.cpp ]
@@ -143,6 +164,7 @@ test-suite phoenix_algorithm :
     [ run algorithm/querying.cpp ]
     [ run algorithm/querying_find.cpp ]
     [ run algorithm/querying2.cpp ]
+    [ run algorithm/querying_find2.cpp ]
     ;
 
 test-suite phoenix_boost_bind_compatibility :

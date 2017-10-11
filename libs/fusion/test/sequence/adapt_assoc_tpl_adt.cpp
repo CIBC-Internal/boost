@@ -66,10 +66,24 @@ BOOST_FUSION_ADAPT_ASSOC_TPL_ADT(
     (ns::point)(X)(Y)(Z),
     (X, X, obj.get_x(), obj.set_x(val), ns::x_member)
     (Y, Y, obj.get_y(), obj.set_y(val), ns::y_member)
-    (BOOST_FUSION_ADAPT_AUTO, BOOST_FUSION_ADAPT_AUTO, obj.get_z(), obj.set_z(val), ns::z_member)
+    (auto, auto, obj.get_z(), obj.set_z(val), ns::z_member)
 )
 
 #endif
+
+template <typename TypeToConstruct>
+class empty_adt_templated_factory {
+
+  TypeToConstruct operator()() {
+    return TypeToConstruct();
+  }
+
+};
+
+BOOST_FUSION_ADAPT_ASSOC_TPL_ADT(
+    (TypeToConstruct),
+    (empty_adt_templated_factory)(TypeToConstruct),
+) 
 
 int
 main()
@@ -105,9 +119,9 @@ main()
     }
 
     {
-        boost::fusion::vector<int, float, long> v1(4, 2, 2);
+        boost::fusion::vector<int, float, long> v1(4, 2.f, 2);
         point v2(5, 3, 3);
-        boost::fusion::vector<long, double, long> v3(5, 4, 4);
+        boost::fusion::vector<long, double, long> v3(5, 4., 4);
         BOOST_TEST(v1 < v2);
         BOOST_TEST(v1 <= v2);
         BOOST_TEST(v2 > v1);

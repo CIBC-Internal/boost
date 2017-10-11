@@ -41,6 +41,9 @@
 #define PARSE_SETTINGS  16
 #define PARSE_SWITCH    17
 #define PARSE_WHILE     18
+#define PARSE_RETURN    19
+#define PARSE_BREAK     20
+#define PARSE_CONTINUE  21
 
 
 /*
@@ -64,6 +67,7 @@ struct _PARSE {
 };
 
 void parse_file( OBJECT *, FRAME * );
+void parse_string( OBJECT * name, const char * * lines, FRAME * frame );
 void parse_save( PARSE * );
 
 PARSE * parse_make( int type, PARSE * left, PARSE * right, PARSE * third,

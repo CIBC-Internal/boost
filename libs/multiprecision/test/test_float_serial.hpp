@@ -22,7 +22,7 @@
 #define BOOST_MP_TEST_FLOAT_SERIAL_HPP
 
 template <class T>
-T generate_random(unsigned bits_wanted)
+T generate_random(unsigned /*bits_wanted*/)
 {
    typedef typename T::backend_type::exponent_type e_type;
    static boost::random::mt19937 gen;
@@ -51,7 +51,9 @@ void test()
       T val = generate_random<T>(boost::math::tools::digits<T>());
       int test_id = 0;
       std::string stream_contents;
+#ifndef BOOST_NO_EXCEPTIONS
       try{
+#endif
          test_id = 0;
          {
             std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
@@ -97,6 +99,7 @@ void test()
             ib2 >> val2;
             BOOST_CHECK_EQUAL(val, val2);
          }
+#ifndef BOOST_NO_EXCEPTIONS
       }
       catch(const boost::exception& e)
       {
@@ -116,12 +119,17 @@ void test()
          ++boost::detail::test_errors();
          break;
       }
+#endif
       //
       // Check to see if test is taking too long.
       // Tests run on the compiler farm time out after 300 seconds,
       // so don't get too close to that:
       //
+#ifndef CI_SUPPRESS_KNOWN_ISSUES
       if(tim.elapsed() > 150)
+#else
+      if(tim.elapsed() > 25)
+#endif
       {
          std::cout << "Timeout reached, aborting tests now....\n";
          break;

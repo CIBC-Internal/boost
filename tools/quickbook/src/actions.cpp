@@ -65,7 +65,7 @@ namespace quickbook
         }
         
         std::string add_anchor(quickbook::state& state,
-                boost::string_ref id,
+                quickbook::string_view id,
                 id_category::categories category =
                     id_category::explicit_anchor_id)
         {
@@ -125,6 +125,10 @@ namespace quickbook
 
     bool quickbook_range::in_range() const {
         return qbk_version_n >= lower && qbk_version_n < upper;
+    }
+
+    bool quickbook_strict::is_strict_checking() const {
+        return state.strict_mode;
     }
 
     void explicit_list_action(quickbook::state&, value);
@@ -536,10 +540,12 @@ namespace quickbook
 
         if (saved_conditional)
         {
-            boost::string_ref macro1 = values.consume().get_quickbook();
+            bool positive = values.consume().get_quickbook().empty();
+            quickbook::string_view macro1 = values.consume().get_quickbook();
             std::string macro(macro1.begin(), macro1.end());
 
-            state.conditional = find(state.macro, macro.c_str());
+            state.conditional =
+                (bool)find(state.macro, macro.c_str()) == positive;
 
             if (!state.conditional) {
                 state.push_output();
@@ -760,7 +766,7 @@ namespace quickbook
         int code_tag = code_block.get_tag();
 
         value_consumer values = code_block;
-        boost::string_ref code_value = values.consume().get_quickbook();
+        quickbook::string_view code_value = values.consume().get_quickbook();
         values.finish();
 
         bool inline_code = code_tag == code_tags::inline_code ||
@@ -870,8 +876,8 @@ namespace quickbook
             detail::print_string(v.get_encoded(), out);
         }
         else {
-            boost::string_ref value = v.get_quickbook();
-            for(boost::string_ref::const_iterator
+            quickbook::string_view value = v.get_quickbook();
+            for(quickbook::string_view::const_iterator
                 first = value.begin(), last  = value.end();
                 first != last; ++first)
             {
@@ -1201,7 +1207,7 @@ namespace quickbook
             //                 then use whitespace to separate them
             //                 (2 = template name + argument).
 
-            if (qbk_version_n < 105 || args.size() == 1)
+            if (qbk_version_n < 105 ? args.size() : args.size() == 1)
             {
            
                 while (args.size() < params.size())
@@ -1267,7 +1273,7 @@ namespace quickbook
             file_ptr saved_current_file = state.current_file;
 
             state.current_file = content.get_file();
-            boost::string_ref source = content.get_quickbook();
+            quickbook::string_view source = content.get_quickbook();
 
             parse_iterator first(source.begin());
             parse_iterator last(source.end());
@@ -1732,6 +1738,7 @@ namespace quickbook
         values.finish();
 
         std::string full_id = state.document.begin_section(
+            element_id,
             element_id.empty() ?
                 detail::make_identifier(content.get_quickbook()) :
                 validate_id(state, element_id),
@@ -1741,27 +1748,33 @@ namespace quickbook
             state.current_source_mode());
 
         state.out << "\n<section id=\"" << full_id << "\">\n";
-        state.out << "<title>";
 
-        write_anchors(state, state.out);
+        std::string title = content.get_encoded();
 
-        if (self_linked_headers && state.document.compatibility_version() >= 103)
-        {
-            state.out << "<link linkend=\"" << full_id << "\">"
-                << content.get_encoded()
-                << "</link>"
-                ;
+        if (!title.empty()) {
+            state.out << "<title>";
+
+            write_anchors(state, state.out);
+
+            if (self_linked_headers && state.document.compatibility_version() >= 103)
+            {
+                state.out << quickbook::detail::linkify(title, full_id);
+            }
+            else
+            {
+                state.out << title;
+            }
+
+            state.out << "</title>\n";
         }
-        else
-        {
-            state.out << content.get_encoded();
-        }
-        
-        state.out << "</title>\n";
     }
 
-    void end_section_action(quickbook::state& state, value end_section, string_iterator first)
+    void end_section_action(quickbook::state& state, value end_section_list, string_iterator first)
     {
+        value_consumer values = end_section_list;
+        value element_id = values.optional_consume(general_tags::element_id);
+        values.finish();
+
         write_anchors(state, state.out);
 
         if (state.document.section_level() <= state.min_section_level)
@@ -1775,6 +1788,29 @@ namespace quickbook
             return;
         }
 
+        if (!element_id.empty() && !(element_id == state.document.explicit_id()))
+        {
+            file_position const pos = state.current_file->position_of(first);
+            value section_element_id = state.document.explicit_id();
+
+            if (section_element_id.empty()) {
+                detail::outerr(state.current_file->path, pos.line)
+                    << "Endsect has unexpected id '"
+                    << element_id.get_quickbook()
+                    << "' in section with no explicit id, near column "
+                    << pos.column << ".\n";
+            } else {
+                detail::outerr(state.current_file->path, pos.line)
+                    << "Endsect has incorrect id '"
+                    << element_id.get_quickbook()
+                    << "', expected '"
+                    << state.document.explicit_id().get_quickbook()
+                    << "', near column "
+                    << pos.column << ".\n";
+            }
+            ++state.error_count;
+        }
+
         state.out << "</section>";
         state.document.end_section();
     }
@@ -1784,137 +1820,22 @@ namespace quickbook
         detail::outwarn(state.current_file, first.base()) << "Empty id.\n";
     }
 
-    // Not a general purpose normalization function, just
-    // from paths from the root directory. It strips the excess
-    // ".." parts from a path like: "x/../../y", leaving "y".
-    std::vector<fs::path> normalize_path_from_root(fs::path const& path)
-    {
-        assert(!path.has_root_directory() && !path.has_root_name());
-    
-        std::vector<fs::path> parts;
-
-        BOOST_FOREACH(fs::path const& part, path)
-        {
-            if (part.empty() || part == ".") {
-            }
-            else if (part == "..") {
-                if (!parts.empty()) parts.pop_back();
-            }
-            else {
-                parts.push_back(part);
-            }
-        }
-        
-        return parts;
-    }
-
-    // The relative path from base to path
-    fs::path path_difference(fs::path const& base, fs::path const& path)
-    {
-        fs::path
-            absolute_base = fs::absolute(base),
-            absolute_path = fs::absolute(path);
-
-        // Remove '.', '..' and empty parts from the remaining path
-        std::vector<fs::path>
-            base_parts = normalize_path_from_root(absolute_base.relative_path()),
-            path_parts = normalize_path_from_root(absolute_path.relative_path());
-
-        std::vector<fs::path>::iterator
-            base_it = base_parts.begin(),
-            base_end = base_parts.end(),
-            path_it = path_parts.begin(),
-            path_end = path_parts.end();
-
-        // Build up the two paths in these variables, checking for the first
-        // difference.
-        fs::path
-            base_tmp = absolute_base.root_path(),
-            path_tmp = absolute_path.root_path();
-
-        fs::path result;
-
-        // If they have different roots then there's no relative path so
-        // just build an absolute path.
-        if (!fs::equivalent(base_tmp, path_tmp))
-        {
-            result = path_tmp;
-        }
-        else
-        {
-            // Find the point at which the paths differ    
-            for(; base_it != base_end && path_it != path_end; ++base_it, ++path_it)
-            {
-                if(!fs::equivalent(base_tmp /= *base_it, path_tmp /= *path_it))
-                    break;
-            }
-    
-            // Build a relative path to that point
-            for(; base_it != base_end; ++base_it) result /= "..";
-        }
-
-        // Build the rest of our path
-        for(; path_it != path_end; ++path_it) result /= *path_it;
-
-        return result;
-    }
-
-    xinclude_path calculate_xinclude_path(value const& p, quickbook::state& state)
-    {
-        path_parameter parameter = check_path(p, state);
-
-        switch (parameter.type) {
-            case path_parameter::glob:
-                // TODO: Should know if this is an xinclude or an xmlbase.
-                // Would also help with implementation of 'check_path'.
-                detail::outerr(p.get_file(), p.get_position())
-                    << "Glob used in xinclude/xmlbase."
-                    << std::endl;
-                ++state.error_count;
-                break;
-
-            case path_parameter::invalid:
-                // There should have already been an error message in this case.
-                break;
-
-            case path_parameter::path:
-            {
-                fs::path path = detail::generic_to_path(parameter.value);
-                fs::path full_path = path;
-
-                // If the path is relative
-                if (!path.has_root_directory())
-                {
-                    // Resolve the path from the current file
-                    full_path = state.current_file->path.parent_path() / path;
-
-                    // Then calculate relative to the current xinclude_base.
-                    path = path_difference(state.xinclude_base, full_path);
-                }
-
-                return xinclude_path(full_path,
-                        detail::escape_uri(detail::path_to_generic(path)));
-            }
-
-            default:
-                assert(false);
-        }
-
-        // If we didn't find a path, just use this:
-        return xinclude_path(state.current_file->path.parent_path(), "");
-    }
-
     void xinclude_action(quickbook::state& state, value xinclude)
     {
         write_anchors(state, state.out);
 
         value_consumer values = xinclude;
-        xinclude_path x = calculate_xinclude_path(values.consume(), state);
+        path_parameter x = check_xinclude_path(values.consume(), state);
         values.finish();
 
-        state.out << "\n<xi:include href=\"";
-        detail::print_string(x.uri, state.out.get());
-        state.out << "\" />\n";
+        if (x.type == path_parameter::path)
+        {
+            quickbook_path path = resolve_xinclude_path(x.value, state);
+
+            state.out << "\n<xi:include href=\"";
+            detail::print_string(file_path_to_url(path.abstract_file_path), state.out.get());
+            state.out << "\" />\n";
+        }
     }
 
     void load_quickbook(quickbook::state& state,

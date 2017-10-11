@@ -32,6 +32,7 @@
 #include "object.h"
 #include "pathsys.h"
 #include "strings.h"
+#include "output.h"
 
 
 /*
@@ -231,7 +232,7 @@ static void time_enter( void * closure, OBJECT * target, int const found,
     b->progress = found ? BIND_FOUND : BIND_SPOTTED;
 
     if ( DEBUG_BINDSCAN )
-        printf( "time ( %s ) : %s\n", object_str( target ), time_progress[
+        out_printf( "time ( %s ) : %s\n", object_str( target ), time_progress[
             b->progress ] );
 
     object_free( target );
@@ -259,4 +260,12 @@ void timestamp_done()
         hashenumerate( bindhash, free_timestamps, 0 );
         hashdone( bindhash );
     }
+}
+
+/*
+ * timestamp_delta_seconds() - seconds from time a to b.
+ */
+double timestamp_delta_seconds( timestamp const * const a , timestamp const * const b )
+{
+	return ((b->secs*1000000.0+b->nsecs)-(a->secs*1000000.0+a->nsecs))/1000000.0;
 }

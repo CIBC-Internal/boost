@@ -20,6 +20,7 @@
 
 #include <boost/math/concepts/real_concept.hpp> // for real_concept.
 using ::boost::math::concepts::real_concept;
+#include <boost/math/tools/test.hpp> // for real_concept.
 
 #include <boost/math/distributions/arcsine.hpp> // for arcsine_distribution.
 using boost::math::arcsine_distribution;
@@ -114,22 +115,11 @@ void test_ignore_policy(RealType)
         // std::cout << "arcsine(-inf,+1) mean " << mean(ignore_error_arcsine(-std::numeric_limits<RealType>::infinity())) << std::endl;
         //BOOST_CHECK((boost::math::isnan)(mean(ignore_error_arcsine(std::numeric_limits<RealType>::infinity(), 0))));
       }
-      // Check error message is correct.
-      try
-      { 
-        typedef arcsine_distribution<RealType> signal_error_arcsine;
-        //std::cout << mean(signal_error_arcsine(-std::numeric_limits<RealType>::infinity())) << std::endl;
-        // Error in function boost::math::arcsine_distribution<float>::arcsine_distribution: x_min argument is -1.#INF, but must be finite !
-      }
-      catch (std::exception ex)
-      {
-        std::cout << ex.what() << std::endl;
-      }
 
       // NaN constructors.
       BOOST_CHECK((boost::math::isnan)(mean(ignore_error_arcsine(2, nan))));
       BOOST_CHECK((boost::math::isnan)(mean(ignore_error_arcsine(nan, nan))));
-      BOOST_CHECK((boost::math::isnan)(mean(ignore_error_arcsine(nan, 2)))); 
+      BOOST_CHECK((boost::math::isnan)(mean(ignore_error_arcsine(nan, 2))));
 
       // Variance
       BOOST_CHECK((boost::math::isnan)(variance(ignore_error_arcsine(nan, 0))));
@@ -148,7 +138,7 @@ void test_ignore_policy(RealType)
       BOOST_CHECK((boost::math::isnan)(skewness(ignore_error_arcsine(2, 0))));
       BOOST_CHECK((boost::math::isnan)(skewness(ignore_error_arcsine(3, 0))));
 
-      // Kurtosis 
+      // Kurtosis
       BOOST_CHECK((boost::math::isnan)(kurtosis(ignore_error_arcsine(nan, 0))));
       BOOST_CHECK((boost::math::isnan)(kurtosis(ignore_error_arcsine(-1, nan))));
       BOOST_CHECK((boost::math::isnan)(kurtosis(ignore_error_arcsine(0, 0))));
@@ -169,24 +159,8 @@ void test_ignore_policy(RealType)
       BOOST_CHECK((boost::math::isnan)(kurtosis_excess(ignore_error_arcsine(4, 0))));
     } // has_quiet_NaN
 
-    // 
+    //
     BOOST_CHECK(boost::math::isfinite(mean(ignore_error_arcsine(0, std::numeric_limits<RealType>::epsilon()))));
-
-    // Checks on error messages.
-    try
-    {
-      typedef arcsine_distribution<RealType> signal_error_arcsine;
-      //std::cout << "mean(ignore_error_arcsine(0, std::numeric_limits<RealType>::epsilon())) == "
-      //  << mean(ignore_error_arcsine(0, std::numeric_limits<RealType>::epsilon())) << std::endl;
-      //  mean(ignore_error_arcsine(0, std::numeric_limits<RealType>::epsilon())) == 5.96046e-008
-      //std::cout << "mean(ignore_error_arcsine(0, 0)) == "
-      //  << mean(ignore_error_arcsine(0, 0)) << std::endl;
-      // mean(ignore_error_arcsine(0, 0)) == 1.#QNAN
-    }
-    catch (std::exception ex)
-    {
-      std::cout << ex.what() << std::endl;
-    }
 
     check_support<arcsine_distribution<RealType> >(arcsine_distribution<RealType>(0, 1));
   } // ordinary floats.
@@ -259,12 +233,6 @@ void test_spots(RealType)
       (boost::math::tools::epsilon<RealType>(),
       static_cast<RealType>(std::numeric_limits<double>::epsilon())); // 0 if real_concept.
 
-    RealType max_value = boost::math::tools::max_value<RealType>();
-    RealType epsilon = boost::math::tools::epsilon<RealType>();
-
-    //cout << "Boost::math::tools::epsilon = " << boost::math::tools::epsilon<RealType>() << endl;
-    //cout << "std::numeric_limits::epsilon = " << std::numeric_limits<RealType>::epsilon() << endl;
-
     tolerance *= 2; // Note: NO * 100 because tolerance is a fraction, NOT %.
     cout << "tolerance = " << tolerance << endl;
 
@@ -295,11 +263,11 @@ void test_spots(RealType)
     BOOST_CHECK_EQUAL(kurtosis_excess(arcsine_01), -1.5); // 3/2
     BOOST_CHECK_EQUAL(support(arcsine_01).first, 0); //
     BOOST_CHECK_EQUAL(range(arcsine_01).first, 0); //
-    BOOST_CHECK_THROW(mode(arcsine_01), std::domain_error); //  Two modes at x_min and x_max, so throw instead.
+    BOOST_MATH_CHECK_THROW(mode(arcsine_01), std::domain_error); //  Two modes at x_min and x_max, so throw instead.
 
     // PDF
     // pdf of x = 1/4 is same as reflected value at x = 3/4.
-    // N[PDF[arcsinedistribution[0, 1], 0.25], 50] 
+    // N[PDF[arcsinedistribution[0, 1], 0.25], 50]
     // N[PDF[arcsinedistribution[0, 1], 0.75], 50]
     // 0.73510519389572273268176866441729258852984864048885
 
@@ -349,7 +317,7 @@ void test_spots(RealType)
     BOOST_CHECK_CLOSE_FRACTION(quantile(arcsine_01, static_cast<RealType>(0.25L)), static_cast<RealType>(0.14644660940672624L), tolerance);
     BOOST_CHECK_CLOSE_FRACTION(quantile(arcsine_01, static_cast<RealType>(0.5L)), 0.5, 2 * tolerance);  // probability = 0.5, x = 0.5
     BOOST_CHECK_CLOSE_FRACTION(quantile(arcsine_01, static_cast<RealType>(0.75L)), static_cast<RealType>(0.85355339059327373L), tolerance);
-    
+
     // N[CDF[arcsinedistribution[0, 1], 0.05], 50]  == 0.14356629312870627075094188477505571882161519989741
     BOOST_CHECK_CLOSE_FRACTION(quantile(arcsine_01, static_cast<RealType>(0.14356629312870627075094188477505571882161519989741L)), 0.05, tolerance);
 
@@ -448,31 +416,31 @@ void test_spots(RealType)
     BOOST_CHECK_CLOSE_FRACTION(quantile(complement(as_m2m1, static_cast<RealType>(0.85643370687129372924905811522494428117838480010259L))), -static_cast<RealType>(1.95L), 4 * tolerance);
 
     // Tests that should throw:
-    BOOST_CHECK_THROW(mode(arcsine_distribution<RealType>(static_cast<RealType>(0), static_cast<RealType>(1))), std::domain_error);
+    BOOST_MATH_CHECK_THROW(mode(arcsine_distribution<RealType>(static_cast<RealType>(0), static_cast<RealType>(1))), std::domain_error);
     // mode is undefined, and must throw domain_error!
 
 
-    BOOST_CHECK_THROW( // For various bad arguments.
+    BOOST_MATH_CHECK_THROW( // For various bad arguments.
       pdf(
       arcsine_distribution<RealType>(static_cast<RealType>(+1), static_cast<RealType>(-1)), // min_x > max_x
       static_cast<RealType>(1)), std::domain_error);
 
-    BOOST_CHECK_THROW(
+    BOOST_MATH_CHECK_THROW(
       pdf(
       arcsine_distribution<RealType>(static_cast<RealType>(1), static_cast<RealType>(0)), // bad constructor parameters.
       static_cast<RealType>(1)), std::domain_error);
 
-    BOOST_CHECK_THROW(
+    BOOST_MATH_CHECK_THROW(
       pdf(
       arcsine_distribution<RealType>(static_cast<RealType>(1), static_cast<RealType>(-1)), // bad constructor parameters.
       static_cast<RealType>(1)), std::domain_error);
 
-    BOOST_CHECK_THROW(
+    BOOST_MATH_CHECK_THROW(
       pdf(
       arcsine_distribution<RealType>(static_cast<RealType>(1), static_cast<RealType>(1)), // equal constructor parameters.
       static_cast<RealType>(-1)), std::domain_error);
 
-    BOOST_CHECK_THROW(
+    BOOST_MATH_CHECK_THROW(
       pdf(
       arcsine_distribution<RealType>(static_cast<RealType>(0), static_cast<RealType>(1)), // bad x > 1.
       static_cast<RealType>(999)), std::domain_error);
@@ -480,59 +448,73 @@ void test_spots(RealType)
     // Checks on things that are errors.
 
     // Construction with 'bad' parameters.
-    BOOST_CHECK_THROW(arcsine_distribution<RealType>(+1, -1), std::domain_error); // max < min.
-    BOOST_CHECK_THROW(arcsine_distribution<RealType>(+1, 0), std::domain_error);  // max < min.
+    BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(+1, -1), std::domain_error); // max < min.
+    BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(+1, 0), std::domain_error);  // max < min.
 
     arcsine_distribution<> dist;
-    BOOST_CHECK_THROW(pdf(dist, -1), std::domain_error);
-    BOOST_CHECK_THROW(cdf(dist, -1), std::domain_error);
-    BOOST_CHECK_THROW(cdf(complement(dist, -1)), std::domain_error);
-    BOOST_CHECK_THROW(quantile(dist, -1), std::domain_error);
-    BOOST_CHECK_THROW(quantile(complement(dist, -1)), std::domain_error);
-    BOOST_CHECK_THROW(quantile(dist, -1), std::domain_error);
-    BOOST_CHECK_THROW(quantile(complement(dist, -1)), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(dist, -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(cdf(dist, -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(cdf(complement(dist, -1)), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(dist, -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(complement(dist, -1)), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(dist, -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(complement(dist, -1)), std::domain_error);
 
     // Various combinations of bad contructor and member function parameters.
-    BOOST_CHECK_THROW(pdf(boost::math::arcsine_distribution<RealType>(0, 1), -1), std::domain_error);
-    BOOST_CHECK_THROW(pdf(boost::math::arcsine_distribution<RealType>(-1, 1), +2), std::domain_error);
-    BOOST_CHECK_THROW(quantile(boost::math::arcsine_distribution<RealType>(1, 1), -1), std::domain_error);
-    BOOST_CHECK_THROW(quantile(boost::math::arcsine_distribution<RealType>(1, 1), 2), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(boost::math::arcsine_distribution<RealType>(0, 1), -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(boost::math::arcsine_distribution<RealType>(-1, 1), +2), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(boost::math::arcsine_distribution<RealType>(1, 1), -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(boost::math::arcsine_distribution<RealType>(1, 1), 2), std::domain_error);
 
     // No longer allow any parameter to be NaN or inf, so all these tests should throw.
     if (std::numeric_limits<RealType>::has_quiet_NaN)
     {
       // Attempt to construct from non-finite parameters should throw.
       RealType nan = std::numeric_limits<RealType>::quiet_NaN();
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(nan), std::domain_error);
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(1, nan), std::domain_error);
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(nan, 1), std::domain_error);
+#ifndef BOOST_NO_EXCEPTIONS
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(nan), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(1, nan), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(nan, 1), std::domain_error);
+#else
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(nan), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(1, nan), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(nan, 1), std::domain_error);
+#endif
 
       arcsine_distribution<RealType> w(RealType(-1), RealType(+1));
       // NaN parameters to member functions should throw.
-      BOOST_CHECK_THROW(pdf(w, +nan), std::domain_error); // x = NaN
-      BOOST_CHECK_THROW(cdf(w, +nan), std::domain_error); // x = NaN
-      BOOST_CHECK_THROW(cdf(complement(w, +nan)), std::domain_error); // x = + nan
-      BOOST_CHECK_THROW(quantile(w, +nan), std::domain_error); // p = + nan
-      BOOST_CHECK_THROW(quantile(complement(w, +nan)), std::domain_error); // p = + nan
+      BOOST_MATH_CHECK_THROW(pdf(w, +nan), std::domain_error); // x = NaN
+      BOOST_MATH_CHECK_THROW(cdf(w, +nan), std::domain_error); // x = NaN
+      BOOST_MATH_CHECK_THROW(cdf(complement(w, +nan)), std::domain_error); // x = + nan
+      BOOST_MATH_CHECK_THROW(quantile(w, +nan), std::domain_error); // p = + nan
+      BOOST_MATH_CHECK_THROW(quantile(complement(w, +nan)), std::domain_error); // p = + nan
     } // has_quiet_NaN
 
     if (std::numeric_limits<RealType>::has_infinity)
     {
       // Attempt to construct from non-finite should throw.
       RealType inf = std::numeric_limits<RealType>::infinity();
-
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(inf), std::domain_error);
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(1, inf), std::domain_error);
-
+#ifndef BOOST_NO_EXCEPTIONS
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(inf), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(1, inf), std::domain_error);
+#else
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(inf), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(1, inf), std::domain_error);
+#endif
       // Infinite parameters to member functions should throw.
       arcsine_distribution<RealType> w(RealType(0), RealType(1));
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(inf), std::domain_error);
-      BOOST_CHECK_THROW(arcsine_distribution<RealType> w(1, inf), std::domain_error);
-      BOOST_CHECK_THROW(pdf(w, +inf), std::domain_error); // x = inf
-      BOOST_CHECK_THROW(cdf(w, +inf), std::domain_error); // x = inf
-      BOOST_CHECK_THROW(cdf(complement(w, +inf)), std::domain_error); // x = + inf
-      BOOST_CHECK_THROW(quantile(w, +inf), std::domain_error); // p = + inf
-      BOOST_CHECK_THROW(quantile(complement(w, +inf)), std::domain_error); // p = + inf
+#ifndef BOOST_NO_EXCEPTIONS
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(inf), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType> w(1, inf), std::domain_error);
+#else
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(inf), std::domain_error);
+      BOOST_MATH_CHECK_THROW(arcsine_distribution<RealType>(1, inf), std::domain_error);
+#endif
+      BOOST_MATH_CHECK_THROW(pdf(w, +inf), std::domain_error); // x = inf
+      BOOST_MATH_CHECK_THROW(cdf(w, +inf), std::domain_error); // x = inf
+      BOOST_MATH_CHECK_THROW(cdf(complement(w, +inf)), std::domain_error); // x = + inf
+      BOOST_MATH_CHECK_THROW(quantile(w, +inf), std::domain_error); // p = + inf
+      BOOST_MATH_CHECK_THROW(quantile(complement(w, +inf)), std::domain_error); // p = + inf
     } // has_infinity
 
     // Error handling checks:
@@ -555,7 +537,7 @@ void test_spots(RealType)
 
     arcsine as; // Using typedef for default standard arcsine.
 
-    // 
+    //
     BOOST_CHECK_EQUAL(as.x_min(), 0); //
     BOOST_CHECK_EQUAL(as.x_max(), 1);
     BOOST_CHECK_EQUAL(mean(as), 0.5); // 1 / (1 + 1) = 1/2 exactly.
@@ -566,7 +548,7 @@ void test_spots(RealType)
     BOOST_CHECK_EQUAL(kurtosis_excess(as), -1.5); // 3/2
     BOOST_CHECK_EQUAL(support(as).first, 0); //
     BOOST_CHECK_EQUAL(range(as).first, 0); //
-    BOOST_CHECK_THROW(mode(as), std::domain_error); //  Two modes at x_min and x_max, so throw instead.
+    BOOST_MATH_CHECK_THROW(mode(as), std::domain_error); //  Two modes at x_min and x_max, so throw instead.
 
     // (Parameter value, arbitrarily zero, only communicates the floating point type).
     test_spots(0.0F); // Test float.
@@ -589,7 +571,7 @@ Version 12.0.30110.00 Update 1
   1>  Description: Autorun "J:\Cpp\MathToolkit\test\Math_test\Debug\test_arcsine.exe"
   1>  Running 1 test case...
   1>  Platform: Win32
-  1>  Compiler: Microsoft Visual C++ version 12.0  ???? MSVC says 2013 
+  1>  Compiler: Microsoft Visual C++ version 12.0  ???? MSVC says 2013
   1>  STL     : Dinkumware standard library version 610
   1>  Boost   : 1.56.0
 
@@ -621,6 +603,3 @@ Version 12.0.30110.00 Update 1
   RUN SUCCESSFUL (total time: 141ms)
 
   */
-
-
-
