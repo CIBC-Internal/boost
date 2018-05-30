@@ -18,7 +18,7 @@
 #include <boost/system/error_code.hpp>
 #include <boost/asio.hpp>
 #if defined(BOOST_WINDOWS_API)
-#   include <Windows.h>
+#   include <windows.h>
 typedef boost::asio::windows::stream_handle pipe_end;
 #elif defined(BOOST_POSIX_API)
 #   include <sys/wait.h>
@@ -44,6 +44,26 @@ BOOST_AUTO_TEST_CASE(sync_wait)
 
 
     BOOST_CHECK_EQUAL(123, exit_code);
+
+    c.wait();
+}
+
+BOOST_AUTO_TEST_CASE(sync_wait_abort)
+{
+    using boost::unit_test::framework::master_test_suite;
+
+    std::error_code ec;
+    bp::child c(
+        master_test_suite().argv[1],
+        "test", "--abort",
+        ec
+    );
+    BOOST_REQUIRE(!ec);
+    c.wait();
+    int exit_code = c.exit_code();
+
+
+    BOOST_CHECK(exit_code != 0);
 
     c.wait();
 }
@@ -82,10 +102,10 @@ BOOST_AUTO_TEST_CASE(async_wait)
     using boost::unit_test::framework::master_test_suite;
     using namespace boost::asio;
 
-    boost::asio::io_service io_service;
+    boost::asio::io_context io_context;
 
 #if defined(BOOST_POSIX_API)
-    signal_set set(io_service, SIGCHLD);
+    signal_set set(io_context, SIGCHLD);
     set.async_wait(wait_handler());
 #endif
 
@@ -98,10 +118,10 @@ BOOST_AUTO_TEST_CASE(async_wait)
     BOOST_REQUIRE(!ec);
 
 #if defined(BOOST_WINDOWS_API)
-    windows::object_handle handle(io_service, c.native_handle());
-    handle.async_wait(wait_handler(handle.native()));
+    windows::object_handle handle(io_context, c.native_handle());
+    handle.async_wait(wait_handler(handle.native_handle()));
 #endif
     std::cout << "async_wait 1" << std::endl;
-    io_service.run();
+    io_context.run();
     std::cout << "async_wait 2" << std::endl;
 }

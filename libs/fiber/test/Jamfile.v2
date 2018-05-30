@@ -34,10 +34,24 @@ project boost/fiber/test
     ;
 
 
-rule configure-impl ( properties * )
+rule numa-impl ( properties * )
 {
     local result  ;
-    if ( ! ( <target-os>windows in $(properties) ) )
+    if ( <target-os>darwin in $(properties) )
+    {
+        result = <build>no ;
+    }
+    return $(result) ;
+}
+
+rule native-impl ( properties * )
+{
+    local result  ;
+    if ( <target-os>darwin in $(properties) || <target-os>android in $(properties) )
+    {
+        result = <build>no ;
+    }
+    else if ( ! ( <target-os>windows in $(properties) ) )
     {
         result = <context-impl>ucontext ;
     }
@@ -50,13 +64,15 @@ rule configure-impl ( properties * )
 
 # NUMA tests
 test-suite numa :
-[ run test_topology.cpp :
+[ run test_numa.cpp :
     : :
+    <conditional>@numa-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -78,6 +94,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -97,6 +114,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -116,6 +134,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -135,6 +154,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -154,6 +174,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -173,6 +194,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -192,6 +214,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -211,6 +234,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -230,6 +254,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -249,6 +274,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -268,6 +294,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -287,6 +314,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -306,6 +334,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -325,6 +354,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -344,6 +374,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -363,6 +394,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -382,6 +414,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -401,6 +434,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -420,6 +454,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -439,6 +474,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -458,6 +494,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -477,6 +514,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -496,6 +534,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -515,6 +554,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -534,6 +574,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -553,6 +594,7 @@ test-suite asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -569,12 +611,13 @@ test-suite asm :
 test-suite native :
 [ run test_fiber_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -588,12 +631,13 @@ test-suite native :
 
 [ run test_fiber_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -607,12 +651,13 @@ test-suite native :
 
 [ run test_mutex_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -626,12 +671,13 @@ test-suite native :
 
 [ run test_mutex_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -645,12 +691,13 @@ test-suite native :
 
 [ run test_condition_variable_any_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -664,12 +711,13 @@ test-suite native :
 
 [ run test_condition_variable_any_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -683,12 +731,13 @@ test-suite native :
 
 [ run test_condition_variable_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -702,12 +751,13 @@ test-suite native :
 
 [ run test_condition_variable_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -721,12 +771,13 @@ test-suite native :
 
 [ run test_barrier_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -740,12 +791,13 @@ test-suite native :
 
 [ run test_barrier_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -759,12 +811,13 @@ test-suite native :
 
 [ run test_buffered_channel_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -778,12 +831,13 @@ test-suite native :
 
 [ run test_buffered_channel_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -797,12 +851,13 @@ test-suite native :
 
 [ run test_unbuffered_channel_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -816,12 +871,13 @@ test-suite native :
 
 [ run test_unbuffered_channel_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -835,12 +891,13 @@ test-suite native :
 
 [ run test_fss_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -854,12 +911,13 @@ test-suite native :
 
 [ run test_fss_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -873,12 +931,13 @@ test-suite native :
 
 [ run test_promise_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -892,12 +951,13 @@ test-suite native :
 
 [ run test_promise_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -911,12 +971,13 @@ test-suite native :
 
 [ run test_future_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -930,12 +991,13 @@ test-suite native :
 
 [ run test_future_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -949,12 +1011,13 @@ test-suite native :
 
 [ run test_shared_future_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -968,12 +1031,13 @@ test-suite native :
 
 [ run test_shared_future_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -987,12 +1051,13 @@ test-suite native :
 
 [ run test_packaged_task_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1006,12 +1071,13 @@ test-suite native :
 
 [ run test_packaged_task_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1025,12 +1091,13 @@ test-suite native :
 
 [ run test_async_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1044,12 +1111,13 @@ test-suite native :
 
 [ run test_async_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1072,6 +1140,7 @@ test-suite extra-asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1091,6 +1160,7 @@ test-suite extra-asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1110,6 +1180,7 @@ test-suite extra-asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1129,6 +1200,7 @@ test-suite extra-asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1148,6 +1220,7 @@ test-suite extra-asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1167,6 +1240,7 @@ test-suite extra-asm :
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1183,12 +1257,13 @@ test-suite extra-asm :
 test-suite extra-native :
 [ run test_mutex_mt_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1202,12 +1277,13 @@ test-suite extra-native :
 
 [ run test_mutex_mt_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1221,12 +1297,13 @@ test-suite extra-native :
 
 [ run test_condition_mt_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1240,12 +1317,13 @@ test-suite extra-native :
 
 [ run test_condition_mt_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1259,12 +1337,13 @@ test-suite extra-native :
 
 [ run test_future_mt_post.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas
@@ -1278,12 +1357,13 @@ test-suite extra-native :
 
 [ run test_future_mt_dispatch.cpp :
     : :
-    <conditional>@configure-impl
+    <conditional>@native-impl
     [ requires cxx11_auto_declarations
                cxx11_constexpr
                cxx11_defaulted_functions
                cxx11_final
                cxx11_hdr_mutex
+               cxx11_hdr_regex
                cxx11_hdr_thread
                cxx11_hdr_tuple
                cxx11_lambdas

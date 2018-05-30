@@ -166,7 +166,6 @@ add_library(serialization ${LINK_TYPE}
   ../src/extended_type_info.cpp
   ../src/polymorphic_iarchive.cpp
   ../src/polymorphic_oarchive.cpp
-  ../src/singleton.cpp
   ../src/stl_port.cpp
   ../src/text_iarchive.cpp
   ../src/text_oarchive.cpp
@@ -252,7 +251,8 @@ endfunction(polymorphic_archive_test)
 
 enable_testing()
 
-# serialization(test_dll_exported dll_polymorphic_derived2_lib)
+serialization_test(test_dll_exported polymorphic_derived2 polymorphic_base)
+
 # serialization(test_dll_simple dll_a_lib)
 # compile test_dll_plugin.cpp
 # Running the following test requires that the test know the directory 
@@ -266,6 +266,7 @@ serialization_test(test_mult_archive_types)
 serialization_test(test_iterators)
 serialization_test(test_iterators_base64)
 serialization_test(test_inclusion)
+serialization_test(test_inclusion2)
 serialization_test(test_smart_cast)
 serialization_test(test_codecvt_null ../src/codecvt_null)
 serialization_test(test_strong_typedef)

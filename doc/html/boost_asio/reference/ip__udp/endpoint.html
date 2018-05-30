@@ -27,10 +27,10 @@
 <a name="boost_asio.reference.ip__udp.endpoint"></a><a class="link" href="endpoint.html" title="ip::udp::endpoint">ip::udp::endpoint</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp155105568"></a> 
+          <a class="indexterm" name="boost_asio.indexterm.ip__udp.endpoint"></a> 
 The type of a UDP endpoint.
         </p>
-<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">basic_endpoint</span><span class="special">&lt;</span> <span class="identifier">udp</span> <span class="special">&gt;</span> <span class="identifier">endpoint</span><span class="special">;</span>
+<pre class="programlisting">typedef basic_endpoint&lt; udp &gt; endpoint;
 </pre>
 <h6>
 <a name="boost_asio.reference.ip__udp.endpoint.h0"></a>
@@ -143,6 +143,9 @@ The type of a UDP endpoint.
                   <p>
                     Copy constructor.
                   </p>
+                  <p>
+                    Move constructor.
+                  </p>
                 </td>
 </tr>
 <tr>
@@ -178,6 +181,9 @@ The type of a UDP endpoint.
 <td>
                   <p>
                     Assign from another endpoint.
+                  </p>
+                  <p>
+                    Move-assign from another endpoint.
                   </p>
                 </td>
 </tr>
@@ -368,8 +374,9 @@ The type of a UDP endpoint.
 </tr></tbody>
 </table></div>
 <p>
-          The <a class="link" href="../ip__basic_endpoint.html" title="ip::basic_endpoint"><code class="computeroutput"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">basic_endpoint</span></code></a> class template
-          describes an endpoint that may be associated with a particular socket.
+          The <a class="link" href="../ip__basic_endpoint.html" title="ip::basic_endpoint"><code class="computeroutput">ip::basic_endpoint</code></a>
+          class template describes an endpoint that may be associated with a particular
+          socket.
         </p>
 <h6>
 <a name="boost_asio.reference.ip__udp.endpoint.h4"></a>
@@ -394,7 +401,7 @@ The type of a UDP endpoint.
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2017 Christopher M. Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2018 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

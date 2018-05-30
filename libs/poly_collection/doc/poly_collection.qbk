@@ -1,7 +1,7 @@
 [library Boost.PolyCollection
   [quickbook 1.6]
   [authors [López Muñoz, Joaquín M]]
-  [copyright 2016-2017 Joaquín M López Muñoz]
+  [copyright 2016-2018 Joaquín M López Muñoz]
   [category containers]
   [id poly_collection]
   [dirname poly_collection]
@@ -70,8 +70,8 @@ stored for further opportunities of increased efficiency related to inlining and
 [@http://hubicka.blogspot.com.es/2014/01/devirtualization-in-c-part-1.html ['devirtualization]].
 
 [note Boost.PolyCollection is a header-only library. C++11 support is required.
-The library has been verified to work with Visual Studio 2015, GCC 5.2 and
-Clang 3.7.]
+The library has been verified to work with Visual Studio 2015, GCC 4.8 and
+Clang 3.3.]
 
 [endsect]
 
@@ -767,7 +767,7 @@ Versions of other standard algorithms are provided as well:
 In fact, variants are given of most (though not all) of the algorithms in
 [@http://en.cppreference.com/w/cpp/algorithm `<algorithm>`]
 among those that are compatible with polymorphic collections 
-[footnote For example, algorithms requiring bidrectional iterators or a higher
+[footnote For example, algorithms requiring bidirectional iterators or a higher
 category are not provided because polymorphic collections have forward-only
 iterators.].
 Check the [link poly_collection.reference.header_boost_poly_collection_alg reference]
@@ -1111,13 +1111,32 @@ ordered within their segment and optionally duplicates are excluded, much like
 [@http://boost.org/doc/html/container/non_standard_containers.html#container.non_standard_containers.flat_xxx `boost::flat_set`/`boost::flat_multiset`]
 do over their internal data vector. The open question remains of whether these
 collections should also guarantee some order between segments (current ones don't)
-to allow for the definition of container-level `operator::<` and related operators.
+to allow for the definition of container-level `operator<` and related operators.
 
 [endsect]
 
 [endsect]
 
 [section Release notes]
+
+[section Boost 1.67]
+
+* Maintenance fixes.
+
+[endsect]
+
+[section Boost 1.66]
+
+* Boost.PolyCollection has been backported to GCC 4.8 to 4.9 and Clang 3.3 to 3.6.
+The version of libstdc++-v3 shipped with GCC 4.8 (which can also be used by Clang)
+has deficiencies that result in the following limitations when using
+Boost.PolyCollection:
+  * Stateful allocators are not properly supported.
+  * Allocator-extended move construction decays to allocator-extended copy construction.
+  * Copy construction crashes if an exception is thrown during element copying.
+* Maintenance fixes.
+
+[endsect]
 
 [section Boost 1.65]
 
@@ -1152,5 +1171,8 @@ Boost.PolyCollection was designed and written between rainy
 Most of the after-review work in preparation for the official Boost release was done
 in the quiet town of [@https://es.wikipedia.org/wiki/Oropesa_(Toledo) Oropesa] during
 the spring of 2017.
+
+In memory of Joaquín López Borrella (1939-2015), in memory of Héctor (2004-2017):
+may your ghosts keep us company.
 
 [endsect]

@@ -22,7 +22,7 @@
 #if BOOST_OS_WINDOWS
 
 #include <windows.h>
-#include <boost/detail/winapi/config.hpp>
+#include <boost/winapi/config.hpp>
 #include <stdio.h>
 #include <string.h>
 #include <boost/config.hpp>
@@ -58,6 +58,7 @@ void print_winsdk_macros()
     PRINT_MACRO(__W32API_MAJOR_VERSION);
     PRINT_MACRO(__W32API_MINOR_VERSION);
     PRINT_MACRO(__W32API_PATCHLEVEL);
+    PRINT_MACRO(WINAPI_FAMILY);
     PRINT_MACRO(UNDER_CE);
     PRINT_MACRO(_WIN32_WCE_EMULATION);
     PRINT_MACRO(WIN32);

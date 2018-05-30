@@ -272,12 +272,18 @@
 <namespace name="icl">
 <struct name="identity_based_inplace_combine"><template>
       <template-type-parameter name="Type"/>
-    </template><inherit access="public">std::binary_function&lt; Type &amp;, const Type &amp;, void &gt;</inherit><method-group name="public static functions">
+    </template><typedef name="first_argument_type"><type>Type &amp;</type></typedef>
+<typedef name="second_argument_type"><type>const Type &amp;</type></typedef>
+<typedef name="result_type"><type>void</type></typedef>
+<method-group name="public static functions">
 <method name="identity_element" specifiers="static"><type>Type</type></method>
 </method-group>
 </struct><struct name="unit_element_based_inplace_combine"><template>
       <template-type-parameter name="Type"/>
-    </template><inherit access="public">std::binary_function&lt; Type &amp;, const Type &amp;, void &gt;</inherit><method-group name="public static functions">
+    </template><typedef name="first_argument_type"><type>Type &amp;</type></typedef>
+<typedef name="second_argument_type"><type>const Type &amp;</type></typedef>
+<typedef name="result_type"><type>void</type></typedef>
+<method-group name="public static functions">
 <method name="identity_element" specifiers="static"><type>Type</type></method>
 </method-group>
 </struct><struct name="inplace_identity"><template>

@@ -18,6 +18,7 @@
 #include <string.h>
 #include <limits.h>
 #include <signal.h>
+#include <ctype.h>
 
 #ifdef NT
 #include <windows.h>
@@ -26,6 +27,7 @@
 #else
 #include <errno.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 #undef debug_on_enter_function
@@ -193,8 +195,11 @@ static void debug_lol_read( FILE * in, LOL * lol )
 
 static void debug_frame_write( FILE * out, FRAME * frame )
 {
-    OBJECT * fullname = make_absolute_path( frame->file );
-    debug_object_write( out, frame->file );
+    OBJECT * fullname = constant_builtin;
+    OBJECT * file = frame->file;
+    if ( file == NULL ) file = constant_builtin;
+    else fullname = make_absolute_path( frame->file );
+    debug_object_write( out, file );
     debug_int_write( out, frame->line );
     debug_object_write( out, fullname );
     debug_lol_write( out, frame->args );
@@ -399,7 +404,7 @@ static void debug_print_frame( FRAME * frame )
     printf( "%s ", frame->rulename );
     if ( strcmp( frame->rulename, "module scope" ) != 0 )
     {
-        printf( "( ", frame->rulename );
+        printf( "( " );
         if ( frame->args->count )
         {
             lol_print( frame->args );
@@ -428,7 +433,7 @@ static void debug_print_frame_info( FRAME_INFO * frame )
     printf( "%s ", frame->rulename );
     if ( strcmp( frame->rulename, "module scope" ) != 0 )
     {
-        printf( "( ", frame->rulename );
+        printf( "( " );
         if ( frame->args->count )
         {
             lol_print( frame->args );
@@ -467,7 +472,8 @@ void debug_on_instruction( FRAME * frame, OBJECT * file, int line )
 {
     int breakpoint_id;
     assert( debug_is_debugging() );
-    if ( debug_state == DEBUG_NEXT && debug_depth <= 0 && debug_line != line )
+    if ( debug_state == DEBUG_NEXT &&
+        ( debug_depth < 0 || ( debug_depth == 0 && debug_line != line ) ) )
     {
         debug_file = file;
         debug_line = line;
@@ -481,14 +487,15 @@ void debug_on_instruction( FRAME * frame, OBJECT * file, int line )
         debug_frame = frame;
         debug_end_stepping();
     }
-    else if ( debug_state == DEBUG_FINISH && debug_depth <= 0 )
+    else if ( debug_state == DEBUG_FINISH && debug_depth < 0 )
     {
         debug_file = file;
         debug_line = line;
         debug_frame = frame;
         debug_end_stepping();
     }
-    else if ( ( debug_file == NULL || ! object_equal( file, debug_file ) || line != debug_line ) &&
+    else if ( ( debug_file == NULL || ! object_equal( file, debug_file ) ||
+                line != debug_line || debug_depth != 0 ) &&
         ( breakpoint_id = handle_line_breakpoint( file, line ) ) )
     {
         debug_file = file;
@@ -496,12 +503,19 @@ void debug_on_instruction( FRAME * frame, OBJECT * file, int line )
         debug_frame = frame;
         debug_on_breakpoint( breakpoint_id );
     }
+    else if ( ( debug_state == DEBUG_RUN || debug_state == DEBUG_FINISH ) &&
+        ( debug_depth < 0 || ( debug_depth == 0 && debug_line != line ) ) )
+    {
+        debug_file = NULL;
+        debug_line = 0;
+    }
 }
 
 void debug_on_enter_function( FRAME * frame, OBJECT * name, OBJECT * file, int line )
 {
     int breakpoint_id;
     assert( debug_is_debugging() );
+    ++debug_depth;
     if ( debug_state == DEBUG_STEP && file )
     {
         debug_file = file;
@@ -517,18 +531,18 @@ void debug_on_enter_function( FRAME * frame, OBJECT * name, OBJECT * file, int l
         debug_frame = frame;
         debug_on_breakpoint( breakpoint_id );
     }
-    else if ( debug_state == DEBUG_NEXT || debug_state == DEBUG_FINISH )
-    {
-        ++debug_depth;
-    }
 }
 
 void debug_on_exit_function( OBJECT * name )
 {
     assert( debug_is_debugging() );
-    if ( debug_state == DEBUG_NEXT || debug_state == DEBUG_FINISH )
+    --debug_depth;
+    if ( debug_depth < 0 )
     {
-        --debug_depth;
+        /* The current location is no longer valid
+           after we return from the containing function. */
+        debug_file = NULL;
+        debug_line = 0;
     }
 }
 
@@ -542,11 +556,13 @@ static int child_pid;
 static void debug_child_continue( int argc, const char * * argv )
 {
     debug_state = DEBUG_RUN;
+    debug_depth = 0;
 }
 
 static void debug_child_step( int argc, const char * * argv )
 {
     debug_state = DEBUG_STEP;
+    debug_depth = 0;
 }
 
 static void debug_child_next( int argc, const char * * argv )
@@ -558,7 +574,7 @@ static void debug_child_next( int argc, const char * * argv )
 static void debug_child_finish( int argc, const char * * argv )
 {
     debug_state = DEBUG_FINISH;
-    debug_depth = 1;
+    debug_depth = 0;
 }
 
 static void debug_child_kill( int argc, const char * * argv )
@@ -833,8 +849,16 @@ static const char * debug_format_message( const char * format, va_list vargs )
         buf = malloc( sz );
         if ( !buf )
             return 0;
+        #ifndef va_copy
+        args = vargs;
+        #else
         va_copy( args, vargs );
+        #endif
+        #if defined(_MSC_VER) && (_MSC_VER <= 1310)
+        result = _vsnprintf( buf, sz, format, args );
+        #else
         result = vsnprintf( buf, sz, format, args );
+        #endif
         va_end( args );
         if ( result < 0 )
             return 0;
@@ -1092,7 +1116,7 @@ static void debug_start_child( int argc, const char * * argv )
     PROCESS_INFORMATION pi = { NULL, NULL, 0, 0 };
     STARTUPINFO si = { sizeof( STARTUPINFO ), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0 };
-    assert( DEBUG_STATE == DEBUG_NO_CHILD );
+    assert( debug_state == DEBUG_NO_CHILD );
     if ( ! CreatePipe( &pipe1[ 0 ], &pipe1[ 1 ], &sa, 0 ) )
     {
         printf("internal error\n");
@@ -1125,10 +1149,13 @@ static void debug_start_child( int argc, const char * * argv )
     sprintf( buf, "%p", pipe2[ 1 ] );
     string_append( command_line, buf );
     /* Pass the rest of the command line. */
-    for ( int i = 1; i < argc; ++i )
-    {
-        string_push_back( command_line, ' ' );
-        string_append( command_line, argv[ i ] );
+	{
+        int i;
+        for ( i = 1; i < argc; ++i )
+        {
+            string_push_back( command_line, ' ' );
+            string_append( command_line, argv[ i ] );
+        }
     }
     SetHandleInformation( pipe1[ 1 ], HANDLE_FLAG_INHERIT, 0 );
     SetHandleInformation( pipe2[ 0 ], HANDLE_FLAG_INHERIT, 0 );
@@ -1176,7 +1203,7 @@ static void debug_start_child( int argc, const char * * argv )
     int read_fd;
     int pid;
     int i;
-    assert( DEBUG_STATE == DEBUG_NO_CHILD );
+    assert( debug_state == DEBUG_NO_CHILD );
     pipe(pipe1);
     pipe(pipe2);
     pid = fork();
@@ -2064,7 +2091,7 @@ static void debug_mi_break_list( int argc, const char * * argv )
     int number;
     int i;
     int first;
-    if ( argc > 2 || argc == 2 && strcmp( argv[ 1 ], "--" ) )
+    if ( argc > 2 || ( argc == 2 && strcmp( argv[ 1 ], "--" ) ) )
     {
         debug_mi_error( "Too many arguments for -break-list" );
         return;

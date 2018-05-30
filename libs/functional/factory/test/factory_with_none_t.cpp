@@ -7,7 +7,7 @@
 ==============================================================================*/
 
 #include <boost/functional/factory.hpp>
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/none_t.hpp>
 
 #include <memory>
@@ -20,6 +20,12 @@ class sum
 
     operator int() const { return this->val_sum; }
 };
+
+// Suppress warnings about std::auto_ptr.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 int main()
 {
@@ -44,3 +50,7 @@ int main()
 #endif
     return boost::report_errors();
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif

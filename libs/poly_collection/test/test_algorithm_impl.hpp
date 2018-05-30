@@ -1,4 +1,4 @@
-/* Copyright 2016-2017 Joaquin M Lopez Munoz.
+/* Copyright 2016-2018 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -38,6 +38,20 @@ struct name                                         \
 {                                                   \
   template<typename... Args>                        \
   auto operator()(Args&&... args)const              \
+  {                                                 \
+    return f<Ts...>(std::forward<Args>(args)...);   \
+  }                                                 \
+};
+#elif BOOST_WORKAROUND(BOOST_GCC_VERSION,<50200)
+/* problem here is with return type containing <Ts...> */
+
+#define DEFINE_ALGORITHM(name,f)                    \
+template<typename... Ts>                            \
+struct name                                         \
+{                                                   \
+  template<typename... Args>                        \
+  auto operator()(Args&&... args)const->            \
+    decltype(f(std::forward<Args>(args)...))        \
   {                                                 \
     return f<Ts...>(std::forward<Args>(args)...);   \
   }                                                 \
@@ -186,6 +200,47 @@ struct std_is_permutation:std_cpp11_is_permutation<Ts...>
 {
   using std_cpp11_is_permutation<Ts...>::operator();
 
+  /* The implementation of predicate-based std::is_permutation in GCC<=4.8
+   * version of libstdc++-v3 incorrectly triggers the instantiation of
+   * ForwardIterator2::value_type, which fails when this is an abstract class.
+   * The implementation below ripped from libc++ source code.
+   */
+
+  template<
+    typename ForwardIterator1,typename ForwardIterator2,typename Predicate
+  >
+  bool operator()(
+    ForwardIterator1 first1,ForwardIterator1 last1,
+    ForwardIterator2 first2,Predicate pred)const
+  {
+    using difference_type=
+      typename std::iterator_traits<ForwardIterator1>::difference_type;
+
+    for(;first1!=last1;++first1,(void)++first2){
+      if(!pred(*first1,*first2))goto not_done;
+    }
+    return true;
+
+  not_done:
+    difference_type l1=std::distance(first1,last1);
+    if(l1==difference_type(1))return false;
+
+    ForwardIterator2 last2=std::next(first2,l1);
+    for(ForwardIterator1 i=first1;i!= last1;++i){
+      for(ForwardIterator1 j=first1;j!=i;++j)if(pred(*j,*i))goto next_iter;
+      {
+        difference_type c2=0;
+        for(ForwardIterator2 j=first2;j!=last2;++j)if(pred(*i,*j))++c2;
+        if(c2==0)return false;
+        difference_type c1=1;
+        for(ForwardIterator1 j=std::next(i);j!=last1;++j)if(pred(*i,*j))++c1;
+        if(c1!=c2)return false;
+      }
+  next_iter:;
+    }
+    return true;
+  }
+
   /* C++14 variants */
 
   template<typename ForwardIterator1,typename ForwardIterator2>
@@ -194,7 +249,7 @@ struct std_is_permutation:std_cpp11_is_permutation<Ts...>
     ForwardIterator2 first2,ForwardIterator2 last2)const
   {
     if(std::distance(first1,last1)!=std::distance(first2,last2))return false;
-    return std::is_permutation(first1,last1,first2);
+    return (*this)(first1,last1,first2);
   }
 
   template<
@@ -205,7 +260,7 @@ struct std_is_permutation:std_cpp11_is_permutation<Ts...>
     ForwardIterator2 first2,ForwardIterator2 last2,Predicate pred)const
   {
     if(std::distance(first1,last1)!=std::distance(first2,last2))return false;
-    return std::is_permutation(first1,last1,first2,pred);
+    return (*this)(first1,last1,first2,pred);
   }
 };
 
@@ -506,6 +561,24 @@ void test_partition_copy_algorithms(
     to_int,const_cast<const PolyCollection&>(p),pred),0)...);
 }
 
+template<typename ToInt>
+struct poly_accumulator_class
+{
+  poly_accumulator_class(const ToInt& to_int):res{0},to_int(to_int){}
+  bool operator==(const poly_accumulator_class& x)const{return res==x.res;}
+
+  template<typename T> void operator()(const T& x){res+=to_int(x);}
+
+  int   res;
+  ToInt to_int;
+};
+
+template<typename ToInt>
+poly_accumulator_class<ToInt> poly_accumulator(const ToInt& to_int)
+{
+  return to_int;
+}
+
 template<
   typename PolyCollection,typename ValueFactory,typename ToInt,
   typename... Types
@@ -545,21 +618,8 @@ void test_algorithm()
       p,pred);
   }
   {
-    struct acc_t
-    {
-      acc_t():res{0}{}
-      void operator()(int x){res+=x;}
-      int res;
-    } acc;
-    using poly_acc_base=decltype(compose(to_int,acc));
-    struct poly_acc_t:poly_acc_base
-    {
-      poly_acc_t(const poly_acc_base& x):poly_acc_base{x}{};
-      bool operator==(const poly_acc_t& x)const{return this->f2.res==x.f2.res;}
-    } poly_acc{compose(to_int,acc)};
-
     test_algorithms<std_for_each<>,poly_for_each<>,poly_for_each<Types...>>(
-      p,poly_acc);
+      p,poly_accumulator(to_int));
   }
   {
     for(const auto& x:p){

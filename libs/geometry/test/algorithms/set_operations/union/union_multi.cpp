@@ -110,7 +110,7 @@ void test_areal()
         1, 0, 13, 6);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
-        1, 3, 35, 22.25);
+        1, 3, 32, 22.25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_103_multi",
         case_103_multi[0], case_103_multi[1],
         1, 0, 7, 25);
@@ -122,7 +122,7 @@ void test_areal()
         1, 0, 5, 25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_106_multi",
         case_106_multi[0], case_106_multi[1],
-        1, 0, 12, 25);
+        1, 0, 5, 25);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_107_multi",
         case_107_multi[0], case_107_multi[1],
         1, 0, 15, 6.75);
@@ -130,8 +130,7 @@ void test_areal()
         case_108_multi[0], case_108_multi[1],
         1, 1, 20, 22.75);
 
-    // Should have 2 holes. Needs self turns
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(case_109_multi, 1, 2, 14, 1400);
 #else
     TEST_UNION_IGNORE(case_109_multi, 1, 1, 14, 1400);
@@ -171,21 +170,20 @@ void test_areal()
        2, 0, 26, 44);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_120_multi",
        case_120_multi[0], case_120_multi[1],
-       1, 1, 20, 35);
+       1, 1, 17, 35);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_121_multi",
        case_121_multi[0], case_121_multi[1],
-       1, 1, 21, 25.5);
+       1, 1, 14, 25.5);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_122_multi",
        case_122_multi[0], case_122_multi[1],
-       1, 1, 28, 29.5);
+       1, 1, 14, 29.5);
 
     TEST_UNION(case_123_multi, 1, 0, 11, 2.75);
     TEST_UNION(case_124_multi, 1, 0, 9, 2.75);
     TEST_UNION(case_125_multi, 1, 0, 9, 2.75);
     TEST_UNION(case_126_multi, 1, 2, 27, 52.0);
 
-    // Should have 2 holes. Needs self turns
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(case_131_multi, 1, 2, 15, 14.0);
 #else
     TEST_UNION_IGNORE(case_131_multi, 1, 1, 15, 14.0);
@@ -204,31 +202,34 @@ void test_areal()
     TEST_UNION(case_135_multi, 1, 2, -1, 22.0);
     TEST_UNION(case_136_multi, 1, 2, -1, 22.0);
     TEST_UNION(case_137_multi, 1, 2, -1, 22.0);
+    TEST_UNION(case_138_multi, 2, 1, -1, 65.225);
+    TEST_UNION(case_139_multi, 2, 1, -1, 64.953);
+    TEST_UNION(case_140_multi, 2, 1, -1, 64.953);
+    TEST_UNION(case_141_multi, 1, 0, -1, 100.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
-        1, 1, 36, 97.0);
+        1, 1, 16, 97.0);
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
-        1, 0, 14, 100.0); // Area from SQL Server
+        1, 0, 5, 100.0); // Area from SQL Server
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_3",
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
-        17, 6, 166, 56.5); // Area from SQL Server
+        17, 6, 154, 56.5); // Area from SQL Server
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_4",
         case_recursive_boxes_4[0], case_recursive_boxes_4[1],
-        1, 2, 42, 96.75);
+        1, 2, 26, 96.75);
 
-    // Should have 10 holes. Needs self turns
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    TEST_UNION(case_recursive_boxes_5, 3, 10, 118, 70.0);
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+    TEST_UNION(case_recursive_boxes_5, 3, 10, 98, 70.0);
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_5, 3, 9, 115, 70.0);
 #endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_6",
         case_recursive_boxes_6[0], case_recursive_boxes_6[1],
-        1, 3, 25, 24.0);
+        1, 3, 17, 24.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_7",
         case_recursive_boxes_7[0], case_recursive_boxes_7[1],
@@ -240,7 +241,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_9",
         case_recursive_boxes_9[0], case_recursive_boxes_9[1],
-        1, 1, 16, 8.25);
+        1, 1, 11, 8.25);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_10",
         case_recursive_boxes_10[0], case_recursive_boxes_10[1],
@@ -263,8 +264,8 @@ void test_areal()
     // to break regions at self-intersection points (postponed)
 
     TEST_UNION_IGNORE(case_recursive_boxes_12_invalid, 5, 0, -1, 6.0);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-    // Without self-turns, a whole part is missed
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+    // Only apply it with self-turns. Without them a whole part is missed
     TEST_UNION_IGNORE(case_recursive_boxes_13_invalid, 2, 0, -1, 10.25);
 #endif
     TEST_UNION_IGNORE(case_recursive_boxes_14_invalid, 4, 0, -1, 4.5);
@@ -345,7 +346,7 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_46, 1, 4, 51, 33.0);
     TEST_UNION(case_recursive_boxes_47, 1, 0, -1, 22.0);
     TEST_UNION(case_recursive_boxes_48, 1, 1, -1, 10.0);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(case_recursive_boxes_49, 1, 3, -1, 59.0);
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_49, 1, 2, -1, 59.0);
@@ -353,7 +354,7 @@ void test_areal()
 
     TEST_UNION(case_recursive_boxes_50, 7, 4, -1, 68.0);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(case_recursive_boxes_51, 2, 6, -1, 75.0);
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_51, 2, 5, -1, 75.0);
@@ -361,14 +362,14 @@ void test_areal()
 
     TEST_UNION(case_recursive_boxes_52, 2, 6, -1, 77.0);
     TEST_UNION(case_recursive_boxes_53, 1, 1, -1, 24.75);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(case_recursive_boxes_54, 1, 2, -1, 22.5);
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_54, 1, 1, -1, 22.5);
 #endif
 
     TEST_UNION(case_recursive_boxes_55, 3, 1, -1, 15.5);
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(case_recursive_boxes_56, 5, 1, -1, 7.75);
 #else
     TEST_UNION_IGNORE(case_recursive_boxes_56, 5, 0, -1, 7.75);
@@ -376,12 +377,48 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_57, 3, 4, -1, 19.75);
     TEST_UNION(case_recursive_boxes_58, 6, 1, -1, 6.25);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     // If there are no self-turns, an interior ring is missed
     TEST_UNION(case_recursive_boxes_59, 1, 3, -1, 21.75);
 #endif
 
     TEST_UNION(case_recursive_boxes_60, 3, 0, -1, 20.5);
+    TEST_UNION(case_recursive_boxes_61, 1, 1, -1, 23.5);
+    TEST_UNION(case_recursive_boxes_62, 2, 3, -1, 21.25);
+    TEST_UNION(case_recursive_boxes_63, 2, 3, -1, 44.0);
+    TEST_UNION(case_recursive_boxes_64, 1, 2, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_65, 1, 1, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_66, 1, 1, -1, 24.75);
+    TEST_UNION(case_recursive_boxes_67, 4, 0, -1, 14.75);
+    TEST_UNION(case_recursive_boxes_68, 1, 4, -1, 22.5);
+    TEST_UNION(case_recursive_boxes_69, 4, 0, -1, 16.25);
+    TEST_UNION(case_recursive_boxes_70, 1, 0, -1, 25.0);
+    TEST_UNION(case_recursive_boxes_71, 4, 2, -1, 15.75);
+    TEST_UNION(case_recursive_boxes_72, 10, 0, -1, 15.0);
+    TEST_UNION(case_recursive_boxes_73, 1, 2, -1, 24.25);
+    TEST_UNION(case_recursive_boxes_74, 1, 1, -1, 24.75);
+    TEST_UNION(case_recursive_boxes_75, 1, 2, -1, 23.25);
+    TEST_UNION(case_recursive_boxes_76, 1, 0, -1, 24.5);
+    TEST_UNION(case_recursive_boxes_77, 8, 1, -1, 13.5);
+    TEST_UNION(case_recursive_boxes_78, 2, 5, -1, 18.0);
+    TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
+
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    // This is correct: no holes generated
+    TEST_UNION(case_recursive_boxes_80, 2, 0, -1, 1.5);
+#else
+    // See comment for this testcase
+    TEST_UNION(case_recursive_boxes_80, 2, 1, -1, 1.5);
+#endif
+
+    TEST_UNION(case_recursive_boxes_81, 5, 0, -1, 15.5);
+    TEST_UNION(case_recursive_boxes_82, 2, 2, -1, 20.25);
+    TEST_UNION(case_recursive_boxes_83, 3, 1, -1, 20.75);
+    TEST_UNION(case_recursive_boxes_84, 4, 1, -1, 17.5);
+    TEST_UNION(case_recursive_boxes_85, 9, 0, -1, 8.0);
+    TEST_UNION(case_recursive_boxes_86, 3, 0, -1, 3.0);
+    TEST_UNION(case_recursive_boxes_87, 8, 0, -1, 4.5);
+    TEST_UNION(case_recursive_boxes_88, 5, 1, -1, 15.0);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -421,15 +458,15 @@ void test_areal()
         1, 0, -1, 575.831180350007);
 #endif
 
-    // Should have 1 hole. Needs self turns.
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+    TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
+
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
 #else
     TEST_UNION_IGNORE(mysql_23023665_7, 1, 0, -1, 99.19494);
 #endif
 
-    // Should have 2 holes. Needs self turns.
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(mysql_23023665_8, 1, 2, -1, 1400.0);
 #else
     TEST_UNION_IGNORE(mysql_23023665_8, 1, 1, -1, 1400.0);
@@ -438,6 +475,8 @@ void test_areal()
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_9",
         mysql_23023665_9[0], mysql_23023665_9[1],
         1, 9, -1, 1250.0);
+
+    TEST_UNION(mysql_regression_1_65_2017_08_31, 3, 0, -1, 181.966397646608);
 }
 
 // Test cases (generic)

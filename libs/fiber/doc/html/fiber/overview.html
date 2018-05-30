@@ -44,7 +44,8 @@
       using cooperative scheduling (versus threads, which are preemptively scheduled).
       The running fiber decides explicitly when it should yield to allow another
       fiber to run (context switching). <span class="bold"><strong>Boost.Fiber</strong></span>
-      internally uses __econtext__ from <a href="http://www.boost.org/doc/libs/release/libs/context/index.html" target="_top">Boost.Context</a>;
+      internally uses <a href="http://www.boost.org/doc/libs/release/libs/context/doc/html/context/cc.html" target="_top"><span class="emphasis"><em>call/cc</em></span></a>
+      from <a href="http://www.boost.org/doc/libs/release/libs/context/index.html" target="_top">Boost.Context</a>;
       the classes in this library manage, schedule and, when needed, synchronize
       those execution contexts. A context switch between threads usually costs thousands
       of CPU cycles on x86, compared to a fiber switch with less than a hundred cycles.
@@ -174,6 +175,18 @@
 </tr>
 <tr><td align="left" valign="top"><p>
         This library requires C++11!
+      </p></td></tr>
+</table></div>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Windows using fcontext_t: turn off global program optimization (/GL) and
+        change /EHsc (compiler assumes that functions declared as extern "C"
+        never throw a C++ exception) to /EHs (tells compiler assumes that functions
+        declared as extern "C" may throw an exception).
       </p></td></tr>
 </table></div>
 </div>

@@ -1,4 +1,4 @@
-// Copyright 2013-2014 Antony Polukhin
+// Copyright 2013-2018 Antony Polukhin
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See the accompanying file LICENSE_1_0.txt
@@ -47,10 +47,19 @@ namespace my_namespace { namespace detail {
     template <> struct typenum<my_classes>{ enum {value = 3}; };
     template <> struct typenum<my_string>{  enum {value = 4}; };
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4510 4512 4610) // non-copyable non-constructable type
+#endif
+
     // my_typeinfo structure is used to save type number
     struct my_typeinfo {
         const char* const type_;
     };
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
     const my_typeinfo infos[5] = {
         {"void"}, {"my_class"}, {"my_struct"}, {"my_classes"}, {"my_string"}
@@ -74,9 +83,9 @@ namespace my_namespace { namespace detail {
 
 /*`
     Since we are not going to override `type_index_facade::hash_code()` we must additionally include
-    `<boost/functional/hash.hpp>`.
+    `<boost/container_hash/hash.hpp>`.
 */
-#include <boost/functional/hash.hpp>
+#include <boost/container_hash/hash.hpp>
 
 /*`
     See implementation of `my_type_index`:

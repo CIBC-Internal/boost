@@ -88,7 +88,7 @@ struct map_visitor
                     m_mapper.map(turn.point, "fill:rgb(0,128,255);" // Blueish
                             "stroke:rgb(0,0,0);stroke-width:1", 3);
                     break;
-                case 2 :
+                case 3 :
                     label_turn(index, turn);
                     break;
             }
@@ -246,10 +246,15 @@ struct map_visitor
                     result = true;
                 }
             }
-        }
-        if (! turn.operations[index].enriched.startable)
-        {
-            os << "$";
+
+            os << " {" << turn.operations[index].enriched.region_id
+               << (turn.operations[index].enriched.isolated ? " ISO" : "")
+               << "}";
+
+            if (! turn.operations[index].enriched.startable)
+            {
+                os << "$";
+            }
         }
 
         return result;
@@ -267,21 +272,33 @@ struct map_visitor
         bool lab1 = label_operation(turn, 0, out);
         out << " / ";
         bool lab2 = label_operation(turn, 1, out);
-        if (turn.switch_source)
+        if (turn.discarded)
         {
-            out << "#";
+            out << "!";
+        }
+        if (turn.has_colocated_both)
+        {
+            out << "+";
+        }
+        bool const self_turn = bg::detail::overlay::is_self_turn<bg::overlay_union>(turn);
+        if (self_turn)
+        {
+            out << "@";
         }
 
-        std::string font8 = "font-family:Arial;font-size:8px";
-        std::string font6 = "font-family:Arial;font-size:6px";
+        std::string font8 = "font-family:Arial;font-size:6px";
+        std::string font6 = "font-family:Arial;font-size:4px";
         std::string style =  "fill:rgb(0,0,255);" + font8;
-        if (turn.operations[0].seg_id.source_index == turn.operations[1].seg_id.source_index)
+        if (self_turn)
         {
-            style =  "fill:rgb(255,0,255);" + font8;
-        }
-        else if (turn.colocated)
-        {
-            style =  "fill:rgb(255,0,0);" + font8;
+            if (turn.discarded)
+            {
+                style =  "fill:rgb(128,28,128);" + font6;
+            }
+            else
+            {
+                style =  "fill:rgb(255,0,255);" + font8;
+            }
         }
         else if (turn.discarded)
         {
@@ -303,7 +320,7 @@ struct map_visitor
     void add_text(Turn const& turn, std::string const& text, std::string const& style)
     {
         int const margin = 5;
-        int const lineheight = 8;
+        int const lineheight = 6;
         double const half = 0.5;
         double const ten = 10;
 
@@ -356,8 +373,8 @@ void test_overlay(std::string const& caseid,
         << "_" << string_from_type<typename bg::coordinate_type<Geometry>::type>::name()
         << (ccw ? "_ccw" : "")
         << (open ? "_open" : "")
-#ifdef BOOST_GEOMETRY_INCLUDE_SELF_TURNS
-        << "_self"
+#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
+        << "_no_self"
 #endif
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         << "_no_rob"

@@ -12,6 +12,11 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/allocator.hpp>
 #include <boost/container/detail/flat_tree.hpp>
+#include <boost/container/stable_vector.hpp>
+#include <boost/container/small_vector.hpp>
+#include <boost/container/deque.hpp>
+#include <boost/container/static_vector.hpp>
+#include <boost/container/detail/container_or_allocator_rebind.hpp>
 
 #include "print_container.hpp"
 #include "dummy_test_allocator.hpp"
@@ -22,7 +27,6 @@
 #include "emplace_test.hpp"
 #include "../../intrusive/test/iterator_test.hpp"
 
-#include <vector>
 #include <map>
 
 
@@ -34,29 +38,20 @@ namespace container {
 //Explicit instantiation to detect compilation errors
 
 //flat_map
+typedef std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> test_pair_t;
 
 template class flat_map
    < test::movable_and_copyable_int
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , test::simple_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
+   , test::simple_allocator< test_pair_t >
    >;
 
 template class flat_map
    < test::movable_and_copyable_int
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , std::allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
-   >;
-
-template class flat_map
-   < test::movable_and_copyable_int
-   , test::movable_and_copyable_int
-   , std::less<test::movable_and_copyable_int>
-   , allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
+   , small_vector< test_pair_t, 10, std::allocator< test_pair_t > >
    >;
 
 //flat_multimap
@@ -64,8 +59,21 @@ template class flat_multimap
    < test::movable_and_copyable_int
    , test::movable_and_copyable_int
    , std::less<test::movable_and_copyable_int>
-   , test::simple_allocator
-      < std::pair<test::movable_and_copyable_int, test::movable_and_copyable_int> >
+   , stable_vector< test_pair_t, allocator< test_pair_t > >
+   >;
+
+template class flat_multimap
+   < test::movable_and_copyable_int
+   , test::movable_and_copyable_int
+   , std::less<test::movable_and_copyable_int>
+   , deque<test_pair_t, test::simple_allocator< test_pair_t > >
+   >;
+
+template class flat_multimap
+   < test::movable_and_copyable_int
+   , test::movable_and_copyable_int
+   , std::less<test::movable_and_copyable_int>
+   , static_vector<test_pair_t, 10 >
    >;
 
 //As flat container iterators are typedefs for vector::[const_]iterator,
@@ -73,6 +81,22 @@ template class flat_multimap
 
 }} //boost::container
 
+#if (__cplusplus > 201103L)
+#include <vector>
+
+namespace boost{
+namespace container{
+
+template class flat_map
+   < test::movable_and_copyable_int
+   , test::movable_and_copyable_int
+   , std::less<test::movable_and_copyable_int>
+   , std::vector<test_pair_t>
+>;
+
+}} //boost::container
+
+#endif
 
 class recursive_flat_map
 {
@@ -336,25 +360,23 @@ bool flat_tree_extract_adopt_test()
 
 }}}
 
-
-template<class VoidAllocator>
-struct GetAllocatorMap
+template<class VoidAllocatorOrContainer>
+struct GetMapContainer
 {
    template<class ValueType>
    struct apply
    {
+      typedef std::pair<ValueType, ValueType> type_t;
       typedef flat_map< ValueType
                  , ValueType
                  , std::less<ValueType>
-                 , typename allocator_traits<VoidAllocator>
-                    ::template portable_rebind_alloc< std::pair<ValueType, ValueType> >::type
+                 , typename boost::container::dtl::container_or_allocator_rebind<VoidAllocatorOrContainer, type_t>::type
                  > map_type;
 
       typedef flat_multimap< ValueType
                  , ValueType
                  , std::less<ValueType>
-                 , typename allocator_traits<VoidAllocator>
-                    ::template portable_rebind_alloc< std::pair<ValueType, ValueType> >::type
+                 , typename boost::container::dtl::container_or_allocator_rebind<VoidAllocatorOrContainer, type_t>::type
                  > multimap_type;
    };
 };
@@ -402,18 +424,18 @@ struct get_real_stored_allocator<flat_multimap<Key, T, Compare, Allocator> >
 
 }}}   //namespace boost::container::test
 
-template<class VoidAllocator>
+template<class VoidAllocatorOrContainer>
 int test_map_variants()
 {
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<int>::map_type MyMap;
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<test::movable_int>::map_type MyMoveMap;
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<test::movable_and_copyable_int>::map_type MyCopyMoveMap;
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<test::copyable_int>::map_type MyCopyMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<int>::map_type MyMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<test::movable_int>::map_type MyMoveMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<test::movable_and_copyable_int>::map_type MyCopyMoveMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<test::copyable_int>::map_type MyCopyMap;
 
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<int>::multimap_type MyMultiMap;
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<test::movable_int>::multimap_type MyMoveMultiMap;
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<test::movable_and_copyable_int>::multimap_type MyCopyMoveMultiMap;
-   typedef typename GetAllocatorMap<VoidAllocator>::template apply<test::copyable_int>::multimap_type MyCopyMultiMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<int>::multimap_type MyMultiMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<test::movable_int>::multimap_type MyMoveMultiMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<test::movable_and_copyable_int>::multimap_type MyCopyMoveMultiMap;
+   typedef typename GetMapContainer<VoidAllocatorOrContainer>::template apply<test::copyable_int>::multimap_type MyCopyMultiMap;
 
    typedef std::map<int, int>                                     MyStdMap;
    typedef std::multimap<int, int>                                MyStdMultiMap;

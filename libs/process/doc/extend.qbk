@@ -103,12 +103,11 @@ struct async_foo : __handler__, __require_io_service__
     tempalte<typename Executor>
     void on_setup(Executor & exec)
     {
-        __io_service__ & ios = __get_io_service__(exec.seq); //gives us a reference and a compiler error if not present.
+        io_service & ios = __get_io_service__(exec.seq); //gives us a reference and a compiler error if not present.
         //do something with ios
     }
 };
 ```
-
 [note Inheriting [globalref boost::process::extend::require_io_service require_io_service] is necessary, so [funcref boost::process::system system] provides one.]
 
 Additionally the handler can provide a function that is invoked when the child process exits. This is done through __async_handler__.
@@ -133,6 +132,8 @@ struct async_bar : __handler, __async_handler__
 
 
 [caution `on_exit_handler` does not default and is always required when [classref boost::process::extend::async_handler async_handler] is inherited. ]
+
+[caution `on_exit_handler` uses `boost::asio::signal_set` to listen for SIGCHLD on posix. The application must not also register a signal handler for SIGCHLD using functions such as `signal()` or `sigaction()` (but using `boost::asio::signal_set` is fine). ]
 
 [endsect]
 

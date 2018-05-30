@@ -109,6 +109,12 @@ void test_construction()
       BOOST_TEST(p2==p);
       BOOST_TEST(p2.get_allocator().root==&root2);
     }
+
+#if BOOST_WORKAROUND(BOOST_LIBSTDCXX_VERSION,<40900)
+    /* Limitations from libstdc++-v3 make move construction with allocator
+     * decay to copy construction with allocator.
+     */
+#else
     {
       rooted_poly_collection p2{cp};
       auto                   d2=get_layout_data<Types...>(p2);
@@ -119,6 +125,7 @@ void test_construction()
       do_((BOOST_TEST(!p2.template is_registered<Types>()),0)...);
       BOOST_TEST(p3.get_allocator().root==&root2);
     }
+#endif
     {
       rooted_poly_collection p2{cp};
       auto                   d2=get_layout_data<Types...>(p2);
@@ -129,7 +136,8 @@ void test_construction()
       BOOST_TEST(p2.empty());
       do_((BOOST_TEST(!p2.template is_registered<Types>()),0)...);
 
-#if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
+#if BOOST_WORKAROUND(BOOST_MSVC,<=1900)||\
+    BOOST_WORKAROUND(BOOST_LIBSTDCXX_VERSION,<40900)
 #else
       BOOST_TEST(p3.get_allocator().root==&root1);
 #endif
@@ -149,6 +157,15 @@ void test_construction()
       Types...
     >(p,v,2);
 
+#if BOOST_WORKAROUND(BOOST_LIBSTDCXX_VERSION,<40900)
+    /* std::unordered_map copy construction and assigment crash when elements
+     * throw on copy construction.
+     */
+
+    static_assert(
+      sizeof(not_copy_constructible)>0,""); /* Wunused-local-typedefs */
+    (void)cp;                               /* Wunused-variable       */
+#else
     check_throw<not_copy_constructible>([&]{
       PolyCollection p2{cp};
       (void)p2;      
@@ -157,6 +174,8 @@ void test_construction()
       PolyCollection p2;
       p2=cp;
     });
+#endif
+
     {
       PolyCollection p2{std::move(p)};
       BOOST_TEST(!p2.empty());

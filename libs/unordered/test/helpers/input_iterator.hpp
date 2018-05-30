@@ -7,13 +7,12 @@
 #define BOOST_UNORDERED_TEST_HELPERS_INPUT_ITERATOR_HEADER
 
 #include <boost/config.hpp>
-#include <boost/iterator/iterator_traits.hpp>
 #include <iterator>
 
 namespace test {
-template <class Iterator> struct proxy
-{
-    typedef BOOST_DEDUCED_TYPENAME Iterator::value_type value_type;
+  template <class Iterator> struct proxy
+  {
+    typedef typename Iterator::value_type value_type;
 
     explicit proxy(value_type const& v) : v_(v) {}
     proxy(proxy const& x) : v_(x.v_) {}
@@ -23,18 +22,15 @@ template <class Iterator> struct proxy
 
   private:
     proxy& operator=(proxy const&);
-};
+  };
 
-template <class Iterator>
-struct input_iterator_adaptor
-    : public std::iterator<std::input_iterator_tag,
-          BOOST_DEDUCED_TYPENAME boost::iterator_value<Iterator>::type,
-          std::ptrdiff_t,
-          BOOST_DEDUCED_TYPENAME boost::iterator_pointer<Iterator>::type,
-          proxy<Iterator> >
-{
-    typedef BOOST_DEDUCED_TYPENAME boost::iterator_value<Iterator>::type
-        value_type;
+  template <class Iterator> struct input_iterator_adaptor
+  {
+    typedef typename std::iterator_traits<Iterator>::value_type value_type;
+    typedef typename std::iterator_traits<Iterator>::pointer pointer;
+    typedef proxy<Iterator> reference;
+    typedef std::ptrdiff_t difference_type;
+    typedef std::input_iterator_tag iterator_category;
 
     input_iterator_adaptor() : base_() {}
     explicit input_iterator_adaptor(Iterator& it) : base_(&it) {}
@@ -42,43 +38,39 @@ struct input_iterator_adaptor
     value_type* operator->() const { return &**base_; }
     input_iterator_adaptor& operator++()
     {
-        ++*base_;
-        return *this;
+      ++*base_;
+      return *this;
     }
     // input_iterator_adaptor operator++(int) {
     //}
     bool operator==(input_iterator_adaptor const& x) const
     {
-        return *base_ == *x.base_;
+      return *base_ == *x.base_;
     }
     bool operator!=(input_iterator_adaptor const& x) const
     {
-        return *base_ != *x.base_;
+      return *base_ != *x.base_;
     }
 
   private:
     Iterator* base_;
-};
+  };
 
-template <class Iterator>
-input_iterator_adaptor<Iterator> input_iterator(Iterator& it)
-{
+  template <class Iterator>
+  input_iterator_adaptor<Iterator> input_iterator(Iterator& it)
+  {
     return input_iterator_adaptor<Iterator>(it);
-}
+  }
 
-template <class Iterator>
-struct copy_iterator_adaptor
-    : public std::iterator<
-          BOOST_DEDUCED_TYPENAME boost::iterator_category<Iterator>::type,
-          BOOST_DEDUCED_TYPENAME boost::iterator_value<Iterator>::type,
-          BOOST_DEDUCED_TYPENAME boost::iterator_difference<Iterator>::type,
-          BOOST_DEDUCED_TYPENAME boost::iterator_pointer<Iterator>::type,
-          proxy<Iterator> >
-{
-    typedef BOOST_DEDUCED_TYPENAME boost::iterator_value<Iterator>::type
-        value_type;
-    typedef BOOST_DEDUCED_TYPENAME boost::iterator_difference<Iterator>::type
-        difference_type;
+  template <class Iterator> struct copy_iterator_adaptor
+  {
+    typedef typename std::iterator_traits<Iterator>::value_type value_type;
+    typedef
+      typename std::iterator_traits<Iterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<Iterator>::iterator_category
+      iterator_category;
+    typedef typename std::iterator_traits<Iterator>::pointer pointer;
+    typedef proxy<Iterator> reference;
 
     copy_iterator_adaptor() : base_() {}
     explicit copy_iterator_adaptor(Iterator const& it) : base_(it) {}
@@ -87,87 +79,87 @@ struct copy_iterator_adaptor
     value_type operator[](difference_type d) { return base_[d]; }
     copy_iterator_adaptor& operator++()
     {
-        ++base_;
-        return *this;
+      ++base_;
+      return *this;
     }
     copy_iterator_adaptor operator++(int)
     {
-        copy_iterator_adaptor tmp(*this);
-        ++base_;
-        return tmp;
+      copy_iterator_adaptor tmp(*this);
+      ++base_;
+      return tmp;
     }
     copy_iterator_adaptor& operator--()
     {
-        --base_;
-        return *this;
+      --base_;
+      return *this;
     }
     copy_iterator_adaptor operator--(int)
     {
-        copy_iterator_adaptor tmp(*this);
-        --base_;
-        return tmp;
+      copy_iterator_adaptor tmp(*this);
+      --base_;
+      return tmp;
     }
     copy_iterator_adaptor operator+=(difference_type x)
     {
-        base_ += x;
-        return *this;
+      base_ += x;
+      return *this;
     }
     copy_iterator_adaptor operator-=(difference_type x)
     {
-        base_ -= x;
-        return *this;
+      base_ -= x;
+      return *this;
     }
     copy_iterator_adaptor operator+(difference_type n)
     {
-        return copy_iterator_adaptor(base_ + n);
+      return copy_iterator_adaptor(base_ + n);
     }
     copy_iterator_adaptor operator-(difference_type n)
     {
-        return copy_iterator_adaptor(base_ - n);
+      return copy_iterator_adaptor(base_ - n);
     }
     friend copy_iterator_adaptor operator+(
-        difference_type n, copy_iterator_adaptor x)
+      difference_type n, copy_iterator_adaptor x)
     {
-        return x + n;
+      return x + n;
     }
     difference_type operator-(copy_iterator_adaptor const& other)
     {
-        return base_ - other.base_;
+      return base_ - other.base_;
     }
     bool operator==(copy_iterator_adaptor const& x) const
     {
-        return base_ == x.base_;
+      return base_ == x.base_;
     }
     bool operator!=(copy_iterator_adaptor const& x) const
     {
-        return base_ != x.base_;
+      return base_ != x.base_;
     }
     bool operator<(copy_iterator_adaptor const& x) const
     {
-        return base_ < x.base_;
+      return base_ < x.base_;
     }
     bool operator>(copy_iterator_adaptor const& x) const
     {
-        return base_ > x.base_;
+      return base_ > x.base_;
     }
     bool operator<=(copy_iterator_adaptor const& x) const
     {
-        return base_ <= x.base_;
+      return base_ <= x.base_;
     }
     bool operator>=(copy_iterator_adaptor const& x) const
     {
-        return base_ >= x.base_;
+      return base_ >= x.base_;
     }
 
   private:
     Iterator base_;
-};
+  };
 
-template <class Iterator>
-copy_iterator_adaptor<Iterator> copy_iterator(Iterator const& it)
-{
+  template <class Iterator>
+  copy_iterator_adaptor<Iterator> copy_iterator(Iterator const& it)
+  {
     return copy_iterator_adaptor<Iterator>(it);
-}
+  }
 }
 
 #endif

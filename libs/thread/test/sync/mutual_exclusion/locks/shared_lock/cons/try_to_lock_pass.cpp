@@ -35,6 +35,12 @@ typedef boost::chrono::nanoseconds ns;
 #else
 #endif
 
+#ifdef BOOST_THREAD_PLATFORM_WIN32
+const ms max_diff(250);
+#else
+const ms max_diff(75);
+#endif
+
 void f()
 {
 #if defined BOOST_THREAD_USES_CHRONO
@@ -51,15 +57,14 @@ void f()
     boost::shared_lock<boost::shared_mutex> lk(m, boost::try_to_lock);
     BOOST_TEST(lk.owns_lock() == false);
   }
-  while (true)
+  for (;;)
   {
     boost::shared_lock<boost::shared_mutex> lk(m, boost::try_to_lock);
     if (lk.owns_lock()) break;
   }
   time_point t1 = Clock::now();
   ns d = t1 - t0 - ms(250);
-  // This test is spurious as it depends on the time the thread system switches the threads
-  BOOST_TEST(d < ns(50000000)+ms(1000)); // within 50ms
+  BOOST_TEST(d < max_diff);
 #else
 //  time_point t0 = Clock::now();
 //  {
@@ -74,15 +79,14 @@ void f()
 //    boost::shared_lock<boost::shared_mutex> lk(m, boost::try_to_lock);
 //    BOOST_TEST(lk.owns_lock() == false);
 //  }
-  while (true)
+  for (;;)
   {
     boost::shared_lock<boost::shared_mutex> lk(m, boost::try_to_lock);
     if (lk.owns_lock()) break;
   }
   //time_point t1 = Clock::now();
   //ns d = t1 - t0 - ms(250);
-  // This test is spurious as it depends on the time the thread system switches the threads
-  //BOOST_TEST(d < ns(50000000)+ms(1000)); // within 50ms
+  //BOOST_TEST(d < max_diff);
 #endif
 }
 

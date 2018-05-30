@@ -7,7 +7,7 @@
 <link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Fiber">
 <link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Fiber">
 <link rel="prev" href="speculation.html" title="Specualtive execution">
-<link rel="next" href="performance.html" title="Performance">
+<link rel="next" href="gpu_computing.html" title="GPU computing">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -20,7 +20,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="speculation.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="performance.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="speculation.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="gpu_computing.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
@@ -355,6 +355,7 @@
 <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span> <span class="identifier">node</span> <span class="special">&gt;</span> <span class="identifier">topology</span><span class="special">();</span>
 
 <span class="keyword">void</span> <span class="identifier">pin_thread</span><span class="special">(</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">uint32_t</span><span class="special">);</span>
+<span class="keyword">void</span> <span class="identifier">pin_thread</span><span class="special">(</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">uint32_t</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">thread</span><span class="special">::</span><span class="identifier">native_handle_type</span><span class="special">);</span>
 
 <span class="special">}}}</span>
 
@@ -547,7 +548,8 @@
 <span class="keyword">namespace</span> <span class="identifier">fibers</span> <span class="special">{</span>
 <span class="keyword">namespace</span> <span class="identifier">numa</span> <span class="special">{</span>
 
-<span class="keyword">void</span> <span class="identifier">pin_thread</span><span class="special">(</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">uint32_t</span><span class="special">);</span>
+<span class="keyword">void</span> <span class="identifier">pin_thread</span><span class="special">(</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">uint32_t</span> <span class="identifier">cpu_id</span><span class="special">);</span>
+<span class="keyword">void</span> <span class="identifier">pin_thread</span><span class="special">(</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">uint32_t</span> <span class="identifier">cpu_id</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">thread</span><span class="special">::</span><span class="identifier">native_handle_type</span> <span class="identifier">h</span><span class="special">);</span>
 
 <span class="special">}}}</span>
 </pre>
@@ -556,10 +558,11 @@
 <dl class="variablelist">
 <dt><span class="term">Effects:</span></dt>
 <dd><p>
-            Pins <code class="computeroutput"><span class="keyword">this</span> <span class="identifier">thread</span></code>
-            to the logical cpu with ID <code class="computeroutput"><span class="identifier">cpu_id</span></code>,
-            e.g. the operating system scheduler will not migrate the thread to another
-            logical cpu.
+            First version pins <code class="computeroutput"><span class="keyword">this</span> <span class="identifier">thread</span></code> to the logical cpu with ID
+            <code class="computeroutput"><span class="identifier">cpu_id</span></code>, e.g. the operating
+            system scheduler will not migrate the thread to another logical cpu.
+            The second variant pins the thread with the native ID <code class="computeroutput"><span class="identifier">h</span></code>
+            to logical cpu with ID <code class="computeroutput"><span class="identifier">cpu_id</span></code>.
           </p></dd>
 <dt><span class="term">Throws:</span></dt>
 <dd><p>
@@ -807,7 +810,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="speculation.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="performance.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="speculation.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="gpu_computing.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

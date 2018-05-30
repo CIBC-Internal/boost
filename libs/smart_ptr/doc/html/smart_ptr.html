@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.6.1">
+<meta name="generator" content="Asciidoctor 1.5.6.2">
 <meta name="author" content="Greg Colvin, Beman Dawes, Peter Dimov, Glen Fernandes">
 <title>Boost.SmartPtr: The Smart Pointer Library</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -4686,7 +4686,7 @@ feature with <code>std::make_unique</code>.</p>
 <div class="sect2">
 <h3 id="make_unique_synopsis">Synopsis</h3>
 <div class="paragraph">
-<p><code>make_unique</code> is defined in <code>&lt;boost/smart_ptr/make_unqiue.hpp&gt;</code>.</p>
+<p><code>make_unique</code> is defined in <code>&lt;boost/smart_ptr/make_unique.hpp&gt;</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -5067,7 +5067,7 @@ converted to <code>intrusive_ptr&lt;U&gt;</code> whenever <code>T*</code> can be
 <dl>
 <dt class="hdlist1">Effects</dt>
 <dd>
-<p><code>if(r.get() != 0) intrusive_ptr_add_ref(r.get());</code>.</p>
+<p><code>T * p = r.get(); if(p != 0) intrusive_ptr_add_ref(p);</code>.</p>
 </dd>
 <dt class="hdlist1">Postconditions</dt>
 <dd>
@@ -10078,7 +10078,7 @@ mandates that relational operations on pointers are unspecified (5.9
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-02 09:56:17 UTC
+Last updated 2018-04-11 13:49:09 UTC
 </div>
 </div>
 <style>

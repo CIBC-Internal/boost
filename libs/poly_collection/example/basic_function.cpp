@@ -25,7 +25,7 @@ int main()
 
   // populate sprs
   std::mt19937                 gen{92748}; // some arbitrary random seed
-  std::discrete_distribution<> rnd({1,1,1});
+  std::discrete_distribution<> rnd{{1,1,1}};
   for(int i=0;i<4;++i){        // assign each type with 1/3 probability
     switch(rnd(gen)){ 
       case 0: sprs.push_back(std::make_unique<warrior>(i));;break;
@@ -58,21 +58,21 @@ int main()
 //->
 //=  auto render_sprite(const sprite& s){
     return [&](std::ostream& os){s.render(os);};
-  };
+  }/*<-*/;/*->*/
 
 //<-
   auto render_message=[](const std::string& m){
 //->
 //=  auto render_message(const std::string& m){
     return [&](std::ostream& os){os<<m;};
-  };
+  }/*<-*/;/*->*/
 
 //<-
   auto render_window=[](const window& w){
 //->
 //=  auto render_window(const window& w){
     return [&](std::ostream& os){w.display(os);};
-  };
+  }/*<-*/;/*->*/
 //=  ...
 //=
   for(const auto& ps:sprs)c.insert(render_sprite(*ps)); 

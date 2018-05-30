@@ -27,6 +27,8 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="stacktrace.configuration_and_build"></a><a class="link" href="configuration_and_build.html" title="Configuration and Build">Configuration and Build</a>
 </h2></div></div></div>
+<div class="toc"><dl class="toc"><dt><span class="section"><a href="configuration_and_build.html#stacktrace.configuration_and_build.mingw_and_mingw_w64_specific_not">MinGW
+      and MinGW-w64 specific notes</a></span></dt></dl></div>
 <p>
       By default Boost.Stacktrace is a header-only library, but you may change that
       and use the following macros to improve build times or to be able to tune library
@@ -133,7 +135,8 @@
 <tr>
 <td>
               <p>
-                <span class="emphasis"><em>default for MSVC</em></span> / <span class="bold"><strong>BOOST_STACKTRACE_USE_WINDBG</strong></span>
+                <span class="emphasis"><em>default for MSVC, Intel on Windows, MinGW-w64</em></span>
+                / <span class="bold"><strong>BOOST_STACKTRACE_USE_WINDBG</strong></span>
               </p>
             </td>
 <td>
@@ -143,12 +146,13 @@
             </td>
 <td>
               <p>
-                Uses COM to show debug info.
+                Uses COM to show debug info. May require linking with <span class="bold"><strong>ole32</strong></span>
+                and <span class="bold"><strong>dbgeng</strong></span>.
               </p>
             </td>
 <td>
               <p>
-                Windows
+                MSVC, MinGW-w64, Intel on Windows
               </p>
             </td>
 <td>
@@ -165,7 +169,7 @@
 <tr>
 <td>
               <p>
-                <span class="emphasis"><em>default other platforms</em></span>
+                <span class="emphasis"><em>default for other platforms</em></span>
               </p>
             </td>
 <td>
@@ -181,7 +185,7 @@
             </td>
 <td>
               <p>
-                Not MSVC compiler on POSIX or Windows
+                Any compiler on POSIX or MinGW
               </p>
             </td>
 <td>
@@ -210,12 +214,13 @@
               <p>
                 Uses COM to show debug info and caches COM instances in TLS for better
                 performance. Useful only for cases when traces are gathered very
-                often. <a href="#ftn.stacktrace.configuration_and_build.f2" class="footnote" name="stacktrace.configuration_and_build.f2"><sup class="footnote">[c]</sup></a>
+                often. <a href="#ftn.stacktrace.configuration_and_build.f2" class="footnote" name="stacktrace.configuration_and_build.f2"><sup class="footnote">[c]</sup></a> May require linking with <span class="bold"><strong>ole32</strong></span>
+                and <span class="bold"><strong>dbgeng</strong></span>.
               </p>
             </td>
 <td>
               <p>
-                Windows
+                MSVC, Intel on Windows
               </p>
             </td>
 <td>
@@ -247,15 +252,15 @@
                 in your system, or built into your compiler.
               </p>
               <p>
-                Otherwise (if you are a <span class="bold"><strong>MinGW</strong></span> user
-                for example) it can be downloaded <a href="https://github.com/ianlancetaylor/libbacktrace" target="_top">from
+                Otherwise (if you are a <span class="bold"><strong>MinGW</strong></span>/<span class="bold"><strong>MinGW-w64</strong></span> user for example) it can be downloaded
+                <a href="https://github.com/ianlancetaylor/libbacktrace" target="_top">from
                 here</a> or <a href="https://github.com/gcc-mirror/gcc/tree/master/libbacktrace" target="_top">from
                 here</a>.
               </p>
             </td>
 <td>
               <p>
-                GCC/MinGW/Clang... on POSIX or Windows
+                Any compiler on POSIX, or MinGW, or MinGW-w64
               </p>
             </td>
 <td>
@@ -292,7 +297,7 @@
             </td>
 <td>
               <p>
-                GCC/MinGW/Clang... on POSIX
+                Any compiler on POSIX
               </p>
             </td>
 <td>
@@ -380,6 +385,56 @@
           is defined, you just need link with <span class="bold"><strong>-lboost_stacktrace_noop</strong></span>
         </li>
 </ul></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="stacktrace.configuration_and_build.mingw_and_mingw_w64_specific_not"></a><a class="link" href="configuration_and_build.html#stacktrace.configuration_and_build.mingw_and_mingw_w64_specific_not" title="MinGW and MinGW-w64 specific notes">MinGW
+      and MinGW-w64 specific notes</a>
+</h3></div></div></div>
+<p>
+        MinGW-w64 and MinGW (without -w64) users have to install libbacktrace for
+        getting better stacktraces. Follow the instruction:
+      </p>
+<p>
+        Let's assume that you've installed MinGW into C:\MinGW and downloaded <a href="https://github.com/ianlancetaylor/libbacktrace" target="_top">libbacktrace sources</a>
+        into C:\libbacktrace-master
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Configure &amp; build libbacktrace from console:
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                  C:\MinGW\msys\1.0\bin\sh.exe
+                </li>
+<li class="listitem">
+                  cd /c/libbacktrace-master
+                </li>
+<li class="listitem">
+                  ./configure CC=/c/MinGW/bin/gcc.exe CXX=/c/MinGW/bin/g++.exe
+                </li>
+<li class="listitem">
+                  make
+                </li>
+<li class="listitem">
+                  ./libtool --mode=install /usr/bin/install -c libbacktrace.la '/c/libbacktrace-master'
+                </li>
+</ul></div>
+          </li>
+<li class="listitem">
+            Add info to the project-config.jam in the Boost folder:
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
+                  using gcc : 6 : "C:\MinGW\bin\g++.exe" : &lt;compileflags&gt;-I"C:\libbacktrace-master\"
+                  &lt;linkflags&gt;-L"C:\libbacktrace-master\" ;
+                </li></ul></div>
+          </li>
+<li class="listitem">
+            Now you can use a header only version by defining <span class="bold"><strong>BOOST_STACKTRACE_USE_BACKTRACE</strong></span>
+            for your project or build the stacktrace library from Boost folder:
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
+                  b2.exe toolset=gcc-6 --with-stacktrace
+                </li></ul></div>
+          </li>
+</ul></div>
+</div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>

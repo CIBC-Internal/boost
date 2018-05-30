@@ -3353,7 +3353,7 @@
 <a name="metaparse.reference.alphabetical.first_of.h0"></a>
           <span class="phrase"><a name="metaparse.reference.alphabetical.first_of.synopsis"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.first_of.synopsis">Synopsis</a>
         </h2>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">P1</span><span class="special">,</span> <span class="comment">/* ... */</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">Pn</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span><span class="special">...</span> <span class="identifier">Ps</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">first_of</span><span class="special">;</span>
 </pre>
 <p>
@@ -3381,12 +3381,12 @@
 <tbody><tr>
 <td>
                   <p>
-                    <code class="computeroutput"><span class="identifier">P1</span></code> .. <code class="computeroutput"><span class="identifier">Pn</span></code>
+                    <code class="computeroutput"><span class="identifier">Ps</span></code>
                   </p>
                 </td>
 <td>
                   <p>
-                    <a class="link" href="reference.html#parser">parser</a>
+                    <a class="link" href="reference.html#parser">parser</a>s
                   </p>
                 </td>
 </tr></tbody>
@@ -3397,9 +3397,15 @@
           <span class="phrase"><a name="metaparse.reference.alphabetical.first_of.description"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.first_of.description">Description</a>
         </h2>
 <p>
-          <code class="computeroutput"><span class="identifier">first_of</span></code> applies the <code class="computeroutput"><span class="identifier">P1</span></code> ... <code class="computeroutput"><span class="identifier">Pn</span></code>
+          <code class="computeroutput"><span class="identifier">first_of</span></code> applies the <code class="computeroutput"><span class="identifier">Ps</span><span class="special">...</span></code>
           parsers in sequence. It accepts an input when all parsers accept it. The
           result of parsing is the result of the first parser.
+        </p>
+<p>
+          On compilers, which are not C++11-compliant, the maximum number of parsers
+          <code class="computeroutput"><span class="identifier">first_of</span></code> accepts can be
+          specified with the <code class="computeroutput"><span class="identifier">BOOST_METAPARSE_LIMIT_SEQUENCE_SIZE</span></code>
+          macro. Its default value is <code class="computeroutput"><span class="number">5</span></code>.
         </p>
 <h2>
 <a name="metaparse.reference.alphabetical.first_of.h2"></a>
@@ -8365,7 +8371,7 @@
 <a name="metaparse.reference.alphabetical.last_of.h0"></a>
           <span class="phrase"><a name="metaparse.reference.alphabetical.last_of.synopsis"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.last_of.synopsis">Synopsis</a>
         </h2>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">P1</span><span class="special">,</span> <span class="comment">/* ... */</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">Pn</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span><span class="special">...</span> <span class="identifier">Ps</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">last_of</span><span class="special">;</span>
 </pre>
 <p>
@@ -8393,12 +8399,12 @@
 <tbody><tr>
 <td>
                   <p>
-                    <code class="computeroutput"><span class="identifier">P1</span></code> .. <code class="computeroutput"><span class="identifier">Pn</span></code>
+                    <code class="computeroutput"><span class="identifier">Ps</span><span class="special">...</span></code>
                   </p>
                 </td>
 <td>
                   <p>
-                    <a class="link" href="reference.html#parser">parser</a>
+                    <a class="link" href="reference.html#parser">parser</a>s
                   </p>
                 </td>
 </tr></tbody>
@@ -8409,9 +8415,15 @@
           <span class="phrase"><a name="metaparse.reference.alphabetical.last_of.description"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.last_of.description">Description</a>
         </h2>
 <p>
-          <code class="computeroutput"><span class="identifier">last_of</span></code> applies the <code class="computeroutput"><span class="identifier">P1</span></code> ... <code class="computeroutput"><span class="identifier">Pn</span></code>
+          <code class="computeroutput"><span class="identifier">last_of</span></code> applies the <code class="computeroutput"><span class="identifier">Ps</span><span class="special">...</span></code>
           parsers in sequence. It accepts an input when all parsers accept it. The
           result of parsing is the result of the last parser.
+        </p>
+<p>
+          On compilers, which are not C++11-compliant, the maximum number of parsers
+          <code class="computeroutput"><span class="identifier">last_of</span></code> accepts can be
+          specified with the <code class="computeroutput"><span class="identifier">BOOST_METAPARSE_LIMIT_SEQUENCE_SIZE</span></code>
+          macro. Its default value is <code class="computeroutput"><span class="number">5</span></code>.
         </p>
 <h2>
 <a name="metaparse.reference.alphabetical.last_of.h2"></a>
@@ -9717,7 +9729,7 @@
 <a name="metaparse.reference.alphabetical.nth_of_c.h0"></a>
           <span class="phrase"><a name="metaparse.reference.alphabetical.nth_of_c.synopsis"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.nth_of_c.synopsis">Synopsis</a>
         </h2>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">int</span> <span class="identifier">N</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">P0</span><span class="special">,</span> <span class="comment">/* ... */</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">Pk</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">int</span> <span class="identifier">N</span><span class="special">,</span> <span class="keyword">class</span><span class="special">...</span> <span class="identifier">Ps</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">nth_of_c</span><span class="special">;</span>
 </pre>
 <p>
@@ -9752,14 +9764,14 @@
 <td>
                   <p>
                     <code class="computeroutput"><span class="keyword">int</span></code> value in the
-                    range <code class="computeroutput"><span class="special">[</span><span class="number">0.</span><span class="special">.</span><span class="identifier">k</span><span class="special">]</span></code>
+                    range <code class="computeroutput"><span class="special">[</span><span class="number">0.</span><span class="special">.</span><span class="keyword">sizeof</span><span class="special">...(</span><span class="identifier">Ps</span><span class="special">)]</span></code>
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-                    <code class="computeroutput"><span class="identifier">P0</span></code>..<code class="computeroutput"><span class="identifier">Pk</span></code>
+                    <code class="computeroutput"><span class="identifier">Ps</span></code>
                   </p>
                 </td>
 <td>
@@ -9776,14 +9788,15 @@
           <span class="phrase"><a name="metaparse.reference.alphabetical.nth_of_c.description"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.nth_of_c.description">Description</a>
         </h2>
 <p>
-          <code class="computeroutput"><span class="identifier">nth_of_c</span></code> applies the <code class="computeroutput"><span class="identifier">P0</span></code> .. <code class="computeroutput"><span class="identifier">Pk</span></code>
+          <code class="computeroutput"><span class="identifier">nth_of_c</span></code> applies the <code class="computeroutput"><span class="identifier">Ps</span><span class="special">...</span></code>
           parsers in sequence. It accepts an input when all of these parsers accept
           it. The result of parsing is the result of the <code class="computeroutput"><span class="identifier">N</span></code>.
           parser.
         </p>
 <p>
-          The maximum number of parsers <code class="computeroutput"><span class="identifier">nth_of_c</span></code>
-          accepts can be specified with the <code class="computeroutput"><span class="identifier">BOOST_METAPARSE_LIMIT_SEQUENCE_SIZE</span></code>
+          On compilers, which are not C++11-compliant, the maximum number of parsers
+          <code class="computeroutput"><span class="identifier">nth_of_c</span></code> accepts can be
+          specified with the <code class="computeroutput"><span class="identifier">BOOST_METAPARSE_LIMIT_SEQUENCE_SIZE</span></code>
           macro. Its default value is <code class="computeroutput"><span class="number">5</span></code>.
         </p>
 <h2>
@@ -9859,7 +9872,7 @@
 <a name="metaparse.reference.alphabetical.nth_of.h0"></a>
           <span class="phrase"><a name="metaparse.reference.alphabetical.nth_of.synopsis"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.nth_of.synopsis">Synopsis</a>
         </h2>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">N</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">P0</span><span class="special">,</span> <span class="comment">/* ... */</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">Pk</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">N</span><span class="special">,</span> <span class="keyword">class</span><span class="special">...</span> <span class="identifier">Ps</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">nth_of</span><span class="special">;</span>
 </pre>
 <p>
@@ -9894,14 +9907,14 @@
 <td>
                   <p>
                     <a class="link" href="reference.html#boxed_value">boxed</a> integer value in the
-                    range <code class="computeroutput"><span class="special">[</span><span class="number">0.</span><span class="special">.</span><span class="identifier">k</span><span class="special">]</span></code>
+                    range <code class="computeroutput"><span class="special">[</span><span class="number">0.</span><span class="special">.</span><span class="keyword">sizeof</span><span class="special">...(</span><span class="identifier">Ps</span><span class="special">)]</span></code>
                   </p>
                 </td>
 </tr>
 <tr>
 <td>
                   <p>
-                    <code class="computeroutput"><span class="identifier">P0</span></code>..<code class="computeroutput"><span class="identifier">Pk</span></code>
+                    <code class="computeroutput"><span class="identifier">Ps</span></code>
                   </p>
                 </td>
 <td>
@@ -9918,14 +9931,15 @@
           <span class="phrase"><a name="metaparse.reference.alphabetical.nth_of.description"></a></span><a class="link" href="reference.html#metaparse.reference.alphabetical.nth_of.description">Description</a>
         </h2>
 <p>
-          <code class="computeroutput"><span class="identifier">nth_of</span></code> applies the <code class="computeroutput"><span class="identifier">P0</span></code> .. <code class="computeroutput"><span class="identifier">Pk</span></code>
+          <code class="computeroutput"><span class="identifier">nth_of</span></code> applies the <code class="computeroutput"><span class="identifier">Ps</span><span class="special">...</span></code>
           parsers in sequence. It accepts an input when all of these parsers accept
           it. The result of parsing is the result of the <code class="computeroutput"><span class="identifier">N</span></code>.
           parser.
         </p>
 <p>
-          The maximum number of parsers <code class="computeroutput"><span class="identifier">nth_of</span></code>
-          accepts can be specified with the <code class="computeroutput"><span class="identifier">BOOST_METAPARSE_LIMIT_SEQUENCE_SIZE</span></code>
+          On compilers, which are not C++11-compliant, the maximum number of parsers
+          <code class="computeroutput"><span class="identifier">nth_of</span></code> accepts can be specified
+          with the <code class="computeroutput"><span class="identifier">BOOST_METAPARSE_LIMIT_SEQUENCE_SIZE</span></code>
           macro. Its default value is <code class="computeroutput"><span class="number">5</span></code>.
         </p>
 <h2>

@@ -12,7 +12,7 @@
 #include <boost/detail/workaround.hpp>
 
 #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-#  pragma warn -8091 // supress warning in Boost.Test
+#  pragma warn -8091 // suppress warning in Boost.Test
 #  pragma warn -8057 // unused argument argc/argv in Boost.Test
 #endif
 
@@ -104,7 +104,7 @@ void test_sequence_list_of_int()
     BOOST_CHECK_EQUAL( aux.size(), 13u );
     c3 = aux;
     BOOST_CHECK_EQUAL( c3.size(), 13u );
-#else
+#elif defined( BOOST_NO_CXX11_HDR_INITIALIZER_LIST )
     c3 = ba::list_of(1).repeat_fun( 10, &rand )(2)(3);
     BOOST_CHECK_EQUAL( c3.size(), 13u );
 #endif

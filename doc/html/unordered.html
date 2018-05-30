@@ -141,8 +141,6 @@
 <p>
       The containers are used in a similar manner to the normal associative containers:
     </p>
-<p>
-</p>
 <pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">unordered_map</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span><span class="special">,</span> <span class="keyword">int</span><span class="special">&gt;</span> <span class="identifier">map</span><span class="special">;</span>
 <span class="identifier">map</span> <span class="identifier">x</span><span class="special">;</span>
 <span class="identifier">x</span><span class="special">[</span><span class="string">"one"</span><span class="special">]</span> <span class="special">=</span> <span class="number">1</span><span class="special">;</span>
@@ -153,18 +151,12 @@
 <span class="identifier">assert</span><span class="special">(</span><span class="identifier">x</span><span class="special">.</span><span class="identifier">find</span><span class="special">(</span><span class="string">"missing"</span><span class="special">)</span> <span class="special">==</span> <span class="identifier">x</span><span class="special">.</span><span class="identifier">end</span><span class="special">());</span>
 </pre>
 <p>
-    </p>
-<p>
       But since the elements aren't ordered, the output of:
     </p>
-<p>
-</p>
 <pre class="programlisting"><span class="identifier">BOOST_FOREACH</span><span class="special">(</span><span class="identifier">map</span><span class="special">::</span><span class="identifier">value_type</span> <span class="identifier">i</span><span class="special">,</span> <span class="identifier">x</span><span class="special">)</span> <span class="special">{</span>
     <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span><span class="special">&lt;&lt;</span><span class="identifier">i</span><span class="special">.</span><span class="identifier">first</span><span class="special">&lt;&lt;</span><span class="string">","</span><span class="special">&lt;&lt;</span><span class="identifier">i</span><span class="special">.</span><span class="identifier">second</span><span class="special">&lt;&lt;</span><span class="string">"\n"</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-    </p>
 <p>
       can be in any order. For example, it might be:
     </p>
@@ -173,7 +165,7 @@
 <span class="identifier">three</span><span class="special">,</span><span class="number">3</span>
 </pre>
 <p>
-      To store an object in an unordered associative container requires both an key
+      To store an object in an unordered associative container requires both a key
       equality function and a hash function. The default function objects in the
       standard containers support a few basic types including integer types, floating
       point types, pointer types, and the standard strings. Since Boost.Unordered
@@ -191,7 +183,7 @@
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: September 02, 2017 at 10:04:14 GMT</small></p></td>
+<td align="left"><p><small>Last revised: April 11, 2018 at 14:08:06 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>

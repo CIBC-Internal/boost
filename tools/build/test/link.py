@@ -215,7 +215,7 @@ def test_include_scan():
 
     t.run_build_system(["test"])
 
-    t.expect_addition("bin/$toolset/debug/test.obj")
+    t.expect_addition("bin/$toolset/debug*/test.obj")
 
     t.run_build_system()
     t.expect_nothing_more()
@@ -248,7 +248,7 @@ def test_include_scan_merge_existing():
 
     t.run_build_system(["test"])
     t.expect_addition("include/file1.h")
-    t.expect_addition("bin/$toolset/debug/test.obj")
+    t.expect_addition("bin/$toolset/debug*/test.obj")
     t.ignore_touch("include/file2.h")
     t.expect_nothing_more()
 
@@ -279,8 +279,8 @@ def test_update_file_link(params1, params2):
     .has-files = [ glob include/file1.h ] ;
     
     rule can-link ( properties * ) {
-        if ( ! [ link.can-symlink $(.project) : [ property-set.empty ] ] ) &&
-           ( ! [ link.can-hardlink $(.project) : [ property-set.empty ] ] )
+        if ( ! [ link.can-symlink $(.project) ] ) &&
+           ( ! [ link.can-hardlink $(.project) ] )
         {
             ECHO links unsupported ;
         }

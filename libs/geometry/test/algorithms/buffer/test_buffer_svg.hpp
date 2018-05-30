@@ -25,6 +25,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
 
 
 inline char piece_type_char(bg::strategy::buffer::piece_type const& type)
@@ -267,7 +268,12 @@ private :
                 typedef typename bg::point_type<ring_type>::type point_type;
 
                 std::ostringstream out;
-                out << piece.index << " (" << piece_type_char(piece.type) << ") " << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                out << piece.index
+                    << (piece.is_flat_start ? " FS" : "")
+                    << (piece.is_flat_end ? " FE" : "")
+                    << " (" << piece_type_char(piece.type) << ") "
+                    << piece.first_seg_id.segment_index
+                    << ".." << piece.last_segment_index - 1;
                 point_type label_point = bg::return_centroid<point_type>(corner);
 
                 if ((piece.type == bg::strategy::buffer::buffered_concave
