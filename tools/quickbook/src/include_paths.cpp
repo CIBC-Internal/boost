@@ -9,9 +9,10 @@
     http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
-#include "native_text.hpp"
+#include "stream.hpp"
 #include "glob.hpp"
 #include "include_paths.hpp"
+#include "path.hpp"
 #include "state.hpp"
 #include "utils.hpp"
 #include "quickbook.hpp" // For the include_path global (yuck)
@@ -30,6 +31,14 @@ namespace quickbook
     {
         if (qbk_version_n >= 107u) {
             std::string path_text = path.get_encoded();
+            if (path_text.empty())
+            {
+                detail::outerr(path.get_file(), path.get_position())
+                    << "Empty path argument"
+                    << "std::endl";
+                ++state.error_count;
+                return path_parameter(path_text, path_parameter::invalid);
+            }
 
             try {
                 if (check_glob(path_text)) {
@@ -56,8 +65,20 @@ namespace quickbook
             // Counter-intuitively: encoded == plain text here.
 
             std::string path_text = qbk_version_n >= 106u || path.is_encoded() ?
-                    path.get_encoded() : detail::to_s(path.get_quickbook());
+                    path.get_encoded() : path.get_quickbook().to_s();
 
+            if (path_text.empty())
+            {
+                detail::outerr(path.get_file(), path.get_position())
+                    << "Empty path argument"
+                    << std::endl;
+                ++state.error_count;
+                return path_parameter(path_text, path_parameter::invalid);
+            }
+
+            // Check for windows paths, an error in quickbook 1.6
+            // In quickbook 1.7 backslash is used as an escape character
+            // for glob characters.
             if (path_text.find('\\') != std::string::npos)
             {
                 quickbook::detail::ostream* err;
@@ -80,6 +101,21 @@ namespace quickbook
 
             return path_parameter(path_text, path_parameter::path);
         }
+    }
+
+    path_parameter check_xinclude_path(value const& p, quickbook::state& state)
+    {
+        path_parameter parameter = check_path(p, state);
+
+        if (parameter.type == path_parameter::glob) {
+            detail::outerr(p.get_file(), p.get_position())
+                << "Glob used for xml path."
+                << std::endl;
+            ++state.error_count;
+            parameter.type = path_parameter::invalid;
+        }
+
+        return parameter;
     }
 
     //
@@ -118,7 +154,7 @@ namespace quickbook
 
         if (next != std::string::npos) ++next;
 
-        boost::string_ref glob(
+        quickbook::string_view glob(
                 path.data() + glob_begin,
                 glob_end - glob_begin);
 
@@ -259,9 +295,6 @@ namespace quickbook
 
     bool quickbook_path::operator<(quickbook_path const& other) const
     {
-        // TODO: Is comparing file_path redundant? Surely if quickbook_path
-        // and abstract_file_path are equal, it must also be.
-        // (but not vice-versa)
         return
             abstract_file_path != other.abstract_file_path ?
                 abstract_file_path < other.abstract_file_path :
@@ -270,12 +303,12 @@ namespace quickbook
                 file_path < other.file_path;
     }
 
-    quickbook_path quickbook_path::operator/(boost::string_ref x) const
+    quickbook_path quickbook_path::operator/(quickbook::string_view x) const
     {
         return quickbook_path(*this) /= x;
     }
 
-    quickbook_path& quickbook_path::operator/=(boost::string_ref x)
+    quickbook_path& quickbook_path::operator/=(quickbook::string_view x)
     {
         fs::path x2 = detail::generic_to_path(x);
         file_path /= x2;
@@ -287,5 +320,22 @@ namespace quickbook
     {
         return quickbook_path(file_path.parent_path(), include_path_offset,
                 abstract_file_path.parent_path());
+    }
+
+    quickbook_path resolve_xinclude_path(std::string const& x, quickbook::state& state, bool is_file) {
+        fs::path path = detail::generic_to_path(x);
+        fs::path full_path = path;
+
+        // If the path is relative
+        if (!path.has_root_directory())
+        {
+            // Resolve the path from the current file
+            full_path = state.current_file->path.parent_path() / path;
+
+            // Then calculate relative to the current xinclude_base.
+            path = path_difference(state.xinclude_base, full_path, is_file);
+        }
+
+        return quickbook_path(full_path, 0, path);
     }
 }

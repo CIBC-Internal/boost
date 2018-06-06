@@ -7,7 +7,7 @@
 
     Locally, the xmlint tool can be used:
 
-        xmllint <two-dashes>valid explicit-failures-markup.xml <two-dashes>schema explicit-failures.xsd
+        xmllint explicit-failures-markup.xml <two-dashes>schema explicit-failures.xsd
 
     The following online services can be used to validate your changes to this
     file:
@@ -348,6 +348,49 @@
                 this compiler.
             </note>
         </mark-expected-failures>
+    </library>
+
+    <!-- beast -->
+    <library name="beast">
+        <mark-unusable>
+            <toolset name="clang-linux-3.0*"/>
+            <toolset name="clang-linux-3.1*"/>
+            <toolset name="clang-linux-3.2*"/>
+            <toolset name="gcc-3.*"/>
+            <toolset name="gcc-4.0*"/>
+            <toolset name="gcc-4.1*"/>
+            <toolset name="gcc-4.2*"/>
+            <toolset name="gcc-4.3*"/>
+            <toolset name="gcc-4.4*"/>
+            <toolset name="gcc-4.5*"/>
+            <toolset name="gcc-4.6*"/>
+            <toolset name="gcc-4.7*"/>
+            <toolset name="gcc-mngw-3.*"/>
+            <toolset name="gcc-mngw-4.0*"/>
+            <toolset name="gcc-mngw-4.1*"/>
+            <toolset name="gcc-mngw-4.2*"/>
+            <toolset name="gcc-mngw-4.3*"/>
+            <toolset name="gcc-mngw-4.4*"/>
+            <toolset name="gcc-mngw-4.5*"/>
+            <toolset name="gcc-mngw-4.6*"/>
+            <toolset name="gcc-mngw-4.7*"/>
+            <toolset name="qcc-3.*"/>
+            <toolset name="qcc-4.0*"/>
+            <toolset name="qcc-4.1*"/>
+            <toolset name="qcc-4.2*"/>
+            <toolset name="qcc-4.3*"/>
+            <toolset name="qcc-4.4*"/>
+            <toolset name="qcc-4.5*"/>
+            <toolset name="qcc-4.6*"/>
+            <toolset name="qcc-4.7*"/>    
+            <toolset name="msvc-7.1"/>
+            <toolset name="msvc-8.*"/>
+            <toolset name="msvc-9.*"/>
+            <toolset name="msvc-10.*"/>
+            <toolset name="msvc-11.*"/>
+            <toolset name="msvc-12.*"/>
+            <note author="Vinnie Falco">C++11 is the minimum requirement.</note>
+        </mark-unusable>
     </library>
 
     <!-- bimap -->
@@ -700,7 +743,6 @@
                 <toolset name="msvc-10.0*"/>
                 <toolset name="msvc-11.0*"/>
                 <toolset name="msvc-12.0*"/>
-                <toolset name="msvc-14.0*"/>
                 <toolset name="msvc-7.1*"/>
                 <toolset name="vacpp-10.1"/>
                 <toolset name="qcc-4*"/>
@@ -716,8 +758,11 @@
             <mark-failure>
                 <toolset name="vacpp-*"/>
                 <toolset name="vacpp"/>
+                <toolset name="msvc-8.0"/>
+                <toolset name="msvc-9.0"/>
                 <toolset name="msvc-9.0~stlport5.2"/>
                 <toolset name="msvc-9.0~wm5~stlport5.2"/>
+                <toolset name="msvc-10.0"/>
                 <toolset name="intel-darwin-11.*"/>
                 <toolset name="intel-darwin-12.0"/>
                 <toolset name="qcc-4*"/>
@@ -733,6 +778,29 @@
         </test>
     </library>
 
+    <!-- contract -->
+    <library name="contract">
+        <mark-expected-failures>
+            <test name="*"/>
+            <toolset name="clang-gnu-linux-4.0~gnu++98"/>
+            <toolset name="clang-gnu-linux-4.0.1"/>
+            <toolset name="gcc-gnu-4.4*"/>
+            <toolset name="gcc-gnu-4.5*"/>
+            <toolset name="gcc-gnu-4.6*"/>
+            <toolset name="gcc-mngw-gnu-3*c+"/>
+            <toolset name="gcc-mngw-gnu-4.1c+"/>
+            <toolset name="gcc-mngw-gnu-4.2c+"/>
+            <toolset name="gcc-mngw-gnu-4.3c+"/>
+            <toolset name="gcc-mngw-gnu-4.4c+"/>
+            <toolset name="msvc-7*"/>
+            <toolset name="msvc-8*"/>
+            <toolset name="msvc-9*"/>
+            <note author="Lorenzo Caminiti">
+                Most tests require lambda function support (even if technically
+                the library itself does not require lambdas).
+            </note>
+        </mark-expected-failures>
+    </library>
 
     <!-- coroutine -->
     <library name="coroutine">
@@ -1561,6 +1629,31 @@
             </mark-failure>
         </test>
     </library>
+    
+    <!-- fiber -->
+    <library name="fiber">
+      <mark-unusable>
+        <toolset name="cray-*"/>
+        <toolset name="darwin-4.4"/>
+        <toolset name="darwin-4.4*"/>
+        <toolset name="gcc-4.4"/>
+        <toolset name="gcc-4.4*"/>
+        <toolset name="gcc-4.7*"/>
+        <toolset name="gcc-4.7"/>
+        <toolset name="gcc-m*ngw-4.4"/>
+        <toolset name="gcc-m*ngw-4.4*"/>
+        <toolset name="gcc-m*ngw-4.5"/>
+        <toolset name="gcc-m*ngw-4.5*"/>
+        <toolset name="gcc-m*ngw-4.6"/>
+        <toolset name="gcc-m*ngw-4.6*"/>
+        <toolset name="gcc-m*ngw-4.7"/>
+        <toolset name="gcc-m*ngw-4.7*"/>
+        <toolset name="msvc-7.*"/>
+        <toolset name="msvc-8.0"/>
+        <toolset name="pgi-*"/>
+        <toolset name="vacpp-*"/>
+      </mark-unusable>
+    </library>
 
 
     <!-- filesystem -->
@@ -1995,43 +2088,28 @@
             </note>
         </mark-expected-failures>
     </library>
-    
+
     <!-- fusion -->
     <library name="fusion">
-        <mark-unusable>
-            <toolset name="gcc-2.95.3*"/>
-            <toolset name="msvc-6.5*"/>
-            <toolset name="msvc-7.0"/>
-            <toolset name="borland-5*"/>
-            <toolset name="cw-8.3"/>
-            <toolset name="dmc*"/>
-            <toolset name="sunpro-5_3-sunos"/>
-            <toolset name="sun-5.7"/>
-            <toolset name="sun-5.8"/>
-            <toolset name="sun-5.9"/>
-            <note author="Joel de Guzman">
-                The compiler does not support features that are
-                essential for the library.
-            </note>
-        </mark-unusable>
         <mark-expected-failures>
-            <test name="fused"/>
-            <test name="fused_function_object"/>
-            <test name="fused_procedure"/>
-            <test name="make_fused"/>
-            <test name="make_fused_function_object"/>
-            <test name="make_fused_procedure"/>
-            <toolset name="acc"/>
-            <note author="Tobias Schwinger">
-                Those failures are due to not quite const-correct overload
-                resolution. The complaints from the test suite should rarely
-                matter in practice - the corresponding components are basically
-                usable. With aCC6, when compiled in strict ansi mode, the test
-                succeeds.
+            <test name="define_struct_inline_move"/>
+            <test name="define_tpl_struct_inline_move"/>
+            <toolset name="msvc-10.0"/>
+            <toolset name="msvc-11.0"/>
+            <toolset name="msvc-12.0"/>
+            <toolset name="qcc-4.4.2_x86"/>
+            <toolset name="gcc-gnu-4.4~c++0x*"/>
+            <toolset name="gcc-gnu-4.4~gnu0x*"/>
+            <note author="Kohei Takahashi">
+                The compiler doesn't generate defaulted move ctor/assgin thus
+                perform copy construction/assginment. Even though such case,
+                the `inline` versions don't force generating move ctor/assign
+                to preserve trivial requirements. Since that is not documented
+                behaviour, it might be changed in future release.
             </note>
         </mark-expected-failures>
     </library>
-    
+
     <!-- geometry -->
     <library name="geometry">
         <mark-unusable>
@@ -2071,6 +2149,30 @@
                 This configuration is not well configured for UBLAS
             </note>
         </mark-unusable>
+        <test name="algorithms_*" category="Algorithms">
+        </test>
+        <test name="arithmetic_*" category="Arithmetic">
+        </test>
+        <test name="concepts_*" category="Concepts">
+        </test>
+        <test name="core_*" category="Core">
+        </test>
+        <test name="formulas_*" category="Formulas">
+        </test>
+        <test name="geometries_*" category="Geometries">
+        </test>
+        <test name="io_*" category="IO">
+        </test>
+        <test name="iterators_*" category="Iterators">
+        </test>
+        <test name="policies_*" category="Policies">
+        </test>
+        <test name="strategies_*" category="Strategies">
+        </test>
+        <test name="util_*" category="Util">
+        </test>
+        <test name="views_*" category="Views">
+        </test>
     </library>
     
     <library name="geometry/extensions">
@@ -3060,6 +3162,17 @@ for more information.
             </note>
         </mark-expected-failures>
         <mark-expected-failures>
+		<test name="optional_test_ref_convert_assign_const_int"/>
+		<toolset name="msvc-8.0"/>
+		<toolset name="msvc-9.0"/>
+		<toolset name="msvc-10.0"/>
+		<toolset name="msvc-11.0"/>
+		<toolset name="msvc-12.0"/>
+		<note author="Andrzej Krzemienski" id="optional-const-int-ref-assign-bug">
+			<p>This is a compiler bug: it sometimes creates an illegal temporary object.</p>
+		</note>
+	</mark-expected-failures>
+        <mark-expected-failures>
             <test name="optional_test_ref"/>
             <toolset name="msvc-6.5*"/>
             <toolset name="msvc-7.0"/>
@@ -3147,6 +3260,47 @@ for more information.
         </mark-unusable>
     </library>
 
+    <!-- poly_collection -->
+  <library name="poly_collection">
+    <mark-unusable>
+      <toolset name="clang*-3.0*"/>
+      <toolset name="clang*-3.1*"/>
+      <toolset name="clang*-3.2*"/>
+      <toolset name="gcc*-3.*"/>
+      <toolset name="gcc*-4.0*"/>
+      <toolset name="gcc*-4.1*"/>
+      <toolset name="gcc*-4.2*"/>
+      <toolset name="gcc*-4.3*"/>
+      <toolset name="gcc*-4.4*"/>
+      <toolset name="gcc*-4.5*"/>
+      <toolset name="gcc*-4.6*"/>
+      <toolset name="gcc*-4.7*"/>
+      <toolset name="qcc*-3.*"/>
+      <toolset name="qcc*-4.0*"/>
+      <toolset name="qcc*-4.1*"/>
+      <toolset name="qcc*-4.2*"/>
+      <toolset name="qcc*-4.3*"/>
+      <toolset name="qcc*-4.4*"/>
+      <toolset name="qcc*-4.5*"/>
+      <toolset name="qcc*-4.6*"/>
+      <toolset name="qcc*-4.7*"/>	
+      <toolset name="msvc-7.1"/>
+      <toolset name="msvc-8.0"/>
+      <toolset name="msvc-9.0"/>
+      <toolset name="msvc-10.0"/>
+      <toolset name="msvc-11.0"/>
+      <toolset name="msvc-12.0"/>
+      <note author="Joaqu&#237;n M L&#243;pez Mu&#241;oz" date="18 Jun 2017">
+        Compiler's too old for working.
+      </note> 
+    </mark-unusable>
+    <mark-unusable>
+      <toolset name="*98"/>
+      <note author="Joaqu&#237;n M L&#243;pez Mu&#241;oz" date="18 Jun 2017">
+        C++11 or later required.
+      </note> 
+    </mark-unusable>
+  </library>
 
     <library name="pool">
       <mark-unusable>
@@ -5753,7 +5907,9 @@ This platform doesn't supports Boost.Container.
         <toolset name="gcc-4.2*"/>
         <toolset name="gcc-4.3*"/>
         <toolset name="gcc-4.4*"/>
-        <toolset name="gcc-4.5*"/>
+        <!-- gcc-4.5+ is passing the test -->
+        <toolset name="intel-linux"/>
+        <toolset name="vacpp"/>
         <toolset name="gcc-mingw-3.*"/>
         <toolset name="gcc-mingw-4.0*"/>
         <toolset name="gcc-mingw-4.1*"/>
@@ -6629,6 +6785,16 @@ This platform doesn't supports Boost.Container.
         <test name="unnecessary_copy_tests"/>
         <toolset name="borland-*"/>
         <toolset name="sun-*"/>
+        <note author="Daniel James">
+            This tests whether inserting elements creates as few copies as I think
+            is possible. If this fails it just means that the container might be
+            a little inefficient.
+        </note>
+      </mark-expected-failures>
+
+      <mark-expected-failures>
+        <test name="compile_map_unordered_allocator"/>
+        <toolset name="msvc-7.1"/>
         <note author="Daniel James">
             This tests whether inserting elements creates as few copies as I think
             is possible. If this fails it just means that the container might be

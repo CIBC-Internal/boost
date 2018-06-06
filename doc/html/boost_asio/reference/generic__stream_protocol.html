@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>generic::stream_protocol</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../reference.html" title="Reference">
 <link rel="prev" href="generic__seq_packet_protocol/type.html" title="generic::seq_packet_protocol::type">
@@ -29,7 +29,7 @@
 <p>
         Encapsulates the flags needed for a generic stream-oriented socket.
       </p>
-<pre class="programlisting"><span class="keyword">class</span> <span class="identifier">stream_protocol</span>
+<pre class="programlisting">class stream_protocol
 </pre>
 <h5>
 <a name="boost_asio.reference.generic__stream_protocol.h0"></a>
@@ -216,8 +216,9 @@
 </tbody>
 </table></div>
 <p>
-        The <a class="link" href="generic__stream_protocol.html" title="generic::stream_protocol"><code class="computeroutput"><span class="identifier">generic</span><span class="special">::</span><span class="identifier">stream_protocol</span></code></a> class contains flags
-        necessary for stream-oriented sockets of any address family and protocol.
+        The <a class="link" href="generic__stream_protocol.html" title="generic::stream_protocol"><code class="computeroutput">generic::stream_protocol</code></a>
+        class contains flags necessary for stream-oriented sockets of any address
+        family and protocol.
       </p>
 <h5>
 <a name="boost_asio.reference.generic__stream_protocol.h3"></a>
@@ -226,12 +227,12 @@
 <p>
         Constructing using a native address family and socket protocol:
       </p>
-<pre class="programlisting"><span class="identifier">stream_protocol</span> <span class="identifier">p</span><span class="special">(</span><span class="identifier">AF_INET</span><span class="special">,</span> <span class="identifier">IPPROTO_TCP</span><span class="special">);</span>
+<pre class="programlisting">stream_protocol p(AF_INET, IPPROTO_TCP);
 </pre>
 <p>
         Constructing from a specific protocol type:
       </p>
-<pre class="programlisting"><span class="identifier">stream_protocol</span> <span class="identifier">p</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">v4</span><span class="special">());</span>
+<pre class="programlisting">stream_protocol p(boost::asio::ip::tcp::v4());
 </pre>
 <h5>
 <a name="boost_asio.reference.generic__stream_protocol.h4"></a>
@@ -257,8 +258,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2017 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

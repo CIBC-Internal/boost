@@ -1,12 +1,13 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Tutorial</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../bbv2.html" title="Chapter&#160;43.&#160;Boost.Build User Manual">
-<link rel="prev" href="../bbv2.html" title="Chapter&#160;43.&#160;Boost.Build User Manual">
+<link rel="up" href="../bbv2.html" title="Chapter&#160;49.&#160;Boost.Build User Manual">
+<link rel="prev" href="../bbv2.html" title="Chapter&#160;49.&#160;Boost.Build User Manual">
 <link rel="next" href="overview.html" title="Overview">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -30,7 +31,7 @@
 <dt><span class="section"><a href="tutorial.html#bbv2.tutorial.properties">Properties</a></span></dt>
 <dt><span class="section"><a href="tutorial.html#bbv2.tutorial.hierarchy">Project Hierarchies</a></span></dt>
 <dt><span class="section"><a href="tutorial.html#bbv2.tutorial.libs">Dependent Targets</a></span></dt>
-<dt><span class="section"><a href="tutorial.html#bbv2.tutorial.linkage">Static and shared libaries</a></span></dt>
+<dt><span class="section"><a href="tutorial.html#bbv2.tutorial.linkage">Static and shared libraries</a></span></dt>
 <dt><span class="section"><a href="tutorial.html#bbv2.tutorial.conditions">Conditions and alternatives</a></span></dt>
 <dt><span class="section"><a href="tutorial.html#bbv2.tutorial.prebuilt">Prebuilt targets</a></span></dt>
 </dl></div>
@@ -203,8 +204,8 @@ exe hello
         requirements, the target requirements usually override (or, in the case
         of &#8220;free&#8221;&#8221; features like
         <code class="varname">&lt;include&gt;</code>,
-        <a href="#ftn.idp543609808" class="footnote" name="idp543609808"><sup class="footnote">[13]</sup></a>
-        augments) the build request.
+        <a href="#ftn.id-1.4.4.4.4.8.4.4" class="footnote" name="id-1.4.4.4.4.8.4.4"><sup class="footnote">[32]</sup></a>
+        augment) the build request.
       </p>
 <div class="tip"><table border="0" summary="Tip">
 <tr>
@@ -315,7 +316,7 @@ top/
 
       in its requirements, then all of its subprojects will have it
       in their requirements, too.  Of course, any project can add
-      include paths to those specified by its parents. <a href="#ftn.idp543638016" class="footnote" name="idp543638016"><sup class="footnote">[14]</sup></a>
+      include paths to those specified by its parents. <a href="#ftn.id-1.4.4.4.5.3.3" class="footnote" name="id-1.4.4.4.5.3.3"><sup class="footnote">[33]</sup></a>
     More details can be found in
       <a class="xref" href="overview.html#bbv2.overview.projects" title="Projects">the section called &#8220;Projects&#8221;</a>.
     </p>
@@ -422,7 +423,7 @@ lib foo <span class="special">:</span> foo.cpp <span class="special">;</span></p
 <p>
 
       Usage requirements are applied not to the target being declared but to its
-      dependants. In this case, <code class="literal">&lt;include&gt;.</code> will be
+      dependents. In this case, <code class="literal">&lt;include&gt;.</code> will be
       applied to all targets that directly depend on <code class="filename">foo</code>.
     </p>
 <p>
@@ -458,7 +459,7 @@ exe app : app.cpp /library-example/foo//bar ;</pre>
 </tr>
 <tr><td align="left" valign="top">
 <p>If you want all applications in some project to link to a certain
-        library, you can avoid having to specify it directly the sources of
+        library, you can avoid having to specify directly the sources of
         every target by using the <code class="varname">&lt;library&gt;</code> property.
         For example, if <code class="filename">/boost/filesystem//fs</code> should be
         linked to all applications in your project, you can add
@@ -474,7 +475,7 @@ project
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="bbv2.tutorial.linkage"></a>Static and shared libaries</h3></div></div></div>
+<a name="bbv2.tutorial.linkage"></a>Static and shared libraries</h3></div></div></div>
 <p>
       Libraries can be either <span class="emphasis"><em>static</em></span>, which means they are
       included in executable files that use them, or <span class="emphasis"><em>shared</em></span>
@@ -560,8 +561,8 @@ lib core <span class="special">:</span> core.cpp utils <span class="special">;</
 exe app <span class="special">:</span> app.cpp core <span class="special">;</span></pre>
 <p>
         This works no matter what kind of linking is used. When <code class="filename">core
-        </code> is built as a shared library, it is linked directly into
-        <code class="filename">utils</code>. Static libraries can't link to other
+        </code> is built as a shared library, links <code class="filename">utils
+        </code> directly into it. Static libraries can't link to other
         libraries, so when <code class="filename">core</code> is built as a static
         library, its dependency on <code class="filename">utils</code> is passed along to
         <code class="filename">core</code>'s dependents, causing <code class="filename">app</code>
@@ -669,8 +670,8 @@ exe app <span class="special">:</span> app.cpp ../util/lib2//lib2 <span class="s
 <p>
 
       As with any target, the alternative selected depends on the properties
-      propagated from <code class="filename">lib2</code>'s dependants. If we build the
-      release and debug versions of <code class="filename">app</code> will be linked
+      propagated from <code class="filename">lib2</code>'s dependents. If we build the
+      release and debug versions of <code class="filename">app</code> it will be linked
       with <code class="filename">lib2_release.a</code> and <code class="filename">lib2_debug.a
       </code>, respectively.
     </p>
@@ -712,10 +713,10 @@ lib pythonlib <span class="special">:</span> <span class="special">:</span> &lt;
 </div>
 <div class="footnotes">
 <br><hr style="width:100; text-align:left;margin-left: 0">
-<div id="ftn.idp543609808" class="footnote"><p><a href="#idp543609808" class="para"><sup class="para">[13] </sup></a>
+<div id="ftn.id-1.4.4.4.4.8.4.4" class="footnote"><p><a href="#id-1.4.4.4.4.8.4.4" class="para"><sup class="para">[32] </sup></a>
              See <a class="xref" href="reference.html#bbv2.reference.features.attributes" title="Feature Attributes">the section called &#8220;Feature Attributes&#8221;</a>
           </p></div>
-<div id="ftn.idp543638016" class="footnote"><p><a href="#idp543638016" class="para"><sup class="para">[14] </sup></a>Many
+<div id="ftn.id-1.4.4.4.5.3.3" class="footnote"><p><a href="#id-1.4.4.4.5.3.3" class="para"><sup class="para">[33] </sup></a>Many
       features will be overridden,
       rather than added-to, in subprojects.  See <a class="xref" href="reference.html#bbv2.reference.features.attributes" title="Feature Attributes">the section called &#8220;Feature Attributes&#8221;</a> for more
       information</p></div>

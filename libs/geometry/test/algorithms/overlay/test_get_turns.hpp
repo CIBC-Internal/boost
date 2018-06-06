@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017.
+// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -33,12 +33,13 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
-template <int Version = 0>
 struct expected_pusher
 {
-    static const int version = Version;
+    void push_back(std::string const& ex)
+    {
+        vec.push_back(ex);
+    }
 
-    void push_back(std::string const& ex) { vec.push_back(ex); }
     expected_pusher & operator()(std::string const& ex)
     {
         push_back(ex);
@@ -56,13 +57,12 @@ struct expected_pusher
     std::vector<std::string> vec;
 };
 
-expected_pusher<1> expected(std::string const& ex)
+inline expected_pusher expected(std::string const& ex)
 {
-    expected_pusher<1> res;
+    expected_pusher res;
     return res(ex);
 }
 
-template <int Version>
 struct equal_turn
 {
     equal_turn(std::string const& s) : turn_ptr(&s) {}
@@ -70,43 +70,45 @@ struct equal_turn
     template <typename T>
     bool operator()(T const& t) const
     {
-        BOOST_ASSERT(turn_ptr && turn_ptr->size() == 3);
-        return bg::method_char(t.method) == (*turn_ptr)[0]
-            && bg::operation_char(t.operations[0].operation) == (*turn_ptr)[1]
-            && bg::operation_char(t.operations[1].operation) == (*turn_ptr)[2];
+        std::string const& s = (*turn_ptr);
+        std::string::size_type const count = s.size();
+
+        return (count > 0
+               ? bg::method_char(t.method) == s[0]
+               : true)
+            && (count > 1
+                ? bg::operation_char(t.operations[0].operation) == s[1]
+                : true)
+            && (count > 2
+                ? bg::operation_char(t.operations[1].operation) == s[2]
+                : true)
+            && equal_operations_ex(t.operations[0], t.operations[1], s);
     }
 
-    const std::string * turn_ptr;
-};
-
-template <>
-struct equal_turn<1>
-{
-    equal_turn(std::string const& s) : turn_ptr(&s) {}
-    
-    template <typename T>
-    bool operator()(T const& t) const
+    template <typename P, typename R>
+    static bool equal_operations_ex(bg::detail::overlay::turn_operation<P, R> const& op0,
+                                    bg::detail::overlay::turn_operation<P, R> const& op1,
+                                    std::string const& s)
     {
-        std::string::size_type count = turn_ptr->size();
-        //BOOST_ASSERT(turn_ptr && count >= 1);
-        return ( count > 0
-               ? bg::method_char(t.method) == (*turn_ptr)[0]
-               : true )
-            && ( count > 1
-               ? bg::operation_char(t.operations[0].operation) == (*turn_ptr)[1]
-               : true )
-            && ( count > 2
-               ? bg::operation_char(t.operations[1].operation) == (*turn_ptr)[2]
-               : true )
-            && ( count > 3
-               ? is_colinear_char(t.operations[0].is_collinear) == (*turn_ptr)[3]
-               : true )
-            && ( count > 4
-               ? is_colinear_char(t.operations[1].is_collinear) == (*turn_ptr)[4]
-               : true );
+        return true;
     }
 
-    static inline char is_colinear_char(bool is_collinear)
+    template <typename P, typename R>
+    static bool equal_operations_ex(bg::detail::overlay::turn_operation_linear<P, R> const& op0,
+                                    bg::detail::overlay::turn_operation_linear<P, R> const& op1,
+                                    std::string const& s)
+    {
+        std::string::size_type const count = s.size();
+
+        return (count > 3
+               ? is_colinear_char(op0.is_collinear) == s[3]
+               : true)
+            && (count > 4
+               ? is_colinear_char(op1.is_collinear) == s[4]
+               : true);
+    }
+
+    static char is_colinear_char(bool is_collinear)
     {
         return is_collinear ? '=' : '+';
     }
@@ -114,18 +116,21 @@ struct equal_turn<1>
     const std::string * turn_ptr;
 };
 
-template <typename Geometry1, typename Geometry2, typename Expected>
-void check_geometry_range(
-    Geometry1 const& g1,
-    Geometry2 const& g2,
-    std::string const& wkt1,
-    std::string const& wkt2,
-    Expected const& expected)
+template <typename Geometry1, typename Geometry2, typename Expected, typename Strategy>
+void check_geometry_range(Geometry1 const& g1,
+                          Geometry2 const& g2,
+                          std::string const& wkt1,
+                          std::string const& wkt2,
+                          Expected const& expected,
+                          Strategy const& strategy)
 {
     typedef bg::detail::no_rescale_policy robust_policy_type;
     typedef typename bg::point_type<Geometry2>::type point_type;
 
-    typedef typename bg::segment_ratio_type<point_type, robust_policy_type>::type segment_ratio_type;
+    typedef typename bg::segment_ratio_type
+        <
+            point_type, robust_policy_type
+        >::type segment_ratio_type;
 
     typedef bg::detail::overlay::turn_info
         <
@@ -146,13 +151,17 @@ void check_geometry_range(
     robust_policy_type robust_policy;
     
     // Don't switch the geometries
-    typedef bg::detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy_t> turn_policy_t;
+    typedef bg::detail::get_turns::get_turn_info_type
+        <
+            Geometry1, Geometry2, assign_policy_t
+        > turn_policy_t;
+
     bg::dispatch::get_turns
         <
             typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
             Geometry1, Geometry2, false, false,
             turn_policy_t
-        >::apply(0, g1, 1, g2, robust_policy, turns, interrupt_policy);
+        >::apply(0, g1, 1, g2, strategy, robust_policy, turns, interrupt_policy);
 
     bool ok = boost::size(expected) == turns.size();
 
@@ -168,7 +177,7 @@ void check_geometry_range(
           sit != boost::end(expected) ; ++sit)
     {
         typename std::vector<turn_info>::iterator
-            it = std::find_if(turns.begin(), turns.end(), equal_turn<Expected::version>(*sit));
+            it = std::find_if(turns.begin(), turns.end(), equal_turn(*sit));
 
         if ( it != turns.end() )
             turns.erase(it);
@@ -214,6 +223,32 @@ void check_geometry_range(
 }
 
 template <typename Geometry1, typename Geometry2, typename Expected>
+void check_geometry_range(Geometry1 const& g1,
+                          Geometry2 const& g2,
+                          std::string const& wkt1,
+                          std::string const& wkt2,
+                          Expected const& expected)
+{
+    typename bg::strategy::intersection::services::default_strategy
+        <
+            typename bg::cs_tag<Geometry1>::type
+        >::type strategy;
+
+    check_geometry_range(g1, g2, wkt1, wkt2, expected, strategy);
+}
+
+template <typename Geometry1, typename Geometry2, typename Expected, typename Strategy>
+void test_geometry_range(std::string const& wkt1, std::string const& wkt2,
+                         Expected const& expected, Strategy const& strategy)
+{
+    Geometry1 geometry1;
+    Geometry2 geometry2;
+    bg::read_wkt(wkt1, geometry1);
+    bg::read_wkt(wkt2, geometry2);
+    check_geometry_range(geometry1, geometry2, wkt1, wkt2, expected, strategy);
+}
+
+template <typename Geometry1, typename Geometry2, typename Expected>
 void test_geometry_range(std::string const& wkt1, std::string const& wkt2,
                          Expected const& expected)
 {
@@ -245,11 +280,19 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     test_geometry_range<G1, G2>(wkt1, wkt2, expected(ex0)(ex1)(ex2));
 }
 
-template <typename G1, typename G2, int Version>
+template <typename G1, typename G2>
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
-                   expected_pusher<Version> const& expected)
+                   expected_pusher const& expected)
 {
     test_geometry_range<G1, G2>(wkt1, wkt2, expected);
+}
+
+template <typename G1, typename G2, typename Strategy>
+void test_geometry(std::string const& wkt1, std::string const& wkt2,
+                   expected_pusher const& expected,
+                   Strategy const& strategy)
+{
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected, strategy);
 }
 
 #endif // BOOST_GEOMETRY_TEST_ALGORITHMS_OVERLAY_TEST_GET_TURNS_HPP

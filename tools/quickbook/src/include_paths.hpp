@@ -30,11 +30,12 @@ namespace quickbook
         std::string value;
         path_type type;
 
-        path_parameter(std::string const& value, path_type type) :
-            value(value), type(type) {}
+        path_parameter(std::string const& value_, path_type type_) :
+            value(value_), type(type_) {}
     };
 
     path_parameter check_path(value const& path, quickbook::state& state);
+    path_parameter check_xinclude_path(value const&, quickbook::state&);
 
     struct quickbook_path
     {
@@ -46,8 +47,8 @@ namespace quickbook
         quickbook_path parent_path() const;
 
         bool operator<(quickbook_path const& other) const;
-        quickbook_path operator/(boost::string_ref) const;
-        quickbook_path& operator/=(boost::string_ref);
+        quickbook_path operator/(quickbook::string_view) const;
+        quickbook_path& operator/=(quickbook::string_view);
 
         // The actual location of the file.
         fs::path file_path;
@@ -63,6 +64,8 @@ namespace quickbook
 
     std::set<quickbook_path> include_search(path_parameter const&,
             quickbook::state& state, string_iterator pos);
+
+    quickbook_path resolve_xinclude_path(std::string const&, quickbook::state&, bool is_file = false);
 }
 
 #endif

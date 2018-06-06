@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>basic_socket::basic_socket (2 of 6 overloads)</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../basic_socket.html" title="basic_socket::basic_socket">
 <link rel="prev" href="overload1.html" title="basic_socket::basic_socket (1 of 6 overloads)">
@@ -28,11 +28,11 @@
           (2 of 6 overloads)</a>
 </h5></div></div></div>
 <p>
-            Construct and open a <a class="link" href="../../basic_socket.html" title="basic_socket"><code class="computeroutput"><span class="identifier">basic_socket</span></code></a>.
+            Construct and open a <a class="link" href="../../basic_socket.html" title="basic_socket"><code class="computeroutput">basic_socket</code></a>.
           </p>
-<pre class="programlisting"><span class="identifier">basic_socket</span><span class="special">(</span>
-    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_service</span> <span class="special">&amp;</span> <span class="identifier">io_service</span><span class="special">,</span>
-    <span class="keyword">const</span> <span class="identifier">protocol_type</span> <span class="special">&amp;</span> <span class="identifier">protocol</span><span class="special">);</span>
+<pre class="programlisting">basic_socket(
+    boost::asio::io_context &amp; io_context,
+    const protocol_type &amp; protocol);
 </pre>
 <p>
             This constructor creates and opens a socket.
@@ -44,11 +44,11 @@
 <div class="variablelist">
 <p class="title"><b></b></p>
 <dl class="variablelist">
-<dt><span class="term">io_service</span></dt>
+<dt><span class="term">io_context</span></dt>
 <dd><p>
-                  The <a class="link" href="../../io_service.html" title="io_service"><code class="computeroutput"><span class="identifier">io_service</span></code></a> object that
-                  the socket will use to dispatch handlers for any asynchronous operations
-                  performed on the socket.
+                  The <a class="link" href="../../io_context.html" title="io_context"><code class="computeroutput">io_context</code></a>
+                  object that the socket will use to dispatch handlers for any asynchronous
+                  operations performed on the socket.
                 </p></dd>
 <dt><span class="term">protocol</span></dt>
 <dd><p>
@@ -72,8 +72,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2017 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

@@ -1,6 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2017.
+// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,6 +22,7 @@
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 
 
 namespace boost { namespace geometry
@@ -28,11 +34,40 @@ namespace detail { namespace buffer
 {
 
 
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+struct buffer_assign_turn
+{
+    static bool const include_no_turn = false;
+    static bool const include_degenerate = false;
+    static bool const include_opposite = false;
+
+    template
+    <
+        typename Info,
+        typename Point1,
+        typename Point2,
+        typename IntersectionInfo
+    >
+    static inline void apply(Info& info,
+                             Point1 const& /*p1*/,
+                             Point2 const& /*p2*/,
+                             IntersectionInfo const& iinfo)
+    {
+        info.rob_pi = iinfo.rpi();
+        info.rob_pj = iinfo.rpj();
+        info.rob_qi = iinfo.rqi();
+        info.rob_qj = iinfo.rqj();
+    }
+
+};
+#endif
+
 template
 <
     typename Pieces,
     typename Rings,
     typename Turns,
+    typename IntersectionStrategy,
     typename RobustPolicy
 >
 class piece_turn_visitor
@@ -40,6 +75,7 @@ class piece_turn_visitor
     Pieces const& m_pieces;
     Rings const& m_rings;
     Turns& m_turns;
+    IntersectionStrategy const& m_intersection_strategy;
     RobustPolicy const& m_robust_policy;
 
     template <typename Piece>
@@ -91,26 +127,31 @@ class piece_turn_visitor
 
     template <std::size_t Dimension, typename Iterator, typename Box>
     inline void move_begin_iterator(Iterator& it_begin, Iterator it_beyond,
-            int& index, int dir, Box const& other_bounding_box)
+                                    signed_size_type& index, int dir,
+                                    Box const& this_bounding_box,
+                                    Box const& other_bounding_box)
     {
         for(; it_begin != it_beyond
                 && it_begin + 1 != it_beyond
                 && detail::section::preceding<Dimension>(dir, *(it_begin + 1),
-                    other_bounding_box, m_robust_policy);
+                                                         this_bounding_box,
+                                                         other_bounding_box,
+                                                         m_robust_policy);
             ++it_begin, index++)
         {}
     }
 
     template <std::size_t Dimension, typename Iterator, typename Box>
     inline void move_end_iterator(Iterator it_begin, Iterator& it_beyond,
-            int dir, Box const& other_bounding_box)
+                                  int dir, Box const& this_bounding_box,
+                                  Box const& other_bounding_box)
     {
         while (it_beyond != it_begin
             && it_beyond - 1 != it_begin
             && it_beyond - 2 != it_begin)
         {
             if (detail::section::exceeding<Dimension>(dir, *(it_beyond - 2),
-                        other_bounding_box, m_robust_policy))
+                        this_bounding_box, other_bounding_box, m_robust_policy))
             {
                 --it_beyond;
             }
@@ -129,20 +170,20 @@ class piece_turn_visitor
         typedef typename boost::range_value<Turns const>::type turn_type;
         typedef typename boost::range_iterator<ring_type const>::type iterator;
 
-        int const piece1_first_index = piece1.first_seg_id.segment_index;
-        int const piece2_first_index = piece2.first_seg_id.segment_index;
+        signed_size_type const piece1_first_index = piece1.first_seg_id.segment_index;
+        signed_size_type const piece2_first_index = piece2.first_seg_id.segment_index;
         if (piece1_first_index < 0 || piece2_first_index < 0)
         {
             return;
         }
 
         // Get indices of part of offsetted_rings for this monotonic section:
-        int const sec1_first_index = piece1_first_index + section1.begin_index;
-        int const sec2_first_index = piece2_first_index + section2.begin_index;
+        signed_size_type const sec1_first_index = piece1_first_index + section1.begin_index;
+        signed_size_type const sec2_first_index = piece2_first_index + section2.begin_index;
 
         // index of last point in section, beyond-end is one further
-        int const sec1_last_index = piece1_first_index + section1.end_index;
-        int const sec2_last_index = piece2_first_index + section2.end_index;
+        signed_size_type const sec1_last_index = piece1_first_index + section1.end_index;
+        signed_size_type const sec2_last_index = piece2_first_index + section2.end_index;
 
         // get geometry and iterators over these sections
         ring_type const& ring1 = m_rings[piece1.first_seg_id.multi_index];
@@ -154,25 +195,25 @@ class piece_turn_visitor
         iterator it2_beyond = boost::begin(ring2) + sec2_last_index + 1;
 
         // Set begin/end of monotonic ranges, in both x/y directions
-        int index1 = sec1_first_index;
+        signed_size_type index1 = sec1_first_index;
         move_begin_iterator<0>(it1_first, it1_beyond, index1,
-                    section1.directions[0], section2.bounding_box);
+                    section1.directions[0], section1.bounding_box, section2.bounding_box);
         move_end_iterator<0>(it1_first, it1_beyond,
-                    section1.directions[0], section2.bounding_box);
+                    section1.directions[0], section1.bounding_box, section2.bounding_box);
         move_begin_iterator<1>(it1_first, it1_beyond, index1,
-                    section1.directions[1], section2.bounding_box);
+                    section1.directions[1], section1.bounding_box, section2.bounding_box);
         move_end_iterator<1>(it1_first, it1_beyond,
-                    section1.directions[1], section2.bounding_box);
+                    section1.directions[1], section1.bounding_box, section2.bounding_box);
 
-        int index2 = sec2_first_index;
+        signed_size_type index2 = sec2_first_index;
         move_begin_iterator<0>(it2_first, it2_beyond, index2,
-                    section2.directions[0], section1.bounding_box);
+                    section2.directions[0], section2.bounding_box, section1.bounding_box);
         move_end_iterator<0>(it2_first, it2_beyond,
-                    section2.directions[0], section1.bounding_box);
+                    section2.directions[0], section2.bounding_box, section1.bounding_box);
         move_begin_iterator<1>(it2_first, it2_beyond, index2,
-                    section2.directions[1], section1.bounding_box);
+                    section2.directions[1], section2.bounding_box, section1.bounding_box);
         move_end_iterator<1>(it2_first, it2_beyond,
-                    section2.directions[1], section1.bounding_box);
+                    section2.directions[1], section2.bounding_box, section1.bounding_box);
 
         turn_type the_model;
         the_model.operations[0].piece_index = piece1.index;
@@ -204,13 +245,19 @@ class piece_turn_visitor
                 // and iterating in sync with them...
                 typedef detail::overlay::get_turn_info
                     <
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+                        buffer_assign_turn
+#else
                         detail::overlay::assign_null_policy
+#endif
                     > turn_policy;
 
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
                                     false, false, false, false,
-                                    the_model, m_robust_policy,
+                                    the_model,
+                                    m_intersection_strategy,
+                                    m_robust_policy,
                                     std::back_inserter(m_turns));
             }
         }
@@ -221,15 +268,17 @@ public:
     piece_turn_visitor(Pieces const& pieces,
             Rings const& ring_collection,
             Turns& turns,
+            IntersectionStrategy const& intersection_strategy,
             RobustPolicy const& robust_policy)
         : m_pieces(pieces)
         , m_rings(ring_collection)
         , m_turns(turns)
+        , m_intersection_strategy(intersection_strategy)
         , m_robust_policy(robust_policy)
     {}
 
     template <typename Section>
-    inline void apply(Section const& section1, Section const& section2,
+    inline bool apply(Section const& section1, Section const& section2,
                     bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
@@ -242,12 +291,14 @@ public:
           || is_adjacent(piece1, piece2)
           || is_on_same_convex_ring(piece1, piece2)
           || detail::disjoint::disjoint_box_box(section1.bounding_box,
-                    section2.bounding_box) )
+                                                section2.bounding_box) )
         {
-            return;
+            return true;
         }
 
         calculate_turns(piece1, piece2, section1, section2);
+
+        return true;
     }
 };
 

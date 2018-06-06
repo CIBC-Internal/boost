@@ -138,7 +138,7 @@ The standard library lacks `<iostream>`, `<istream>` or `<ostream>`.
 [[`BOOST_NO_IS_ABSTRACT`][Compiler][
 The C++ compiler does not support SFINAE with abstract types, this is covered
 by __CORE_LANGUAGE_DR337__, but is not part of the current standard.  Fortunately
-most compilers that support SFINAE also support this DR.
+most compilers that support SFINAE also support this DR.  See also BOOST_NO_SFINAE and BOOST_NO_SFINAE_EXPR
 ]]
 [[`BOOST_NO_LIMITS`][Standard library][
 The C++ implementation does not provide the `<limits>` header. Never check for
@@ -209,16 +209,20 @@ Pointers to members don't work when used as template parameters.
 The compiler misreads 8.5.1, treating classes as non-aggregate if they
 contain private or protected member functions.
 ]]
+[[`BOOST_NO_RESTRICT_REFERENCES`][Compiler][
+Compiler-specific `restrict` keyword can not be applied to references.
+]]
 [[`BOOST_NO_RTTI`][Compiler][
 The compiler may (or may not) have the typeid operator, but RTTI on the dynamic type
 of an object is not supported.
 ]]
 [[`BOOST_NO_SFINAE`][Compiler][
 The compiler does not support the "Substitution Failure Is Not An Error"
-meta-programming idiom.
+meta-programming idiom.  This is the lightweight pre-C++11 version of SFINAE.
 ]]
 [[`BOOST_NO_SFINAE_EXPR`][Compiler][
-The compiler does not support usage of SFINAE with arbitrary expressions.
+The compiler does not support usage of SFINAE with arbitrary expressions.  This is the
+post-C++11 SFINAE, but excludes a few specific corner cases, see also BOOST_NO_CXX11_SFINAE_EXPR.
 ]]
 [[`BOOST_NO_STD_ALLOCATOR`][Standard library][
 The C++ standard library does not provide a standards conforming
@@ -348,6 +352,9 @@ The platform has the POSIX header `<dirent.h>`.
 [[`BOOST_HAS_EXPM1`][Platform][
 The platform has the functions `expm1`, `expm1f` and `expm1l` in `<math.h>`
 ]]
+[[`BOOST_HAS_FLOAT128`][Compiler][
+The compiler has `__float128` as a native type which is distinct
+from all the regular C++ floating point types.]]
 [[`BOOST_HAS_FTIME`][Platform][
 The platform has the Win32 API type FTIME.
 ]]
@@ -670,6 +677,11 @@ compilers implementing an early draft of the C++11 standard (in particular, inco
 ]]
 [[`BOOST_NO_CXX11_NULLPTR`][The compiler does not support `nullptr`. 
 ]]
+[[`BOOST_NO_CXX11_NUMERIC_LIMITS`][The standard library `<limits>` header does
+not support the C++11 version of `numeric_limits`. 
+]]
+[[`BOOST_NO_CXX11_POINTER_TRAITS`][The standard library does not provide a
+C++11 version of `std::pointer_traits` in <memory>.]]
 [[`BOOST_NO_CXX11_RANGE_BASED_FOR`][The compiler does not support
 range-based for statements. 
 ]]
@@ -686,6 +698,11 @@ r-value references.
 [[`BOOST_NO_CXX11_SCOPED_ENUMS`][The compiler does not support
 scoped enumerations (`enum class`). 
 ]]
+[[`BOOST_NO_CXX11_SFINAE_EXPR`][The compiler does not support
+usage of C++11 SFINAE with arbitrary expressions.  Use this macro only if you
+are using all of the features of SFINAE including substitution-failure-on-private-member-access.  
+Otherwise use BOOST_NO_SFINAE_EXPR or BOOST_NO_SFINAE which get defined for fewer compilers.
+]]
 [[`BOOST_NO_CXX11_SMART_PTR`][The standard library header <memory> has no shared_ptr and unique_ptr.]]
 [[`BOOST_NO_CXX11_STATIC_ASSERT`][The compiler does not support
 `static_assert`. 
@@ -695,6 +712,8 @@ scoped enumerations (`enum class`).
 <unordered_map> and <unordered_set>. 
 ]]
 [[`BOOST_NO_CXX11_TEMPLATE_ALIASES`][The compiler does not support template aliases. 
+]]
+[[`BOOST_NO_CXX11_THREAD_LOCAL`][The compiler does not support the `thread_local` storage specifier. 
 ]]
 [[`BOOST_NO_CXX11_TRAILING_RESULT_TYPES`][The compiler does not support the new function result type
 specification syntax (e.g. `auto foo(T) -> T;`).]]
@@ -893,7 +912,9 @@ Foo foo = { 0 };
 [[`BOOST_NO_CXX14_CONSTEXPR`][The compiler does not support relaxed `constexpr`.]]
 [[`BOOST_NO_CXX14_DECLTYPE_AUTO`][The compiler does not support `decltype(auto)`.]]
 [[`BOOST_NO_CXX14_DIGIT_SEPARATORS`][The compiler does not support digit separators (e.g. `1'000'000`).]]
+[[`BOOST_NO_CXX14_STD_EXCHANGE`][The compiler does not support `std::exchange()`.]]
 [[`BOOST_NO_CXX14_GENERIC_LAMBDAS`][The compiler does not support generic lambda (e.g. `[](auto v){ }`).]]
+[[`BOOST_NO_CXX14_HDR_SHARED_MUTEX`][The standard library does not provide header <shared_mutex>.]]
 [[`BOOST_NO_CXX14_INITIALIZED_LAMBDA_CAPTURES`][The compiler does not support initialized lambda capture (e.g. `[foo = 42]{ }`).]]
 [[`BOOST_NO_CXX14_RETURN_TYPE_DEDUCTION`][The compiler does not support return type deduction for normal functions (e.g. `auto f() { return val; }`).]]
 [[`BOOST_NO_CXX14_VARIABLE_TEMPLATES`][The compiler does not support variable template (e.g. `template <class T> T kibi = T(1024);`).]]
@@ -911,6 +932,34 @@ provide compliant C++14 support.
 [table
 [[Macro ][ Description ]]
 [[`BOOST_CXX14_CONSTEXPR`][This macro works similar to BOOST_CONSTEXPR, but expands to `constexpr` only if the C++14 "relaxed" `constexpr` is available.]]
+]
+
+[endsect]
+
+[section Macros that describe C++17 features not supported]
+
+The following macros describe features in the 2017 ISO C++ standard, formerly known as C++1z,
+that are not yet supported by a particular compiler or library.
+
+[table
+[[Macro ][Description ]]
+[[`BOOST_NO_CXX17_STD_APPLY`][The compiler does not support `std::apply()`.]]
+[[`BOOST_NO_CXX17_STD_INVOKE`][The compiler does not support `std::invoke()`.]]
+[[`BOOST_NO_CXX17_ITERATOR_TRAITS`][The compiler does not support SFINAE-friendly `std::iterator_traits`.]]
+]
+
+[endsect]
+
+[section Macros that describe features that have been removed from the standard.]
+
+The following macros describe features which were required by one version of the standard, but have been removed by later versions.
+
+[table
+[[Macro ][Description ]]
+[[`BOOST_NO_CXX98_RANDOM_SHUFFLE`][The standard library no longer supports `std::random_shuffle()`. It was deprecated in C++11 and is removed from C++14.]]
+[[`BOOST_NO_AUTO_PTR`][The standard library no longer supports `std::auto_ptr`. It was deprecated in C++11 and is removed from C++14.]]
+[[`BOOST_NO_CXX98_FUNCTION_BASE`][The standard library no longer supports `std::unary_function` and `std::binary_function`. They were deprecated in C++11 and is removed from C++14.]]
+[[`BOOST_NO_CXX98_BINDERS`][The standard library no longer supports `std::bind1st`, `std::bind2nd`, `std::ptr_fun` and `std::mem_fun`. They were deprecated in C++11 and is removed from C++14.]]
 ]
 
 [endsect]
@@ -1129,6 +1178,21 @@ the arguments is itself a macro (see 16.3.1 in C++ standard). This is normally
 used to create a mangled name in combination with a predefined macro such a
 \_\_LINE__.
 ]]
+[[`BOOST_RESTRICT`][
+This macro can be used in place of the compiler specific variant of the C99 `restrict` keyword to
+notify the compiler that, for the lifetime of the qualified pointer variable, only it and its
+derivative value will be used to gain access to the object it references. This limits the effect of
+pointer aliasing and helps the optimizers in generating better code. However, i this condition is
+violated, undefined behavior may occurs.
+
+Usage example:
+``
+  void perform_computation( float* BOOST_RESTRICT in, float* BOOST_RESTRICT out )
+  {
+    *out = *in * 0.5f;
+  }
+``
+]]
 [[`BOOST_FORCEINLINE`][
 This macro can be used in place of the `inline` keyword to instruct the compiler
 that the function should always be inlined.
@@ -1199,6 +1263,18 @@ Usage example:
 ]]
 [[`BOOST_ATTRIBUTE_UNUSED`][Expands to `__attribute__((unused))` when this is available - 
 can be used to disable compiler warnings relating to unused types or variables.]]
+[[`BOOST_MAY_ALIAS`, `BOOST_NO_MAY_ALIAS`][
+`BOOST_MAY_ALIAS` expands to a type attribute that can be used to mark types that may
+alias other types. Pointers or references to such marked types can be used to access objects
+of other types. If the compiler supports this feature `BOOST_NO_MAY_ALIAS` is not defined.
+Otherwise `BOOST_MAY_ALIAS` expands to nothing and `BOOST_NO_MAY_ALIAS` is defined.
+
+Usage example:
+``
+  struct BOOST_MAY_ALIAS aliasing_struct;
+  typedef unsigned int BOOST_MAY_ALIAS aliasing_uint;
+``
+]]
 ]
 
 [endsect]
@@ -1353,7 +1429,7 @@ include separate source code, and are intended to address several issues:
 * Fixing the ABI of the compiled library
 * Selecting which compiled library to link against based upon the compilers settings
 
-See [@http://svn.boost.org/trac/boost/wiki/Guidelines/Separate Guidelines for Authors of Boost Libraries Containing Separate Source] 
+See [@http://www.boost.org/development/separate_compilation.html Guidelines for Authors of Boost Libraries Containing Separate Source]
 
 [section Macros controlling shared library symbol visibility]
 

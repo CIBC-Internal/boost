@@ -74,7 +74,7 @@ void f()
   }
   {
     time_point t0 = Clock::now();
-    while (true)
+    for (;;)
     {
 #if ! defined(BOOST_NO_CXX11_AUTO_DECLARATIONS)
       auto
@@ -103,7 +103,7 @@ void f()
 //    boost::unique_lock<boost::mutex> lk(m, boost::try_to_lock);
 //    BOOST_TEST(lk.owns_lock() == false);
 //  }
-  while (true)
+  for (;;)
   {
 #if ! defined(BOOST_NO_CXX11_AUTO_DECLARATIONS)
   auto

@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>ssl::stream::async_handshake</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../ssl__stream.html" title="ssl::stream">
 <link rel="prev" href="../ssl__stream.html" title="ssl::stream">
@@ -27,30 +27,30 @@
 <a name="boost_asio.reference.ssl__stream.async_handshake"></a><a class="link" href="async_handshake.html" title="ssl::stream::async_handshake">ssl::stream::async_handshake</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp167184272"></a> 
-Start an asynchronous SSL handshake.
+          <a class="indexterm" name="boost_asio.indexterm.ssl__stream.async_handshake"></a> 
+Start
+          an asynchronous SSL handshake.
         </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span>
-    <span class="keyword">typename</span> <a class="link" href="../HandshakeHandler.html" title="SSL handshake handler requirements">HandshakeHandler</a><span class="special">&gt;</span>
-<a class="link" href="../asynchronous_operations.html#boost_asio.reference.asynchronous_operations.return_type_of_an_initiating_function"><span class="emphasis"><em>void-or-deduced</em></span></a> <a class="link" href="async_handshake/overload1.html" title="ssl::stream::async_handshake (1 of 2 overloads)">async_handshake</a><span class="special">(</span>
-    <span class="identifier">handshake_type</span> <span class="identifier">type</span><span class="special">,</span>
-    <span class="identifier">HandshakeHandler</span> <span class="identifier">handler</span><span class="special">);</span>
+<pre class="programlisting">template&lt;
+    typename <a class="link" href="../HandshakeHandler.html" title="SSL handshake handler requirements">HandshakeHandler</a>&gt;
+<a class="link" href="../asynchronous_operations/automatic_deduction_of_initiating_function_return_type.html" title="Automatic deduction of initiating function return type"><span class="emphasis"><em>DEDUCED</em></span></a> <a class="link" href="async_handshake/overload1.html" title="ssl::stream::async_handshake (1 of 2 overloads)">async_handshake</a>(
+    handshake_type type,
+    HandshakeHandler &amp;&amp; handler);
   <span class="emphasis"><em>&#187; <a class="link" href="async_handshake/overload1.html" title="ssl::stream::async_handshake (1 of 2 overloads)">more...</a></em></span>
 
-<span class="keyword">template</span><span class="special">&lt;</span>
-    <span class="keyword">typename</span> <a class="link" href="../ConstBufferSequence.html" title="Constant buffer sequence requirements">ConstBufferSequence</a><span class="special">,</span>
-    <span class="keyword">typename</span> <a class="link" href="../BufferedHandshakeHandler.html" title="Buffered handshake handler requirements">BufferedHandshakeHandler</a><span class="special">&gt;</span>
-<a class="link" href="../asynchronous_operations.html#boost_asio.reference.asynchronous_operations.return_type_of_an_initiating_function"><span class="emphasis"><em>void-or-deduced</em></span></a> <a class="link" href="async_handshake/overload2.html" title="ssl::stream::async_handshake (2 of 2 overloads)">async_handshake</a><span class="special">(</span>
-    <span class="identifier">handshake_type</span> <span class="identifier">type</span><span class="special">,</span>
-    <span class="keyword">const</span> <span class="identifier">ConstBufferSequence</span> <span class="special">&amp;</span> <span class="identifier">buffers</span><span class="special">,</span>
-    <span class="identifier">BufferedHandshakeHandler</span> <span class="identifier">handler</span><span class="special">);</span>
+template&lt;
+    typename <a class="link" href="../ConstBufferSequence.html" title="Constant buffer sequence requirements">ConstBufferSequence</a>,
+    typename <a class="link" href="../BufferedHandshakeHandler.html" title="Buffered handshake handler requirements">BufferedHandshakeHandler</a>&gt;
+<a class="link" href="../asynchronous_operations/automatic_deduction_of_initiating_function_return_type.html" title="Automatic deduction of initiating function return type"><span class="emphasis"><em>DEDUCED</em></span></a> <a class="link" href="async_handshake/overload2.html" title="ssl::stream::async_handshake (2 of 2 overloads)">async_handshake</a>(
+    handshake_type type,
+    const ConstBufferSequence &amp; buffers,
+    BufferedHandshakeHandler &amp;&amp; handler);
   <span class="emphasis"><em>&#187; <a class="link" href="async_handshake/overload2.html" title="ssl::stream::async_handshake (2 of 2 overloads)">more...</a></em></span>
 </pre>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2017 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

@@ -21,6 +21,8 @@ import testing ;
     : 
   [ run libs/function/test/function_test.cpp :  :  :  : lib_function_test ]
 
+  [ run libs/function/test/function_test.cpp :  :  : <rtti>off : lib_function_test_no_rtti ]
+
   [ run libs/function/test/function_n_test.cpp :  :  :  :  ]
 
   [ run libs/function/test/allocator_test.cpp ../../../libs/test/build//boost_test_exec_monitor :  :  :  :  ]
@@ -34,6 +36,8 @@ import testing ;
   [ compile-fail libs/function/test/function_test_fail2.cpp :  :  :  :  ]
 
   [ compile libs/function/test/function_30.cpp :  :  :  :  ] 
+
+  [ compile libs/function/test/function_30_repeat.cpp :  :  :  :  ] 
 
   [ run libs/function/test/function_arith_cxx98.cpp :  :  :  :  ]
 
@@ -64,6 +68,8 @@ import testing ;
   [ run libs/function/test/rvalues_test.cpp :  :  :  :  ]
 
   [ compile libs/function/test/function_typeof_test.cpp ]
+
+  [ run libs/function/test/result_arg_types_test.cpp ]
  ;
 }
       

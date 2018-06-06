@@ -1,7 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -26,7 +31,6 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/multi/geometries/multi_geometries.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
@@ -61,7 +65,7 @@ void create_svg(std::string const& filename
     bg::buffer(box, box, 1.0);
     mapper.add(box);
 
-    if (bg::num_points(buffer) > 0)
+    if (! bg::is_empty(buffer))
     {
         bg::envelope(buffer, box);
         bg::buffer(box, box, 1.0);
@@ -83,8 +87,8 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     bool result = true;
 
     // Area of buffer must be larger than of original polygon
-    BOOST_AUTO(area_mp, bg::area(mp));
-    BOOST_AUTO(area_buf, bg::area(buffer));
+    double area_mp = bg::area(mp);
+    double area_buf = bg::area(buffer);
 
     if (area_buf < area_mp)
     {
@@ -102,6 +106,16 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
             {
                 result = false;
             }
+        }
+    }
+
+    if (result)
+    {
+        std::string message;
+        if (! bg::is_valid(buffer, message))
+        {
+            std::cout << "Buffer is not valid: " << message << std::endl;
+            result = false;
         }
     }
 
@@ -200,7 +214,7 @@ bool test_buffer(MultiPolygon& result, int& index,
     bg::strategy::buffer::end_round end_strategy;
     bg::strategy::buffer::point_circle point_strategy;
     bg::strategy::buffer::side_straight side_strategy;
-    bg::strategy::buffer::join_round join_round_strategy(100); // Compatible with unit tests
+    bg::strategy::buffer::join_round join_round_strategy(32); // Compatible with MySQL
     bg::strategy::buffer::join_miter join_miter_strategy;
 
     try

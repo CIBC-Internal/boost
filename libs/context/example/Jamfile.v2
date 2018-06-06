@@ -1,6 +1,6 @@
 # Boost.Context Library Examples Jamfile
 
-#          Copyright Oliver Kowalke 2009.
+#          Copyright Oliver Kowalke 2014.
 # Distributed under the Boost Software License, Version 1.0.
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
@@ -18,44 +18,62 @@ import architecture ;
 project boost/context/example
     : requirements
       <library>/boost/context//boost_context
+      <toolset>gcc,<segmented-stacks>on:<cxxflags>-fsplit-stack
+      <toolset>gcc,<segmented-stacks>on:<cxxflags>-DBOOST_USE_SEGMENTED_STACKS
+      <toolset>clang,<segmented-stacks>on:<cxxflags>-fsplit-stack
+      <toolset>clang,<segmented-stacks>on:<cxxflags>-DBOOST_USE_SEGMENTED_STACKS
       <link>static
       <threading>multi
     ;
 
-rule configure ( properties * )
-{
-    local result ;
-    if ( ! ( <toolset>gcc in $(properties) &&
-           <address-model>64 in $(properties) &&
-           <architecture>x86 in $(properties) ) )
-    {
-        result = <build>no ;
-    }
+exe stack
+    : stack.cpp
+    ;
 
-    return $(result) ;
-}
+exe jump_void
+    : jump_void.cpp
+    ;
 
 exe jump
     : jump.cpp
     ;
 
-exe exit
-    : exit.cpp
+exe jump_mov
+    : jump_mov.cpp
     ;
 
-exe transfer
-    : transfer.cpp
+exe ontop_void
+    : ontop_void.cpp
     ;
 
-exe exception
-    : exception.cpp
+exe throw
+    : throw.cpp
     ;
 
-exe stacked
-    : stacked.cpp
+exe fibonacci
+    : fibonacci.cpp
     ;
 
-exe echosse
-    : echosse.cpp
-    : <conditional>@configure
+exe parser
+    : parser.cpp
     ;
+
+exe ontop
+    : ontop.cpp
+    ;
+
+exe endless_loop
+    : endless_loop.cpp
+    ;
+
+exe segmented
+    : segmented.cpp
+    ;
+
+#exe backtrace
+#    : backtrace.cpp
+#    ;
+
+#exe echosse
+#    : echosse.cpp
+#    ;

@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>filtered</title>
 <link rel="stylesheet" href="../../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../../index.html" title="Chapter&#160;1.&#160;Range 2.0">
 <link rel="up" href="../reference.html" title="Reference">
 <link rel="prev" href="copied.html" title="copied">
@@ -80,8 +80,8 @@
                 to the argument type of <code class="computeroutput"><span class="identifier">pred</span></code>.
               </li>
 <li class="listitem">
-                <span class="bold"><strong>Postcondition:</strong></span> For all adjacent
-                elements <code class="computeroutput"><span class="special">[</span><span class="identifier">x</span><span class="special">]</span></code> in the returned range, <code class="computeroutput"><span class="identifier">pred</span><span class="special">(</span><span class="identifier">x</span><span class="special">)</span></code>
+                <span class="bold"><strong>Postcondition:</strong></span> For all elements
+                <code class="computeroutput"><span class="special">[</span><span class="identifier">x</span><span class="special">]</span></code> in the returned range, <code class="computeroutput"><span class="identifier">pred</span><span class="special">(</span><span class="identifier">x</span><span class="special">)</span></code>
                 is <code class="computeroutput"><span class="keyword">true</span></code>.
               </li>
 <li class="listitem">
@@ -89,8 +89,7 @@
                 of <code class="computeroutput"><span class="identifier">pred</span></code> might throw.
               </li>
 <li class="listitem">
-                <span class="bold"><strong>Range Category:</strong></span> <a class="link" href="../../../concepts/forward_range.html" title="Forward Range">Forward
-                Range</a>
+                <span class="bold"><strong>Range Category:</strong></span> __singlepass_range__
               </li>
 <li class="listitem">
                 <span class="bold"><strong>Range Return Type:</strong></span> <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">filtered_range</span><span class="special">&lt;</span><span class="keyword">decltype</span><span class="special">(</span><span class="identifier">rng</span><span class="special">)&gt;</span></code>

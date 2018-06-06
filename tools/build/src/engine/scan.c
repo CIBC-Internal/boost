@@ -11,6 +11,7 @@
 
 #include "jam.h"
 #include "scan.h"
+#include "output.h"
 
 #include "constants.h"
 #include "jambase.h"
@@ -33,6 +34,8 @@ struct include
     include   * next;        /* next serial include file */
     char      * string;      /* pointer into current line */
     char    * * strings;     /* for yyfparse() -- text to parse */
+    LISTITER    pos;         /* for yysparse() -- text to parse */
+    LIST      * list;        /* for yysparse() -- text to parse */
     FILE      * file;        /* for yyfparse() -- file being read */
     OBJECT    * fname;       /* for yyfparse() -- file name */
     int         line;        /* line counter for error messages */
@@ -72,7 +75,7 @@ void yyerror( char const * s )
      * will hold the information about where the token started while incp will
      * hold the information about where reading it broke.
      */
-    printf( "%s:%d: %s at %s\n", object_str( yylval.file ), yylval.line, s,
+    out_printf( "%s:%d: %s at %s\n", object_str( yylval.file ), yylval.line, s,
             symdump( &yylval ) );
     ++anyerrors;
 }
@@ -100,6 +103,29 @@ void yyfparse( OBJECT * s )
     /* If the filename is "+", it means use the internal jambase. */
     if ( !strcmp( object_str( s ), "+" ) )
         i->strings = jambase;
+}
+
+
+void yysparse( OBJECT * name, const char * * lines )
+{
+    yyfparse( name );
+    incp->strings = (char * *)lines;
+}
+
+
+/*
+ * yyfdone() - cleanup after we're done parsing a file.
+ */
+void yyfdone( void )
+{
+    include * const i = incp;
+    incp = i->next;
+
+    /* Close file, free name. */
+    if(i->file && (i->file != stdin))
+        fclose(i->file);
+    object_free(i->fname);
+    BJAM_FREE((char *)i);
 }
 
 
@@ -156,17 +182,9 @@ int yyline()
         }
     }
 
-    /* This include is done. Free it up and return EOF so yyparse() returns to
+    /* This include is done. Return EOF so yyparse() returns to
      * parse_file().
      */
-
-    incp = i->next;
-
-    /* Close file, free name. */
-    if ( i->file && ( i->file != stdin ) )
-        fclose( i->file );
-    object_free( i->fname );
-    BJAM_FREE( (char *)i );
 
     return EOF;
 }
@@ -265,8 +283,24 @@ int yylex()
             if ( c != '#' )
                 break;
 
-            /* Swallow up comment line. */
-            while ( ( ( c = yychar() ) != EOF ) && ( c != '\n' ) ) ;
+            c = yychar();
+            if ( ( c != EOF ) && c == '|' )
+            {
+                /* Swallow up block comment. */
+                int c0 = yychar();
+                int c1 = yychar();
+                while ( ! ( c0 == '|' && c1 == '#' ) && ( c0 != EOF && c1 != EOF ) )
+                {
+                    c0 = c1;
+                    c1 = yychar();
+                }
+                c = c1;
+            }
+            else
+            {
+                /* Swallow up comment line. */
+                while ( ( c != EOF ) && ( c != '\n' ) ) c = yychar();
+            }
         }
 
         /* c now points to the first character of a token. */
@@ -361,7 +395,7 @@ int yylex()
     }
 
     if ( DEBUG_SCAN )
-        printf( "scan %s\n", symdump( &yylval ) );
+        out_printf( "scan %s\n", symdump( &yylval ) );
 
     return yylval.type;
 

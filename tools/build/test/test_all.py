@@ -124,6 +124,9 @@ def run_tests(critical_tests, other_tests):
         FAIL: %d
         """ % (pass_count, failures_count)
 
+    # exit with failure with failures
+    if failures_count > 0:
+        sys.exit(1)
 
 def last_failed_test():
     "Returns the name of the last failed test or None."
@@ -168,6 +171,7 @@ tests = ["absolute_sources",
          "builtin_exit",
          "builtin_glob",
          "builtin_split_by_characters",
+         "bzip2",
          "c_file",
          "chain",
          "clean",
@@ -196,6 +200,8 @@ tests = ["absolute_sources",
          "core_update_now",
          "core_variables_in_actions",
          "custom_generator",
+         "debugger",
+         "debugger-mi",
          "default_build",
          "default_features",
 # This test is known to be broken itself.
@@ -283,14 +289,20 @@ if os.name == "posix":
     # it fails ;-). Further, the test relies on the fact that on Linux, one can
     # build a shared library with unresolved symbols. This is not true on
     # Windows, even with cygwin gcc.
-    if "CYGWIN" not in os.uname()[0]:
-        tests.append("library_order")
+
+#   Disable this test until we figure how to address failures due to --as-needed being default now.
+#    if "CYGWIN" not in os.uname()[0]:
+#        tests.append("library_order")
 
 if toolset.startswith("gcc"):
     tests.append("gcc_runtime")
 
 if toolset.startswith("gcc") or toolset.startswith("msvc"):
     tests.append("pch")
+
+# Disable on OSX as it doesn't seem to work for unknown reasons.
+if sys.platform != 'darwin':
+    tests.append("builtin_glob_archive")
 
 if "--extras" in sys.argv:
     tests.append("boostbook")

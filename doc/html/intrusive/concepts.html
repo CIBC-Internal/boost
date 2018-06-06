@@ -1,11 +1,12 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Concepts explained</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../intrusive.html" title="Chapter&#160;15.&#160;Boost.Intrusive">
+<link rel="up" href="../intrusive.html" title="Chapter&#160;18.&#160;Boost.Intrusive">
 <link rel="prev" href="any_hooks.html" title="Any Hooks: A single hook for any Intrusive container">
 <link rel="next" href="node_algorithms.html" title="Node algorithms with custom NodeTraits">
 </head>
@@ -33,11 +34,11 @@
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
           <span class="bold"><strong>Node Algorithms</strong></span>: A set of static functions
           that implement basic operations on a group of nodes: initialize a node,
-          link_mode_type a node to a group of nodes, unlink a node from another group
-          of nodes, etc. For example, a circular singly linked list is a group of
-          nodes, where each node has a pointer to the next node. <span class="bold"><strong>Node
-          Algorithms</strong></span> just require a <span class="bold"><strong>NodeTraits</strong></span>
-          template parameter and they can work with any <span class="bold"><strong>NodeTraits</strong></span>
+          link a node to a group of nodes, unlink a node from another group of nodes,
+          etc. For example, a circular singly linked list is a group of nodes, where
+          each node has a pointer to the next node. <span class="bold"><strong>Node Algorithms</strong></span>
+          just require a <span class="bold"><strong>NodeTraits</strong></span> template parameter
+          and they can work with any <span class="bold"><strong>NodeTraits</strong></span>
           class that fulfills the needed interface. As an example, here is a class
           that implements operations to manage a group of nodes forming a circular
           singly linked list:
@@ -225,7 +226,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2005 Olaf Krzikalla<br>Copyright &#169; 2006-2013 Ion Gaztanaga<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2005 Olaf Krzikalla<br>Copyright &#169; 2006-2015 Ion Gaztanaga<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

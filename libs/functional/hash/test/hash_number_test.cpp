@@ -58,8 +58,6 @@ void numeric_extra_tests(typename
 template <class T>
 void numeric_test(T*)
 {
-    typedef boost::hash_detail::limits<T> limits;
-
     compile_time_tests((T*) 0);
 
     BOOST_HASH_TEST_NAMESPACE::hash<T> x1;
@@ -129,9 +127,13 @@ void poor_quality_tests(T*)
         BOOST_TEST(x1(T(1)) !=  x2(T(-1)));
     if(T(1) != T(2))
         BOOST_TEST(x1(T(1)) !=  x2(T(2)));
-    if((limits::max)() != (limits::max)() - 1)
-        BOOST_TEST(x1(static_cast<T>((limits::max)()))
-            != x2(static_cast<T>((limits::max)() - 1)));
+
+    // TODO: This test is useless for floating point numbers.
+    T max_number = static_cast<T>((limits::max)());
+    T max_minus_one = static_cast<T>(max_number - 1);
+    if (max_number != max_minus_one) {
+        BOOST_TEST(x1(max_number) != x1(max_minus_one));
+    }
 }
 
 void bool_test()
@@ -162,6 +164,12 @@ int main()
     NUMERIC_TEST(unsigned char, uchar)
 #ifndef BOOST_NO_INTRINSIC_WCHAR_T
     NUMERIC_TEST(wchar_t, wchar)
+#endif
+#ifndef BOOST_NO_CXX11_CHAR16_T
+    NUMERIC_TEST(char16_t, char16)
+#endif
+#ifndef BOOST_NO_CXX11_CHAR32_T
+    NUMERIC_TEST(char32_t, char32)
 #endif
     NUMERIC_TEST(short, short)
     NUMERIC_TEST(unsigned short, ushort)

@@ -30,6 +30,11 @@ Acknowledgements
 <h2>Contents</h2>
 
 <ul>
+  <li><a href="#boost_1_66">Boost 1.66 release</a></li>
+  <li><a href="#boost_1_64">Boost 1.64 release</a></li>
+  <li><a href="#boost_1_62">Boost 1.62 release</a></li>
+  <li><a href="#boost_1_60">Boost 1.60 release</a></li>
+  <li><a href="#boost_1_59">Boost 1.59 release</a></li>
   <li><a href="#boost_1_58">Boost 1.58 release</a></li>
   <li><a href="#boost_1_57">Boost 1.57 release</a></li>
   <li><a href="#boost_1_56">Boost 1.56 release</a></li>
@@ -50,6 +55,64 @@ Acknowledgements
   <li><a href="#boost_1_33_1">Boost 1.33.1 release</a></li>
   <li><a href="#boost_1_33">Boost 1.33 release</a></li>
 </ul>
+
+<h2><a name="boost_1_66">Boost 1.66 release</a></h2>
+
+<p>
+<ul>
+  <li>Made <code>modify</code> and <code>modify_key</code> more robust so that
+    the modified element is erased if the modifier throws or the rollback
+    functor does not properly restore the element (full discussion at
+    ticket <a href="https://svn.boost.org/trac/boost/ticket/12542">#12542</a>).
+    This is technically backwards incompatible; for instance, the following code:
+<blockquote><pre>
+<span class=identifier>c</span><span class=special>.</span><span class=identifier>modify</span><span class=special>(</span><span class=identifier>c</span><span class=special>.</span><span class=identifier>begin</span><span class=special>(),[](</span><span class=keyword>auto</span><span class=special>&amp;){</span><span class=keyword>throw</span> <span class=number>0</span><span class=special>;});</span>  
+</pre></blockquote>
+    keeps the container <code>c</code> untouched in former versions of Boost whereas
+    now <code>c.begin()</code> is erased. Thanks to Jon Kalb for raising the issue.
+  </li>
+  <li>Maintenance fixes.</li>
+</ul>
+</p>
+
+<h2><a name="boost_1_64">Boost 1.64 release</a></h2>
+
+<p>
+<ul>
+  <li>Fixed a bug related to ambiguous references in the presence of more than
+    one ranked index
+    (ticket <a href="https://svn.boost.org/trac/boost/ticket/12955">#12955</a>).
+  </li>
+  <li>Maintenance fixes.</li>
+</ul>
+</p>
+
+<h2><a name="boost_1_62">Boost 1.62 release</a></h2>
+
+<p>
+<ul>
+  <li>Maintenance fixes.</li>
+</ul>
+</p>
+
+<h2><a name="boost_1_60">Boost 1.60 release</a></h2>
+
+<p>
+<ul>
+  <li>Fixed an interoperability problem with <a href="http://www.qt.io/">Qt</a> due to the
+    optional definition of a macro with name <code>foreach</code> in this framework.</li>
+  <li>Maintenance fixes.</li>
+</ul>
+</p>
+
+<h2><a name="boost_1_59">Boost 1.59 release</a></h2>
+
+<p>
+<ul>
+  <li>Added <a href="tutorial/indices.html#rnk_indices">ranked indices</a>.</li>
+  <li>Maintenance fixes.</li>
+</ul>
+</p>
 
 <h2><a name="boost_1_58">Boost 1.58 release</a></h2>
 
@@ -491,9 +554,9 @@ Acknowledgements
 
 <br>
 
-<p>Revised November 12th 2014</p>
+<p>Revised September 21st 2017</p>
 
-<p>&copy; Copyright 2003-2014 Joaqu&iacute;n M L&oacute;pez Mu&ntilde;oz.
+<p>&copy; Copyright 2003-2017 Joaqu&iacute;n M L&oacute;pez Mu&ntilde;oz.
 Distributed under the Boost Software 
 License, Version 1.0. (See accompanying file <a href="../../../LICENSE_1_0.txt">
 LICENSE_1_0.txt</a> or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">

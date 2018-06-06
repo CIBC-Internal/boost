@@ -8,7 +8,6 @@
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/core/lightweight_test.hpp>
 
 #include "api_test_helpers.hpp"
 
@@ -57,6 +56,9 @@ int main(int, char *[])
 #if defined(BOOST_HAS_INT128)
     test_struct_api<test_struct<boost::uint128_type> >();
 #endif
+
+    // https://svn.boost.org/trac/boost/ticket/10994
+    test_struct_x2_api<test_struct_x2<boost::uint64_t> >();
 
     // https://svn.boost.org/trac/boost/ticket/9985
     test_struct_api<test_struct<double> >();
