@@ -13,6 +13,7 @@
 #  undef NDEBUG  
 #endif  
 
+#include <boost/config.hpp>
 #include <stdexcept>
 
 #define BOOST_SPIRIT_ASSERT_EXCEPTION ::spirit_exception
@@ -23,9 +24,9 @@ struct spirit_exception : std::exception
         : message(msg)
     {
     }
-    ~spirit_exception() throw() {}
+    ~spirit_exception() BOOST_NOEXCEPT_OR_NOTHROW {}
 
-    char const* what() const throw() { return message; }
+    char const* what() const BOOST_NOEXCEPT_OR_NOTHROW { return message; }
 
     char const * message;
 };
@@ -51,7 +52,6 @@ iterator end2 = data2_ + sizeof(data2_)/sizeof(char_type) - 1;
 
 int main()
 {
-    typedef BOOST_SPIRIT_CLASSIC_NS::scanner<> scanner;
     typedef BOOST_SPIRIT_CLASSIC_NS::impl::tst<void *, char_type> symbols;
 
     symbols symbols_;

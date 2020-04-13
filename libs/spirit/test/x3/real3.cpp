@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2001-2010 Hartmut Kaiser
 
     Use, modification and distribution is subject to the Boost Software
@@ -58,6 +58,10 @@ main()
         using boost::spirit::x3::parse;
         real_parser<double, ts_real_policies<double> > ts_real;
         double  d;
+
+        BOOST_TEST(test("123.01", ts_real));
+        BOOST_TEST(test_attr("123.01", ts_real, d)
+                && compare(d, 123.01));
 
         BOOST_TEST(test("123,456,789.01", ts_real));
         BOOST_TEST(test_attr("123,456,789.01", ts_real, d)

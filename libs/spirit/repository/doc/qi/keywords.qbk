@@ -71,7 +71,7 @@ sum of the complexities of its elements.]
 
 [heading Example]
 
-[import ../example/qi/keywords.cpp]
+[import ../../example/qi/keywords.cpp]
 
 [note The test harness for the example(s) below is presented in the
 __qi_basics_examples__ section.]
@@ -92,7 +92,7 @@ A couple of input string variations run on the same parser:
 
 [reference_keyword_list]
 
-Now let's delcare a parser with some occurence constraints:
+Now let's delcare a parser with some occurrence constraints:
 
 [reference_keyword_list_constraint_rule]
 

@@ -1,5 +1,5 @@
 /*
- *          Copyright Andrey Semashev 2007 - 2015.
+ *          Copyright Andrey Semashev 2007 - 2018.
  * Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
  *          http://www.boost.org/LICENSE_1_0.txt)
@@ -13,24 +13,31 @@
  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
  */
 
+#include <boost/log/detail/config.hpp>
 #include <boost/log/detail/timestamp.hpp>
 
 #if defined(BOOST_WINDOWS) && !defined(__CYGWIN__)
-#include <boost/detail/interlocked.hpp>
-#include "windows_version.hpp"
-#include <windows.h>
+#include <cstddef>
+#include <cstdlib>
+#include <boost/memory_order.hpp>
+#include <boost/atomic/atomic.hpp>
+#include <boost/winapi/dll.hpp>
+#include <boost/winapi/time.hpp>
+#include <boost/winapi/event.hpp>
+#include <boost/winapi/handles.hpp>
+#include <boost/winapi/thread_pool.hpp>
 #else
 #include <unistd.h> // for config macros
 #if defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)
 #include <mach/mach_time.h>
 #include <mach/kern_return.h>
 #include <boost/log/utility/once_block.hpp>
+#include <boost/system/error_code.hpp>
 #endif
 #include <time.h>
 #include <errno.h>
 #include <boost/throw_exception.hpp>
-#include <boost/system/error_code.hpp>
-#include <boost/system/system_error.hpp>
+#include <boost/log/exceptions.hpp>
 #endif
 #include <boost/log/detail/header.hpp>
 
@@ -42,157 +49,109 @@ namespace aux {
 
 #if defined(BOOST_WINDOWS) && !defined(__CYGWIN__)
 
-#if _WIN32_WINNT >= 0x0600
+#if BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
 
 // Directly use API from Vista and later
-BOOST_LOG_API get_tick_count_t get_tick_count = &GetTickCount64;
+BOOST_LOG_API get_tick_count_t get_tick_count = &boost::winapi::GetTickCount64;
 
-#else // _WIN32_WINNT >= 0x0600
+#else // BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
 
 BOOST_LOG_ANONYMOUS_NAMESPACE {
 
-#if defined(_MSC_VER) && !defined(_M_CEE_PURE)
-
-#   if defined(_M_IX86)
-#       if defined(_M_IX86_FP) && _M_IX86_FP >= 2
-//! Atomically loads and stores the 64-bit value through SSE2 instructions
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
+enum init_state
 {
-    __asm
-    {
-        mov eax, from
-        mov edx, to
-        movq xmm4, qword ptr [eax]
-        movq qword ptr [edx], xmm4
-    };
-}
-#       else // defined(_M_IX86_FP) && _M_IX86_FP >= 2
-//! Atomically loads and stores the 64-bit value through FPU instructions
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
-{
-    __asm
-    {
-        mov eax, from
-        mov edx, to
-        fild qword ptr [eax]
-        fistp qword ptr [edx]
-    };
-}
-#       endif // defined(_M_IX86_FP) && _M_IX86_FP >= 2
-#   elif defined(_M_AMD64) || defined(_M_IA64)
-//! Atomically loads and stores the 64-bit value
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
-{
-    *to = *from;
-}
-#   else
-#       define BOOST_LOG_GENERIC_MOVE64 1
-#   endif
-
-#elif defined(__GNUC__)
-
-#   if defined(__i386__)
-#       if defined(__SSE2__)
-//! Atomically loads and stores the 64-bit value through SSE2 instructions
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
-{
-    __asm__ __volatile__
-    (
-        "movq %1, %%xmm4\n\t"
-        "movq %%xmm4, %0\n\t"
-            : "=m" (*to)
-            : "m" (*from)
-            : "memory", "xmm4"
-    );
-}
-#       else // defined(__SSE2__)
-//! Atomically loads and stores the 64-bit value through FPU instructions
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
-{
-    __asm__ __volatile__
-    (
-        "fildq %1\n\t"
-        "fistpq %0"
-            : "=m" (*to)
-            : "m" (*from)
-            : "memory"
-    );
-}
-#       endif // defined(__SSE2__)
-#   elif defined(__x86_64__)
-//! Atomically loads and stores the 64-bit value
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
-{
-    *to = *from;
-}
-#   else
-#       define BOOST_LOG_GENERIC_MOVE64 1
-#   endif
-
-#else
-
-#   define BOOST_LOG_GENERIC_MOVE64 1
-
-#endif
-
-#if defined(BOOST_LOG_GENERIC_MOVE64)
-
-BOOST_ALIGNMENT(16) long g_spin_lock = 0;
-
-//! Atomically loads and stores the 64-bit value
-BOOST_FORCEINLINE void move64(const uint64_t* from, uint64_t* to)
-{
-    while (BOOST_INTERLOCKED_COMPARE_EXCHANGE(&g_spin_lock, 1, 0) != 0);
-    *to = *from;
-    BOOST_INTERLOCKED_EXCHANGE(&g_spin_lock, 0);
-}
-
-#endif // defined(BOOST_LOG_GENERIC_MOVE64)
-
-BOOST_ALIGNMENT(16) uint64_t g_ticks = 0;
-
-union ticks_caster
-{
-    uint64_t as_uint64;
-    struct
-    {
-        uint32_t ticks;
-        uint32_t counter;
-    }
-    as_components;
+    uninitialized = 0,
+    in_progress,
+    initialized
 };
 
-//! Artifical implementation of GetTickCount64
-uint64_t __stdcall get_tick_count64()
+struct get_tick_count64_state
 {
-    ticks_caster state;
-    move64(&g_ticks, &state.as_uint64);
+    boost::atomic< uint64_t > ticks;
+    boost::atomic< init_state > init;
+    boost::winapi::HANDLE_ wait_event;
+    boost::winapi::HANDLE_ wait_handle;
+};
 
-    uint32_t new_ticks = GetTickCount();
+// Zero-initialized initially
+BOOST_ALIGNMENT(BOOST_LOG_CPU_CACHE_LINE_SIZE) static get_tick_count64_state g_state;
 
-    state.as_components.counter += new_ticks < state.as_components.ticks;
-    state.as_components.ticks = new_ticks;
+//! Artifical implementation of GetTickCount64
+uint64_t BOOST_WINAPI_WINAPI_CC get_tick_count64()
+{
+    // Note: Even in single-threaded builds we have to implement get_tick_count64 in a thread-safe way because
+    //       it can be called in the system thread pool during refreshes concurrently with user's calls.
+    uint64_t old_state = g_state.ticks.load(boost::memory_order_acquire);
 
-    move64(&state.as_uint64, &g_ticks);
-    return state.as_uint64;
+    uint32_t new_ticks = boost::winapi::GetTickCount();
+
+    uint32_t old_ticks = static_cast< uint32_t >(old_state & UINT64_C(0x00000000ffffffff));
+    uint64_t new_state = ((old_state & UINT64_C(0xffffffff00000000)) + (static_cast< uint64_t >(new_ticks < old_ticks) << 32)) | static_cast< uint64_t >(new_ticks);
+
+    g_state.ticks.store(new_state, boost::memory_order_release);
+
+    return new_state;
 }
 
-uint64_t __stdcall get_tick_count_init()
+//! The function is called periodically in the system thread pool to make sure g_state.ticks is timely updated
+void BOOST_WINAPI_NTAPI_CC refresh_get_tick_count64(boost::winapi::PVOID_, boost::winapi::BOOLEAN_)
 {
-    HMODULE hKernel32 = GetModuleHandleA("kernel32.dll");
+    get_tick_count64();
+}
+
+//! Cleanup function to stop get_tick_count64 refreshes
+void cleanup_get_tick_count64()
+{
+    if (g_state.wait_handle)
+    {
+        boost::winapi::UnregisterWait(g_state.wait_handle);
+        g_state.wait_handle = NULL;
+    }
+
+    if (g_state.wait_event)
+    {
+        boost::winapi::CloseHandle(g_state.wait_event);
+        g_state.wait_event = NULL;
+    }
+}
+
+uint64_t BOOST_WINAPI_WINAPI_CC get_tick_count_init()
+{
+    boost::winapi::HMODULE_ hKernel32 = boost::winapi::GetModuleHandleW(L"kernel32.dll");
     if (hKernel32)
     {
-        get_tick_count_t p = (get_tick_count_t)GetProcAddress(hKernel32, "GetTickCount64");
+        get_tick_count_t p = (get_tick_count_t)boost::winapi::get_proc_address(hKernel32, "GetTickCount64");
         if (p)
         {
             // Use native API
-            get_tick_count = p;
+            const_cast< get_tick_count_t volatile& >(get_tick_count) = p;
             return p();
         }
     }
 
-    // No native API available
-    get_tick_count = &get_tick_count64;
+    // No native API available. Use emulation with periodic refreshes to make sure the GetTickCount wrap arounds are properly counted.
+    init_state old_init = uninitialized;
+    if (g_state.init.compare_exchange_strong(old_init, in_progress, boost::memory_order_acq_rel, boost::memory_order_relaxed))
+    {
+        if (!g_state.wait_event)
+            g_state.wait_event = boost::winapi::create_anonymous_event(NULL, false, false);
+        if (g_state.wait_event)
+        {
+            boost::winapi::BOOL_ res = boost::winapi::RegisterWaitForSingleObject(&g_state.wait_handle, g_state.wait_event, &refresh_get_tick_count64, NULL, 0x7fffffff, boost::winapi::WT_EXECUTEINWAITTHREAD_);
+            if (res)
+            {
+                std::atexit(&cleanup_get_tick_count64);
+
+                const_cast< get_tick_count_t volatile& >(get_tick_count) = &get_tick_count64;
+                g_state.init.store(initialized, boost::memory_order_release);
+                goto finish;
+            }
+        }
+
+        g_state.init.store(uninitialized, boost::memory_order_release);
+    }
+
+finish:
     return get_tick_count64();
 }
 
@@ -200,15 +159,15 @@ uint64_t __stdcall get_tick_count_init()
 
 BOOST_LOG_API get_tick_count_t get_tick_count = &get_tick_count_init;
 
-#endif // _WIN32_WINNT >= 0x0600
+#endif // BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
 
-#elif (defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0)  /* POSIX timers supported */ \
-      || defined(__GNU__)  /* GNU Hurd does not support POSIX timers fully but does provide clock_gettime() */
+#elif (defined(_POSIX_TIMERS) && (_POSIX_TIMERS+0) > 0)  /* POSIX timers supported */ \
+      || defined(__GNU__) || defined(__OpenBSD__) || defined(__CloudABI__)  /* GNU Hurd, OpenBSD and Nuxi CloudABI don't support POSIX timers fully but do provide clock_gettime() */
 
 BOOST_LOG_API int64_t duration::milliseconds() const
 {
     // Timestamps are always in nanoseconds
-    return m_ticks / 1000000LL;
+    return m_ticks / INT64_C(1000000);
 }
 
 BOOST_LOG_ANONYMOUS_NAMESPACE {
@@ -221,14 +180,13 @@ BOOST_LOG_ANONYMOUS_NAMESPACE {
 timestamp get_timestamp_realtime_clock()
 {
     timespec ts;
-    if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
+    if (BOOST_UNLIKELY(clock_gettime(CLOCK_REALTIME, &ts) != 0))
     {
         const int err = errno;
-        BOOST_THROW_EXCEPTION(boost::system::system_error(
-            err, boost::system::system_category(), "Failed to acquire current time"));
+        BOOST_LOG_THROW_DESCR_PARAMS(system_error, "Failed to acquire current time", (err));
     }
 
-    return timestamp(static_cast< uint64_t >(ts.tv_sec) * 1000000000ULL + ts.tv_nsec);
+    return timestamp(static_cast< uint64_t >(ts.tv_sec) * UINT64_C(1000000000) + ts.tv_nsec);
 }
 
 #   if defined(_POSIX_MONOTONIC_CLOCK)
@@ -237,7 +195,7 @@ timestamp get_timestamp_realtime_clock()
 timestamp get_timestamp_monotonic_clock()
 {
     timespec ts;
-    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+    if (BOOST_UNLIKELY(clock_gettime(CLOCK_MONOTONIC, &ts) != 0))
     {
         const int err = errno;
         if (err == EINVAL)
@@ -248,11 +206,10 @@ timestamp get_timestamp_monotonic_clock()
             get_timestamp = &get_timestamp_realtime_clock;
             return get_timestamp_realtime_clock();
         }
-        BOOST_THROW_EXCEPTION(boost::system::system_error(
-            err, boost::system::system_category(), "Failed to acquire current time"));
+        BOOST_LOG_THROW_DESCR_PARAMS(system_error, "Failed to acquire current time", (err));
     }
 
-    return timestamp(static_cast< uint64_t >(ts.tv_sec) * 1000000000ULL + ts.tv_nsec);
+    return timestamp(static_cast< uint64_t >(ts.tv_sec) * UINT64_C(1000000000) + ts.tv_nsec);
 }
 
 #       define BOOST_LOG_DEFAULT_GET_TIMESTAMP get_timestamp_monotonic_clock
@@ -278,8 +235,7 @@ BOOST_LOG_API int64_t duration::milliseconds() const
         kern_return_t err = mach_timebase_info(&timebase_info);
         if (err != KERN_SUCCESS)
         {
-            BOOST_THROW_EXCEPTION(boost::system::system_error(
-                err, boost::system::system_category(), "Failed to initialize timebase info"));
+            BOOST_LOG_THROW_DESCR_PARAMS(system_error, "Failed to initialize timebase info", (boost::system::errc::not_supported));
         }
     }
 
@@ -287,11 +243,11 @@ BOOST_LOG_API int64_t duration::milliseconds() const
     if (timebase_info.numer == timebase_info.denom)
     {
         // Timestamps are in nanoseconds
-        return m_ticks / 1000000LL;
+        return m_ticks / INT64_C(1000000);
     }
     else
     {
-        return (m_ticks * timebase_info.numer) / (1000000LL * timebase_info.denom);
+        return (m_ticks * timebase_info.numer) / (INT64_C(1000000) * timebase_info.denom);
     }
 }
 

@@ -65,9 +65,9 @@ namespace
 
 
 
-  std::auto_ptr<request_list> make_request_list_from_py_list(object iterable)
+  std::shared_ptr<request_list> make_request_list_from_py_list(object iterable)
   {
-    std::auto_ptr<request_list> result(new request_list);
+    std::shared_ptr<request_list> result(new request_list);
     std::copy(
         stl_input_iterator<python::request_with_value>(iterable),
         stl_input_iterator<python::request_with_value>(),
@@ -163,10 +163,10 @@ namespace
   {
     check_request_list_not_empty(requests);
     if (py_callable != object())
-      return test_all(requests.begin(), requests.end(), 
-          status_value_iterator(py_callable, requests.begin()));
+      return bool(test_all(requests.begin(), requests.end(), 
+			   status_value_iterator(py_callable, requests.begin())));
     else
-      return test_all(requests.begin(), requests.end());
+      return bool(test_all(requests.begin(), requests.end()));
   }
 
 

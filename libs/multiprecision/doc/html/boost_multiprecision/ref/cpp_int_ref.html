@@ -2,8 +2,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>cpp_int</title>
-<link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="stylesheet" href="../../multiprecision.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Boost.Multiprecision">
 <link rel="up" href="../ref.html" title="Reference">
 <link rel="prev" href="number.html" title="number">
@@ -65,7 +65,7 @@
 <span class="comment">// Over again, but with checking enabled this time:</span>
 <span class="keyword">typedef</span> <span class="identifier">number</span><span class="special">&lt;</span><span class="identifier">cpp_int_backend</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">,</span> <span class="identifier">signed_magnitude</span><span class="special">,</span> <span class="identifier">checked</span><span class="special">&gt;</span> <span class="special">&gt;</span>                 <span class="identifier">checked_cpp_int</span><span class="special">;</span>
 <span class="keyword">typedef</span> <span class="identifier">rational_adaptor</span><span class="special">&lt;</span><span class="identifier">cpp_int_backend</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">,</span> <span class="identifier">signed_magnitude</span><span class="special">,</span> <span class="identifier">checked</span><span class="special">&gt;</span> <span class="special">&gt;</span>       <span class="identifier">checked_cpp_rational_backend</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">number</span><span class="special">&lt;</span><span class="identifier">cpp_rational_backend</span><span class="special">&gt;</span>                                              <span class="identifier">checked_cpp_rational</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">number</span><span class="special">&lt;</span><span class="identifier">checked_cpp_rational_backend</span><span class="special">&gt;</span>                                      <span class="identifier">checked_cpp_rational</span><span class="special">;</span>
 
 <span class="comment">// Checked fixed precision unsigned types:</span>
 <span class="keyword">typedef</span> <span class="identifier">number</span><span class="special">&lt;</span><span class="identifier">cpp_int_backend</span><span class="special">&lt;</span><span class="number">128</span><span class="special">,</span> <span class="number">128</span><span class="special">,</span> <span class="identifier">unsigned_magnitude</span><span class="special">,</span> <span class="identifier">checked</span><span class="special">,</span> <span class="keyword">void</span><span class="special">&gt;</span> <span class="special">&gt;</span>     <span class="identifier">checked_uint128_t</span><span class="special">;</span>
@@ -143,7 +143,8 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2002-2013 John Maddock and Christopher Kormanyos<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2002-2019 John Maddock
+      and Christopher Kormanyos<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

@@ -299,7 +299,7 @@ inline void to_svg(G const& g, std::string const& filename, bool /*sort*/ = true
 
     bg::detail::self_get_turn_points::get_turns
         <
-            TurnPolicy
+            false, TurnPolicy
         >::apply(g, bg::detail::no_rescale_policy(), turns, interrupt_policy);
 
     turns_to_svg<G>(turns, mapper);
@@ -361,7 +361,15 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
 
     if ( sort )
     {
-        typedef bg::detail::relate::turns::less<> less;
+        typedef bg::detail::relate::turns::less
+            <
+                0,
+                bg::detail::relate::turns::less_op_xxx_linear
+                    <
+                        0, bg::detail::relate::turns::op_to_int<>
+                    >,
+                typename bg::cs_tag<G1>::type
+            > less;
         std::sort(boost::begin(turns), boost::end(turns), less());
     }
 

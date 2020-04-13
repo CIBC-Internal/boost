@@ -25,19 +25,19 @@ The only Boost libraries that *must* be built separately are:
 * Boost.GraphParallel_
 * Boost.IOStreams_
 * Boost.Locale_
+* Boost.Log_ (see `build documentation`__)
 * Boost.MPI_
 * Boost.ProgramOptions_
 * Boost.Python_ (see the `Boost.Python build documentation`__
   before building and installing it)
 * Boost.Regex_
 * Boost.Serialization_
-* Boost.Signals_
-* Boost.System_
 * Boost.Thread_
 * Boost.Timer_
 * Boost.Wave_
 
-__ ../../libs/python/doc/building.html
+__ ../../libs/log/doc/html/log/installation/config.html
+__ ../../libs/python/doc/html/building.html
 
 A few libraries have optional separately-compiled binaries:
 
@@ -62,5 +62,9 @@ A few libraries have optional separately-compiled binaries:
   exception_ptr for 32-bit _MSC_VER==1310 and _MSC_VER==1400
   which requires a separately-compiled binary. This is enabled by
   #define BOOST_ENABLE_NON_INTRUSIVE_EXCEPTION_PTR.
+
+* Boost.System_ is header-only since Boost 1.69. A stub library is
+  still built for compatibility, but linking to it is no longer
+  necessary.
 
 __ ../../libs/graph/doc/read_graphviz.html

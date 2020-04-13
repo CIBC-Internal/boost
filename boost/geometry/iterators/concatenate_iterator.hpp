@@ -10,10 +10,8 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 
-#include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits/is_convertible.hpp>
-#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 

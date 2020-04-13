@@ -2,7 +2,7 @@
 //
 //  See http://www.boost.org for most recent version, including documentation.
 //
-//  Copyright Antony Polukhin, 2012.
+//  Copyright Antony Polukhin, 2012-2019.
 //
 //  Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
@@ -22,11 +22,11 @@ void testing_std_array_input_conversion();
 
 using namespace boost;
 
-#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS) && !defined(_LIBCPP_VERSION)
+#if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS) && !defined(_LIBCPP_VERSION) && !defined(BOOST_MSVC)
 #define BOOST_LC_RUNU16
 #endif
 
-#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS) && !defined(_LIBCPP_VERSION)
+#if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS) && !defined(_LIBCPP_VERSION) && !defined(BOOST_MSVC)
 #define BOOST_LC_RUNU32
 #endif
 

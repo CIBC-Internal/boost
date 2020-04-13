@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>posix::basic_stream_descriptor::native_non_blocking (2 of 3 overloads)</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../native_non_blocking.html" title="posix::basic_stream_descriptor::native_non_blocking">
 <link rel="prev" href="overload1.html" title="posix::basic_stream_descriptor::native_non_blocking (1 of 3 overloads)">
@@ -33,8 +33,8 @@
 <p>
             Sets the non-blocking mode of the native descriptor implementation.
           </p>
-<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">native_non_blocking</span><span class="special">(</span>
-    <span class="keyword">bool</span> <span class="identifier">mode</span><span class="special">);</span>
+<pre class="programlisting">void native_non_blocking(
+    bool mode);
 </pre>
 <p>
             This function is used to modify the non-blocking mode of the underlying
@@ -50,9 +50,8 @@
 <dl class="variablelist">
 <dt><span class="term">mode</span></dt>
 <dd><p>
-                  If <code class="computeroutput"><span class="keyword">true</span></code>, the underlying
-                  descriptor is put into non-blocking mode and direct system calls
-                  may fail with <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">error</span><span class="special">::</span><span class="identifier">would_block</span></code>
+                  If <code class="computeroutput">true</code>, the underlying descriptor is put into non-blocking
+                  mode and direct system calls may fail with <code class="computeroutput">boost::asio::error::would_block</code>
                   (or the equivalent system error).
                 </p></dd>
 </dl>
@@ -66,10 +65,9 @@
 <dl class="variablelist">
 <dt><span class="term">boost::system::system_error</span></dt>
 <dd><p>
-                  Thrown on failure. If the <code class="computeroutput"><span class="identifier">mode</span></code>
-                  is <code class="computeroutput"><span class="keyword">false</span></code>, but the
-                  current value of <code class="computeroutput"><span class="identifier">non_blocking</span><span class="special">()</span></code> is <code class="computeroutput"><span class="keyword">true</span></code>,
-                  this function fails with <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">error</span><span class="special">::</span><span class="identifier">invalid_argument</span></code>,
+                  Thrown on failure. If the <code class="computeroutput">mode</code> is <code class="computeroutput">false</code>,
+                  but the current value of <code class="computeroutput">non_blocking()</code> is <code class="computeroutput">true</code>,
+                  this function fails with <code class="computeroutput">boost::asio::error::invalid_argument</code>,
                   as the combination does not make sense.
                 </p></dd>
 </dl>
@@ -77,8 +75,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2019 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

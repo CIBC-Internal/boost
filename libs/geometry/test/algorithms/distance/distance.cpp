@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -12,14 +12,16 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+//#include <boost/geometry/geometry.hpp>
 
 #include <string>
 #include <sstream>
 
 #include "test_distance.hpp"
 
-#include <boost/mpl/if.hpp>
 #include <boost/array.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -29,12 +31,6 @@
 #include <test_common/test_point.hpp>
 #include <test_geometries/custom_segment.hpp>
 #include <test_geometries/wrapped_boost_array.hpp>
-
-// includes for multi-geometries
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
 
 #include <boost/variant/variant.hpp>
 
@@ -82,7 +78,7 @@ void test_distance_point()
 
     {
         // Test custom strategy
-        BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<taxicab_distance, P, P>) );
+        BOOST_CONCEPT_ASSERT( (bg::concepts::PointDistanceStrategy<taxicab_distance, P, P>) );
 
         typedef typename services::return_type<taxicab_distance, P, P>::type cab_return_type;
         BOOST_MPL_ASSERT((boost::is_same<cab_return_type, typename bg::coordinate_type<P>::type>));

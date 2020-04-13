@@ -26,17 +26,17 @@ void foo() {}
 """);
 
 t.run_build_system(subdir="lib")
-t.expect_addition("lib/bin/$toolset/debug/test_lib.dll")
+t.expect_addition("lib/bin/$toolset/debug*/test_lib.dll")
 
 
 # Auto adjusting of suffixes does not work, since we need to
 # change dll to lib.
 if ( ( os.name == "nt" ) or os.uname()[0].lower().startswith("cygwin") ) and \
     ( BoostBuild.get_toolset() != "gcc" ):
-    t.copy("lib/bin/$toolset/debug/test_lib.implib", "lib/test_lib.implib")
-    t.copy("lib/bin/$toolset/debug/test_lib.dll", "lib/test_lib.dll")
+    t.copy("lib/bin/$toolset/debug*/test_lib.implib", "lib/test_lib.implib")
+    t.copy("lib/bin/$toolset/debug*/test_lib.dll", "lib/test_lib.dll")
 else:
-    t.copy("lib/bin/$toolset/debug/test_lib.dll", "lib/test_lib.dll")
+    t.copy("lib/bin/$toolset/debug*/test_lib.dll", "lib/test_lib.dll")
 
 
 # Test that the simplest usage of searched library works.
@@ -65,8 +65,9 @@ helper() { foo(); }
 """)
 
 t.run_build_system(["-d2"])
-t.expect_addition("bin/$toolset/debug/main.exe")
+t.expect_addition("bin/$toolset/debug*/main.exe")
 t.rm("bin/$toolset/debug/main.exe")
+t.rm("bin/$toolset/debug/*/main.exe")
 
 
 # Test that 'unit-test' will correctly add runtime paths to searched libraries.
@@ -83,8 +84,9 @@ lib test_lib : : <name>test_lib <search>lib ;
 """)
 
 t.run_build_system()
-t.expect_addition("bin/$toolset/debug/main.passed")
+t.expect_addition("bin/$toolset/debug*/main.passed")
 t.rm("bin/$toolset/debug/main.exe")
+t.rm("bin/$toolset/debug/*/main.exe")
 
 
 # Now try using searched lib from static lib. Request shared version of searched
@@ -96,9 +98,10 @@ lib test_lib : : <name>test_lib <search>lib ;
 """)
 
 t.run_build_system(stderr=None)
-t.expect_addition("bin/$toolset/debug/main.exe")
-t.expect_addition("bin/$toolset/debug/link-static/helper.lib")
+t.expect_addition("bin/$toolset/debug*/main.exe")
+t.expect_addition("bin/$toolset/debug/link-static*/helper.lib")
 t.rm("bin/$toolset/debug/main.exe")
+t.rm("bin/$toolset/debug/*/main.exe")
 
 # A regression test: <library>property referring to searched-lib was being
 # mishandled. As the result, we were putting target name to the command line!
@@ -167,7 +170,7 @@ lib foobar ;
 """)
 
 t.run_build_system(["-n", "-d2"])
-t.fail_test(string.find(t.stdout(), "foobar") == -1)
+t.fail_test(t.stdout().find("foobar") == -1)
 
 
 # Make sure plain "lib foo bar ; " works.
@@ -177,7 +180,7 @@ lib foo bar ;
 """)
 
 t.run_build_system(["-n", "-d2"])
-t.fail_test(string.find(t.stdout(), "foo") == -1)
-t.fail_test(string.find(t.stdout(), "bar") == -1)
+t.fail_test(t.stdout().find("foo") == -1)
+t.fail_test(t.stdout().find("bar") == -1)
 
 t.cleanup()

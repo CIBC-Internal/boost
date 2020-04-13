@@ -7,14 +7,12 @@
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_CB_DISABLE_DEBUG
-
 #include <boost/circular_buffer.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/timer/timer.hpp>
 #include <boost/call_traits.hpp>
-#include <boost/progress.hpp>
 #include <boost/bind.hpp>
 #include <deque>
 #include <list>
@@ -231,7 +229,7 @@ template<class Buffer>
 void fifo_test(Buffer* buffer) {
 
     // Start of measurement
-    boost::progress_timer progress;
+    boost::timer::auto_cpu_timer progress;
 
     // Initialize the buffer with some values before launching producer and consumer threads.
     for (unsigned long i = QUEUE_SIZE / 2L; i > 0; --i) {

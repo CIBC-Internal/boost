@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////
 //  Copyright 2012 John Maddock. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_
+//  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
-#if !defined(BOOST_NO_CXX11_HDR_ARRAY) && !defined(BOOST_NO_CXX11_LAMBDAS)
+#if !defined(BOOST_NO_CXX11_HDR_ARRAY) && !defined(BOOST_NO_CXX11_LAMBDAS) && !(defined(CI_SUPPRESS_KNOWN_ISSUES) && defined(__GNUC__) && defined(_WIN32))
 
 #include <array>
 

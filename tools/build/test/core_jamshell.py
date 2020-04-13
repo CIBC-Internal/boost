@@ -7,7 +7,7 @@
 import BoostBuild
 import sys
 
-t = BoostBuild.Tester(pass_toolset=False, pass_d0=False)
+t = BoostBuild.Tester(pass_toolset=False)
 
 t.write("file.jam", """
 actions run {
@@ -37,7 +37,8 @@ else
     JAMSHELL on test-py = $(PYTHON) -c ;
 }
 ACTION on test-py = "
-print \\\",\\\".join([str(x) for x in range(3)])
+from __future__ import print_function
+print(\\\",\\\".join([str(x) for x in range(3)]))
 " ;
 run test-py ;
 

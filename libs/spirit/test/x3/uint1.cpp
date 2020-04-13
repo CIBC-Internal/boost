@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2012 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2001-2011 Hartmut Kaiser
     Copyright (c) 2011      Bryce Lelbach
 
@@ -7,6 +7,7 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #include "uint.hpp"
+#include <boost/spirit/home/x3.hpp>
 
 int
 main()
@@ -126,22 +127,22 @@ main()
         BOOST_TEST(test_attr("014567", uint4, u, false) && u == 145);
     }
 
-    // $$$ Not yet implemented $$$
-    //~ ///////////////////////////////////////////////////////////////////////////
-    //~ //  action tests
-    //~ ///////////////////////////////////////////////////////////////////////////
-    //~ {
-        //~ using boost::phoenix::ref;
-        //~ using boost::spirit::x3::_1;
-        //~ using boost::spirit::x3::uint_;
-        //~ using boost::spirit::x3::ascii::space;
-        //~ int n;
+    ///////////////////////////////////////////////////////////////////////////
+    //  action tests
+    ///////////////////////////////////////////////////////////////////////////
+    {
+        using boost::spirit::x3::_attr;
+        using boost::spirit::x3::uint_;
+        using boost::spirit::x3::ascii::space;
+        int n;
 
-        //~ BOOST_TEST(test("123", uint_[ref(n) = _1]));
-        //~ BOOST_TEST(n == 123);
-        //~ BOOST_TEST(test("   456", uint_[ref(n) = _1], space));
-        //~ BOOST_TEST(n == 456);
-    //~ }
+        auto f = [&](auto& ctx){ n = _attr(ctx); };
+
+        BOOST_TEST(test("123", uint_[f]));
+        BOOST_TEST(n == 123);
+        BOOST_TEST(test("   456", uint_[f], space));
+        BOOST_TEST(n == 456);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Check overflow is parse error
@@ -167,6 +168,30 @@ main()
         BOOST_TEST(!test_attr("9999999999", uint32_, u32));
         BOOST_TEST(!test_attr("4294967296", uint32_, u32));
         BOOST_TEST(test_attr("4294967295", uint32_, u32));
+
+        boost::spirit::x3::uint_parser<boost::int8_t> u_int8_;
+
+        BOOST_TEST(!test_attr("999", u_int8_, u8));
+        BOOST_TEST(!test_attr("-1", u_int8_, u8));
+        BOOST_TEST(!test_attr("128", u_int8_, u8));
+        BOOST_TEST(test_attr("127", u_int8_, u8));
+        BOOST_TEST(test_attr("0", u_int8_, u8));
+
+        boost::spirit::x3::uint_parser<boost::int16_t> u_int16_;
+
+        BOOST_TEST(!test_attr("99999", u_int16_, u16));
+        BOOST_TEST(!test_attr("-1", u_int16_, u16));
+        BOOST_TEST(!test_attr("32768", u_int16_, u16));
+        BOOST_TEST(test_attr("32767", u_int16_, u16));
+        BOOST_TEST(test_attr("0", u_int16_, u16));
+
+        boost::spirit::x3::uint_parser<boost::int32_t> u_int32_;
+
+        BOOST_TEST(!test_attr("9999999999", u_int32_, u32));
+        BOOST_TEST(!test_attr("-1", u_int32_, u32));
+        BOOST_TEST(!test_attr("2147483648", u_int32_, u32));
+        BOOST_TEST(test_attr("2147483647", u_int32_, u32));
+        BOOST_TEST(test_attr("0", u_int32_, u32));
     }
 
     ///////////////////////////////////////////////////////////////////////////

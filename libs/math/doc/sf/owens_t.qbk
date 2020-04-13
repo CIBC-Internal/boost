@@ -48,18 +48,18 @@ and is also illustrated by a 3D plot.
 This function is used in the computation of the __skew_normal_distrib.
 It is also used in the computation of bivariate and
 multivariate normal distribution probabilities.
-The return type of this function is computed using the __arg_pomotion_rules:
+The return type of this function is computed using the __arg_promotion_rules:
 the result is of type `double` when T is an integer type, and type T otherwise.
 
 Owen's original paper (page 1077) provides some additional corner cases.
 
-[: ['T(h, 0) = 0]]
+[expression  ['T(h, 0) = 0]]
 
-[:['T(0, a) = [frac12][pi] arctan(a)]]
+[expression ['T(0, a) = [frac12][pi] arctan(a)]]
 
-[:['T(h, 1) = [frac12] G(h) \[1 - G(h)\]]]
+[expression ['T(h, 1) = [frac12] G(h) \[1 - G(h)\]]]
 
-[:['T(h, [infin]) = G(|h|)]]
+[expression ['T(h, [infin]) = G(|h|)]]
 
 where G(h) is the univariate normal with zero mean and unit variance integral from -[infin] to h.  
 
@@ -67,6 +67,8 @@ where G(h) is the univariate normal with zero mean and unit variance integral fr
 
 Over the built-in types and range tested,
 errors are less than 10 * std::numeric_limits<RealType>::epsilon().
+
+[table_owens_t]
 
 [h4 Testing]
 
@@ -85,7 +87,6 @@ where it was not possible to generate any reliable test values
 (all the methods got rejected for one reason or another).
 
 There are also two sets of sanity tests: spot values are computed using __Mathematica and __R.
-
 
 [h4 Implementation]
 

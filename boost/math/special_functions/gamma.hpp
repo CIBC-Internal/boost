@@ -33,6 +33,7 @@
 #include <boost/math/special_functions/detail/unchecked_factorial.hpp>
 #include <boost/math/special_functions/detail/lgamma_small.hpp>
 #include <boost/math/special_functions/bernoulli.hpp>
+#include <boost/math/special_functions/polygamma.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/assert.hpp>
 #include <boost/mpl/greater.hpp>
@@ -162,7 +163,7 @@ T gamma_imp(T z, const Policy& pol, const Lanczos& l)
    {
       if (z < 1 / tools::max_value<T>())
          result = policies::raise_overflow_error<T>(function, 0, pol);
-	   result *= 1 / z - constants::euler<T>();
+      result *= 1 / z - constants::euler<T>();
    }
    else
    {
@@ -238,14 +239,14 @@ T lgamma_imp(T z, const Policy& pol, const Lanczos& l, int* sign = 0)
    }
    else if (z < tools::root_epsilon<T>())
    {
-	   if (0 == z)
-		   return policies::raise_pole_error<T>(function, "Evaluation of lgamma at %1%.", z, pol);
+      if (0 == z)
+         return policies::raise_pole_error<T>(function, "Evaluation of lgamma at %1%.", z, pol);
       if (fabs(z) < 1 / tools::max_value<T>())
          result = -log(fabs(z));
       else
-	      result = log(fabs(1 / z - constants::euler<T>()));
-	   if (z < 0)
-		sresult = -1;
+         result = log(fabs(1 / z - constants::euler<T>()));
+      if (z < 0)
+         sresult = -1;
    }
    else if(z < 15)
    {
@@ -276,7 +277,11 @@ T lgamma_imp(T z, const Policy& pol, const Lanczos& l, int* sign = 0)
       T zgh = static_cast<T>(z + Lanczos::g() - boost::math::constants::half<T>());
       result = log(zgh) - 1;
       result *= z - 0.5f;
-      result += log(Lanczos::lanczos_sum_expG_scaled(z));
+      //
+      // Only add on the lanczos sum part if we're going to need it:
+      //
+      if(result * tools::epsilon<T>() < 20)
+         result += log(Lanczos::lanczos_sum_expG_scaled(z));
    }
 
    if(sign)
@@ -367,13 +372,71 @@ std::size_t highest_bernoulli_index()
 }
 
 template<class T>
-T minimum_argument_for_bernoulli_recursion()
+int minimum_argument_for_bernoulli_recursion()
 {
    const float digits10_of_type = (std::numeric_limits<T>::is_specialized
                                       ? static_cast<float>(std::numeric_limits<T>::digits10)
                                       : static_cast<float>(boost::math::tools::digits<T>() * 0.301F));
 
-   return T(digits10_of_type * 1.7F);
+   const float limit = std::ceil(std::pow(1.0f / std::ldexp(1.0f, 1-boost::math::tools::digits<T>()), 1.0f / 20.0f));
+
+   return (int)((std::min)(digits10_of_type * 1.7F, limit));
+}
+
+template <class T, class Policy>
+T scaled_tgamma_no_lanczos(const T& z, const Policy& pol, bool islog = false)
+{
+   BOOST_MATH_STD_USING
+   //
+   // Calculates tgamma(z) / (z/e)^z
+   // Requires that our argument is large enough for Sterling's approximation to hold.
+   // Used internally when combining gamma's of similar magnitude without logarithms.
+   //
+   BOOST_ASSERT(minimum_argument_for_bernoulli_recursion<T>() <= z);
+
+   // Perform the Bernoulli series expansion of Stirling's approximation.
+
+   const std::size_t number_of_bernoullis_b2n = policies::get_max_series_iterations<Policy>();
+
+   T one_over_x_pow_two_n_minus_one = 1 / z;
+   const T one_over_x2 = one_over_x_pow_two_n_minus_one * one_over_x_pow_two_n_minus_one;
+   T sum = (boost::math::bernoulli_b2n<T>(1) / 2) * one_over_x_pow_two_n_minus_one;
+   const T target_epsilon_to_break_loop = sum * boost::math::tools::epsilon<T>();
+   const T half_ln_two_pi_over_z = sqrt(boost::math::constants::two_pi<T>() / z);
+   T last_term = 2 * sum;
+
+   for (std::size_t n = 2U;; ++n)
+   {
+      one_over_x_pow_two_n_minus_one *= one_over_x2;
+
+      const std::size_t n2 = static_cast<std::size_t>(n * 2U);
+
+      const T term = (boost::math::bernoulli_b2n<T>(static_cast<int>(n)) * one_over_x_pow_two_n_minus_one) / (n2 * (n2 - 1U));
+
+      if ((n >= 3U) && (abs(term) < target_epsilon_to_break_loop))
+      {
+         // We have reached the desired precision in Stirling's expansion.
+         // Adding additional terms to the sum of this divergent asymptotic
+         // expansion will not improve the result.
+
+         // Break from the loop.
+         break;
+      }
+      if (n > number_of_bernoullis_b2n)
+         return policies::raise_evaluation_error("scaled_tgamma_no_lanczos<%1%>()", "Exceeded maximum series iterations without reaching convergence, best approximation was %1%", T(exp(sum) * half_ln_two_pi_over_z), pol);
+
+      sum += term;
+
+      // Sanity check for divergence:
+      T fterm = fabs(term);
+      if(fterm > last_term)
+         return policies::raise_evaluation_error("scaled_tgamma_no_lanczos<%1%>()", "Series became divergent without reaching convergence, best approximation was %1%", T(exp(sum) * half_ln_two_pi_over_z), pol);
+      last_term = fterm;
+   }
+
+   // Complete Stirling's approximation.
+   T scaled_gamma_value = islog ? T(sum + log(half_ln_two_pi_over_z)) : T(exp(sum) * half_ln_two_pi_over_z);
+   return scaled_gamma_value;
 }
 
 // Forward declaration of the lgamma_imp template specialization.
@@ -390,8 +453,8 @@ T gamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&)
    // Check if the argument of tgamma is identically zero.
    const bool is_at_zero = (z == 0);
 
-   if(is_at_zero)
-      return policies::raise_domain_error<T>(function, "Evaluation of tgamma at zero %1%.", z, pol);
+   if((boost::math::isnan)(z) || (is_at_zero) || ((boost::math::isinf)(z) && (z < 0)))
+      return policies::raise_domain_error<T>(function, "Evaluation of tgamma at %1%.", z, pol);
 
    const bool b_neg = (z < 0);
 
@@ -421,7 +484,7 @@ T gamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&)
 
    // Scale the argument up for the calculation of lgamma,
    // and use downward recursion later for the final result.
-   const T min_arg_for_recursion = minimum_argument_for_bernoulli_recursion<T>();
+   const int min_arg_for_recursion = minimum_argument_for_bernoulli_recursion<T>();
 
    int n_recur;
 
@@ -435,13 +498,20 @@ T gamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&)
    {
       n_recur = 0;
    }
-
-   const T log_gamma_value = lgamma_imp(zz, pol, lanczos::undefined_lanczos());
-
-   if(log_gamma_value > tools::log_max_value<T>())
+   if (!n_recur)
+   {
+      if (zz > tools::log_max_value<T>())
+         return policies::raise_overflow_error<T>(function, 0, pol);
+      if (log(zz) * zz / 2 > tools::log_max_value<T>())
+         return policies::raise_overflow_error<T>(function, 0, pol);
+   }
+   T gamma_value = scaled_tgamma_no_lanczos(zz, pol);
+   T power_term = pow(zz, zz / 2);
+   T exp_term = exp(-zz);
+   gamma_value *= (power_term * exp_term);
+   if(!n_recur && (tools::max_value<T>() / power_term < gamma_value))
       return policies::raise_overflow_error<T>(function, 0, pol);
-
-   T gamma_value = exp(log_gamma_value);
+   gamma_value *= power_term;
 
    // Rescale the result using downward recursion if necessary.
    if(n_recur)
@@ -495,6 +565,35 @@ T gamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&)
 }
 
 template <class T, class Policy>
+inline T log_gamma_near_1(const T& z, Policy const& pol)
+{
+   //
+   // This is for the multiprecision case where there is
+   // no lanczos support, use a taylor series at z = 1,
+   // see https://www.wolframalpha.com/input/?i=taylor+series+lgamma(x)+at+x+%3D+1
+   //
+   BOOST_MATH_STD_USING // ADL of std names
+
+   BOOST_ASSERT(fabs(z) < 1);
+
+   T result = -constants::euler<T>() * z;
+
+   T power_term = z * z / 2;
+   int n = 2;
+   T term = 0;
+
+   do
+   {
+      term = power_term * boost::math::polygamma(n - 1, T(1));
+      result += term;
+      ++n;
+      power_term *= z / n;
+   } while (fabs(result) * tools::epsilon<T>() < fabs(term));
+
+   return result;
+}
+
+template <class T, class Policy>
 T lgamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&, int* sign)
 {
    BOOST_MATH_STD_USING
@@ -506,6 +605,10 @@ T lgamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&, int* sig
 
    if(is_at_zero)
       return policies::raise_domain_error<T>(function, "Evaluation of lgamma at zero %1%.", z, pol);
+   if((boost::math::isnan)(z))
+      return policies::raise_domain_error<T>(function, "Evaluation of lgamma at %1%.", z, pol);
+   if((boost::math::isinf)(z))
+      return policies::raise_overflow_error<T>(function, 0, pol);
 
    const bool b_neg = (z < 0);
 
@@ -514,75 +617,58 @@ T lgamma_imp(T z, const Policy& pol, const lanczos::undefined_lanczos&, int* sig
    // Special case handling of small factorials:
    if((!b_neg) && floor_of_z_is_equal_to_z && (z < boost::math::max_factorial<T>::value))
    {
+      if (sign)
+         *sign = 1;
       return log(boost::math::unchecked_factorial<T>(itrunc(z) - 1));
    }
 
    // Make a local, unsigned copy of the input argument.
    T zz((!b_neg) ? z : -z);
 
-   const T min_arg_for_recursion = minimum_argument_for_bernoulli_recursion<T>();
+   const int min_arg_for_recursion = minimum_argument_for_bernoulli_recursion<T>();
 
    T log_gamma_value;
 
    if (zz < min_arg_for_recursion)
    {
-	   // Here we simply take the logarithm of tgamma(). This is somewhat
-	   // inefficient, but simple. The rationale is that the argument here
-	   // is relatively small and overflow is not expected to be likely.
-      if (z > -tools::root_epsilon<T>())
+      // Here we simply take the logarithm of tgamma(). This is somewhat
+      // inefficient, but simple. The rationale is that the argument here
+      // is relatively small and overflow is not expected to be likely.
+      if (sign)
+         * sign = 1;
+      if(fabs(z - 1) < 0.25)
+      {
+         log_gamma_value = log_gamma_near_1(T(zz - 1), pol);
+      }
+      else if(fabs(z - 2) < 0.25)
+      {
+         log_gamma_value = log_gamma_near_1(T(zz - 2), pol) + log(zz - 1);
+      }
+      else if (z > -tools::root_epsilon<T>())
       {
          // Reflection formula may fail if z is very close to zero, let the series
          // expansion for tgamma close to zero do the work:
-         log_gamma_value = log(abs(gamma_imp(z, pol, lanczos::undefined_lanczos())));
          if (sign)
-         {
-             *sign = z < 0 ? -1 : 1;
-         }
-         return log_gamma_value;
+            *sign = z < 0 ? -1 : 1;
+         return log(abs(gamma_imp(z, pol, lanczos::undefined_lanczos())));
       }
-	   else
+      else
       {
          // No issue with spurious overflow in reflection formula, 
          // just fall through to regular code:
-         log_gamma_value = log(abs(gamma_imp(zz, pol, lanczos::undefined_lanczos())));
+         T g = gamma_imp(zz, pol, lanczos::undefined_lanczos());
+         if (sign)
+         {
+            *sign = g < 0 ? -1 : 1;
+         }
+         log_gamma_value = log(abs(g));
       }
    }
    else
    {
       // Perform the Bernoulli series expansion of Stirling's approximation.
-
-      const std::size_t number_of_bernoullis_b2n = highest_bernoulli_index<T>();
-
-            T one_over_x_pow_two_n_minus_one = 1 / zz;
-      const T one_over_x2                    = one_over_x_pow_two_n_minus_one * one_over_x_pow_two_n_minus_one;
-            T sum                            = (boost::math::bernoulli_b2n<T>(1) / 2) * one_over_x_pow_two_n_minus_one;
-      const T target_epsilon_to_break_loop   = (sum * boost::math::tools::epsilon<T>()) * T(1.0E-10F);
-
-      for(std::size_t n = 2U; n < number_of_bernoullis_b2n; ++n)
-      {
-         one_over_x_pow_two_n_minus_one *= one_over_x2;
-
-         const std::size_t n2 = static_cast<std::size_t>(n * 2U);
-
-         const T term = (boost::math::bernoulli_b2n<T>(static_cast<int>(n)) * one_over_x_pow_two_n_minus_one) / (n2 * (n2 - 1U));
-
-         if((n >= 8U) && (abs(term) < target_epsilon_to_break_loop))
-         {
-            // We have reached the desired precision in Stirling's expansion.
-            // Adding additional terms to the sum of this divergent asymptotic
-            // expansion will not improve the result.
-
-            // Break from the loop.
-            break;
-         }
-
-         sum += term;
-      }
-
-      // Complete Stirling's approximation.
-      const T half_ln_two_pi = log(boost::math::constants::two_pi<T>()) / 2;
-
-      log_gamma_value = ((((zz - boost::math::constants::half<T>()) * log(zz)) - zz) + half_ln_two_pi) + sum;
+      T sum = scaled_tgamma_no_lanczos(zz, pol, true);
+      log_gamma_value = zz * (log(zz) - 1) + sum;
    }
 
    int sign_of_result = 1;
@@ -634,7 +720,7 @@ T tgammap1m1_imp(T dz, Policy const& pol, const Lanczos& l)
          mpl::greater<precision_type, mpl::int_<113> >
       >,
       typename mpl::if_<
-         is_same<Lanczos, lanczos::lanczos24m113>,
+         mpl::and_<is_same<Lanczos, lanczos::lanczos24m113>, mpl::greater<precision_type, mpl::int_<0> > >,
          mpl::int_<113>,
          mpl::int_<0>
       >::type,
@@ -680,32 +766,16 @@ T tgammap1m1_imp(T dz, Policy const& pol, const Lanczos& l)
 }
 
 template <class T, class Policy>
-inline T tgammap1m1_imp(T dz, Policy const& pol,
-                 const ::boost::math::lanczos::undefined_lanczos& l)
+inline T tgammap1m1_imp(T z, Policy const& pol,
+                 const ::boost::math::lanczos::undefined_lanczos&)
 {
    BOOST_MATH_STD_USING // ADL of std names
-   //
-   // There should be a better solution than this, but the
-   // algebra isn't easy for the general case....
-   // Start by subracting 1 from tgamma:
-   //
-   T result = gamma_imp(T(1 + dz), pol, l) - 1;
-   BOOST_MATH_INSTRUMENT_CODE(result);
-   //
-   // Test the level of cancellation error observed: we loose one bit
-   // for each power of 2 the result is less than 1.  If we would get
-   // more bits from our most precise lgamma rational approximation, 
-   // then use that instead:
-   //
-   BOOST_MATH_INSTRUMENT_CODE((dz > -0.5));
-   BOOST_MATH_INSTRUMENT_CODE((dz < 2));
-   BOOST_MATH_INSTRUMENT_CODE((ldexp(1.0, boost::math::policies::digits<T, Policy>()) * fabs(result) < 1e34));
-   if((dz > -0.5) && (dz < 2) && (ldexp(1.0, boost::math::policies::digits<T, Policy>()) * fabs(result) < 1e34))
+
+   if(fabs(z) < 0.55)
    {
-      result = tgammap1m1_imp(dz, pol, boost::math::lanczos::lanczos24m113());
-      BOOST_MATH_INSTRUMENT_CODE(result);
+      return boost::math::expm1(log_gamma_near_1(z, pol));
    }
-   return result;
+   return boost::math::expm1(boost::math::lgamma(1 + z, pol));
 }
 
 //
@@ -741,6 +811,8 @@ T full_igamma_prefix(T a, T z, const Policy& pol)
    BOOST_MATH_STD_USING
 
    T prefix;
+   if (z > tools::max_value<T>())
+      return 0;
    T alz = a * log(z);
 
    if(z >= 1)
@@ -790,6 +862,8 @@ template <class T, class Policy, class Lanczos>
 T regularised_gamma_prefix(T a, T z, const Policy& pol, const Lanczos& l)
 {
    BOOST_MATH_STD_USING
+   if (z >= tools::max_value<T>())
+      return 0;
    T agh = a + static_cast<T>(Lanczos::g()) - T(0.5);
    T prefix;
    T d = ((z - a) - static_cast<T>(Lanczos::g()) + T(0.5)) / agh;
@@ -869,49 +943,70 @@ T regularised_gamma_prefix(T a, T z, const Policy& pol, const Lanczos& l)
 // And again, without Lanczos support:
 //
 template <class T, class Policy>
-T regularised_gamma_prefix(T a, T z, const Policy& pol, const lanczos::undefined_lanczos&)
+T regularised_gamma_prefix(T a, T z, const Policy& pol, const lanczos::undefined_lanczos& l)
 {
    BOOST_MATH_STD_USING
 
-   T limit = (std::max)(T(10), a);
-   T sum = detail::lower_gamma_series(a, limit, pol) / a;
-   sum += detail::upper_gamma_fraction(a, limit, ::boost::math::policies::get_epsilon<T, Policy>());
-
-   if(a < 10)
+   if((a < 1) && (z < 1))
    {
-      // special case for small a:
-      T prefix = pow(z / 10, a);
-      prefix *= exp(10-z);
-      if(0 == prefix)
-      {
-         prefix = pow((z * exp((10-z)/a)) / 10, a);
-      }
-      prefix /= sum;
-      return prefix;
+      // No overflow possible since the power terms tend to unity as a,z -> 0
+      return pow(z, a) * exp(-z) / boost::math::tgamma(a, pol);
    }
-
-   T zoa = z / a;
-   T amz = a - z;
-   T alzoa = a * log(zoa);
-   T prefix;
-   if(((std::min)(alzoa, amz) <= tools::log_min_value<T>()) || ((std::max)(alzoa, amz) >= tools::log_max_value<T>()))
+   else if(a > minimum_argument_for_bernoulli_recursion<T>())
    {
-      T amza = amz / a;
-      if((amza <= tools::log_min_value<T>()) || (amza >= tools::log_max_value<T>()))
+      T scaled_gamma = scaled_tgamma_no_lanczos(a, pol);
+      T power_term = pow(z / a, a / 2);
+      T a_minus_z = a - z;
+      if ((0 == power_term) || (fabs(a_minus_z) > tools::log_max_value<T>()))
       {
-         prefix = exp(alzoa + amz);
+         // The result is probably zero, but we need to be sure:
+         return exp(a * log(z / a) + a_minus_z - log(scaled_gamma));
       }
-      else
-      {
-         prefix = pow(zoa * exp(amza), a);
-      }
+      return (power_term * exp(a_minus_z)) * (power_term / scaled_gamma);
    }
    else
    {
-      prefix = pow(zoa, a) * exp(amz);
+      //
+      // Usual case is to calculate the prefix at a+shift and recurse down
+      // to the value we want:
+      //
+      const int min_z = minimum_argument_for_bernoulli_recursion<T>();
+      long shift = 1 + ltrunc(min_z - a);
+      T result = regularised_gamma_prefix(T(a + shift), z, pol, l);
+      if (result != 0)
+      {
+         for (long i = 0; i < shift; ++i)
+         {
+            result /= z;
+            result *= a + i;
+         }
+         return result;
+      }
+      else
+      {
+         // 
+         // We failed, most probably we have z << 1, try again, this time
+         // we calculate z^a e^-z / tgamma(a+shift), combining power terms
+         // as we go.  And again recurse down to the result.
+         //
+         T scaled_gamma = scaled_tgamma_no_lanczos(T(a + shift), pol);
+         T power_term_1 = pow(z / (a + shift), a);
+         T power_term_2 = pow(a + shift, -shift);
+         T power_term_3 = exp(a + shift - z);
+         if ((0 == power_term_1) || (0 == power_term_2) || (0 == power_term_3) || (fabs(a + shift - z) > tools::log_max_value<T>()))
+         {
+            // We have no test case that gets here, most likely the type T
+            // has a high precision but low exponent range:
+            return exp(a * log(z) - z - boost::math::lgamma(a, pol));
+         }
+         result = power_term_1 * power_term_2 * power_term_3 / scaled_gamma;
+         for (long i = 0; i < shift; ++i)
+         {
+            result *= a + i;
+         }
+         return result;
+      }
    }
-   prefix /= sum;
-   return prefix;
 }
 //
 // Upper gamma fraction for very small a:
@@ -1007,6 +1102,37 @@ T finite_half_gamma_q(T a, T x, T* p_derivative, const Policy& pol)
    }
    return e;
 }
+//
+// Asymptotic approximation for large argument, see: https://dlmf.nist.gov/8.11#E2
+//
+template <class T>
+struct incomplete_tgamma_large_x_series
+{
+   typedef T result_type;
+   incomplete_tgamma_large_x_series(const T& a, const T& x)
+      : a_poch(a - 1), z(x), term(1) {}
+   T operator()()
+   {
+      T result = term;
+      term *= a_poch / z;
+      a_poch -= 1;
+      return result;
+   }
+   T a_poch, z, term;
+};
+
+template <class T, class Policy>
+T incomplete_tgamma_large_x(const T& a, const T& x, const Policy& pol)
+{
+   BOOST_MATH_STD_USING
+   incomplete_tgamma_large_x_series<T> s(a, x);
+   boost::uintmax_t max_iter = boost::math::policies::get_max_series_iterations<Policy>();
+   T result = boost::math::tools::sum_series(s, boost::math::policies::get_epsilon<T, Policy>(), max_iter);
+   boost::math::policies::check_series_iterations<T>("boost::math::tgamma<%1%>(%1%,%1%)", max_iter, pol);
+   return result;
+}
+
+
 //
 // Main incomplete gamma entry point, handles all four incomplete gamma's:
 //
@@ -1122,6 +1248,12 @@ T gamma_incomplete_imp(T a, T x, bool normalised, bool invert,
    else if((x < tools::root_epsilon<T>()) && (a > 1))
    {
       eval_method = 6;
+   }
+   else if ((x > 1000) && ((a < x) || (fabs(a - 50) / x < 1)))
+   {
+      // calculate Q via asymptotic approximation:
+      invert = !invert;
+      eval_method = 7;
    }
    else if(x < 0.5)
    {
@@ -1337,7 +1469,22 @@ T gamma_incomplete_imp(T a, T x, bool normalised, bool invert,
          // use http://functions.wolfram.com/GammaBetaErf/GammaRegularized/06/01/05/01/01/
          result = !normalised ? pow(x, a) / (a) : pow(x, a) / boost::math::tgamma(a + 1, pol);
          result *= 1 - a * x / (a + 1);
+         if (p_derivative)
+            *p_derivative = regularised_gamma_prefix(a, x, pol, lanczos_type());
+         break;
       }
+   case 7:
+   {
+      // x is large,
+      // Compute Q:
+      result = normalised ? regularised_gamma_prefix(a, x, pol, lanczos_type()) : full_igamma_prefix(a, x, pol);
+      if (p_derivative)
+         *p_derivative = result;
+      result /= x;
+      if (result != 0)
+         result *= incomplete_tgamma_large_x(a, x, pol);
+      break;
+   }
    }
 
    if(normalised && (result > 1))
@@ -1394,18 +1541,28 @@ T tgamma_delta_ratio_imp_lanczos(T z, T delta, const Policy& pol, const Lanczos&
          return 1 / (z * boost::math::tgamma(z + delta, pol));
       }
    }
-   T zgh = z + Lanczos::g() - constants::half<T>();
+   T zgh = static_cast<T>(z + Lanczos::g() - constants::half<T>());
    T result;
-   if(fabs(delta) < 10)
+   if(z + delta == z)
    {
-      result = exp((constants::half<T>() - z) * boost::math::log1p(delta / zgh, pol));
+      if(fabs(delta) < 10)
+         result = exp((constants::half<T>() - z) * boost::math::log1p(delta / zgh, pol));
+      else
+         result = 1;
    }
    else
    {
-      result = pow(zgh / (zgh + delta), z - constants::half<T>());
+      if(fabs(delta) < 10)
+      {
+         result = exp((constants::half<T>() - z) * boost::math::log1p(delta / zgh, pol));
+      }
+      else
+      {
+         result = pow(zgh / (zgh + delta), z - constants::half<T>());
+      }
+      // Split the calculation up to avoid spurious overflow:
+      result *= Lanczos::lanczos_sum(z) / Lanczos::lanczos_sum(T(z + delta));
    }
-   // Split the calculation up to avoid spurious overflow:
-   result *= Lanczos::lanczos_sum(z) / Lanczos::lanczos_sum(T(z + delta));
    result *= pow(constants::e<T>() / (zgh + delta), delta);
    return result;
 }
@@ -1413,40 +1570,59 @@ T tgamma_delta_ratio_imp_lanczos(T z, T delta, const Policy& pol, const Lanczos&
 // And again without Lanczos support this time:
 //
 template <class T, class Policy>
-T tgamma_delta_ratio_imp_lanczos(T z, T delta, const Policy& pol, const lanczos::undefined_lanczos&)
+T tgamma_delta_ratio_imp_lanczos(T z, T delta, const Policy& pol, const lanczos::undefined_lanczos& l)
 {
    BOOST_MATH_STD_USING
+
    //
-   // The upper gamma fraction is *very* slow for z < 6, actually it's very
-   // slow to converge everywhere but recursing until z > 6 gets rid of the
-   // worst of it's behaviour.
+   // We adjust z and delta so that both z and z+delta are large enough for
+   // Sterling's approximation to hold.  We can then calculate the ratio
+   // for the adjusted values, and rescale back down to z and z+delta.
    //
-   T prefix = 1;
-   T zd = z + delta;
-   while((zd < 6) && (z < 6))
+   // Get the required shifts first:
+   //
+   long numerator_shift = 0;
+   long denominator_shift = 0;
+   const int min_z = minimum_argument_for_bernoulli_recursion<T>();
+   
+   if (min_z > z)
+      numerator_shift = 1 + ltrunc(min_z - z);
+   if (min_z > z + delta)
+      denominator_shift = 1 + ltrunc(min_z - z - delta);
+   //
+   // If the shifts are zero, then we can just combine scaled tgamma's
+   // and combine the remaining terms:
+   //
+   if (numerator_shift == 0 && denominator_shift == 0)
    {
-      prefix /= z;
-      prefix *= zd;
-      z += 1;
-      zd += 1;
+      T scaled_tgamma_num = scaled_tgamma_no_lanczos(z, pol);
+      T scaled_tgamma_denom = scaled_tgamma_no_lanczos(T(z + delta), pol);
+      T result = scaled_tgamma_num / scaled_tgamma_denom;
+      result *= exp(z * boost::math::log1p(-delta / (z + delta), pol)) * pow((delta + z) / constants::e<T>(), -delta);
+      return result;
    }
-   if(delta < 10)
+   //
+   // We're going to have to rescale first, get the adjusted z and delta values,
+   // plus the ratio for the adjusted values:
+   //
+   T zz = z + numerator_shift;
+   T dd = delta - (numerator_shift - denominator_shift);
+   T ratio = tgamma_delta_ratio_imp_lanczos(zz, dd, pol, l);
+   //
+   // Use gamma recurrence relations to get back to the original
+   // z and z+delta:
+   //
+   for (long long i = 0; i < numerator_shift; ++i)
    {
-      prefix *= exp(-z * boost::math::log1p(delta / z, pol));
+      ratio /= (z + i);
+      if (i < denominator_shift)
+         ratio *= (z + delta + i);
    }
-   else
+   for (long long i = numerator_shift; i < denominator_shift; ++i)
    {
-      prefix *= pow(z / zd, z);
+      ratio *= (z + delta + i);
    }
-   prefix *= pow(constants::e<T>() / zd, delta);
-   T sum = detail::lower_gamma_series(z, z, pol) / z;
-   sum += detail::upper_gamma_fraction(z, z, ::boost::math::policies::get_epsilon<T, Policy>());
-   T sumd = detail::lower_gamma_series(zd, zd, pol) / zd;
-   sumd += detail::upper_gamma_fraction(zd, zd, ::boost::math::policies::get_epsilon<T, Policy>());
-   sum /= sumd;
-   if(fabs(tools::max_value<T>() / prefix) < fabs(sum))
-      return policies::raise_overflow_error<T>("boost::math::tgamma_delta_ratio<%1%>(%1%, %1%)", "Result of tgamma is too large to represent.", pol);
-   return sum * prefix;
+   return ratio;
 }
 
 template <class T, class Policy>
@@ -1663,7 +1839,14 @@ struct igamma_initializer
       template <int N>
       static void do_init(const mpl::int_<N>&)
       {
-         boost::math::gamma_p(static_cast<T>(400), static_cast<T>(400), Policy());
+         // If std::numeric_limits<T>::digits is zero, we must not call
+         // our inituialization code here as the precision presumably
+         // varies at runtime, and will not have been set yet.  Plus the
+         // code requiring initialization isn't called when digits == 0.
+         if(std::numeric_limits<T>::digits)
+         {
+            boost::math::gamma_p(static_cast<T>(400), static_cast<T>(400), Policy());
+         }
       }
       static void do_init(const mpl::int_<53>&){}
       void force_instantiate()const{}

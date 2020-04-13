@@ -1,11 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_GET_TURNS_LL_INVARIANCE_HPP
 #define BOOST_GEOMETRY_TEST_GET_TURNS_LL_INVARIANCE_HPP
@@ -14,7 +15,7 @@
 
 #include <boost/geometry/algorithms/reverse.hpp>
 
-#include <boost/geometry/algorithms/detail/signed_index_type.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
@@ -32,6 +33,7 @@ namespace bg_turns = bg_detail::turns;
 
 template
 <
+    bool Enable = true,
     bool EnableRemoveDuplicateTurns = true,
     bool EnableDegenerateTurns = true
 >
@@ -90,10 +92,15 @@ public:
     static inline void apply(Linear1 const& lineargeometry1,
                              Linear2 const& lineargeometry2)
     {
+        typedef typename bg::strategy::relate::services::default_strategy
+            <
+                Linear1, Linear2
+            >::type strategy_type;
+
         typedef typename bg_detail::relate::turns::get_turns
             <
                 Linear1, Linear2
-            >::turn_info turn_info;
+            >::template turn_info_type<strategy_type>::type turn_info;
 
         typedef std::vector<turn_info> turns_container;
 
@@ -132,10 +139,10 @@ public:
                   bg_turns::less_seg_fraction_other_op<>());
 
         std::sort(boost::begin(rturns_all), boost::end(rturns_all),
-                  bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_index_type> >());
+                  bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_size_type> >());
 
         std::sort(boost::begin(rturns_wo_cont), boost::end(rturns_wo_cont),
-                  bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_index_type> >());
+                  bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_size_type> >());
 
         remove_duplicate_turns::apply(turns_all);
         remove_duplicate_turns::apply(turns_wo_cont);
@@ -166,6 +173,17 @@ public:
     }
 };
 
-
+template <bool EnableRemoveDuplicateTurns, bool EnableDegenerateTurns>
+class test_get_turns_ll_invariance
+<
+    false, EnableRemoveDuplicateTurns, EnableDegenerateTurns
+>
+{
+public:
+    template <typename Linear1, typename Linear2>
+    static inline void apply(Linear1 const&, Linear2 const&)
+    {
+    }
+};
 
 #endif // BOOST_GEOMETRY_TEST_GET_TURNS_LL_INVARIANCE_HPP

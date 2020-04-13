@@ -11,9 +11,10 @@
 #include <iostream>
 
 #include <boost/math/concepts/real_concept.hpp>
+#include <boost/math/tools/test.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -36,7 +37,7 @@ void test_pow(T base)
 
     if ((base == 0) && N < 0)
     {
-       BOOST_CHECK_THROW(math::pow<N>(base), std::overflow_error);
+       BOOST_MATH_CHECK_THROW(math::pow<N>(base), std::overflow_error);
     }
     else
     {

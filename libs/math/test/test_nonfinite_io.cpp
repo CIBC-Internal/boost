@@ -13,7 +13,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <libs/math/test/almost_equal.ipp> // Similar to BOOST_CLOSE_FRACTION.
 #include <libs/math/test/s_.ipp> // To create test strings like std::basic_string<CharType> s = S_("0 -0"); 
 #include <boost/math/special_functions/nonfinite_num_facets.hpp>
@@ -266,7 +266,7 @@ template<class CharType, class ValType> void trap_test_get_nan_impl()
   os.imbue(new_locale);
   os.exceptions(std::ios_base::badbit | std::ios_base::failbit); // Enable throwing exceptions.
   double nan =  std::numeric_limits<double>::quiet_NaN();
-  BOOST_CHECK_THROW((os << nan), std::runtime_error);
+  BOOST_MATH_CHECK_THROW((os << nan), std::runtime_error);
   // warning : in "check_trap_nan": exception std::runtime_error is expected
  } //  BOOST_AUTO_TEST_CASE(check_trap_nan)
 
@@ -279,7 +279,7 @@ template<class CharType, class ValType> void trap_test_get_nan_impl()
   os.imbue(new_locale);
   os.exceptions(std::ios_base::badbit | std::ios_base::failbit); // Enable throwing exceptions.
   double inf =  std::numeric_limits<double>::infinity();
-  BOOST_CHECK_THROW((os << inf), std::runtime_error);
+  BOOST_MATH_CHECK_THROW((os << inf), std::runtime_error);
   // warning : in "check_trap_inf": exception std::runtime_error is expected.
  
  } //  BOOST_AUTO_TEST_CASE(check_trap_nan_inf)

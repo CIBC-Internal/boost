@@ -6,10 +6,16 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
+#include <boost/config.hpp>
 
+#ifdef BOOST_MSVC
+// Without this we get hard errors, not warnings:
+#pragma warning(disable:4703)
+#endif
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/iteration_macros.hpp>
+#include <iostream>
 
 enum family { Jeanie, Debbie, Rick, John, Amanda, Margaret, Benjamin, N };
 
@@ -41,7 +47,7 @@ int main()
     else
       std::cout << " is the parent of ";
 
-    BGL_FORALL_ADJACENT(i, j, g, adjacency_list<>)
+    BGL_FORALL_ADJ(i, j, g, adjacency_list<>)
       std::cout << name[get(index_map, j)] << ", ";
     std::cout << std::endl;
   }

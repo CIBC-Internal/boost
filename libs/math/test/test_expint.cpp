@@ -34,19 +34,6 @@ void expected_results()
    // Define the max and mean errors expected for
    // various compilers and platforms.
    //
-   const char* largest_type;
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-   if(boost::math::policies::digits<double, boost::math::policies::policy<> >() == boost::math::policies::digits<long double, boost::math::policies::policy<> >())
-   {
-      largest_type = "(long\\s+)?double";
-   }
-   else
-   {
-      largest_type = "long double";
-   }
-#else
-   largest_type = "(long\\s+)?double";
-#endif
 
    //
    // On MacOS X erfc has much higher error levels than
@@ -139,7 +126,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    test_expint(0.1F, "float");
@@ -153,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 

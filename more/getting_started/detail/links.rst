@@ -11,14 +11,14 @@
 .. _Boost.GraphParallel: ../../libs/graph_parallel/index.html
 .. _Boost.IOStreams: ../../libs/iostreams/index.html
 .. _Boost.Locale: ../../libs/locale/index.html
+.. _Boost.Log: ../../libs/log/index.html
 .. _Boost.Math: ../../libs/math/index.html
 .. _Boost.MPI: ../../libs/mpi/index.html
 .. _Boost.ProgramOptions: ../../libs/program_options/index.html
-.. _Boost.Python: ../../libs/python/doc/building.html
+.. _Boost.Python: ../../libs/python/doc/html/building.html
 .. _Boost.Random: ../../libs/random/index.html
 .. _Boost.Regex: ../../libs/regex/index.html
 .. _Boost.Serialization: ../../libs/serialization/index.html
-.. _Boost.Signals: ../../libs/signals/index.html
 .. _Boost.System: ../../libs/system/index.html
 .. _Boost.Test: ../../libs/test/index.html
 .. _Boost.Thread: ../../libs/thread/index.html

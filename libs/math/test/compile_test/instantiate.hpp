@@ -159,7 +159,9 @@ void instantiate(RealType)
    function_requires<DistributionConcept<dist_test::hypergeometric > >();
 #endif
 #endif
-   int i;
+   int i = 1;
+   // Deal with unused variable warnings:
+   (void)i;
    RealType v1(0.5), v2(0.5), v3(0.5);
    boost::detail::dummy_constructor dc;
    boost::output_iterator_archetype<RealType> oi(dc);
@@ -222,6 +224,7 @@ void instantiate(RealType)
    boost::math::legendre_p(1, v1);
    boost::math::legendre_p(1, 0, v1);
    boost::math::legendre_q(1, v1);
+   boost::math::legendre_p_prime(1, v1);
    boost::math::legendre_next(2, v1, v2, v3);
    boost::math::legendre_next(2, 2, v1, v2, v3);
    boost::math::laguerre(1, v1);
@@ -231,6 +234,11 @@ void instantiate(RealType)
    boost::math::laguerre_next(2, 1, v1, v2, v3);
    boost::math::hermite(1, v1);
    boost::math::hermite_next(2, v1, v2, v3);
+   boost::math::chebyshev_next(v1, v2, v3);
+   boost::math::chebyshev_t(1, v1);
+   boost::math::chebyshev_u(1, v1);
+   boost::math::chebyshev_t_prime(1, v1);
+   boost::math::chebyshev_clenshaw_recurrence(&v1, 0, v2);
    boost::math::spherical_harmonic_r(2, 1, v1, v2);
    boost::math::spherical_harmonic_i(2, 1, v1, v2);
    boost::math::ellint_1(v1);
@@ -297,6 +305,9 @@ void instantiate(RealType)
    boost::math::cyl_bessel_j_zero(v1, i, i, oi);
    boost::math::cyl_neumann_zero(v1, i);
    boost::math::cyl_neumann_zero(v1, i, i, oi);
+   boost::math::lambert_w0(v1);
+   boost::math::lambert_wm1(v1);
+   boost::math::lambert_w0_prime(v1);
 #ifdef TEST_COMPLEX
    boost::math::cyl_hankel_1(v1, v2);
    boost::math::cyl_hankel_1(i, v2);
@@ -316,6 +327,16 @@ void instantiate(RealType)
    boost::math::airy_bi_zero<RealType>(i);
    boost::math::airy_ai_zero<RealType>(i, i, oi);
    boost::math::airy_bi_zero<RealType>(i, i, oi);
+
+   boost::math::hypergeometric_1F0(v1, v2);
+   boost::math::hypergeometric_0F1(v1, v2);
+   boost::math::hypergeometric_2F0(v1, v2, v3);
+#if !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_LAMBDAS) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && !defined(BOOST_NO_CXX11_HDR_TUPLE)
+   boost::math::hypergeometric_1F1(v1, v2, v3);
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+   boost::math::hypergeometric_pFq({ v1 }, { v2 }, v3);
+#endif
+#endif
 
    boost::math::expint(v1);
    boost::math::expint(i);
@@ -345,6 +366,9 @@ void instantiate(RealType)
    boost::math::float_next(v1);
    boost::math::float_prior(v1);
    boost::math::float_distance(v1, v1);
+   boost::math::ulp(v1);
+   boost::math::relative_difference(v1, v2);
+   boost::math::epsilon_difference(v1, v2);
 
    boost::math::unchecked_bernoulli_b2n<RealType>(i);
    boost::math::bernoulli_b2n<RealType>(i);
@@ -413,6 +437,7 @@ void instantiate(RealType)
    boost::math::powm1(v1 * 1, v2 + 0);
    boost::math::legendre_p(1, v1 * 1);
    boost::math::legendre_p(1, 0, v1 * 1);
+   boost::math::legendre_p_prime(1, v1 * 1);
    boost::math::legendre_q(1, v1 * 1);
    boost::math::legendre_next(2, v1 * 1, v2 + 0, v3 / 1);
    boost::math::legendre_next(2, 2, v1 * 1, v2 + 0, v3 / 1);
@@ -423,6 +448,11 @@ void instantiate(RealType)
    boost::math::laguerre_next(2, 1, v1 * 1, v2 + 0, v3 / 1);
    boost::math::hermite(1, v1 * 1);
    boost::math::hermite_next(2, v1 * 1, v2 + 0, v3 / 1);
+   boost::math::chebyshev_next(2 * v1, 1 + v2, 3 * v3);
+   boost::math::chebyshev_t(1, 2 * v1);
+   boost::math::chebyshev_u(1, 2 * v1);
+   boost::math::chebyshev_t_prime(1, 2 * v1);
+   boost::math::chebyshev_clenshaw_recurrence(&v1, 0, 2 * v2);
    boost::math::spherical_harmonic_r(2, 1, v1 * 1, v2 + 0);
    boost::math::spherical_harmonic_i(2, 1, v1 * 1, v2 + 0);
    boost::math::ellint_1(v1 * 1);
@@ -489,6 +519,9 @@ void instantiate(RealType)
    boost::math::cyl_bessel_j_zero(v1 * 1, i, i, oi);
    boost::math::cyl_neumann_zero(v1 * 1, i);
    boost::math::cyl_neumann_zero(v1 * 1, i, i, oi);
+   boost::math::lambert_w0(v1 * 1);
+   boost::math::lambert_wm1(v1 * 1);
+   boost::math::lambert_w0_prime(v1 * 1);
 #ifdef TEST_COMPLEX
    boost::math::cyl_hankel_1(v1, v2);
    boost::math::cyl_hankel_1(i, v2);
@@ -531,6 +564,9 @@ void instantiate(RealType)
    boost::math::float_next(v1 * 1);
    boost::math::float_prior(v1 * 1);
    boost::math::float_distance(v1 * 1, v1 * 1);
+   boost::math::ulp(v1 * 1);
+   boost::math::relative_difference(v1 * 1, v2 * 1);
+   boost::math::epsilon_difference(v1 * 1, v2 * 1);
 #endif
 #ifndef BOOST_MATH_INSTANTIATE_MINIMUM
 #ifdef TEST_GROUP_5
@@ -586,6 +622,7 @@ void instantiate(RealType)
    boost::math::powm1(v1, v2, pol);
    boost::math::legendre_p(1, v1, pol);
    boost::math::legendre_p(1, 0, v1, pol);
+   boost::math::legendre_p_prime(1, v1 * 1, pol);
    boost::math::legendre_q(1, v1, pol);
    boost::math::legendre_next(2, v1, v2, v3);
    boost::math::legendre_next(2, 2, v1, v2, v3);
@@ -595,6 +632,9 @@ void instantiate(RealType)
    boost::math::laguerre_next(2, 1, v1, v2, v3);
    boost::math::hermite(1, v1, pol);
    boost::math::hermite_next(2, v1, v2, v3);
+   boost::math::chebyshev_t(1, v1, pol);
+   boost::math::chebyshev_u(1, v1, pol);
+   boost::math::chebyshev_t_prime(1, v1, pol);
    boost::math::spherical_harmonic_r(2, 1, v1, v2, pol);
    boost::math::spherical_harmonic_i(2, 1, v1, v2, pol);
    boost::math::ellint_1(v1, pol);
@@ -661,6 +701,9 @@ void instantiate(RealType)
    boost::math::cyl_bessel_j_zero(v1, i, i, oi, pol);
    boost::math::cyl_neumann_zero(v1, i, pol);
    boost::math::cyl_neumann_zero(v1, i, i, oi, pol);
+   boost::math::lambert_w0(v1, pol);
+   boost::math::lambert_wm1(v1, pol);
+   boost::math::lambert_w0_prime(v1, pol);
 #ifdef TEST_COMPLEX
    boost::math::cyl_hankel_1(v1, v2, pol);
    boost::math::cyl_hankel_1(i, v2, pol);
@@ -680,6 +723,21 @@ void instantiate(RealType)
    boost::math::airy_bi_zero<RealType>(i, pol);
    boost::math::airy_ai_zero<RealType>(i, i, oi, pol);
    boost::math::airy_bi_zero<RealType>(i, i, oi, pol);
+
+   boost::math::hypergeometric_1F0(i, v2, pol);
+   boost::math::hypergeometric_1F0(v1, i, pol);
+   boost::math::hypergeometric_1F0(i, i, pol);
+   boost::math::hypergeometric_0F1(i, v2, pol);
+   boost::math::hypergeometric_0F1(v1, i, pol);
+   boost::math::hypergeometric_0F1(i, i, pol);
+   boost::math::hypergeometric_2F0(i, v2, v3, pol);
+   boost::math::hypergeometric_2F0(v1, i, v3, pol);
+   boost::math::hypergeometric_2F0(v1, v2, i, pol);
+#if !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_LAMBDAS) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && !defined(BOOST_NO_CXX11_HDR_TUPLE)
+   boost::math::hypergeometric_1F1(i, v2, v3, pol);
+   boost::math::hypergeometric_1F1(v1, i, v3, pol);
+   boost::math::hypergeometric_1F1(v1, v2, i, pol);
+#endif
 
    boost::math::expint(v1, pol);
    boost::math::expint(i, pol);
@@ -713,6 +771,7 @@ void instantiate(RealType)
    boost::math::float_next(v1, pol);
    boost::math::float_prior(v1, pol);
    boost::math::float_distance(v1, v1, pol);
+   boost::math::ulp(v1, pol);
 
    boost::math::bernoulli_b2n<RealType>(i, pol);
    boost::math::bernoulli_b2n<RealType>(i, i, &v1, pol);
@@ -780,6 +839,7 @@ void instantiate(RealType)
    test::powm1(v1, v2);
    test::legendre_p(1, v1);
    test::legendre_p(1, 0, v1);
+   test::legendre_p_prime(1, v1 * 1);
    test::legendre_q(1, v1);
    test::legendre_next(2, v1, v2, v3);
    test::legendre_next(2, 2, v1, v2, v3);
@@ -789,6 +849,11 @@ void instantiate(RealType)
    test::laguerre_next(2, 1, v1, v2, v3);
    test::hermite(1, v1);
    test::hermite_next(2, v1, v2, v3);
+   test::chebyshev_next(v1, v2, v3);
+   test::chebyshev_t(1, v1);
+   test::chebyshev_u(1, v1);
+   test::chebyshev_t_prime(1, v1);
+   test::chebyshev_clenshaw_recurrence(&v1, 0, v2);
    test::spherical_harmonic_r(2, 1, v1, v2);
    test::spherical_harmonic_i(2, 1, v1, v2);
    test::ellint_1(v1);
@@ -855,6 +920,9 @@ void instantiate(RealType)
    test::cyl_bessel_j_zero(v1, i, i, oi);
    test::cyl_neumann_zero(v1, i);
    test::cyl_neumann_zero(v1, i, i, oi);
+   test::lambert_w0(v1);
+   test::lambert_wm1(v1);
+   test::lambert_w0_prime(v1);
 #ifdef TEST_COMPLEX
    test::cyl_hankel_1(v1, v2);
    test::cyl_hankel_1(i, v2);
@@ -874,6 +942,13 @@ void instantiate(RealType)
    test::airy_bi_zero<RealType>(i);
    test::airy_ai_zero<RealType>(i, i, oi);
    test::airy_bi_zero<RealType>(i, i, oi);
+
+   test::hypergeometric_1F0(v1, v2);
+   test::hypergeometric_0F1(v1, v2);
+   test::hypergeometric_2F0(v1, v1, v2);
+#if !defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) && !defined(BOOST_NO_CXX11_LAMBDAS) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && !defined(BOOST_NO_CXX11_HDR_TUPLE)
+   test::hypergeometric_1F1(v1, v2, v2);
+#endif
 
    test::expint(v1);
    test::expint(i);
@@ -901,6 +976,7 @@ void instantiate(RealType)
    test::float_next(v1);
    test::float_prior(v1);
    test::float_distance(v1, v1);
+   test::ulp(v1);
 #endif
 #endif
 }
@@ -912,14 +988,21 @@ void instantiate_mixed(RealType)
    using namespace boost::math;
 #ifndef BOOST_MATH_INSTANTIATE_MINIMUM
    int i = 1;
+   (void)i;
    long l = 1;
+   (void)l;
    short s = 1;
+   (void)s;
    float fr = 0.5F;
+   (void)fr;
    double dr = 0.5;
+   (void)dr;
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
    long double lr = 0.5L;
+   (void)lr;
 #else
    double lr = 0.5L;
+   (void)lr;
 #endif
 #ifdef TEST_GROUP_7
    boost::math::tgamma(i);
@@ -995,6 +1078,9 @@ void instantiate_mixed(RealType)
    boost::math::laguerre(2, 1, i);
    boost::math::laguerre(2u, 1u, s);
    boost::math::hermite(1, s);
+   boost::math::chebyshev_t(1, i);
+   boost::math::chebyshev_u(1, i);
+   boost::math::chebyshev_t_prime(1, i);
    boost::math::spherical_harmonic_r(2, 1, s, i);
    boost::math::spherical_harmonic_i(2, 1, fr, lr);
    boost::math::ellint_1(i);
@@ -1143,6 +1229,9 @@ void instantiate_mixed(RealType)
    boost::math::laguerre(2, 1, i, pol);
    boost::math::laguerre(2u, 1u, s, pol);
    boost::math::hermite(1, s, pol);
+   boost::math::chebyshev_t(1, i, pol);
+   boost::math::chebyshev_u(1, i, pol);
+   boost::math::chebyshev_t_prime(1, i, pol);
    boost::math::spherical_harmonic_r(2, 1, s, i, pol);
    boost::math::spherical_harmonic_i(2, 1, fr, lr, pol);
    boost::math::ellint_1(i, pol);
@@ -1219,6 +1308,9 @@ void instantiate_mixed(RealType)
    boost::math::sph_neumann_prime(i, i, pol);
    boost::math::owens_t(fr, dr, pol);
    boost::math::owens_t(i, s, pol);
+   boost::math::lambert_w0(i, pol);
+   boost::math::lambert_wm1(i, pol);
+   boost::math::lambert_w0_prime(i, pol);
 #endif
 #ifdef TEST_GROUP_8
    test::tgamma(i);
@@ -1294,6 +1386,9 @@ void instantiate_mixed(RealType)
    test::laguerre(2, 1, i);
    test::laguerre(2u, 1u, s);
    test::hermite(1, s);
+   test::chebyshev_t(1, i);
+   test::chebyshev_u(1, i);
+   test::chebyshev_t_prime(1, s);
    test::spherical_harmonic_r(2, 1, s, i);
    test::spherical_harmonic_i(2, 1, fr, lr);
    test::ellint_1(i);
@@ -1362,10 +1457,12 @@ void instantiate_mixed(RealType)
    test::airy_bi_prime(i);
    test::owens_t(fr, dr);
    test::owens_t(i, s);
+   boost::math::lambert_w0(i);
+   boost::math::lambert_wm1(i);
+   boost::math::lambert_w0_prime(i);
 #endif
 #endif
 }
 
 
 #endif // BOOST_LIBS_MATH_TEST_INSTANTIATE_HPP
-

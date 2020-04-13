@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>ip::multicast::enable_loopback</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../reference.html" title="Reference">
 <link rel="prev" href="ip__icmp/v6.html" title="ip::icmp::v6">
@@ -27,12 +27,12 @@
 <a name="boost_asio.reference.ip__multicast__enable_loopback"></a><a class="link" href="ip__multicast__enable_loopback.html" title="ip::multicast::enable_loopback">ip::multicast::enable_loopback</a>
 </h3></div></div></div>
 <p>
-        <a class="indexterm" name="idp148309632"></a> 
-Socket option determining whether outgoing
-        multicast packets will be received on the same socket if it is a member of
-        the multicast group.
+        <a class="indexterm" name="boost_asio.indexterm.ip__multicast__enable_loopback"></a> 
+Socket
+        option determining whether outgoing multicast packets will be received on
+        the same socket if it is a member of the multicast group.
       </p>
-<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">implementation_defined</span> <span class="identifier">enable_loopback</span><span class="special">;</span>
+<pre class="programlisting">typedef implementation_defined enable_loopback;
 </pre>
 <p>
         Implements the IPPROTO_IP/IP_MULTICAST_LOOP socket option.
@@ -44,19 +44,19 @@ Socket option determining whether outgoing
 <p>
         Setting the option:
       </p>
-<pre class="programlisting"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">);</span>
-<span class="special">...</span>
-<span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">multicast</span><span class="special">::</span><span class="identifier">enable_loopback</span> <span class="identifier">option</span><span class="special">(</span><span class="keyword">true</span><span class="special">);</span>
-<span class="identifier">socket</span><span class="special">.</span><span class="identifier">set_option</span><span class="special">(</span><span class="identifier">option</span><span class="special">);</span>
+<pre class="programlisting">boost::asio::ip::udp::socket socket(my_context);
+...
+boost::asio::ip::multicast::enable_loopback option(true);
+socket.set_option(option);
 </pre>
 <p>
         Getting the current option value:
       </p>
-<pre class="programlisting"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">);</span>
-<span class="special">...</span>
-<span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">multicast</span><span class="special">::</span><span class="identifier">enable_loopback</span> <span class="identifier">option</span><span class="special">;</span>
-<span class="identifier">socket</span><span class="special">.</span><span class="identifier">get_option</span><span class="special">(</span><span class="identifier">option</span><span class="special">);</span>
-<span class="keyword">bool</span> <span class="identifier">is_set</span> <span class="special">=</span> <span class="identifier">option</span><span class="special">.</span><span class="identifier">value</span><span class="special">();</span>
+<pre class="programlisting">boost::asio::ip::udp::socket socket(my_context);
+...
+boost::asio::ip::multicast::enable_loopback option;
+socket.get_option(option);
+bool is_set = option.value();
 </pre>
 <h5>
 <a name="boost_asio.reference.ip__multicast__enable_loopback.h1"></a>
@@ -71,8 +71,7 @@ Socket option determining whether outgoing
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2019 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

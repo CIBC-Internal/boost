@@ -5,20 +5,20 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //
-// read_graphviz_new.cpp - 
+// read_graphviz_new.cpp -
 //   Initialize a model of the BGL's MutableGraph concept and an associated
 //  collection of property maps using a graph expressed in the GraphViz
-// DOT Language.  
+// DOT Language.
 //
 //   Based on the grammar found at:
-//   http://www.graphviz.org/cvs/doc/info/lang.html
+//   https://web.archive.org/web/20041213234742/http://www.graphviz.org/cvs/doc/info/lang.html
 //
 //   Jeremiah rewrite used grammar found at:
 //   http://www.graphviz.org/doc/info/lang.html
 //   and page 34 or http://www.graphviz.org/pdf/dotguide.pdf
 //
 //   See documentation for this code at: 
-//     http://www.boost.org/libs/graph/doc/read-graphviz.html
+//     http://www.boost.org/libs/graph/doc/read_graphviz.html
 //
 
 // Author: Jeremiah Willcock
@@ -726,8 +726,8 @@ namespace read_graphviz_detail {
             }
             default: error("Wanted identifier as name of attribute");
           }
-          if (peek().type == token::comma) {get(); continue;}
-          break;
+          if (peek().type == token::comma || peek().type == token::semicolon) get();
+          else if(peek().type == token::right_bracket) break;
         }
         if (peek().type == token::right_bracket) get(); else error("Wanted right bracket to end attribute list");
         if (peek().type != token::left_bracket) break;

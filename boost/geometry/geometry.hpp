@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -31,7 +31,6 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -61,7 +60,10 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/crosses.hpp>
+#include <boost/geometry/algorithms/densify.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
+#include <boost/geometry/algorithms/discrete_frechet_distance.hpp>
+#include <boost/geometry/algorithms/discrete_hausdorff_distance.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -70,9 +72,11 @@
 #include <boost/geometry/algorithms/for_each.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/is_simple.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
+#include <boost/geometry/algorithms/line_interpolate.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
@@ -80,6 +84,8 @@
 #include <boost/geometry/algorithms/num_segments.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/relation.hpp>
 #include <boost/geometry/algorithms/remove_spikes.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
@@ -90,12 +96,10 @@
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-// Include multi a.o. because it can give weird effects
-// if you don't (e.g. area=0 of a multipolygon)
-#include <boost/geometry/multi/multi.hpp>
-
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/srs/srs.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -111,7 +115,7 @@
 #include <boost/geometry/io/io.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
-#include <boost/geometry/io/svg/write_svg.hpp>
+#include <boost/geometry/io/svg/write.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 

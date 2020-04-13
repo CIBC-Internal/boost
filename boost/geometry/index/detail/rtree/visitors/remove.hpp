@@ -2,7 +2,11 @@
 //
 // R-tree removing visitor implementation
 //
-// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+//
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,7 +17,7 @@
 
 #include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
 
-#include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
@@ -71,9 +75,9 @@ public:
         internal_size_type child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            if ( geometry::covered_by(
-                    return_ref_or_bounds(m_translator(m_value)),
-                    children[child_node_index].first) )
+            if ( index::detail::covered_by_bounds(m_translator(m_value),
+                                                  children[child_node_index].first,
+                                                  index::detail::get_strategy(m_parameters)) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);                                                            // MAY THROW
@@ -97,6 +101,9 @@ public:
                 size_type relative_level = m_leafs_level - m_current_level;
 
                 // move node to the container - store node's relative level as well and return new underflow state
+                // NOTE: if the min elements number is 1, then after an underflow
+                //       here the child elements count is 0, so it's not required to store this node,
+                //       it could just be destroyed
                 m_is_underflow = store_underflowed_node(elements, underfl_el_it, relative_level);                       // MAY THROW (E: alloc, copy)
             }
 
@@ -109,7 +116,8 @@ public:
                 BOOST_GEOMETRY_INDEX_ASSERT((elements.size() < m_parameters.get_min_elements()) == m_is_underflow, "unexpected state");
 
                 rtree::elements(*m_parent)[m_current_child_index].first
-                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
+                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator,
+                                               index::detail::get_strategy(m_parameters));
             }
             // n is root node
             else
@@ -120,10 +128,16 @@ public:
                 reinsert_removed_nodes_elements();                                                                  // MAY THROW (V, E: alloc, copy, N: alloc)
 
                 // shorten the tree
-                if ( rtree::elements(n).size() == 1 )
+                // NOTE: if the min elements number is 1, then after underflow
+                //       here the number of elements may be equal to 0
+                //       this can occur only for the last removed element
+                if ( rtree::elements(n).size() <= 1 )
                 {
                     node_pointer root_to_destroy = m_root_node;
-                    m_root_node = rtree::elements(n)[0].second;
+                    if ( rtree::elements(n).size() == 0 )
+                        m_root_node = 0;
+                    else
+                        m_root_node = rtree::elements(n)[0].second;
                     --m_leafs_level;
 
                     rtree::destroy_node<Allocators, internal_node>::apply(m_allocators, root_to_destroy);
@@ -136,11 +150,11 @@ public:
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type & elements = rtree::elements(n);
-
+        
         // find value and remove it
         for ( typename elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
         {
-            if ( m_translator.equals(*it, m_value) )
+            if ( m_translator.equals(*it, m_value, index::detail::get_strategy(m_parameters)) )
             {
                 rtree::move_from_back(elements, it);                                                           // MAY THROW (V: copy)
                 elements.pop_back();
@@ -161,7 +175,8 @@ public:
             if ( 0 != m_parent )
             {
                 rtree::elements(*m_parent)[m_current_child_index].first
-                    = rtree::elements_box<Box>(elements.begin(), elements.end(), m_translator);
+                    = rtree::values_box<Box>(elements.begin(), elements.end(), m_translator,
+                                             index::detail::get_strategy(m_parameters));
             }
         }
     }

@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -15,8 +16,7 @@
 #include <iterator>
 #include <utility>
 
-#include <boost/assert.hpp>
-
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
@@ -54,16 +54,26 @@ private:
                              QueryRangeIterator& qit_min,
                              Distance& dist_min)
     {
-        typedef index::rtree<RTreeValueType, index::linear<8> > rtree_type;
+        typedef strategy::index::services::from_strategy
+            <
+                Strategy
+            > index_strategy_from;
+        typedef index::parameters
+            <
+                index::linear<8>, typename index_strategy_from::type
+            > index_parameters_type;
+        typedef index::rtree<RTreeValueType, index_parameters_type> rtree_type;
 
-        BOOST_ASSERT( rtree_first != rtree_last );
-        BOOST_ASSERT( queries_first != queries_last );
+        BOOST_GEOMETRY_ASSERT( rtree_first != rtree_last );
+        BOOST_GEOMETRY_ASSERT( queries_first != queries_last );
 
         Distance const zero = Distance(0);
         dist_min = zero;
 
         // create -- packing algorithm
-        rtree_type rt(rtree_first, rtree_last);
+        rtree_type rt(rtree_first, rtree_last,
+                      index_parameters_type(index::linear<8>(),
+                                            index_strategy_from::get(strategy)));
 
         RTreeValueType t_v;
         bool first = true;
@@ -73,13 +83,13 @@ private:
         {
             std::size_t n = rt.query(index::nearest(*qit, 1), &t_v);
 
-            BOOST_ASSERT( n > 0 );
-            // n above is unused outside BOOST_ASSERT, hence the call
-            // to boost::ignore_unused below
+            BOOST_GEOMETRY_ASSERT( n > 0 );
+            // n above is unused outside BOOST_GEOMETRY_ASSERT,
+            // hence the call to boost::ignore_unused below
             //
             // however, t_v (initialized by the call to rt.query(...))
             // is used below, which is why we cannot put the call to
-            // rt.query(...) inside BOOST_ASSERT
+            // rt.query(...) inside BOOST_GEOMETRY_ASSERT
             boost::ignore_unused(n);
 
             Distance dist = dispatch::distance

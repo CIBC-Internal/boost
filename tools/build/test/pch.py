@@ -6,6 +6,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 import BoostBuild
+from time import sleep
 
 
 t = BoostBuild.Tester()
@@ -22,6 +23,7 @@ THIS WILL NOT COMPILE
 
 # Note that pch.hpp is written after pch.hpp.bad, so its timestamp will not be
 # less than timestamp of pch.hpp.bad.
+sleep(1)
 t.write("pch.hpp", """
 class TestClass
 {
@@ -38,7 +40,7 @@ int main() { TestClass c(1, 2); }
 """)
 
 t.run_build_system()
-t.expect_addition("bin/$toolset/debug/hello.exe")
+t.expect_addition("bin/$toolset/debug*/hello.exe")
 
 
 # Now make the header unusable, without changing timestamp. If everything is OK,
@@ -48,8 +50,9 @@ t.expect_addition("bin/$toolset/debug/hello.exe")
 t.copy_preserving_timestamp("pch.hpp.bad", "pch.hpp")
 
 t.rm("bin/$toolset/debug/hello.obj")
+t.rm("bin/$toolset/debug/*/hello.obj")
 
 t.run_build_system()
-t.expect_addition("bin/$toolset/debug/hello.obj")
+t.expect_addition("bin/$toolset/debug*/hello.obj")
 
 t.cleanup()

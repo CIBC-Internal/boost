@@ -109,6 +109,11 @@ struct fe_range_per_segment_with_closure
         typedef typename boost::range_iterator<Range>::type iterator_type;
 
         iterator_type it = boost::begin(range);
+        if (it == boost::end(range))
+        {
+            return;
+        }
+
         iterator_type previous = it++;
         while(it != boost::end(range))
         {
@@ -337,7 +342,7 @@ struct for_each_segment<MultiGeometry, multi_tag>
 template<typename Geometry, typename Functor>
 inline Functor for_each_point(Geometry& geometry, Functor f)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
 
     dispatch::for_each_point<Geometry>::apply(geometry, f);
     return f;
@@ -360,7 +365,7 @@ inline Functor for_each_point(Geometry& geometry, Functor f)
 template<typename Geometry, typename Functor>
 inline Functor for_each_segment(Geometry& geometry, Functor f)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
 
     dispatch::for_each_segment<Geometry>::apply(geometry, f);
     return f;

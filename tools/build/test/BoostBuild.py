@@ -5,6 +5,8 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+from __future__ import print_function
+
 import TestCmd
 
 import copy
@@ -15,7 +17,10 @@ import os
 import os.path
 import re
 import shutil
-import StringIO
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 import subprocess
 import sys
 import tempfile
@@ -25,6 +30,15 @@ import tree
 import types
 
 from xml.sax.saxutils import escape
+
+try:
+    from functools import reduce
+except:
+    pass
+
+
+def isstr(data):
+    return isinstance(data, (type(''), type(u'')))
 
 
 class TestEnvironmentError(Exception):
@@ -37,13 +51,13 @@ annotations = []
 def print_annotation(name, value, xml):
     """Writes some named bits of information about the current test run."""
     if xml:
-        print escape(name) + " {{{"
-        print escape(value)
-        print "}}}"
+        print(escape(name) + " {{{")
+        print(escape(value))
+        print("}}}")
     else:
-        print name + " {{{"
-        print value
-        print "}}}"
+        print(name + " {{{")
+        print(value)
+        print("}}}")
 
 
 def flush_annotations(xml=0):
@@ -92,28 +106,39 @@ def get_toolset():
 cygwin = hasattr(os, "uname") and os.uname()[0].lower().startswith("cygwin")
 windows = cygwin or os.environ.get("OS", "").lower().startswith("windows")
 
+if cygwin:
+    default_os = "cygwin"
+elif windows:
+    default_os = "windows"
+elif hasattr(os, "uname"):
+    default_os = os.uname()[0].lower()
 
-def prepare_prefixes_and_suffixes(toolset):
-    prepare_suffix_map(toolset)
-    prepare_library_prefix(toolset)
+def prepare_prefixes_and_suffixes(toolset, target_os=default_os):
+    prepare_suffix_map(toolset, target_os)
+    prepare_library_prefix(toolset, target_os)
 
 
-def prepare_suffix_map(toolset):
+def prepare_suffix_map(toolset, target_os=default_os):
     """
       Set up suffix translation performed by the Boost Build testing framework
-    to accomodate different toolsets generating targets of the same type using
+    to accommodate different toolsets generating targets of the same type using
     different filename extensions (suffixes).
 
     """
     global suffixes
     suffixes = {}
-    if windows:
+    if target_os == "cygwin":
+        suffixes[".lib"] = ".a"
+        suffixes[".obj"] = ".o"
+        suffixes[".implib"] = ".lib.a"
+    elif target_os == "windows":
         if toolset == "gcc":
-            suffixes[".lib"] = ".a"  # mingw static libs use suffix ".a".
+            # MinGW
+            suffixes[".lib"] = ".a"
             suffixes[".obj"] = ".o"
-        if cygwin:
-            suffixes[".implib"] = ".lib.a"
+            suffixes[".implib"] = ".dll.a"
         else:
+            # Everything else Windows
             suffixes[".implib"] = ".lib"
     else:
         suffixes[".exe"] = ""
@@ -122,11 +147,11 @@ def prepare_suffix_map(toolset):
         suffixes[".obj"] = ".o"
         suffixes[".implib"] = ".no_implib_files_on_this_platform"
 
-        if hasattr(os, "uname") and os.uname()[0] == "Darwin":
+        if target_os == "darwin":
             suffixes[".dll"] = ".dylib"
 
 
-def prepare_library_prefix(toolset):
+def prepare_library_prefix(toolset, target_os=default_os):
     """
       Setup whether Boost Build is expected to automatically prepend prefixes
     to its built library targets.
@@ -136,9 +161,9 @@ def prepare_library_prefix(toolset):
     lib_prefix = "lib"
 
     global dll_prefix
-    if cygwin:
+    if target_os == "cygwin":
         dll_prefix = "cyg"
-    elif windows and toolset != "gcc":
+    elif target_os == "windows" and toolset != "gcc":
         dll_prefix = None
     else:
         dll_prefix = "lib"
@@ -146,7 +171,7 @@ def prepare_library_prefix(toolset):
 
 def re_remove(sequence, regex):
     me = re.compile(regex)
-    result = filter(lambda x: me.match(x), sequence)
+    result = list(filter(lambda x: me.match(x), sequence))
     if not result:
         raise ValueError()
     for r in result:
@@ -154,7 +179,7 @@ def re_remove(sequence, regex):
 
 
 def glob_remove(sequence, pattern):
-    result = fnmatch.filter(sequence, pattern)
+    result = list(fnmatch.filter(sequence, pattern))
     if not result:
         raise ValueError()
     for r in result:
@@ -206,14 +231,14 @@ class Tester(TestCmd.TestCmd):
                                     system output like the --verbose command
                                     line option does.
     """
-    def __init__(self, arguments=None, executable="bjam",
+    def __init__(self, arguments=None, executable="b2",
         match=TestCmd.match_exact, boost_build_path=None,
         translate_suffixes=True, pass_toolset=True, use_test_config=True,
-        ignore_toolset_requirements=True, workdir="", pass_d0=True,
+        ignore_toolset_requirements=False, workdir="", pass_d0=False,
         **keywords):
 
         assert arguments.__class__ is not str
-        self.original_workdir = os.getcwd()
+        self.original_workdir = os.path.dirname(__file__)
         if workdir and not os.path.isabs(workdir):
             raise ("Parameter workdir <%s> must point to an absolute "
                 "directory: " % workdir)
@@ -232,48 +257,12 @@ class Tester(TestCmd.TestCmd):
 
         if not use_default_bjam:
             jam_build_dir = ""
-            if os.name == "nt":
-                jam_build_dir = "bin.ntx86"
-            elif (os.name == "posix") and os.__dict__.has_key("uname"):
-                if os.uname()[0].lower().startswith("cygwin"):
-                    jam_build_dir = "bin.cygwinx86"
-                    if ("TMP" in os.environ and
-                        os.environ["TMP"].find("~") != -1):
-                        print("Setting $TMP to /tmp to get around problem "
-                            "with short path names")
-                        os.environ["TMP"] = "/tmp"
-                elif os.uname()[0] == "Linux":
-                    cpu = os.uname()[4]
-                    if re.match("i.86", cpu):
-                        jam_build_dir = "bin.linuxx86"
-                    else:
-                        jam_build_dir = "bin.linux" + os.uname()[4]
-                elif os.uname()[0] == "SunOS":
-                    jam_build_dir = "bin.solaris"
-                elif os.uname()[0] == "Darwin":
-                    if os.uname()[4] == "i386":
-                        jam_build_dir = "bin.macosxx86"
-                    else:
-                        jam_build_dir = "bin.macosxppc"
-                elif os.uname()[0] == "AIX":
-                    jam_build_dir = "bin.aix"
-                elif os.uname()[0] == "IRIX64":
-                    jam_build_dir = "bin.irix"
-                elif os.uname()[0] == "FreeBSD":
-                    jam_build_dir = "bin.freebsd"
-                elif os.uname()[0] == "OSF1":
-                    jam_build_dir = "bin.osf"
-                else:
-                    raise ("Do not know directory where Jam is built for this "
-                        "system: %s/%s" % (os.name, os.uname()[0]))
-            else:
-                raise ("Do not know directory where Jam is built for this "
-                    "system: %s" % os.name)
 
             # Find where jam_src is located. Try for the debug version if it is
             # lying around.
-            dirs = [os.path.join("..", "src", "engine", jam_build_dir + ".debug"),
-                    os.path.join("..", "src", "engine", jam_build_dir)]
+            srcdir = os.path.join(os.path.dirname(__file__), "..", "src")
+            dirs = [os.path.join(srcdir, "engine", jam_build_dir + ".debug"),
+                    os.path.join(srcdir, "engine", jam_build_dir)]
             for d in dirs:
                 if os.path.exists(d):
                     jam_build_dir = d
@@ -287,7 +276,8 @@ class Tester(TestCmd.TestCmd):
             verbosity = []
         if "--verbose" in sys.argv:
             keywords["verbose"] = True
-            verbosity = ["-d+2"]
+            verbosity = ["-d2"]
+        self.verbosity = verbosity
 
         if boost_build_path is None:
             boost_build_path = self.original_workdir + "/.."
@@ -298,8 +288,6 @@ class Tester(TestCmd.TestCmd):
         else:
             program_list.append(os.path.join(jam_build_dir, executable))
         program_list.append('-sBOOST_BUILD_PATH="' + boost_build_path + '"')
-        if verbosity:
-            program_list += verbosity
         if arguments:
             program_list += arguments
 
@@ -318,6 +306,12 @@ class Tester(TestCmd.TestCmd):
             # this case.
             pass
 
+    def set_toolset(self, toolset, target_os=default_os):
+        self.toolset = toolset
+        self.pass_toolset = True
+        prepare_prefixes_and_suffixes(toolset, target_os)
+
+
     #
     # Methods that change the working directory's content.
     #
@@ -335,12 +329,15 @@ class Tester(TestCmd.TestCmd):
         def make_writable(unused, dir, entries):
             for e in entries:
                 name = os.path.join(dir, e)
-                os.chmod(name, os.stat(name).st_mode | 0222)
-        os.path.walk(".", make_writable, None)
+                os.chmod(name, os.stat(name).st_mode | 0o222)
+        for root, _, files in os.walk("."):
+            make_writable(None, root, files)
 
     def write(self, file, content, wait=True):
         nfile = self.native_file_name(file)
         self.__makedirs(os.path.dirname(nfile), wait)
+        if not type(content) == bytes:
+            content = content.encode()
         f = open(nfile, "wb")
         try:
             f.write(content)
@@ -350,7 +347,7 @@ class Tester(TestCmd.TestCmd):
 
     def copy(self, src, dst):
         try:
-            self.write(dst, self.read(src, 1))
+            self.write(dst, self.read(src, binary=True))
         except:
             self.fail_test(1)
 
@@ -358,11 +355,11 @@ class Tester(TestCmd.TestCmd):
         src_name = self.native_file_name(src)
         dst_name = self.native_file_name(dst)
         stats = os.stat(src_name)
-        self.write(dst, self.read(src, 1))
+        self.write(dst, self.__read(src, binary=True))
         os.utime(dst_name, (stats.st_atime, stats.st_mtime))
 
     def touch(self, names, wait=True):
-        if names.__class__ is str:
+        if isstr(names):
             names = [names]
         for name in names:
             path = self.native_file_name(name)
@@ -372,7 +369,7 @@ class Tester(TestCmd.TestCmd):
                 os.utime(path, None)
 
     def rm(self, names):
-        if not type(names) == types.ListType:
+        if not type(names) == list:
             names = [names]
 
         if names == ["."]:
@@ -424,6 +421,7 @@ class Tester(TestCmd.TestCmd):
             return
 
         self.previous_tree, dummy = tree.build_tree(self.workdir)
+        self.wait_for_time_change_since_last_build()
 
         if match is None:
             match = self.match
@@ -442,6 +440,10 @@ class Tester(TestCmd.TestCmd):
             kw["program"] += self.program
             if extra_args:
                 kw["program"] += extra_args
+            if not extra_args or not any(a.startswith("-j") for a in extra_args):
+                kw["program"] += ["-j1"]
+            if stdout is None and not any(a.startswith("-d") for a in kw["program"]):
+                kw["program"] += self.verbosity
             if pass_toolset:
                 kw["program"].append("toolset=" + self.toolset)
             if use_test_config:
@@ -450,11 +452,16 @@ class Tester(TestCmd.TestCmd):
             if ignore_toolset_requirements:
                 kw["program"].append("--ignore-toolset-requirements")
             if "--python" in sys.argv:
-                kw["program"].append("--python")
+                # -z disables Python optimization mode.
+                # this enables type checking (all assert
+                # and if __debug__ statements).
+                kw["program"].extend(["--python", "-z"])
+            if "--stacktrace" in sys.argv:
+                kw["program"].append("--stacktrace")
             kw["chdir"] = subdir
             self.last_program_invocation = kw["program"]
             build_time_start = time.time()
-            apply(TestCmd.TestCmd.run, [self], kw)
+            TestCmd.TestCmd.run(self, **kw)
             build_time_finish = time.time()
         except:
             self.dump_stdio()
@@ -485,13 +492,14 @@ class Tester(TestCmd.TestCmd):
             self.fail_test(1)
 
         if stdout is not None and not match(self.stdout(), stdout):
+            stdout_test = match(self.stdout(), stdout)
             annotation("failure", "Unexpected stdout")
             annotation("Expected STDOUT", stdout)
             annotation("Actual STDOUT", self.stdout())
             stderr = self.stderr()
             if stderr:
                 annotation("STDERR", stderr)
-            self.maybe_do_diff(self.stdout(), stdout)
+            self.maybe_do_diff(self.stdout(), stdout, stdout_test)
             self.fail_test(1, dump_stdio=False)
 
         # Intel tends to produce some messages to stderr which make tests fail.
@@ -499,11 +507,12 @@ class Tester(TestCmd.TestCmd):
         actual_stderr = re.sub(intel_workaround, "", self.stderr())
 
         if stderr is not None and not match(actual_stderr, stderr):
+            stderr_test = match(actual_stderr, stderr)
             annotation("failure", "Unexpected stderr")
             annotation("Expected STDERR", stderr)
             annotation("Actual STDERR", self.stderr())
             annotation("STDOUT", self.stdout())
-            self.maybe_do_diff(actual_stderr, stderr)
+            self.maybe_do_diff(actual_stderr, stderr, stderr_test)
             self.fail_test(1, dump_stdio=False)
 
         if expected_duration is not None:
@@ -514,26 +523,26 @@ class Tester(TestCmd.TestCmd):
                     expected_duration))
                 self.fail_test(1, dump_stdio=False)
 
+        self.__ignore_junk()
+
     def glob_file(self, name):
+        name = self.adjust_name(name)
         result = None
         if hasattr(self, "difference"):
             for f in (self.difference.added_files +
                 self.difference.modified_files +
                 self.difference.touched_files):
                 if fnmatch.fnmatch(f, name):
-                    result = self.native_file_name(f)
+                    result = self.__native_file_name(f)
                     break
         if not result:
-            result = glob.glob(self.native_file_name(name))
+            result = glob.glob(self.__native_file_name(name))
             if result:
                 result = result[0]
         return result
 
-    def read(self, name, binary=False):
+    def __read(self, name, binary=False):
         try:
-            if self.toolset:
-                name = name.replace("$toolset", self.toolset + "*")
-            name = self.glob_file(name)
             openMode = "r"
             if binary:
                 openMode += "b"
@@ -548,13 +557,17 @@ class Tester(TestCmd.TestCmd):
             self.fail_test(1)
             return ""
 
+    def read(self, name, binary=False):
+        name = self.glob_file(name)
+        return self.__read(name, binary=binary)
+
     def read_and_strip(self, name):
         if not self.glob_file(name):
             return ""
         f = open(self.glob_file(name), "rb")
         lines = f.readlines()
         f.close()
-        result = "\n".join(x.rstrip() for x in lines)
+        result = "\n".join(x.decode().rstrip() for x in lines)
         if lines and lines[-1][-1] != "\n":
             return result + "\n"
         return result
@@ -565,7 +578,7 @@ class Tester(TestCmd.TestCmd):
             return
 
         if dump_difference and hasattr(self, "difference"):
-            f = StringIO.StringIO()
+            f = StringIO()
             self.difference.pprint(f)
             annotation("changes caused by the last build command",
                 f.getvalue())
@@ -574,17 +587,17 @@ class Tester(TestCmd.TestCmd):
             self.dump_stdio()
 
         if "--preserve" in sys.argv:
-            print
-            print "*** Copying the state of working dir into 'failed_test' ***"
-            print
+            print()
+            print("*** Copying the state of working dir into 'failed_test' ***")
+            print()
             path = os.path.join(self.original_workdir, "failed_test")
             if os.path.isdir(path):
                 shutil.rmtree(path, ignore_errors=False)
             elif os.path.exists(path):
                 raise "Path " + path + " already exists and is not a directory"
             shutil.copytree(self.workdir, path)
-            print "The failed command was:"
-            print " ".join(self.last_program_invocation)
+            print("The failed command was:")
+            print(" ".join(self.last_program_invocation))
 
         if dump_stack:
             annotate_stack_trace()
@@ -685,7 +698,7 @@ class Tester(TestCmd.TestCmd):
                     "File %s touched, but no action was expected" % name)
                 self.fail_test(1)
 
-    def expect_nothing_more(self):
+    def __ignore_junk(self):
         # Not totally sure about this change, but I do not see a good
         # alternative.
         if windows:
@@ -694,6 +707,7 @@ class Tester(TestCmd.TestCmd):
             self.ignore("*.rsp")       # Response files.
             self.ignore("*.tds")       # Borland debug symbols.
             self.ignore("*.manifest")  # MSVC DLL manifests.
+            self.ignore("bin/standalone/msvc/*/msvc-setup.bat")
 
         # Debug builds of bjam built with gcc produce this profiling data.
         self.ignore("gmon.out")
@@ -707,9 +721,13 @@ class Tester(TestCmd.TestCmd):
         # Compiled Python files created when running Python based Boost Build.
         self.ignore("*.pyc")
 
+        # OSX/Darwin files and dirs.
+        self.ignore("*.dSYM/*")
+
+    def expect_nothing_more(self):
         if not self.unexpected_difference.empty():
             annotation("failure", "Unexpected changes found")
-            output = StringIO.StringIO()
+            output = StringIO()
             self.unexpected_difference.pprint(output)
             annotation("unexpected changes", output.getvalue())
             self.fail_test(1)
@@ -718,21 +736,21 @@ class Tester(TestCmd.TestCmd):
         self.__expect_lines(self.stdout(), lines, expected)
 
     def expect_content_lines(self, filename, line, expected=True):
-        self.__expect_lines(self.__read_file(filename), line, expected)
+        self.__expect_lines(self.read_and_strip(filename), line, expected)
 
     def expect_content(self, name, content, exact=False):
-        actual = self.__read_file(name, exact)
+        actual = self.read(name)
         content = content.replace("$toolset", self.toolset + "*")
 
         matched = False
         if exact:
             matched = fnmatch.fnmatch(actual, content)
         else:
-            def sorted_(x):
-                x.sort()
-                return x
-            actual_ = map(lambda x: sorted_(x.split()), actual.splitlines())
-            content_ = map(lambda x: sorted_(x.split()), content.splitlines())
+            def sorted_(z):
+                z.sort(key=lambda x: x.lower().replace("\\", "/"))
+                return z
+            actual_ = list(map(lambda x: sorted_(x.split()), actual.splitlines()))
+            content_ = list(map(lambda x: sorted_(x.split()), content.splitlines()))
             if len(actual_) == len(content_):
                 matched = map(
                     lambda x, y: map(lambda n, p: fnmatch.fnmatch(n, p), x, y),
@@ -740,17 +758,17 @@ class Tester(TestCmd.TestCmd):
                 matched = reduce(
                     lambda x, y: x and reduce(
                         lambda a, b: a and b,
-                    y),
-                    matched)
+                        y, True),
+                    matched, True)
 
         if not matched:
-            print "Expected:\n"
-            print content
-            print "Got:\n"
-            print actual
+            print("Expected:\n")
+            print(content)
+            print("Got:\n")
+            print(actual)
             self.fail_test(1)
 
-    def maybe_do_diff(self, actual, expected):
+    def maybe_do_diff(self, actual, expected, result=None):
         if os.environ.get("DO_DIFF"):
             e = tempfile.mktemp("expected")
             a = tempfile.mktemp("actual")
@@ -770,6 +788,8 @@ class Tester(TestCmd.TestCmd):
                     ))
             os.unlink(e)
             os.unlink(a)
+        elif type(result) is TestCmd.MatchError:
+            print(result.message)
         else:
             print("Set environmental variable 'DO_DIFF' to examine the "
                 "difference.")
@@ -788,7 +808,7 @@ class Tester(TestCmd.TestCmd):
                 if lib_prefix:
                     tail = lib_prefix + tail
                     result = os.path.join(head, tail)
-            elif suffix == ".dll":
+            elif suffix == ".dll" or suffix == ".implib":
                 (head, tail) = os.path.split(name)
                 if dll_prefix:
                     tail = dll_prefix + tail
@@ -810,16 +830,21 @@ class Tester(TestCmd.TestCmd):
     # Acceps either a string or a list of strings and returns a list of
     # strings. Adjusts suffixes on all names.
     def adjust_names(self, names):
-        if names.__class__ is str:
+        if isstr(names):
             names = [names]
         r = map(self.adjust_lib_name, names)
         r = map(self.adjust_suffix, r)
         r = map(lambda x, t=self.toolset: x.replace("$toolset", t + "*"), r)
-        return r
+        return list(r)
+
+    def adjust_name(self, name):
+        return self.adjust_names(name)[0]
+
+    def __native_file_name(self, name):
+        return os.path.normpath(os.path.join(self.workdir, *name.split("/")))
 
     def native_file_name(self, name):
-        name = self.adjust_names(name)[0]
-        return os.path.normpath(os.path.join(self.workdir, *name.split("/")))
+        return self.__native_file_name(self.adjust_name(name))
 
     def wait_for_time_change(self, path, touch):
         """
@@ -831,6 +856,22 @@ class Tester(TestCmd.TestCmd):
 
         """
         self.__wait_for_time_change(path, touch, last_build_time=False)
+
+    def wait_for_time_change_since_last_build(self):
+        """
+          Wait for newly assigned file system modification timestamps to
+        become large enough for the timestamp difference to be
+        correctly recognized by the Python based testing framework.
+        Does not care about Jam's timestamp resolution, since we
+        only need this to detect touched files.
+        """
+        if self.last_build_timestamp:
+            timestamp_file = "timestamp-3df2f2317e15e4a9"
+            open(timestamp_file, "wb").close()
+            self.__wait_for_time_change_impl(timestamp_file,
+                self.last_build_timestamp,
+                self.__python_timestamp_resolution(timestamp_file, 0), 0)
+            os.unlink(timestamp_file)
 
     def __build_timestamp_resolution(self):
         """
@@ -915,19 +956,20 @@ class Tester(TestCmd.TestCmd):
         # str.splitlines() trims at most one trailing newline while we want the
         # trailing newline to indicate that there should be an extra empty line
         # at the end.
-        splitlines = lambda x : (x + "\n").splitlines()
+        def splitlines(x):
+            return (x + "\n").splitlines()
 
         if data is None:
             data = []
-        elif data.__class__ is str:
+        elif isstr(data):
             data = splitlines(data)
 
-        if lines.__class__ is str:
+        if isstr(lines):
             lines = [splitlines(lines)]
         else:
             expanded = []
             for x in lines:
-                if x.__class__ is str:
+                if isstr(x):
                     x = splitlines(x)
                 expanded.append(x)
             lines = expanded
@@ -951,9 +993,9 @@ class Tester(TestCmd.TestCmd):
             annotation("failure", "\n".join(output))
             self.fail_test(1)
 
-    def __ignore_elements(self, list, wildcard):
-        """Removes in-place 'list' elements matching the given 'wildcard'."""
-        list[:] = filter(lambda x, w=wildcard: not fnmatch.fnmatch(x, w), list)
+    def __ignore_elements(self, things, wildcard):
+        """Removes in-place 'things' elements matching the given 'wildcard'."""
+        things[:] = list(filter(lambda x: not fnmatch.fnmatch(x, wildcard), things))
 
     def __makedirs(self, path, wait):
         """
@@ -1050,19 +1092,6 @@ class Tester(TestCmd.TestCmd):
                 return next
             index += 1
 
-    def __read_file(self, name, exact=False):
-        name = self.adjust_names(name)[0]
-        result = ""
-        try:
-            if exact:
-                result = self.read(name)
-            else:
-                result = self.read_and_strip(name).replace("\\", "/")
-        except (IOError, IndexError):
-            print "Note: could not open file", name
-            self.fail_test(1)
-        return result
-
     def __wait_for_time_change(self, path, touch, last_build_time):
         """
           Wait until a newly assigned file system modification timestamp for
@@ -1092,7 +1121,12 @@ class Tester(TestCmd.TestCmd):
 
         resolution = self.__python_timestamp_resolution(path, build_resolution)
         assert resolution >= build_resolution
+        self.__wait_for_time_change_impl(path, start_time, resolution, build_resolution)
 
+        if not touch:
+            os.utime(path, (stats_orig.st_atime, stats_orig.st_mtime))
+
+    def __wait_for_time_change_impl(self, path, start_time, resolution, build_resolution):
         # Implementation notes:
         #  * Theoretically time.sleep() API might get interrupted too soon
         #    (never actually encountered).
@@ -1149,14 +1183,11 @@ class Tester(TestCmd.TestCmd):
                     break
                 _sleep(max(0.01, start_time - c))
 
-        if not touch:
-            os.utime(path, (stats_orig.st_atime, stats_orig.st_mtime))
-
 
 class List:
     def __init__(self, s=""):
         elements = []
-        if s.__class__ is str:
+        if isstr(s):
             # Have to handle escaped spaces correctly.
             elements = s.replace("\ ", "\001").split()
         else:
@@ -1219,11 +1250,11 @@ def _contains_lines(data, lines):
 def _match_line_sequence(data, start, end, lines):
     if not lines:
         return start
-    for index in xrange(start, end - len(lines) + 1):
+    for index in range(start, end - len(lines) + 1):
         data_index = index
         for expected in lines:
             if not fnmatch.fnmatch(data[data_index], expected):
-                break;
+                break
             data_index += 1
         else:
             return data_index

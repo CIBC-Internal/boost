@@ -66,7 +66,15 @@ namespace boost { namespace numeric { namespace ublas {
             alloc_(a), size_ (size) {
           if (size_) {
               data_ = alloc_.allocate (size_);
+//Disabled warning C4127 because the conditional expression is constant
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#endif
               if (! detail::has_trivial_constructor<T>::value) {
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
                   for (pointer d = data_; d != data_ + size_; ++d)
                       alloc_.construct(d, value_type());
               }
@@ -96,10 +104,28 @@ namespace boost { namespace numeric { namespace ublas {
             else
                 data_ = 0;
         }
+#ifdef BOOST_UBLAS_CPP_GE_2011
+		BOOST_UBLAS_INLINE
+		unbounded_array (unbounded_array &&c) :
+			storage_array<unbounded_array<T, ALLOC> >(),
+			alloc_ (std::move(c.alloc_)), size_ (c.size_), data_(c.data_)
+		{
+			c.size_ = 0;
+			c.data_ = nullptr;
+		}
+#endif
         BOOST_UBLAS_INLINE
         ~unbounded_array () {
             if (size_) {
+//Disabled warning C4127 because the conditional expression is constant
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#endif
                 if (! detail::has_trivial_destructor<T>::value) {
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
                     // std::_Destroy (begin(), end(), alloc_);
                     const iterator i_end = end();
                     for (iterator i = begin (); i != i_end; ++i) {
@@ -138,7 +164,15 @@ namespace boost { namespace numeric { namespace ublas {
                         }
                     }
                     else {
+//Disabled warning C4127 because the conditional expression is constant
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#endif
                         if (! detail::has_trivial_constructor<T>::value) {
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
                             for (pointer di = data_; di != data_ + size; ++di)
                                 alloc_.construct (di, value_type());
                         }
@@ -146,7 +180,15 @@ namespace boost { namespace numeric { namespace ublas {
                 }
 
                 if (size_) {
+//Disabled warning C4127 because the conditional expression is constant
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#endif
                     if (! detail::has_trivial_destructor<T>::value) {
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
                         for (pointer si = p_data; si != p_data + size_; ++si)
                             alloc_.destroy (si);
                     }
@@ -303,6 +345,7 @@ namespace boost { namespace numeric { namespace ublas {
         // Handle explict destroy on a (possibly indexed) iterator
         BOOST_UBLAS_INLINE
         static void iterator_destroy (iterator &i) {
+            (void)(i);
             (&(*i)) -> ~value_type ();
         }
         ALLOC alloc_;
@@ -777,8 +820,8 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         shallow_array_adaptor (size_type size, pointer data):
             size_ (size), own_ (false), data_ (data, leaker<value_type> ()) {}
-        BOOST_UBLAS_INLINE
         template <size_t N>
+        BOOST_UBLAS_INLINE
         shallow_array_adaptor (T (&data)[N]):
             size_ (N), own_ (false), data_ (data, leaker<value_type> ()) {}
 
@@ -833,13 +876,13 @@ namespace boost { namespace numeric { namespace ublas {
         void resize (size_type size, pointer data, value_type init) {
             resize_internal (size, data, init, true);
         }
-        BOOST_UBLAS_INLINE
         template <size_t N>
+        BOOST_UBLAS_INLINE
         void resize (T (&data)[N]) {
             resize_internal (N, data, value_type (), false);
         }
-        BOOST_UBLAS_INLINE
         template <size_t N>
+        BOOST_UBLAS_INLINE
         void resize (T (&data)[N], value_type init) {
             resize_internal (N, data, init, true);
         }

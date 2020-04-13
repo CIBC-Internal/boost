@@ -9,7 +9,6 @@
 #include <iostream>
 #include <boost/detail/lightweight_test.hpp>
 
-using namespace std;
 
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_closure.hpp>
@@ -64,7 +63,7 @@ struct Y { Y() {} Y(int) {} };
 //  If debugging is switched on, all closure members should have a 
 //  corresponding output streaming operator
 std::ostream &
-operator<< (std::ostream& o, Y const &x)
+operator<< (std::ostream& o, Y const &/*x*/)
 {
     o << "Y";
     return o;

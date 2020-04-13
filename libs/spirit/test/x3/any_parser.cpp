@@ -1,13 +1,10 @@
 /*=============================================================================
-    Copyright (c) 2001-2014 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2013-2014 Agustin Berge
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-
-// this file deliberately contains non-ascii characters
-// boostinspect:noascii
 
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/spirit/home/x3.hpp>
@@ -25,7 +22,6 @@ main()
 
     using namespace boost::spirit::x3::ascii;
     using boost::spirit::x3::any_parser;
-    using boost::spirit::x3::int_;
     using boost::spirit::x3::make_context;
     using boost::spirit::x3::lit;
     using boost::spirit::x3::unused_type;
@@ -161,4 +157,3 @@ main()
 
     return boost::report_errors();
 }
-

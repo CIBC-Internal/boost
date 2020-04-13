@@ -1,12 +1,9 @@
 /*=============================================================================
-    Copyright (c) 2001-2013 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-
-// this file deliberately contains non-ascii characters
-// boostinspect:noascii
 
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/spirit/home/x3.hpp>
@@ -24,11 +21,19 @@ main()
 
     using namespace boost::spirit::x3::ascii;
     using boost::spirit::x3::rule;
-    using boost::spirit::x3::int_;
     using boost::spirit::x3::lit;
+    using boost::spirit::x3::int_;
     using boost::spirit::x3::unused_type;
     using boost::spirit::x3::phrase_parse;
     using boost::spirit::x3::skip_flag;
+    using boost::spirit::x3::traits::has_attribute;
+
+    // check attribute advertising
+    static_assert( has_attribute<rule<class r, int>, /*Context=*/unused_type>::value, "");
+    static_assert(!has_attribute<rule<class r     >, /*Context=*/unused_type>::value, "");
+    static_assert( has_attribute<decltype(rule<class r, int>{} = int_), /*Context=*/unused_type>::value, "");
+    static_assert(!has_attribute<decltype(rule<class r     >{} = int_), /*Context=*/unused_type>::value, "");
+
 
     { // basic tests
 
@@ -122,4 +127,3 @@ main()
 
     return boost::report_errors();
 }
-

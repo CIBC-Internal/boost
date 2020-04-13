@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -25,19 +26,18 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/multi/io/wkt/write.hpp>
-
 #include <boost/geometry/io/dsv/write.hpp>
-#include <boost/geometry/multi/io/dsv/write.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include <from_wkt.hpp>
 #include <string_from_type.hpp>

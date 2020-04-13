@@ -80,7 +80,7 @@ bool operator==(const edge_stream_iterator& x,
                 const edge_stream_iterator& y)
 {
   return (x.m_stream == y.m_stream && x.m_end_marker == y.m_end_marker) 
-    || x.m_end_marker == false && y.m_end_marker == false;
+    || (x.m_end_marker == false && y.m_end_marker == false);
 }
 bool operator!=(const edge_stream_iterator& x,
                 const edge_stream_iterator& y)
@@ -91,14 +91,14 @@ bool operator!=(const edge_stream_iterator& x,
 
 
 int
-main()
+main(int argc, const char** argv)
 {
   typedef boost::adjacency_list<> IteratorConstructibleGraph;
   typedef boost::graph_traits<IteratorConstructibleGraph> Traits;
   Traits::vertices_size_type size_V;
   Traits::edges_size_type size_E;
 
-  std::ifstream f("edge_iterator_constructor.dat");
+  std::ifstream f(argc >= 2 ? argv[1] : "edge_iterator_constructor.dat");
   f >> size_V >> size_E;
 
   edge_stream_iterator edge_iter(f), end;

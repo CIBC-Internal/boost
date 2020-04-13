@@ -74,7 +74,7 @@ and the `std::log` functions, so its accuracy is related to the
 accurate implementations of those functions on a given platform. 
 When calculating the quantile with a non-zero /position/ parameter 
 catastrophic cancellation errors can occur: 
-in such cases, only a low /absolute error/ can be guarenteed.
+in such cases, only a low /absolute error/ can be guaranteed.
 
 [h4 Implementation]
 
@@ -92,7 +92,8 @@ in such cases, only a low /absolute error/ can be guarenteed.
 [[variance][ ([pi]*s)[super 2] / 3]]
 ]
 
-[endsect]
+[endsect] [/section:logistic_dist Logistic Distribution]
+
 
 [/ logistic.qbk
   Copyright 2006, 2007 John Maddock and Paul A. Bristow.

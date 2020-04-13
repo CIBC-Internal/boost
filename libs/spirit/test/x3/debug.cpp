@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2013 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -34,6 +34,26 @@ struct my_error_handler
     }
 };
 
+struct my_attribute
+{
+    bool alive = true;
+
+    void access() const
+    {
+        BOOST_TEST(alive);
+    }
+    ~my_attribute()
+    {
+        alive = false;
+    }
+
+    friend std::ostream & operator << (std::ostream & os, my_attribute const & attr)
+    {
+        attr.access();
+        return os << "my_attribute";
+    }
+};
+
 int
 main()
 {
@@ -41,16 +61,10 @@ main()
     using spirit_test::test;
 
     using namespace boost::spirit::x3::ascii;
-    //~ using namespace boost::spirit::x3::labels;
-    //~ using boost::spirit::x3::locals;
     using boost::spirit::x3::rule;
+    using boost::spirit::x3::symbols;
     using boost::spirit::x3::int_;
-    //~ using boost::spirit::x3::fail;
-    //~ using boost::spirit::x3::on_error;
-    //~ using boost::spirit::x3::debug;
     using boost::spirit::x3::alpha;
-
-    //~ namespace phx = boost::phoenix;
 
     { // basic tests
 
@@ -116,6 +130,15 @@ main()
         BOOST_TEST(!test("[123,456]", r));
     }
 
+    {
+        symbols<my_attribute> a{{{ "a", my_attribute{} }}};
+
+        auto b = rule<struct b, my_attribute>("b") = a;
+
+        my_attribute attr;
+
+        BOOST_TEST(test_attr("a", b, attr));
+    }
+
     return boost::report_errors();
 }
-

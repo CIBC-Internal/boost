@@ -4,6 +4,10 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,6 +15,12 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_INSERT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_INSERT_HPP
 
+#include <boost/type_traits/is_same.hpp>
+
+#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#include <boost/geometry/util/condition.hpp>
+
+#include <boost/geometry/index/detail/algorithms/bounds.hpp>
 #include <boost/geometry/index/detail/algorithms/content.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -38,7 +48,7 @@ public:
     template <typename Indexable>
     static inline size_t apply(internal_node & n,
                                Indexable const& indexable,
-                               parameters_type const& /*parameters*/,
+                               parameters_type const& parameters,
                                size_t /*node_relative_level*/)
     {
         children_type & children = rtree::elements(n);
@@ -60,7 +70,8 @@ public:
 
             // expanded child node's box
             Box box_exp(ch_i.first);
-            geometry::expand(box_exp, indexable);
+            index::detail::expand(box_exp, indexable,
+                                  index::detail::get_strategy(parameters));
 
             // areas difference
             content_type content = index::detail::content(box_exp);
@@ -262,6 +273,31 @@ protected:
         BOOST_GEOMETRY_INDEX_ASSERT(0 != m_root_node, "there is no root node");
         // TODO
         // assert - check if Box is correct
+
+        // When a value is inserted, during the tree traversal bounds of nodes
+        // on a path from the root to a leaf must be expanded. So prepare
+        // a bounding object at the beginning to not do it later for each node.
+        // NOTE: This is actually only needed because conditionally the bounding
+        //       object may be expanded below. Otherwise the indexable could be
+        //       directly used instead
+        index::detail::bounds(rtree::element_indexable(m_element, m_translator),
+                              m_element_bounds,
+                              index::detail::get_strategy(m_parameters));
+
+#ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
+        // Enlarge it in case if it's not bounding geometry type.
+        // It's because Points and Segments are compared WRT machine epsilon
+        // This ensures that leafs bounds correspond to the stored elements
+        if (BOOST_GEOMETRY_CONDITION((
+                boost::is_same<Element, Value>::value
+             && ! index::detail::is_bounding_geometry
+                    <
+                        typename indexable_type<Translator>::type
+                    >::value )) )
+        {
+            geometry::detail::expand_by_epsilon(m_element_bounds);
+        }
+#endif
     }
 
     template <typename Visitor>
@@ -272,9 +308,10 @@ protected:
             apply(n, rtree::element_indexable(m_element, m_translator), m_parameters, m_leafs_level - m_traverse_data.current_level);
 
         // expand the node to contain value
-        geometry::expand(
+        index::detail::expand(
             rtree::elements(n)[choosen_node_index].first,
-            rtree::element_indexable(m_element, m_translator));
+            m_element_bounds,
+            index::detail::get_strategy(m_parameters));
 
         // next traversing step
         traverse_apply_visitor(visitor, n, choosen_node_index);                                                 // MAY THROW (V, E: alloc, copy, N:alloc)
@@ -342,6 +379,22 @@ protected:
         // for exception safety
         subtree_destroyer additional_node_ptr(additional_nodes[0].second, m_allocators);
 
+#ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
+        // Enlarge bounds of a leaf node.
+        // It's because Points and Segments are compared WRT machine epsilon
+        // This ensures that leafs' bounds correspond to the stored elements.
+        if (BOOST_GEOMETRY_CONDITION((
+                boost::is_same<Node, leaf>::value
+             && ! index::detail::is_bounding_geometry
+                    <
+                        typename indexable_type<Translator>::type
+                    >::value )))
+        {
+            geometry::detail::expand_by_epsilon(n_box);
+            geometry::detail::expand_by_epsilon(additional_nodes[0].first);
+        }
+#endif
+
         // node is not the root - just add the new node
         if ( !m_traverse_data.current_is_root() )
         {
@@ -383,6 +436,7 @@ protected:
     // TODO: awulkiew - implement dispatchable split::apply to enable additional nodes creation
 
     Element const& m_element;
+    Box m_element_bounds;
     parameters_type const& m_parameters;
     Translator const& m_translator;
     size_type const m_relative_level;

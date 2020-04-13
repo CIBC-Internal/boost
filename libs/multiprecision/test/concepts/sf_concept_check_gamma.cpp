@@ -8,33 +8,30 @@
 // conceptual requirements when used with Boost.Math.
 //
 #ifdef _MSC_VER
-#  define _SCL_SECURE_NO_WARNINGS
-#  pragma warning(disable:4800)
-#  pragma warning(disable:4512)
-#  pragma warning(disable:4127)
-#  pragma warning(disable:4512)
-#  pragma warning(disable:4503) // decorated name length exceeded, name was truncated
+#define _SCL_SECURE_NO_WARNINGS
+#pragma warning(disable : 4800)
+#pragma warning(disable : 4512)
+#pragma warning(disable : 4127)
+#pragma warning(disable : 4512)
+#pragma warning(disable : 4503) // decorated name length exceeded, name was truncated
 #endif
 
+#include <boost/container_hash/hash.hpp>
 #include <libs/math/test/compile_test/poison.hpp>
 
-#if !defined(TEST_MPF_50) && !defined(TEST_BACKEND) && !defined(TEST_MPZ) \
-   && !defined(TEST_CPP_DEC_FLOAT) && !defined(TEST_MPFR_50)\
-   && !defined(TEST_MPFR_6) && !defined(TEST_MPFR_15) && !defined(TEST_MPFR_17) \
-   && !defined(TEST_MPFR_30) && !defined(TEST_CPP_DEC_FLOAT_NO_ET) && !defined(TEST_LOGGED_ADAPTER)\
-   && !defined(TEST_CPP_BIN_FLOAT)
-#  define TEST_MPF_50
-#  define TEST_BACKEND
-#  define TEST_MPZ
-#  define TEST_MPFR_50
-#  define TEST_MPFR_6
-#  define TEST_MPFR_15
-#  define TEST_MPFR_17
-#  define TEST_MPFR_30
-#  define TEST_CPP_DEC_FLOAT
-#  define TEST_CPP_DEC_FLOAT_NO_ET
-#  define TEST_LOGGED_ADAPTER
-#  define TEST_CPP_BIN_FLOAT
+#if !defined(TEST_MPF_50) && !defined(TEST_BACKEND) && !defined(TEST_MPZ) && !defined(TEST_CPP_DEC_FLOAT) && !defined(TEST_MPFR_50) && !defined(TEST_MPFR_6) && !defined(TEST_MPFR_15) && !defined(TEST_MPFR_17) && !defined(TEST_MPFR_30) && !defined(TEST_CPP_DEC_FLOAT_NO_ET) && !defined(TEST_LOGGED_ADAPTER) && !defined(TEST_CPP_BIN_FLOAT)
+#define TEST_MPF_50
+#define TEST_BACKEND
+#define TEST_MPZ
+#define TEST_MPFR_50
+#define TEST_MPFR_6
+#define TEST_MPFR_15
+#define TEST_MPFR_17
+#define TEST_MPFR_30
+#define TEST_CPP_DEC_FLOAT
+#define TEST_CPP_DEC_FLOAT_NO_ET
+#define TEST_LOGGED_ADAPTER
+#define TEST_CPP_BIN_FLOAT
 
 #ifdef _MSC_VER
 #pragma message("CAUTION!!: No backend type specified so testing everything.... this will take some time!!")
@@ -69,7 +66,7 @@
 template <class T>
 void test_extra(T)
 {
-   T v1, v2, v3;
+   T   v1, v2, v3;
    int i;
    boost::math::tgamma(v1);
    boost::math::tgamma1pm1(v1);
@@ -84,7 +81,7 @@ void test_extra(T)
    boost::math::double_factorial<T>(i);
    boost::math::rising_factorial(v1, i);
    boost::math::falling_factorial(v1, i);
-#ifndef SLOW_COMPILER
+   boost::math::gamma_p_derivative(v2, v3);
    boost::math::tgamma(v1, v2);
    boost::math::tgamma_lower(v1, v2);
    boost::math::gamma_p(v1, v2);
@@ -97,20 +94,6 @@ void test_extra(T)
    boost::math::erfc(v1);
    boost::math::erf_inv(v1);
    boost::math::erfc_inv(v1);
-   boost::math::beta(v1, v2);
-   boost::math::beta(v1, v2, v3);
-   boost::math::betac(v1, v2, v3);
-   boost::math::ibeta(v1, v2, v3);
-   boost::math::ibetac(v1, v2, v3);
-   boost::math::ibeta_inv(v1, v2, v3);
-   boost::math::ibetac_inv(v1, v2, v3);
-   boost::math::ibeta_inva(v1, v2, v3);
-   boost::math::ibetac_inva(v1, v2, v3);
-   boost::math::ibeta_invb(v1, v2, v3);
-   boost::math::ibetac_invb(v1, v2, v3);
-   boost::math::gamma_p_derivative(v2, v3);
-   boost::math::ibeta_derivative(v1, v2, v3);
-#endif
 }
 
 void foo()

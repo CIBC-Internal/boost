@@ -27,7 +27,7 @@ derivative of the gamma function:
 
 [optional_policy]
 
-The return type of this function is computed using the __arg_pomotion_rules:
+The return type of this function is computed using the __arg_promotion_rules:
 the result is of type `double` when T is an integer type, and type T otherwise.
 
 [h4 Accuracy]
@@ -37,18 +37,21 @@ found on various platforms with various floating point types.
 Unless otherwise specified any floating point type that is narrower
 than the one shown will have __zero_error.
 
-[table
-[[Significand Size] [Platform and Compiler] [Random Positive Values] [Values Near The Positive Root] [Values Near Zero] [Negative Values]]
-[[53]            [Win32 Visual C++ 8]  [Peak=0.98 Mean=0.36] [Peak=0.99 Mean=0.5]    [Peak=0.95 Mean=0.5] [Peak=214 Mean=16] ]
-[[64]            [Linux IA32 / GCC]  [Peak=1.4 Mean=0.4]  [Peak=1.3 Mean=0.45]    [Peak=0.98 Mean=0.35]       [Peak=180 Mean=13]   ]
-[[64]            [Linux IA64 / GCC]  [Peak=0.92 Mean=0.4]   [Peak=1.3 Mean=0.45]    [Peak=0.98 Mean=0.4]    [Peak=180 Mean=13]           ]
-[[113]           [HPUX IA64, aCC A.06.06]    [Peak=0.9 Mean=0.4] [Peak=1.1 Mean=0.5]    [Peak=0.99 Mean=0.4] [Peak=64 Mean=6]  ]
-]
+[table_digamma]
 
 As shown above, error rates for positive arguments are generally very low.
 For negative arguments there are an infinite number of irrational roots:
 relative errors very close to these can be arbitrarily large, although
 absolute error will remain very low.
+
+The following error plot are based on an exhaustive search of the functions domain, MSVC-15.5 at `double` precision, 
+and GCC-7.1/Ubuntu for `long double` and `__float128`.
+
+[graph digamma__double]
+
+[graph digamma__80_bit_long_double]
+
+[graph digamma____float128]
 
 [h4 Testing]
 
@@ -137,7 +140,7 @@ means that even when x is the value of the root rounded to the nearest
 representable value, the result of digamma(x) ['[*will not be zero]].
 
 
-[endsect][/section:digamma The Digamma Function]
+[endsect] [/section:digamma The Digamma Function]
 
 [/ 
   Copyright 2006 John Maddock and Paul A. Bristow.

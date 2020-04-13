@@ -12,9 +12,9 @@
 
 #include <utility>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -51,7 +51,7 @@ protected:
                              iterator_type& it_min2,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != last );
+        BOOST_GEOMETRY_ASSERT( first != last );
 
         Distance const zero = Distance(0);
 
@@ -71,8 +71,11 @@ protected:
         // check if other segments are closer
         for (++prev, ++it; it != last; ++prev, ++it)
         {
-            Distance dist = strategy.apply(point, *prev, *it);
-            if (geometry::math::equals(dist, zero))
+            Distance const dist = strategy.apply(point, *prev, *it);
+
+            // Stop only if we find exactly zero distance
+            // otherwise it may stop at some very small value and miss the min
+            if (dist == zero)
             {
                 dist_min = zero;
                 it_min1 = prev;
@@ -162,7 +165,7 @@ private:
                              iterator_type& it_min2,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != last );
+        BOOST_GEOMETRY_ASSERT( first != last );
 
         base_type::apply(point, first, last, strategy,
                          it_min1, it_min2, dist_min);

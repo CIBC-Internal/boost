@@ -72,7 +72,7 @@ name_equals(const std::string & str, NameMap name)
 
 
 int
-main()
+main(int argc, const char** argv)
 {
   typedef adjacency_list < listS,       // Store out-edges of each vertex in a std::list
     vecS,                       // Store vertex set in a std::vector
@@ -81,8 +81,8 @@ main()
    >graph_type;
 
   graph_type g;                 // use default constructor to create empty graph
-  const char* dep_file_name = "makefile-dependencies.dat";
-  const char* target_file_name = "makefile-target-names.dat";
+  const char* dep_file_name = argc >= 2 ? argv[1] : "makefile-dependencies.dat";
+  const char* target_file_name = argc >= 3 ? argv[2] : "makefile-target-names.dat";
   std::ifstream file_in(dep_file_name), name_in(target_file_name);
   if (!file_in) {
     std::cerr << "** Error: could not open file " << dep_file_name
@@ -102,7 +102,6 @@ main()
 
   graph_traits < graph_type >::vertex_iterator i, end;
   boost::tie(i, end) = vertices(g);
-  typedef property_map < graph_type, vertex_name_t >::type name_map_t;
   i = std::find_if(i, end, name_equals("libzigzag.a", get(vertex_name, g)));
   output_in_edges(std::cout, g, *i, get(vertex_name, g));
   assert(num_vertices(g) == 15);

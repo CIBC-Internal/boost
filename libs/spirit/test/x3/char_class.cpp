@@ -1,20 +1,15 @@
 /*=============================================================================
-    Copyright (c) 2001-2013 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2001-2010 Hartmut Kaiser
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
-// this file intentionally contains non-ascii characters
-// boostinspect:noascii
-
 #define BOOST_SPIRIT_X3_UNICODE
 
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/spirit/home/x3.hpp>
-//~ #include <boost/phoenix/core.hpp>
-//~ #include <boost/phoenix/operator.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 #include <iostream>
@@ -24,6 +19,7 @@ int
 main()
 {
     using spirit_test::test;
+    using spirit_test::test_failure;
     using spirit_test::test_attr;
 
     using boost::spirit::x3::unused_type;
@@ -105,16 +101,10 @@ main()
         BOOST_TEST(test("f", xdigit));
         BOOST_TEST(!test("g", xdigit));
 
-// needed for VC7.1 only
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-#pragma setlocale("german")
-#endif
-        BOOST_TEST(test("é", alpha));
-        BOOST_TEST(test("é", lower));
-        BOOST_TEST(!test("é", upper));
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-#pragma setlocale("")
-#endif
+        // test extended ASCII characters
+        BOOST_TEST(test("\xE9", alpha));
+        BOOST_TEST(test("\xE9", lower));
+        BOOST_TEST(!test("\xE9", upper));
     }
 
     {
@@ -200,18 +190,21 @@ main()
         BOOST_TEST(!test(L" ", braille));
         BOOST_TEST(test(L" ", ~braille));
         // $$$ TODO $$$ Add more unicode tests
+    }
 
-// needed for VC7.1 only
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-#pragma setlocale("german")
-#endif
-        BOOST_TEST(test("é", alpha));
-        BOOST_TEST(test("é", lower));
-        BOOST_TEST(!test("é", upper));
+    {   // test invalid unicode literals
+        using namespace boost::spirit::x3::unicode;
 
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-#pragma setlocale("")
-#endif
+        auto const invalid_unicode = char32_t{0x7FFFFFFF};
+        auto const input           = boost::u32string_view(&invalid_unicode, 1);
+
+        BOOST_TEST(test_failure(input, char_));
+
+        // force unicode category lookup
+        // related issue: https://github.com/boostorg/spirit/issues/524
+        BOOST_TEST(test_failure(input, alpha));
+        BOOST_TEST(test_failure(input, upper));
+        BOOST_TEST(test_failure(input, lower));
     }
 
     {   // test attribute extraction
@@ -239,19 +232,17 @@ main()
         BOOST_TEST(attr == 'a');
     }
 
-    // $$$ Not yet implemented $$$
-    //~ {   // test action
+    {   // test action
+        using namespace boost::spirit::x3::ascii;
+        using boost::spirit::x3::_attr;
+        char ch;
+        auto f = [&](auto& ctx){ ch = _attr(ctx); };
 
-        //~ using namespace boost::spirit::x3::ascii;
-        //~ using boost::phoenix::ref;
-        //~ using boost::spirit::x3::_1;
-        //~ char ch;
-
-        //~ BOOST_TEST(test("x", alnum[ref(ch) = _1]));
-        //~ BOOST_TEST(ch == 'x');
-        //~ BOOST_TEST(test("   A", alnum[ref(ch) = _1], space));
-        //~ BOOST_TEST(ch == 'A');
-    //~ }
+        BOOST_TEST(test("x", alnum[f]));
+        BOOST_TEST(ch == 'x');
+        BOOST_TEST(test("   A", alnum[f], space));
+        BOOST_TEST(ch == 'A');
+    }
 
     return boost::report_errors();
 }

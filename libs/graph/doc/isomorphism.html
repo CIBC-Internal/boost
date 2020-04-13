@@ -111,7 +111,7 @@ This mapping can be used either to speed up the search (as is done by the
 default value, which requires that the degrees of <i>v1</i> and <i>v2</i> are
 equal) or to impose extra conditions on the result.  The
 <tt>VertexInvariant1</tt> and <tt>VertexInvariant2</tt> types must model <a
-href="http://www.sgi.com/tech/stl/UnaryFunction.html">UnaryFunction</a>, with
+href="http://www.boost.org/sgi/stl/UnaryFunction.html">UnaryFunction</a>, with
 the argument type of <tt>vertex_invariant1</tt> being <tt>Graph1</tt>'s vertex
 descriptor type, the argument type of <tt>vertex_invariant2</tt> being
 <tt>Graph2</tt>'s vertex descriptor type, and both functions having integral
@@ -147,7 +147,7 @@ map.<br>
 <b>Default:</b> <tt>get(vertex_index, g1)</tt>
     Note: if you use this default, make sure your graph has
     an internal <tt>vertex_index</tt> property. For example,
-    <tt>adjacenty_list</tt> with <tt>VertexList=listS</tt> does
+    <tt>adjacency_list</tt> with <tt>VertexList=listS</tt> does
     not have an internal <tt>vertex_index</tt> property.
    <br>
 <b>Python</b>: Unsupported parameter.
@@ -166,7 +166,7 @@ map.<br>
 <b>Default:</b> <tt>get(vertex_index, g2)</tt>
     Note: if you use this default, make sure your graph has
     an internal <tt>vertex_index</tt> property. For example,
-    <tt>adjacenty_list</tt> with <tt>VertexList=listS</tt> does
+    <tt>adjacency_list</tt> with <tt>VertexList=listS</tt> does
     not have an internal <tt>vertex_index</tt> property.
    <br>
 <b>Python</b>: Unsupported parameter.

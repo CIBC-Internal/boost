@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015.
-// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,7 +15,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/range/size.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 
 #include <boost/geometry/util/condition.hpp>
@@ -44,15 +46,24 @@ namespace detail { namespace relate {
 // Use the rtree in this case!
 
 // may be used to set IE and BE for a Linear geometry for which no turns were generated
-template <typename Geometry2, typename Result, typename BoundaryChecker, bool TransposeResult>
+template
+<
+    typename Geometry2,
+    typename Result,
+    typename PointInArealStrategy,
+    typename BoundaryChecker,
+    bool TransposeResult
+>
 class no_turns_la_linestring_pred
 {
 public:
     no_turns_la_linestring_pred(Geometry2 const& geometry2,
                                 Result & res,
+                                PointInArealStrategy const& point_in_areal_strategy,
                                 BoundaryChecker const& boundary_checker)
         : m_geometry2(geometry2)
         , m_result(res)
+        , m_point_in_areal_strategy(point_in_areal_strategy)
         , m_boundary_checker(boundary_checker)
         , m_interrupt_flags(0)
     {
@@ -96,8 +107,10 @@ public:
             return false;
         }
 
-        int const pig = detail::within::point_in_geometry(range::front(linestring), m_geometry2);
-        //BOOST_ASSERT_MSG(pig != 0, "There should be no IPs");
+        int const pig = detail::within::point_in_geometry(range::front(linestring),
+                                                          m_geometry2,
+                                                          m_point_in_areal_strategy);
+        //BOOST_GEOMETRY_ASSERT_MSG(pig != 0, "There should be no IPs");
 
         if ( pig > 0 )
         {
@@ -136,6 +149,7 @@ public:
 private:
     Geometry2 const& m_geometry2;
     Result & m_result;
+    PointInArealStrategy const& m_point_in_areal_strategy;
     BoundaryChecker const& m_boundary_checker;
     unsigned m_interrupt_flags;
 };
@@ -205,26 +219,28 @@ struct linear_areal
                 >
         {};
 
-    template <typename Geom1, typename Geom2>
+    template <typename Geom1, typename Geom2, typename Strategy>
     struct multi_turn_info
-        : turns::get_turns<Geom1, Geom2>::turn_info
+        : turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
     {
         multi_turn_info() : priority(0) {}
         int priority; // single-geometry sorting priority
     };
 
-    template <typename Geom1, typename Geom2>
+    template <typename Geom1, typename Geom2, typename Strategy>
     struct turn_info_type
         : boost::mpl::if_c
             <
                 is_multi<Geometry2>::value,
-                multi_turn_info<Geom1, Geom2>,
-                typename turns::get_turns<Geom1, Geom2>::turn_info
+                multi_turn_info<Geom1, Geom2, Strategy>,
+                typename turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
             >
     {};
     
-    template <typename Result>
-    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
+    template <typename Result, typename IntersectionStrategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Result & result,
+                             IntersectionStrategy const& intersection_strategy)
     {
 // TODO: If Areal geometry may have infinite size, change the following line:
 
@@ -235,23 +251,39 @@ struct linear_areal
             return;
 
         // get and analyse turns
-        typedef typename turn_info_type<Geometry1, Geometry2>::type turn_type;
+        typedef typename turn_info_type<Geometry1, Geometry2, IntersectionStrategy>::type turn_type;
         std::vector<turn_type> turns;
 
         interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, intersection_strategy);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
 
-        boundary_checker<Geometry1> boundary_checker1(geometry1);
+        typedef typename IntersectionStrategy::template point_in_geometry_strategy<Geometry1, Geometry2>::type within_strategy_type;
+        within_strategy_type const within_strategy = intersection_strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>();
+
+        typedef typename IntersectionStrategy::cs_tag cs_tag;
+        typedef typename within_strategy_type::equals_point_point_strategy_type eq_pp_strategy_type;
+        
+        typedef boundary_checker
+            <
+                Geometry1,
+                eq_pp_strategy_type
+            > boundary_checker1_type;
+        boundary_checker1_type boundary_checker1(geometry1);
+
         no_turns_la_linestring_pred
             <
                 Geometry2,
                 Result,
-                boundary_checker<Geometry1>,
+                within_strategy_type,
+                boundary_checker1_type,
                 TransposeResult
-            > pred1(geometry2, result, boundary_checker1);
+            > pred1(geometry2,
+                    result,
+                    within_strategy,
+                    boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
@@ -271,13 +303,14 @@ struct linear_areal
             return;
 
         {
-            sort_dispatch(turns.begin(), turns.end(), is_multi<Geometry2>());
+            sort_dispatch<cs_tag>(turns.begin(), turns.end(), is_multi<Geometry2>());
 
             turns_analyser<turn_type> analyser;
             analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry1, geometry2,
-                              boundary_checker1);
+                              boundary_checker1,
+                              intersection_strategy.get_side_strategy());
 
             if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
                 return;
@@ -323,8 +356,8 @@ struct linear_areal
                     // if there was some previous ring
                     if ( prev_seg_id_ptr != NULL )
                     {
-                        signed_index_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
-                        BOOST_ASSERT(next_ring_index >= 0);
+                        signed_size_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                        BOOST_GEOMETRY_ASSERT(next_ring_index >= 0);
                         
                         // if one of the last rings of previous single geometry was ommited
                         if ( static_cast<std::size_t>(next_ring_index)
@@ -367,15 +400,17 @@ struct linear_areal
                 else
                 {
                     // u, c
-                    typedef turns::less<1, turns::less_op_areal_linear<1> > less;
+                    typedef turns::less<1, turns::less_op_areal_linear<1>, cs_tag> less;
                     std::sort(it, next, less());
+
+                    eq_pp_strategy_type const eq_pp_strategy = within_strategy.get_equals_point_point_strategy();
 
                     // analyse
                     areal_boundary_analyser<turn_type> analyser;
                     for ( turn_iterator rit = it ; rit != next ; ++rit )
                     {
                         // if the analyser requests, break the search
-                        if ( !analyser.apply(it, rit, next) )
+                        if ( !analyser.apply(it, rit, next, eq_pp_strategy) )
                             break;
                     }
 
@@ -394,8 +429,8 @@ struct linear_areal
             // if there was some previous ring
             if ( prev_seg_id_ptr != NULL )
             {
-                signed_index_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
-                BOOST_ASSERT(next_ring_index >= 0);
+                signed_size_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                BOOST_GEOMETRY_ASSERT(next_ring_index >= 0);
 
                 // if one of the last rings of previous single geometry was ommited
                 if ( static_cast<std::size_t>(next_ring_index)
@@ -456,7 +491,7 @@ struct linear_areal
         template <typename TurnIt>
         void operator()(TurnIt first, TurnIt last) const
         {
-            BOOST_ASSERT(first != last);
+            BOOST_GEOMETRY_ASSERT(first != last);
             static OpToPriority op_to_priority;
             // find the operation with the least priority
             int least_priority = op_to_priority(first->operations[0]);
@@ -495,11 +530,11 @@ struct linear_areal
         }
     };
 
-    template <typename TurnIt>
+    template <typename CSTag, typename TurnIt>
     static void sort_dispatch(TurnIt first, TurnIt last, boost::true_type const& /*is_multi*/)
     {
         // sort turns by Linear seg_id, then by fraction, then by other multi_index
-        typedef turns::less<0, turns::less_other_multi_index<0> > less;
+        typedef turns::less<0, turns::less_other_multi_index<0>, CSTag> less;
         std::sort(first, last, less());
 
         // For the same IP and multi_index - the same other's single geometry
@@ -513,19 +548,19 @@ struct linear_areal
         // When priorities for single geometries are set now sort turns for the same IP
         // if multi_index is the same sort them according to the single-less
         // else use priority of the whole single-geometry set earlier
-        typedef turns::less<0, turns::less_op_linear_areal_single<0> > single_less;
+        typedef turns::less<0, turns::less_op_linear_areal_single<0>, CSTag> single_less;
         for_each_equal_range(first, last,
                              sort_turns_group<single_less>(),
                              same_ip());
     }
 
-    template <typename TurnIt>
+    template <typename CSTag, typename TurnIt>
     static void sort_dispatch(TurnIt first, TurnIt last, boost::false_type const& /*is_multi*/)
     {
         // sort turns by Linear seg_id, then by fraction, then
         // for same ring id: x, u, i, c
         // for different ring id: c, i, u, x
-        typedef turns::less<0, turns::less_op_linear_areal_single<0> > less;
+        typedef turns::less<0, turns::less_op_linear_areal_single<0>, CSTag> less;
         std::sort(first, last, less());
     }
     
@@ -598,6 +633,37 @@ struct linear_areal
         static const std::size_t op_id = 0;
         static const std::size_t other_op_id = 1;
 
+        template <typename TurnPointCSTag, typename PointP, typename PointQ,
+                  typename SideStrategy,
+                  typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
+                  typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
+        >
+        struct la_side_calculator
+        {
+            inline la_side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
+                                   Qi const& qi, Qj const& qj, Qk const& qk,
+                                   SideStrategy const& side_strategy)
+                : m_pi(pi), m_pj(pj), m_pk(pk)
+                , m_qi(qi), m_qj(qj), m_qk(qk)
+                , m_side_strategy(side_strategy)
+            {}
+
+            inline int pk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_pk); }
+            inline int qk_wrt_p1() const { return m_side_strategy.apply(m_pi, m_pj, m_qk); }
+            inline int pk_wrt_q2() const { return m_side_strategy.apply(m_qj, m_qk, m_pk); }
+
+         private :
+            Pi const& m_pi;
+            Pj const& m_pj;
+            Pk const& m_pk;
+            Qi const& m_qi;
+            Qj const& m_qj;
+            Qk const& m_qk;
+
+            SideStrategy m_side_strategy;
+        };
+
+
     public:
         turns_analyser()
             : m_previous_turn_ptr(NULL)
@@ -613,11 +679,13 @@ struct linear_areal
                   typename TurnIt,
                   typename Geometry,
                   typename OtherGeometry,
-                  typename BoundaryChecker>
+                  typename BoundaryChecker,
+                  typename SideStrategy>
         void apply(Result & res, TurnIt it,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
-                   BoundaryChecker const& boundary_checker)
+                   BoundaryChecker const& boundary_checker,
+                   SideStrategy const& side_strategy)
         {
             overlay::operation_type op = it->operations[op_id].operation;
 
@@ -645,7 +713,8 @@ struct linear_areal
             {
                 // real exit point - may be multiple
                 // we know that we entered and now we exit
-                if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it,
+                                                  side_strategy.get_equals_point_point_strategy()) )
                 {
                     m_exit_watcher.reset_detected_exit();
                     
@@ -687,7 +756,8 @@ struct linear_areal
 
                 if ( ( op == overlay::operation_intersection
                     || op == overlay::operation_continue )
-                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it,
+                                                side_strategy.get_equals_point_point_strategy()) )
                 {
                     fake_enter_detected = true;
                 }
@@ -707,7 +777,8 @@ struct linear_areal
                     && ( op != overlay::operation_blocked // operation different than block
                         || seg_id.multi_index != m_previous_turn_ptr->operations[op_id].seg_id.multi_index ) ) // or the next single-geometry
                   || ( m_previous_operation == overlay::operation_union
-                    && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                    && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it,
+                                                    side_strategy.get_equals_point_point_strategy()) )
                    )
                 {
                     update<interior, exterior, '1', TransposeResult>(res);
@@ -736,8 +807,11 @@ struct linear_areal
             // handle the interior overlap
             if ( m_interior_detected )
             {
+                BOOST_GEOMETRY_ASSERT_MSG(m_previous_turn_ptr, "non-NULL ptr expected");
+
                 // real interior overlap
-                if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it,
+                                                  side_strategy.get_equals_point_point_strategy()) )
                 {
                     update<interior, interior, '1', TransposeResult>(res);
                     m_interior_detected = false;
@@ -745,21 +819,16 @@ struct linear_areal
                     // new range detected - reset previous state and check the boundary
                     if ( first_in_range )
                     {
-                        // actually it should be != NULL if m_interior_detected
-                        // so an assert could be checked here
-                        if ( m_previous_turn_ptr )
+                        segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+
+                        bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                                    range::back(sub_range(geometry, prev_seg_id)),
+                                                    boundary_checker);
+
+                        // if there is a boundary on the last point
+                        if ( prev_back_b )
                         {
-                            segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
-
-                            bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                                        range::back(sub_range(geometry, prev_seg_id)),
-                                                        boundary_checker);
-
-                            // if there is a boundary on the last point
-                            if ( prev_back_b )
-                            {
-                                update<boundary, interior, '0', TransposeResult>(res);
-                            }
+                            update<boundary, interior, '0', TransposeResult>(res);
                         }
 
                         // The exit_watcher is reset below
@@ -857,7 +926,8 @@ struct linear_areal
                         bool const from_inside = first_point
                                               && calculate_from_inside(geometry,
                                                                        other_geometry,
-                                                                       *it);
+                                                                       *it,
+                                                                       side_strategy);
 
                         if ( from_inside )
                             update<interior, interior, '1', TransposeResult>(res);
@@ -957,7 +1027,8 @@ struct linear_areal
                         bool const first_from_inside = first_point
                                                     && calculate_from_inside(geometry,
                                                                              other_geometry,
-                                                                             *it);
+                                                                             *it,
+                                                                             side_strategy);
                         if ( first_from_inside )
                         {
                             update<interior, interior, '1', TransposeResult>(res);
@@ -1002,7 +1073,7 @@ struct linear_areal
                                       /*&& ( op == overlay::operation_blocked
                                         || op == overlay::operation_union )*/ ) // if we're here it's u or x
                                     {
-                                        BOOST_ASSERT(m_first_from_unknown);
+                                        BOOST_GEOMETRY_ASSERT(m_first_from_unknown);
                                         m_first_from_unknown_boundary_detected = true;
                                     }
                                     else
@@ -1043,7 +1114,7 @@ struct linear_areal
                    BoundaryChecker const& boundary_checker)
         {
             boost::ignore_unused(first, last);
-            //BOOST_ASSERT( first != last );
+            //BOOST_GEOMETRY_ASSERT( first != last );
 
             // For MultiPolygon many x/u operations may be generated as a first IP
             // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
@@ -1071,8 +1142,8 @@ struct linear_areal
                 // for sure
                 update<interior, exterior, '1', TransposeResult>(res);
 
-                BOOST_ASSERT(first != last);
-                BOOST_ASSERT(m_previous_turn_ptr);
+                BOOST_GEOMETRY_ASSERT(first != last);
+                BOOST_GEOMETRY_ASSERT(m_previous_turn_ptr);
 
                 segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
@@ -1094,8 +1165,8 @@ struct linear_areal
                 update<interior, interior, '1', TransposeResult>(res);
                 m_interior_detected = false;
 
-                BOOST_ASSERT(first != last);
-                BOOST_ASSERT(m_previous_turn_ptr);
+                BOOST_GEOMETRY_ASSERT(first != last);
+                BOOST_GEOMETRY_ASSERT(m_previous_turn_ptr);
 
                 segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
@@ -1112,7 +1183,7 @@ struct linear_areal
 
             // This condition may be false if the Linestring is lying on the Polygon's collinear spike
             // if Polygon's spikes are not handled in get_turns() or relate() (they currently aren't)
-            //BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
+            //BOOST_GEOMETRY_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
             //                    "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
             // Currently one c/c turn is generated for the exit
             //   when a Linestring is going out on a collinear spike
@@ -1145,11 +1216,14 @@ struct linear_areal
 
         // check if the passed turn's segment of Linear geometry arrived
         // from the inside or the outside of the Areal geometry
-        template <typename Turn>
+        template <typename Turn, typename SideStrategy>
         static inline bool calculate_from_inside(Geometry1 const& geometry1,
                                                  Geometry2 const& geometry2,
-                                                 Turn const& turn)
+                                                 Turn const& turn,
+                                                 SideStrategy const& side_strategy)
         {
+            typedef typename cs_tag<typename Turn::point_type>::type cs_tag;
+
             if ( turn.operations[op_id].position == overlay::position_front )
                 return false;
 
@@ -1160,26 +1234,26 @@ struct linear_areal
             typedef typename boost::range_iterator<range2_type>::type range2_iterator;
             range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             
-            BOOST_ASSERT(boost::size(range1));
+            BOOST_GEOMETRY_ASSERT(boost::size(range1));
             std::size_t const s2 = boost::size(range2);
-            BOOST_ASSERT(s2 > 2);
+            BOOST_GEOMETRY_ASSERT(s2 > 2);
             std::size_t const seg_count2 = s2 - 1;
 
             std::size_t const p_seg_ij = static_cast<std::size_t>(turn.operations[op_id].seg_id.segment_index);
             std::size_t const q_seg_ij = static_cast<std::size_t>(turn.operations[other_op_id].seg_id.segment_index);
 
-            BOOST_ASSERT(p_seg_ij + 1 < boost::size(range1));
-            BOOST_ASSERT(q_seg_ij + 1 < s2);
+            BOOST_GEOMETRY_ASSERT(p_seg_ij + 1 < boost::size(range1));
+            BOOST_GEOMETRY_ASSERT(q_seg_ij + 1 < s2);
 
             point1_type const& pi = range::at(range1, p_seg_ij);
             point2_type const& qi = range::at(range2, q_seg_ij);
             point2_type const& qj = range::at(range2, q_seg_ij + 1);
             point1_type qi_conv;
             geometry::convert(qi, qi_conv);
-            bool const is_ip_qj = equals::equals_point_point(turn.point, qj);
+            bool const is_ip_qj = equals::equals_point_point(turn.point, qj, side_strategy.get_equals_point_point_strategy());
 // TODO: test this!
-//            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
-//            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
+//            BOOST_GEOMETRY_ASSERT(!equals::equals_point_point(turn.point, pi));
+//            BOOST_GEOMETRY_ASSERT(!equals::equals_point_point(turn.point, qi));
             point1_type new_pj;
             geometry::convert(turn.point, new_pj);
 
@@ -1190,41 +1264,45 @@ struct linear_areal
 // It would be good to replace it with some O(1) mechanism
                 range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),
                                                                  range::pos(range2, q_seg_jk),
-                                                                 boost::end(range2));
+                                                                 boost::end(range2),
+                                                                 side_strategy.get_equals_point_point_strategy());
 
                 // Will this sequence of points be always correct?
-                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
+                la_side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
+                    side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it, side_strategy);
 
                 return calculate_from_inside_sides(side_calc);
             }
             else
             {
-                point1_type new_qj;
+                point2_type new_qj;
                 geometry::convert(turn.point, new_qj);
 
-                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, new_qj, qj);
+                la_side_calculator<cs_tag, point1_type, point2_type, SideStrategy>
+                    side_calc(qi_conv, new_pj, pi, qi, new_qj, qj, side_strategy);
 
                 return calculate_from_inside_sides(side_calc);
             }
         }
 
-        template <typename It>
-        static inline It find_next_non_duplicated(It first, It current, It last)
+        template <typename It, typename EqPPStrategy>
+        static inline It find_next_non_duplicated(It first, It current, It last,
+                                                  EqPPStrategy const& strategy)
         {
-            BOOST_ASSERT( current != last );
+            BOOST_GEOMETRY_ASSERT( current != last );
 
             It it = current;
 
             for ( ++it ; it != last ; ++it )
             {
-                if ( !equals::equals_point_point(*current, *it) )
+                if ( !equals::equals_point_point(*current, *it, strategy) )
                     return it;
             }
 
             // if not found start from the beginning
             for ( it = first ; it != current ; ++it )
             {
-                if ( !equals::equals_point_point(*current, *it) )
+                if ( !equals::equals_point_point(*current, *it, strategy) )
                     return it;
             }
 
@@ -1269,13 +1347,15 @@ struct linear_areal
               typename Analyser,
               typename Geometry,
               typename OtherGeometry,
-              typename BoundaryChecker>
+              typename BoundaryChecker,
+              typename SideStrategy>
     static inline void analyse_each_turn(Result & res,
                                          Analyser & analyser,
                                          TurnIt first, TurnIt last,
                                          Geometry const& geometry,
                                          OtherGeometry const& other_geometry,
-                                         BoundaryChecker const& boundary_checker)
+                                         BoundaryChecker const& boundary_checker,
+                                         SideStrategy const& side_strategy)
     {
         if ( first == last )
             return;
@@ -1284,7 +1364,8 @@ struct linear_areal
         {
             analyser.apply(res, it,
                            geometry, other_geometry,
-                           boundary_checker);
+                           boundary_checker,
+                           side_strategy);
 
             if ( BOOST_GEOMETRY_CONDITION( res.interrupt ) )
                 return;
@@ -1332,8 +1413,8 @@ struct linear_areal
         if ( first == last )
             return last;
 
-        signed_index_type const multi_index = first->operations[1].seg_id.multi_index;
-        signed_index_type const ring_index = first->operations[1].seg_id.ring_index;
+        signed_size_type const multi_index = first->operations[1].seg_id.multi_index;
+        signed_size_type const ring_index = first->operations[1].seg_id.ring_index;
 
         fun(*first);
         ++first;
@@ -1364,8 +1445,9 @@ struct linear_areal
             , m_previous_turn_ptr(NULL)
         {}
 
-        template <typename TurnIt>
-        bool apply(TurnIt /*first*/, TurnIt it, TurnIt last)
+        template <typename TurnIt, typename EqPPStrategy>
+        bool apply(TurnIt /*first*/, TurnIt it, TurnIt last,
+                   EqPPStrategy const& strategy)
         {
             overlay::operation_type op = it->operations[1].operation;
 
@@ -1379,8 +1461,8 @@ struct linear_areal
 
                 if ( is_union_detected )
                 {
-                    BOOST_ASSERT(m_previous_turn_ptr != NULL);
-                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
+                    BOOST_GEOMETRY_ASSERT(m_previous_turn_ptr != NULL);
+                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point, strategy) )
                     {
                         // break
                         return false;
@@ -1415,10 +1497,16 @@ struct linear_areal
 template <typename Geometry1, typename Geometry2>
 struct areal_linear
 {
-    template <typename Result>
-    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
+    typedef linear_areal<Geometry2, Geometry1, true> linear_areal_type;
+
+    static const bool interruption_enabled = linear_areal_type::interruption_enabled;
+
+    template <typename Result, typename IntersectionStrategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Result & result,
+                             IntersectionStrategy const& intersection_strategy)
     {
-        linear_areal<Geometry2, Geometry1, true>::apply(geometry2, geometry1, result);
+        linear_areal_type::apply(geometry2, geometry1, result, intersection_strategy);
     }
 };
 

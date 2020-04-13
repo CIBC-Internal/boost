@@ -17,16 +17,20 @@
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/utility.hpp>
+#include <boost/next_prior.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/config.hpp> // for BOOST_LIKELY
 
 #include <boost/type_traits/has_trivial_destructor.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
+#include <boost/lockfree/detail/allocator_rebind_helper.hpp>
 #include <boost/lockfree/detail/atomic.hpp>
-#include <boost/lockfree/detail/branch_hints.hpp>
 #include <boost/lockfree/detail/copy_payload.hpp>
 #include <boost/lockfree/detail/parameter.hpp>
 #include <boost/lockfree/detail/prefix.hpp>
+
+#include <boost/lockfree/lockfree_forward.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -62,7 +66,7 @@ protected:
     static size_t next_index(size_t arg, size_t max_size)
     {
         size_t ret = arg + 1;
-        while (unlikely(ret >= max_size))
+        while (BOOST_UNLIKELY(ret >= max_size))
             ret -= max_size;
         return ret;
     }
@@ -86,7 +90,7 @@ protected:
 
     size_t read_available(size_t max_size) const
     {
-        size_t write_index = write_index_.load(memory_order_relaxed);
+        size_t write_index = write_index_.load(memory_order_acquire);
         const size_t read_index  = read_index_.load(memory_order_relaxed);
         return read_available(write_index, read_index, max_size);
     }
@@ -94,7 +98,7 @@ protected:
     size_t write_available(size_t max_size) const
     {
         size_t write_index = write_index_.load(memory_order_relaxed);
-        const size_t read_index  = read_index_.load(memory_order_relaxed);
+        const size_t read_index  = read_index_.load(memory_order_acquire);
         return write_available(write_index, read_index, max_size);
     }
 
@@ -520,7 +524,12 @@ class runtime_sized_ringbuffer:
 {
     typedef std::size_t size_type;
     size_type max_elements_;
+#ifdef BOOST_NO_CXX11_ALLOCATOR
     typedef typename Alloc::pointer pointer;
+#else
+    typedef std::allocator_traits<Alloc> allocator_traits;
+    typedef typename allocator_traits::pointer pointer;
+#endif
     pointer array_;
 
 protected:
@@ -533,20 +542,35 @@ public:
     explicit runtime_sized_ringbuffer(size_type max_elements):
         max_elements_(max_elements + 1)
     {
+#ifdef BOOST_NO_CXX11_ALLOCATOR
         array_ = Alloc::allocate(max_elements_);
+#else
+        Alloc& alloc = *this;
+        array_ = allocator_traits::allocate(alloc, max_elements_);
+#endif
     }
 
     template <typename U>
-    runtime_sized_ringbuffer(typename Alloc::template rebind<U>::other const & alloc, size_type max_elements):
+    runtime_sized_ringbuffer(typename detail::allocator_rebind_helper<Alloc, U>::type const & alloc, size_type max_elements):
         Alloc(alloc), max_elements_(max_elements + 1)
     {
+#ifdef BOOST_NO_CXX11_ALLOCATOR
         array_ = Alloc::allocate(max_elements_);
+#else
+        Alloc& allocator = *this;
+        array_ = allocator_traits::allocate(allocator, max_elements_);
+#endif
     }
 
     runtime_sized_ringbuffer(Alloc const & alloc, size_type max_elements):
         Alloc(alloc), max_elements_(max_elements + 1)
     {
+#ifdef BOOST_NO_CXX11_ALLOCATOR
         array_ = Alloc::allocate(max_elements_);
+#else
+        Alloc& allocator = *this;
+        array_ = allocator_traits::allocate(allocator, max_elements_);
+#endif
     }
 
     ~runtime_sized_ringbuffer(void)
@@ -555,7 +579,12 @@ public:
         T out;
         while (pop(&out, 1)) {}
 
+#ifdef BOOST_NO_CXX11_ALLOCATOR
         Alloc::deallocate(array_, max_elements_);
+#else
+        Alloc& allocator = *this;
+        allocator_traits::deallocate(allocator, array_, max_elements_);
+#endif
     }
 
     bool push(T const & t)
@@ -601,35 +630,43 @@ public:
     template <typename ConstIterator>
     ConstIterator push(ConstIterator begin, ConstIterator end)
     {
-        return ringbuffer_base<T>::push(begin, end, array_, max_elements_);
+        return ringbuffer_base<T>::push(begin, end, &*array_, max_elements_);
     }
 
     size_type pop(T * ret, size_type size)
     {
-        return ringbuffer_base<T>::pop(ret, size, array_, max_elements_);
+        return ringbuffer_base<T>::pop(ret, size, &*array_, max_elements_);
     }
 
     template <typename OutputIterator>
     size_type pop_to_output_iterator(OutputIterator it)
     {
-        return ringbuffer_base<T>::pop_to_output_iterator(it, array_, max_elements_);
+        return ringbuffer_base<T>::pop_to_output_iterator(it, &*array_, max_elements_);
     }
 
     const T& front(void) const
     {
-        return ringbuffer_base<T>::front(array_);
+        return ringbuffer_base<T>::front(&*array_);
     }
 
     T& front(void)
     {
-        return ringbuffer_base<T>::front(array_);
+        return ringbuffer_base<T>::front(&*array_);
     }
 };
 
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
 template <typename T, typename A0, typename A1>
+#else
+template <typename T, typename ...Options>
+#endif
 struct make_ringbuffer
 {
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
     typedef typename ringbuffer_signature::bind<A0, A1>::type bound_args;
+#else
+    typedef typename ringbuffer_signature::bind<Options...>::type bound_args;
+#endif
 
     typedef extract_capacity<bound_args> extract_capacity_t;
 
@@ -669,22 +706,32 @@ struct make_ringbuffer
  *  - T must have a default constructor
  *  - T must be copyable
  * */
-#ifndef BOOST_DOXYGEN_INVOKED
-template <typename T,
-          class A0 = boost::parameter::void_,
-          class A1 = boost::parameter::void_>
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
+template <typename T, class A0, class A1>
 #else
-template <typename T, ...Options>
+template <typename T, typename ...Options>
 #endif
 class spsc_queue:
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
     public detail::make_ringbuffer<T, A0, A1>::ringbuffer_type
+#else
+    public detail::make_ringbuffer<T, Options...>::ringbuffer_type
+#endif
 {
 private:
 
 #ifndef BOOST_DOXYGEN_INVOKED
+
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
     typedef typename detail::make_ringbuffer<T, A0, A1>::ringbuffer_type base_type;
     static const bool runtime_sized = detail::make_ringbuffer<T, A0, A1>::runtime_sized;
     typedef typename detail::make_ringbuffer<T, A0, A1>::allocator allocator_arg;
+#else
+    typedef typename detail::make_ringbuffer<T, Options...>::ringbuffer_type base_type;
+    static const bool runtime_sized = detail::make_ringbuffer<T, Options...>::runtime_sized;
+    typedef typename detail::make_ringbuffer<T, Options...>::allocator allocator_arg;
+#endif
+
 
     struct implementation_defined
     {
@@ -709,13 +756,13 @@ public:
     }
 
     template <typename U>
-    explicit spsc_queue(typename allocator::template rebind<U>::other const & alloc)
+    explicit spsc_queue(typename detail::allocator_rebind_helper<allocator, U>::type const &)
     {
         // just for API compatibility: we don't actually need an allocator
         BOOST_STATIC_ASSERT(!runtime_sized);
     }
 
-    explicit spsc_queue(allocator const & alloc)
+    explicit spsc_queue(allocator const &)
     {
         // just for API compatibility: we don't actually need an allocator
         BOOST_ASSERT(!runtime_sized);
@@ -735,7 +782,7 @@ public:
     }
 
     template <typename U>
-    spsc_queue(size_type element_count, typename allocator::template rebind<U>::other const & alloc):
+    spsc_queue(size_type element_count, typename detail::allocator_rebind_helper<allocator, U>::type const & alloc):
         base_type(alloc, element_count)
     {
         BOOST_STATIC_ASSERT(runtime_sized);
@@ -914,7 +961,7 @@ public:
      *
      * \return number of available elements that can be popped from the spsc_queue
      *
-     * \note Thread-safe and wait-free, should only be called from the producer thread
+     * \note Thread-safe and wait-free, should only be called from the consumer thread
      * */
     size_type read_available() const
     {
@@ -925,7 +972,7 @@ public:
      *
      * \return number of elements that can be pushed to the spsc_queue
      *
-     * \note Thread-safe and wait-free, should only be called from the consumer thread
+     * \note Thread-safe and wait-free, should only be called from the producer thread
      * */
     size_type write_available() const
     {
@@ -936,7 +983,7 @@ public:
      *
      * Availability of front element can be checked using read_available().
      *
-     * \pre only one thread is allowed to check front element
+     * \pre only a consuming thread is allowed to check front element
      * \pre read_available() > 0. If ringbuffer is empty, it's undefined behaviour to invoke this method.
      * \return reference to the first element in the queue
      *

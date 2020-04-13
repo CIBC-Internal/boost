@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////
 //  Copyright 2013 John Maddock. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_
+//  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
 //[float128_eg
 #include <boost/multiprecision/float128.hpp>
@@ -30,7 +30,7 @@ int main()
    // We can declare constants using GCC or Intel's native types, and the Q suffix,
    // these can be declared constexpr if required:
    /*<-*/
-#ifndef BOOST_NO_CONSTEXPR
+#ifndef BOOST_NO_CXX11_CONSTEXPR
    /*->*/
    constexpr float128 pi = 3.1415926535897932384626433832795028841971693993751058Q;
    /*<-*/

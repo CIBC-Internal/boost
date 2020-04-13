@@ -1,11 +1,12 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>History</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../thread.html" title="Chapter&#160;30.&#160;Thread 4.5.0">
+<link rel="up" href="../thread.html" title="Chapter&#160;39.&#160;Thread 4.8.0">
 <link rel="prev" href="build.html" title="Using and building the library">
 <link rel="next" href="future.html" title="Future">
 </head>
@@ -28,6 +29,698 @@
 </h2></div></div></div>
 <h4>
 <a name="thread.changes.h0"></a>
+      <span class="phrase"><a name="thread.changes.version_4_9_0___boost_1_70"></a></span><a class="link" href="changes.html#thread.changes.version_4_9_0___boost_1_70">Version
+      4.9.0 - boost 1.70</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Know Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/3926" target="_top">#3926</a>
+          thread_specific_ptr + dlopen library causes a SIGSEGV.
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/10964" target="_top">#10964</a>
+          future&lt;future&lt;T&gt;&gt;::unwrap().then() Deadlocks
+        </li>
+</ul></div>
+<p>
+      Please take a look at <a href="https://svn.boost.org/trac/boost/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=thread&amp;type=!Feature+Requests&amp;col=id&amp;col=summary&amp;order=id" target="_top">thread
+      Know Bugs</a> to see the current state.
+    </p>
+<p>
+      Please take a look at <a href="http://www.boost.org/development/tests/master/developer/thread.html" target="_top">thread
+      master regression test</a> to see the last regression test snapshot.
+    </p>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/pull/268" target="_top">https://github.com/boostorg/thread/pull/268</a>
+          Add self contained header tests and fix discovered bugs
+        </li>
+<li class="listitem">
+          Improvements support for cygwin platform using the pthread interface.
+          <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
+                <a href="https://github.com/boostorg/thread/pull/263" target="_top">https://github.com/boostorg/thread/pull/263</a>
+                Fix compilation of timed functions on Cygwin $ <a href="https://github.com/boostorg/thread/pull/262" target="_top">https://github.com/boostorg/thread/pull/262</a>
+                Fix MinGW warnings about violation of the strict aliasing rules
+              </li></ul></div>
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/pull/260" target="_top">https://github.com/boostorg/thread/pull/260</a>
+          Fix "interruption_point" defined twice.
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/pull/249" target="_top">https://github.com/boostorg/thread/pull/249</a>
+          Simplify TSS cleanup routines. Fixes #236
+        </li>
+</ul></div>
+<p>
+      <span class="bold"><strong>New Experimental Features:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          Since BOOST_THREAD_VERSION 5, BOOST_THREAD_USES_EXECUTOR is defined by
+          default.
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/pull/266" target="_top">https://github.com/boostorg/thread/pull/266</a>
+          Remove linking with Boost.System
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h1"></a>
+      <span class="phrase"><a name="thread.changes.version_4_8_1___boost_1_67"></a></span><a class="link" href="changes.html#thread.changes.version_4_8_1___boost_1_67">Version
+      4.8.1 - boost 1.67</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Know Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/3926" target="_top">#3926</a>
+          thread_specific_ptr + dlopen library causes a SIGSEGV.
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/10964" target="_top">#10964</a>
+          future&lt;future&lt;T&gt;&gt;::unwrap().then() Deadlocks
+        </li>
+</ul></div>
+<p>
+      Please take a look at <a href="https://svn.boost.org/trac/boost/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=thread&amp;type=!Feature+Requests&amp;col=id&amp;col=summary&amp;order=id" target="_top">thread
+      Know Bugs</a> to see the current state.
+    </p>
+<p>
+      Please take a look at <a href="http://www.boost.org/development/tests/master/developer/thread.html" target="_top">thread
+      master regression test</a> to see the last regression test snapshot.
+    </p>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/162" target="_top">#162</a>
+          fix as much time-related issues as possible and improve the QOI
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/193" target="_top">#193</a>
+          future_then unit test contains two different implementations of do_continuation
+          function
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/209" target="_top">#209</a>
+          Legal problem with <code class="computeroutput"><span class="identifier">win32</span><span class="special">/</span><span class="identifier">thread_primitives</span><span class="special">.</span><span class="identifier">hpp</span></code>
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h2"></a>
+      <span class="phrase"><a name="thread.changes.version_4_8_0___boost_1_66"></a></span><a class="link" href="changes.html#thread.changes.version_4_8_0___boost_1_66">Version
+      4.8.0 - boost 1.66</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Know Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/3926" target="_top">#3926</a>
+          thread_specific_ptr + dlopen library causes a SIGSEGV.
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/10964" target="_top">#10964</a>
+          future&lt;future&lt;T&gt;&gt;::unwrap().then() Deadlocks
+        </li>
+</ul></div>
+<p>
+      Please take a look at <a href="https://svn.boost.org/trac/boost/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=thread&amp;type=!Feature+Requests&amp;col=id&amp;col=summary&amp;order=id" target="_top">thread
+      Know Bugs</a> to see the current state.
+    </p>
+<p>
+      Please take a look at <a href="http://www.boost.org/development/tests/master/developer/thread.html" target="_top">thread
+      master regression test</a> to see the last regression test snapshot.
+    </p>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12323" target="_top">#12323</a>
+          windows - boost/thread/win32/mfc_thread_init.hpp has wrong signature for
+          _pRawDllMainOrig
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12730" target="_top">#12730</a>
+          windows - static threads library is incompatible with MSVC 2017 RC
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12976" target="_top">#12976</a>
+          Boost Thread Executors documentation mistakes
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12949" target="_top">#12949</a>
+          using sleep_for in a thread context without including boost/thread/thread.hpp
+          yields incorrect behaviour when BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC
+          is defined
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/13019" target="_top">#13019</a>
+          ABI compatibility for BOOST_THREAD_PROVIDES_INTERRUPTIONS incomplete
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/13069" target="_top">#13069</a>
+          Boost unit test "sync_pq_multi_thread_p_lib.exe" hung in thread
+          library
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/13163" target="_top">#13163</a>
+          boost::detail::heap_new does not have a variadic variant
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/13226" target="_top">#13226</a>
+          getpagesize() is deprecated since 199506L
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/132" target="_top">#132</a>
+          VS 2017.4 Preview deadlocks on Test 10964
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/133" target="_top">#133</a>
+          windows - Spurious timing test failures on windows
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/134" target="_top">#134</a>
+          VS 2017.4 Preview deadlock in sync_pq_multi_thread_p_lib.exe
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/135" target="_top">#135</a>
+          VS 2017.4 Preview test_scheduled_tp_p.exe deadlock
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/136" target="_top">#136</a>
+          VS 2017.4 Preview test_scheduler_p.exe deadlock
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/137" target="_top">#137</a>
+          VS 2017.4 Preview executor_ex.exe deadlock
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/143" target="_top">#143</a>
+          Failures on msvc-12.0
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/145" target="_top">#145</a>
+          Clang build error with BOOST_THREAD_ATTRIBUTE_MAY_ALIAS
+        </li>
+</ul></div>
+<p>
+      <span class="bold"><strong>New Experimental Features:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/116" target="_top">#116</a>
+          [Proposal] Add APIs for deferred set_value/exception
+        </li></ul></div>
+<h4>
+<a name="thread.changes.h3"></a>
+      <span class="phrase"><a name="thread.changes.version_4_7_5___boost_1_65_1"></a></span><a class="link" href="changes.html#thread.changes.version_4_7_5___boost_1_65_1">Version
+      4.7.5 - boost 1.65.1</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/130" target="_top">#130</a>
+          windows: Bug in boost::condition_variable on Windows
+        </li></ul></div>
+<h4>
+<a name="thread.changes.h4"></a>
+      <span class="phrase"><a name="thread.changes.version_4_7_4___boost_1_65"></a></span><a class="link" href="changes.html#thread.changes.version_4_7_4___boost_1_65">Version
+      4.7.4 - boost 1.65</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/6787" target="_top">#6787</a>
+          boost::thread::sleep() hangs if system time is rolled back
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12519" target="_top">#12519</a>
+          boost::thread::try_join_for does not return after timeout
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12874" target="_top">#12874</a>
+          future&lt;&gt; extension constructor must be under BOOST_THREAD_PROVIDES_FUTURE_UNWRAP
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12888" target="_top">#12888</a>
+          Linking with boost thread does not work on mingw/gcc 4.4
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12958" target="_top">#12958</a>
+          sync_bounded_queue::wait_pull_front( lve ) might throw
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/13077" target="_top">#13077</a>
+          Linking to static 64bit libboost_thread fails DLL initialization
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/13155" target="_top">#13155</a>
+          log doesn't build on a system with pthreads
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/121" target="_top">#121</a>
+          on_tls_prepare is broken under VS2017
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h5"></a>
+      <span class="phrase"><a name="thread.changes.version_4_7_3___boost_1_64"></a></span><a class="link" href="changes.html#thread.changes.version_4_7_3___boost_1_64">Version
+      4.7.3 - boost 1.64</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/113" target="_top">#113</a>
+          Add a Thread template on all the scoped thread and thread guard classes
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/117" target="_top">#117</a>
+          loop_executor should block on it's work_queue instead of polling
+        </li>
+<li class="listitem">
+          <a href="https://github.com/boostorg/thread/issues/119" target="_top">#119</a>
+          basic_condition_variable::relocker::~relocker can throw an exception
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h6"></a>
+      <span class="phrase"><a name="thread.changes.version_4_7_2___boost_1_63"></a></span><a class="link" href="changes.html#thread.changes.version_4_7_2___boost_1_63">Version
+      4.7.2 - boost 1.63</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          fix boost::synchronized_value&lt;&gt;::load()
+        </li>
+<li class="listitem">
+          fix relational operators of boost::synchronized_value&lt;&gt;
+        </li>
+<li class="listitem">
+          fix compile failed with boost::user_scheduler
+        </li>
+<li class="listitem">
+          Fix minor possibility of loosing the notify
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h7"></a>
+      <span class="phrase"><a name="thread.changes.version_4_7_1___boost_1_62"></a></span><a class="link" href="changes.html#thread.changes.version_4_7_1___boost_1_62">Version
+      4.7.1 - boost 1.62</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Know Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/3926" target="_top">#3926</a>
+          thread_specific_ptr + dlopen library causes a SIGSEGV.
+        </li></ul></div>
+<p>
+      Please define BOOST_THREAD_PATCH to apply the patch that could unfortunately
+      results is a regression as described in <a href="http://svn.boost.org/trac/boost/ticket/12049" target="_top">#12049</a>.
+    </p>
+<p>
+      Please take a look at <a href="https://svn.boost.org/trac/boost/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=thread&amp;type=!Feature+Requests&amp;col=id&amp;col=summary&amp;order=id" target="_top">thread
+      Know Bugs</a> to see the current state.
+    </p>
+<p>
+      Please take a look at <a href="http://www.boost.org/development/tests/master/developer/thread.html" target="_top">thread
+      master regression test</a> to see the last regression test snapshot.
+    </p>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11097" target="_top">#11097</a>
+          test_scheduled_tp - ThreadSanitizer: heap-use-after-free
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11951" target="_top">#11951</a>
+          Memory leak in boost::when_all
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12102" target="_top">#12102</a>
+          condition_variable_fwd.hpp fails to compile when BOOST_THREAD_PROVIDES_INTERRUPTIONS
+          is disabled
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12120" target="_top">#12120</a>
+          Performance improvement in thread/barrier.hpp
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12146" target="_top">#12146</a>
+          make_exceptional_future is not mentioned in the docs
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12202" target="_top">#12202</a>
+          shared_lock should be in shared_mutex header
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12220" target="_top">#12220</a>
+          Memory leak in future::then()
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12293" target="_top">#12293</a>
+          boost::future::then lambda called before future is ready.
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12350" target="_top">#12350</a>
+          shared_mutex (pthreads) unlocked too early in unlock_shared()
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12371" target="_top">#12371</a>
+          boost thread/future.hpp fails to build
+        </li>
+</ul></div>
+<p>
+      and several PR
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          #88 fix typos in boost::upgrade_lock
+        </li>
+<li class="listitem">
+          #89 fix a bug in upgrade_to_unique_lock&lt;&gt;::operator=()
+        </li>
+<li class="listitem">
+          #90 fix a bug in try_lock_wrapper&lt;&gt;::operator=()
+        </li>
+<li class="listitem">
+          #91 Add shared_lock_guard to the included lock types
+        </li>
+<li class="listitem">
+          #92 Fixed compilation with MSVC-8.
+        </li>
+<li class="listitem">
+          #93 Fix variable shadowing warnings (Clang)
+        </li>
+<li class="listitem">
+          #94 fix bugs in boost::barrier
+        </li>
+<li class="listitem">
+          #95 fix a mistake in boost::completion_latch
+        </li>
+<li class="listitem">
+          #96 rename async_func.hpp to invoker.hpp.
+        </li>
+<li class="listitem">
+          #97 fix a mistake in sync_timed_queue&lt;&gt;::pull_until()
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h8"></a>
+      <span class="phrase"><a name="thread.changes.version_4_7_0___boost_1_61"></a></span><a class="link" href="changes.html#thread.changes.version_4_7_0___boost_1_61">Version
+      4.7.0 - boost 1.61</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Know Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/3926" target="_top">#3926</a>
+          thread_specific_ptr + dlopen library causes a SIGSEGV.
+        </li></ul></div>
+<p>
+      Please define BOOST_THREAD_PATCH to apply the patch that could unfortunately
+      results is a regression as described in <a href="http://svn.boost.org/trac/boost/ticket/12049" target="_top">#12049</a>.
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/4833" target="_top">#4833</a>
+          MinGW/test_tss_lib: Support of automatic tss cleanup for native threading
+          API not available
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/8600" target="_top">#8600</a>
+          wait_for_any hangs, if called with multiple copies of shared_future referencing
+          same task
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/9118" target="_top">#9118</a>
+          Seg fault on thread join when llvm and libc++ are used
+        </li>
+</ul></div>
+<p>
+      Please take a look at <a href="https://svn.boost.org/trac/boost/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=thread&amp;type=!Feature+Requests&amp;col=id&amp;col=summary&amp;order=id" target="_top">thread
+      Know Bugs</a> to see the current state.
+    </p>
+<p>
+      Please take a look at <a href="http://www.boost.org/development/tests/master/developer/thread.html" target="_top">thread
+      trunk regression test</a> to see the last regression test snapshot.
+    </p>
+<p>
+      <span class="bold"><strong>New Experimental Features:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11772" target="_top">#11772</a>
+          Add a launch::sync policy
+        </li></ul></div>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11494" target="_top">#11494</a>
+          boost::this_thread::yield() is marked as deprecated in the synopsis
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11562" target="_top">#11562</a>
+          (condition_variable_any::wait_until + recursive_mutex + steady_clock) timer
+          expires after computer time is set forward on Ubuntu 64-bit
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12013" target="_top">#12013</a>
+          F_pass and FArgs_pass tests segfault
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12036" target="_top">#12036</a>
+          boost::physical_concurrency always returns 0 if BOOST_USE_WINAPI_VERSION
+          is not defined
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h9"></a>
+      <span class="phrase"><a name="thread.changes.version_4_6_0___boost_1_60"></a></span><a class="link" href="changes.html#thread.changes.version_4_6_0___boost_1_60">Version
+      4.6.0 - boost 1.60</a>
+    </h4>
+<p>
+      <span class="bold"><strong>Know Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/4833" target="_top">#4833</a>
+          MinGW/test_tss_lib: Support of automatic tss cleanup for native threading
+          API not available
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/8600" target="_top">#8600</a>
+          wait_for_any hangs, if called with multiple copies of shared_future referencing
+          same task
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/9118" target="_top">#9118</a>
+          Seg fault on thread join when llvm and libc++ are used
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/10942" target="_top">#10942</a>
+          Boost.Thread fails to build on Cygwin.
+        </li>
+</ul></div>
+<p>
+      Please take a look at <a href="https://svn.boost.org/trac/boost/query?status=assigned&amp;status=new&amp;status=reopened&amp;component=thread&amp;type=!Feature+Requests&amp;col=id&amp;col=summary&amp;order=id" target="_top">thread
+      Know Bugs</a> to see the current state.
+    </p>
+<p>
+      Please take a look at <a href="http://www.boost.org/development/tests/master/developer/thread.html" target="_top">thread
+      trunk regression test</a> to see the last regression test snapshot.
+    </p>
+<p>
+      <span class="bold"><strong>New Experimental Features:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11231" target="_top">#11231</a>
+          Allow to set continuation future's destructor behavior to non-blocking
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11424" target="_top">#11424</a>
+          Provide shared_timed_mutex as an alternative name for shared_mutex and
+          deprecate the use of shared_mutex as a timed mutex
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11734" target="_top">#11734</a>
+          future::then(Cont) should be able to execute the continuation on undetermined
+          thread
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11736" target="_top">#11736</a>
+          Allow to use launch::executor on future::then(launch::executor, cont)
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11737" target="_top">#11737</a>
+          Add a launch::inherit policy that can be used on ::then() to use the policy
+          of the parent future
+        </li>
+</ul></div>
+<p>
+      <span class="bold"><strong>Fixed Bugs:</strong></span>
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/6377" target="_top">#6377</a>
+          Condition variable blocks when changing time
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/6787" target="_top">#6787</a>
+          boost::thread::sleep() hangs if system time is rolled back
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/7665" target="_top">#7665</a>
+          this_thread::sleep_for no longer uses steady_clock in thread
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/7720" target="_top">#7720</a>
+          exception lock_error while intensive locking/unlocking of mutex
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/9309" target="_top">#9309</a>
+          test_latch fails often on clang-darwin-tot11
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/10788" target="_top">#10788</a>
+          GetLogicalProcessor isn't available for Windows platform less or equals
+          to 0x0502
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11090" target="_top">#11090</a>
+          ex_future_unwrap- ThreadSanitizer: lock-order-inversion (potential deadlock)
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11158" target="_top">#11158</a>
+          Pthread thread deadlock when faketime used
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11174" target="_top">#11174</a>
+          boost::condition_variable::timed_wait with predicate unexpectedly wakes
+          up while should wait infinite
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11185" target="_top">#11185</a>
+          Incorrect URL redirection
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11192" target="_top">#11192</a>
+          boost::future&lt;&gt;::then() with an executor doesn't compile when the
+          callback returns a future
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11250" target="_top">#11250</a>
+          future made from make_exceptional fails on assertion in destructor
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11256" target="_top">#11256</a>
+          future&lt;&gt;::is_ready() == false in continuation function
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11261" target="_top">#11261</a>
+          bad use of scoped threads in basic_thread_pool
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11262" target="_top">#11262</a>
+          bad use of direct pointer in shared_state_nullary_task
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11263" target="_top">#11263</a>
+          lock already locked lock
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11266" target="_top">#11266</a>
+          boost::packaged_task has invalid variadic signature
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11302" target="_top">#11302</a>
+          boost thread doesn't build with BOOST_THREAD_PATCH.
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11322" target="_top">#11322</a>
+          sleep_for() nanoseconds overload will always return too early on windows
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11329" target="_top">#11329</a>
+          using declarative for GetProcessHeap, .... fails
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11368" target="_top">#11368</a>
+          boost thread's usage of CreateWaitableTimer wakes PC from sleep (doh)
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11377" target="_top">#11377</a>
+          Boost condition variable always waits for system clock deadline
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11435" target="_top">#11435</a>
+          gcc compiler warning in future.hpp
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11555" target="_top">#11555</a>
+          devector.hpp assumes allocator_traits_type is always present
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11562" target="_top">#11562</a>
+          (condition_variable_any::wait_until + recursive_mutex + steady_clock) timer
+          expires after computer time is set forward on Ubuntu 64-bit
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11672" target="_top">#11672</a>
+          Thread: Should use unique_ptr, not auto_ptr
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11688" target="_top">#11688</a>
+          thread::try_join_until: Avoid busy wait if system clock changes
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11672" target="_top">#11716</a>
+          ::then(f) should inherit the parent Executor
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11795" target="_top">#11795</a>
+          Incorrect version specification for documentation of thread destructor
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11796" target="_top">#11796</a>
+          Thread move assignment operator, does not detach previous thread data
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11817" target="_top">#11817</a>
+          'sync_queue_is_closed' was not declared in boost/thread/executors/thread_executor.hpp
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/11818" target="_top">#11818</a>
+          future.then will be blocked if promise is set after the invocation of then
+        </li>
+<li class="listitem">
+          <a href="http://svn.boost.org/trac/boost/ticket/12049" target="_top">#12049</a>
+          Assertion failure from detached threads during shutdown
+        </li>
+</ul></div>
+<h4>
+<a name="thread.changes.h10"></a>
       <span class="phrase"><a name="thread.changes.version_4_5_0___boost_1_58"></a></span><a class="link" href="changes.html#thread.changes.version_4_5_0___boost_1_58">Version
       4.5.0 - boost 1.58</a>
     </h4>
@@ -175,7 +868,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h1"></a>
+<a name="thread.changes.h11"></a>
       <span class="phrase"><a name="thread.changes.version_4_4_0___boost_1_57"></a></span><a class="link" href="changes.html#thread.changes.version_4_4_0___boost_1_57">Version
       4.4.0 - boost 1.57</a>
     </h4>
@@ -383,7 +1076,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h2"></a>
+<a name="thread.changes.h12"></a>
       <span class="phrase"><a name="thread.changes.version_4_3_0___boost_1_56"></a></span><a class="link" href="changes.html#thread.changes.version_4_3_0___boost_1_56">Version
       4.3.0 - boost 1.56</a>
     </h4>
@@ -555,7 +1248,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h3"></a>
+<a name="thread.changes.h13"></a>
       <span class="phrase"><a name="thread.changes.version_4_2_0___boost_1_55"></a></span><a class="link" href="changes.html#thread.changes.version_4_2_0___boost_1_55">Version
       4.2.0 - boost 1.55</a>
     </h4>
@@ -723,7 +1416,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h4"></a>
+<a name="thread.changes.h14"></a>
       <span class="phrase"><a name="thread.changes.version_4_1_0___boost_1_54"></a></span><a class="link" href="changes.html#thread.changes.version_4_1_0___boost_1_54">Version
       4.1.0 - boost 1.54</a>
     </h4>
@@ -884,7 +1577,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h5"></a>
+<a name="thread.changes.h15"></a>
       <span class="phrase"><a name="thread.changes.version_4_0_0___boost_1_53"></a></span><a class="link" href="changes.html#thread.changes.version_4_0_0___boost_1_53">Version
       4.0.0 - boost 1.53</a>
     </h4>
@@ -1081,7 +1774,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h6"></a>
+<a name="thread.changes.h16"></a>
       <span class="phrase"><a name="thread.changes.version_3_1_0___boost_1_52"></a></span><a class="link" href="changes.html#thread.changes.version_3_1_0___boost_1_52">Version
       3.1.0 - boost 1.52</a>
     </h4>
@@ -1246,7 +1939,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h7"></a>
+<a name="thread.changes.h17"></a>
       <span class="phrase"><a name="thread.changes.version_3_0_1___boost_1_51"></a></span><a class="link" href="changes.html#thread.changes.version_3_0_1___boost_1_51">Version
       3.0.1 - boost 1.51</a>
     </h4>
@@ -1337,7 +2030,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h8"></a>
+<a name="thread.changes.h18"></a>
       <span class="phrase"><a name="thread.changes.version_3_0_0___boost_1_50"></a></span><a class="link" href="changes.html#thread.changes.version_3_0_0___boost_1_50">Version
       3.0.0 - boost 1.50</a>
     </h4>
@@ -1550,7 +2243,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h9"></a>
+<a name="thread.changes.h19"></a>
       <span class="phrase"><a name="thread.changes.version_2_1_1___boost_1_49"></a></span><a class="link" href="changes.html#thread.changes.version_2_1_1___boost_1_49">Version
       2.1.1 - boost 1.49</a>
     </h4>
@@ -1648,7 +2341,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h10"></a>
+<a name="thread.changes.h20"></a>
       <span class="phrase"><a name="thread.changes.version_2_1_0___changes_since_boost_1_40"></a></span><a class="link" href="changes.html#thread.changes.version_2_1_0___changes_since_boost_1_40">Version 2.1.0
       - Changes since boost 1.40</a>
     </h4>
@@ -1657,7 +2350,7 @@
       a few minor changes.
     </p>
 <h4>
-<a name="thread.changes.h11"></a>
+<a name="thread.changes.h21"></a>
       <span class="phrase"><a name="thread.changes.changes_since_boost_1_35"></a></span><a class="link" href="changes.html#thread.changes.changes_since_boost_1_35">Changes
       since boost 1.35</a>
     </h4>
@@ -1694,7 +2387,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h12"></a>
+<a name="thread.changes.h22"></a>
       <span class="phrase"><a name="thread.changes.version_2_0_0___changes_since_boost_1_34"></a></span><a class="link" href="changes.html#thread.changes.version_2_0_0___changes_since_boost_1_34">Version 2.0.0
       - Changes since boost 1.34</a>
     </h4>
@@ -1705,7 +2398,7 @@
       with the old code. The new features and breaking changes are described below.
     </p>
 <h4>
-<a name="thread.changes.h13"></a>
+<a name="thread.changes.h23"></a>
       <span class="phrase"><a name="thread.changes.new_features"></a></span><a class="link" href="changes.html#thread.changes.new_features">New
       Features</a>
     </h4>
@@ -1748,7 +2441,7 @@
         </li>
 </ul></div>
 <h4>
-<a name="thread.changes.h14"></a>
+<a name="thread.changes.h24"></a>
       <span class="phrase"><a name="thread.changes.breaking_changes"></a></span><a class="link" href="changes.html#thread.changes.breaking_changes">Breaking
       Changes</a>
     </h4>
@@ -1816,7 +2509,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2007 -11 Anthony Williams<br>Copyright &#169; 2011 -15 Vicente J. Botet Escriba<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2007 -11 Anthony Williams<br>Copyright &#169; 2011 -17 Vicente J. Botet Escriba<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

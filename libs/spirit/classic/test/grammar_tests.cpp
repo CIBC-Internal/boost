@@ -10,7 +10,6 @@
 #include <iostream>
 #include <boost/detail/lightweight_test.hpp>
 
-using namespace std;
 
 //#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_SINGLE_GRAMMAR_INSTANCE
@@ -36,7 +35,7 @@ struct num_list : public grammar<num_list>
 {
     enum {
         default_rule = 0,
-        num_rule = 1,
+        num_rule = 1
     };
 
     template <typename ScannerT>

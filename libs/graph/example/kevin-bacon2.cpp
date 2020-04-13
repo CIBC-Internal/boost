@@ -5,6 +5,16 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
+
+
+/*
+   IMPORTANT:
+   ~~~~~~~~~~
+
+   This example appears to be broken and crashes at runtime, see https://github.com/boostorg/graph/issues/148
+
+*/
+
 #include <boost/config.hpp>
 #include <iostream>
 #include <fstream>
@@ -16,6 +26,7 @@
 #include <map>
 #include <boost/graph/adj_list_serialize.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/string.hpp>
 
 struct vertex_properties {
   std::string name;
@@ -55,9 +66,9 @@ private:
   int* d;
 };
 
-int main()
+int main(int argc, const char** argv)
 {
-  std::ifstream ifs("./kevin-bacon2.dat");
+  std::ifstream ifs(argc >= 2 ? argv[1] : "./kevin-bacon2.dat");
   if (!ifs) {
     std::cerr << "No ./kevin-bacon2.dat file" << std::endl;
     return EXIT_FAILURE;

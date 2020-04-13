@@ -2,8 +2,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>cpp_int</title>
-<link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="stylesheet" href="../../../multiprecision.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Boost.Multiprecision">
 <link rel="up" href="../ints.html" title="Integer Types">
 <link rel="prev" href="../ints.html" title="Integer Types">
@@ -310,16 +310,21 @@
             </li>
 <li class="listitem">
               When used at fixed precision, the size of this type is always one machine
-              word larger than you would expect for an N-bit integer: the extra word
-              stores both the sign, and how many machine words in the integer are
-              actually in use. The latter is an optimisation for larger fixed precision
-              integers, so that a 1024-bit integer has almost the same performance
-              characteristics as a 128-bit integer, rather than being 4 times slower
-              for addition and 16 times slower for multiplication (assuming the values
-              involved would always fit in 128 bits). Typically this means you can
-              use an integer type wide enough for the "worst case scenario"
-              with only minor performance degradation even if most of the time the
-              arithmetic could in fact be done with a narrower type.
+              word (plus any compiler-applied alignment padding) larger than you
+              would expect for an N-bit integer: the extra word stores both the sign,
+              and how many machine words in the integer are actually in use. The
+              latter is an optimisation for larger fixed precision integers, so that
+              a 1024-bit integer has almost the same performance characteristics
+              as a 128-bit integer, rather than being 4 times slower for addition
+              and 16 times slower for multiplication (assuming the values involved
+              would always fit in 128 bits). Typically this means you can use an
+              integer type wide enough for the "worst case scenario" with
+              only minor performance degradation even if most of the time the arithmetic
+              could in fact be done with a narrower type. Also note that unsigned
+              fixed precision types small enough to fit inside the largest native
+              integer become a simple wrapper around that type, this includes the
+              "checked" variants. Small signed types will always have an
+              extra sign word and so be larger than their native equivalent.
             </li>
 <li class="listitem">
               When used at fixed precision and MaxBits is smaller than the number
@@ -338,10 +343,36 @@
               with the value 0xffff. This can be used to generate compile time constants
               that are too large to fit into any built in number type.
             </li>
+<li class="listitem">
+              The <a class="link" href="cpp_int.html" title="cpp_int">cpp_int</a>
+              types support constexpr arithmetic, provided it is a fixed precision
+              type with no allocator. It may also be a checked integer: in which
+              case a compiler error will be generated on overflow or undefined behaviour.
+              In addition the free functions <code class="computeroutput"><span class="identifier">abs</span></code>,
+              <code class="computeroutput"><span class="identifier">swap</span></code>, <code class="computeroutput"><span class="identifier">multiply</span></code>, <code class="computeroutput"><span class="identifier">add</span></code>,
+              <code class="computeroutput"><span class="identifier">subtract</span></code>, <code class="computeroutput"><span class="identifier">divide_qr</span></code>, <code class="computeroutput"><span class="identifier">integer_modulus</span></code>,
+              <code class="computeroutput"><span class="identifier">powm</span></code>, <code class="computeroutput"><span class="identifier">lsb</span></code>, <code class="computeroutput"><span class="identifier">msb</span></code>,
+              <code class="computeroutput"><span class="identifier">bit_test</span></code>, <code class="computeroutput"><span class="identifier">bit_set</span></code>, <code class="computeroutput"><span class="identifier">bit_unset</span></code>,
+              <code class="computeroutput"><span class="identifier">bit_flip</span></code>, <code class="computeroutput"><span class="identifier">sqrt</span></code>, <code class="computeroutput"><span class="identifier">gcd</span></code>,
+              <code class="computeroutput"><span class="identifier">lcm</span></code> are all supported.
+              Use of <a class="link" href="cpp_int.html" title="cpp_int">cpp_int</a>
+              in this way requires either a C++2a compiler (one which supports <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">is_constant_evaluated</span><span class="special">()</span></code>),
+              or GCC-6 or later in C++14 mode. Compilers other than GCC and without
+              <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">is_constant_evaluated</span><span class="special">()</span></code>
+              will support a very limited set of operations: expect to hit roadblocks
+              rather easily.
+            </li>
+<li class="listitem">
+              You can import/export the raw bits of a <a class="link" href="cpp_int.html" title="cpp_int">cpp_int</a>
+              to and from external storage via the <code class="computeroutput"><span class="identifier">import_bits</span></code>
+              and <code class="computeroutput"><span class="identifier">export_bits</span></code> functions.
+              More information is in the <a class="link" href="../import_export.html" title="Importing and Exporting Data to and from cpp_int and cpp_bin_float">section
+              on import/export</a>.
+            </li>
 </ul></div>
 <h6>
 <a name="boost_multiprecision.tut.ints.cpp_int.h0"></a>
-          <span class="phrase"><a name="boost_multiprecision.tut.ints.cpp_int.example"></a></span><a class="link" href="cpp_int.html#boost_multiprecision.tut.ints.cpp_int.example">Example:</a>
+          <span class="phrase"><a name="boost_multiprecision.tut.ints.cpp_int.cpp_int_eg"></a></span><a class="link" href="cpp_int.html#boost_multiprecision.tut.ints.cpp_int.cpp_int_eg">Example:</a>
         </h6>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">multiprecision</span><span class="special">/</span><span class="identifier">cpp_int</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">iostream</span><span class="special">&gt;</span>
@@ -356,14 +387,15 @@
    <span class="keyword">for</span><span class="special">(</span><span class="keyword">unsigned</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">1</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;=</span> <span class="number">20</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span>
       <span class="identifier">v</span> <span class="special">*=</span> <span class="identifier">i</span><span class="special">;</span>
 
-   <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">v</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span> <span class="comment">// prints 20!</span>
+   <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">v</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span> <span class="comment">// prints 2432902008176640000 (i.e. 20!)</span>
 
    <span class="comment">// Repeat at arbitrary precision:</span>
    <span class="identifier">cpp_int</span> <span class="identifier">u</span> <span class="special">=</span> <span class="number">1</span><span class="special">;</span>
    <span class="keyword">for</span><span class="special">(</span><span class="keyword">unsigned</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">1</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;=</span> <span class="number">100</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span>
       <span class="identifier">u</span> <span class="special">*=</span> <span class="identifier">i</span><span class="special">;</span>
 
-   <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">u</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span> <span class="comment">// prints 100!</span>
+   <span class="comment">// prints 93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000 (i.e. 100!)</span>
+   <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">u</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
 
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
@@ -371,7 +403,8 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2002-2013 John Maddock and Christopher Kormanyos<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2002-2019 John Maddock
+      and Christopher Kormanyos<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

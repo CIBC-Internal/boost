@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -13,6 +14,7 @@
 #include <deque>
 #include <vector>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/range.hpp>
 
@@ -21,6 +23,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
@@ -39,6 +42,8 @@
 #include <boost/geometry/algorithms/detail/is_valid/debug_validity_phase.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
+
+#include <boost/geometry/strategies/intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -71,43 +76,69 @@ private:
     <
         typename PolygonIterator,
         typename TurnIterator,
-        typename VisitPolicy
+        typename VisitPolicy,
+        typename Strategy
     >
     static inline
     bool are_polygon_interiors_disjoint(PolygonIterator polygons_first,
                                         PolygonIterator polygons_beyond,
                                         TurnIterator turns_first,
                                         TurnIterator turns_beyond,
-                                        VisitPolicy& visitor)
+                                        VisitPolicy& visitor,
+                                        Strategy const& strategy)
     {
-        // collect all polygons that have turns
-        std::set<signed_index_type> multi_indices;
+        boost::ignore_unused(visitor);
+
+        // collect all polygons that have crossing turns
+        std::set<signed_size_type> multi_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
-            multi_indices.insert(tit->operations[0].seg_id.multi_index);
-            multi_indices.insert(tit->operations[1].seg_id.multi_index);
+            if (! tit->touch_only)
+            {
+                multi_indices.insert(tit->operations[0].seg_id.multi_index);
+                multi_indices.insert(tit->operations[1].seg_id.multi_index);
+            }
         }
 
+        typedef geometry::model::box<typename point_type<MultiPolygon>::type> box_type;
+        typedef typename base::template partition_item<PolygonIterator, box_type> item_type;
+
         // put polygon iterators without turns in a vector
-        std::vector<PolygonIterator> polygon_iterators;
-        signed_index_type multi_index = 0;
+        std::vector<item_type> polygon_iterators;
+        signed_size_type multi_index = 0;
         for (PolygonIterator it = polygons_first; it != polygons_beyond;
              ++it, ++multi_index)
         {
             if (multi_indices.find(multi_index) == multi_indices.end())
             {
-                polygon_iterators.push_back(it);
+                polygon_iterators.push_back(item_type(it));
             }
         }
 
-        typename base::item_visitor_type item_visitor;
+        // prepare strategies
+        typedef typename Strategy::envelope_strategy_type envelope_strategy_type;
+        envelope_strategy_type const envelope_strategy
+            = strategy.get_envelope_strategy();
+        typedef typename Strategy::disjoint_box_box_strategy_type disjoint_box_box_strategy_type;
+        disjoint_box_box_strategy_type const disjoint_strategy
+            = strategy.get_disjoint_box_box_strategy();
+
+        // call partition to check if polygons are disjoint from each other
+        typename base::template item_visitor_type<Strategy> item_visitor(strategy);
 
         geometry::partition
             <
-                geometry::model::box<typename point_type<MultiPolygon>::type>,
-                typename base::expand_box,
-                typename base::overlaps_box
-            >::apply(polygon_iterators, item_visitor);
+                geometry::model::box<typename point_type<MultiPolygon>::type>
+            >::apply(polygon_iterators, item_visitor,
+                     typename base::template expand_box
+                        <
+                            envelope_strategy_type
+                        >(envelope_strategy),
+                     typename base::template overlaps_box
+                        <
+                            envelope_strategy_type,
+                            disjoint_box_box_strategy_type
+                        >(envelope_strategy, disjoint_strategy));
 
         if (item_visitor.items_overlap)
         {
@@ -124,7 +155,7 @@ private:
     class has_multi_index
     {
     public:
-        has_multi_index(signed_index_type multi_index)
+        has_multi_index(signed_size_type multi_index)
             : m_multi_index(multi_index)
         {}
 
@@ -136,7 +167,7 @@ private:
         }
 
     private:
-        signed_index_type const m_multi_index;
+        signed_size_type const m_multi_index;
     };
 
 
@@ -148,15 +179,17 @@ private:
         <
             typename PolygonIterator,
             typename TurnIterator,
-            typename VisitPolicy
+            typename VisitPolicy,
+            typename Strategy
         >
         static inline bool apply(PolygonIterator polygons_first,
                                  PolygonIterator polygons_beyond,
                                  TurnIterator turns_first,
                                  TurnIterator turns_beyond,
-                                 VisitPolicy& visitor)
+                                 VisitPolicy& visitor,
+                                 Strategy const& strategy)
         {
-            signed_index_type multi_index = 0;
+            signed_size_type multi_index = 0;
             for (PolygonIterator it = polygons_first; it != polygons_beyond;
                  ++it, ++multi_index)
             {
@@ -178,7 +211,8 @@ private:
                 if (! Predicate::apply(*it,
                                        filtered_turns_first,
                                        filtered_turns_beyond,
-                                       visitor))
+                                       visitor,
+                                       strategy))
                 {
                     return false;
                 }
@@ -193,19 +227,21 @@ private:
     <
         typename PolygonIterator,
         typename TurnIterator,
-        typename VisitPolicy
+        typename VisitPolicy,
+        typename Strategy
     >
     static inline bool have_holes_inside(PolygonIterator polygons_first,
                                          PolygonIterator polygons_beyond,
                                          TurnIterator turns_first,
                                          TurnIterator turns_beyond,
-                                         VisitPolicy& visitor)
+                                         VisitPolicy& visitor,
+                                         Strategy const& strategy)
     {
         return has_property_per_polygon
             <
                 typename base::has_holes_inside
             >::apply(polygons_first, polygons_beyond,
-                     turns_first, turns_beyond, visitor);
+                     turns_first, turns_beyond, visitor, strategy);
     }
 
 
@@ -214,43 +250,51 @@ private:
     <
         typename PolygonIterator,
         typename TurnIterator,
-        typename VisitPolicy
+        typename VisitPolicy,
+        typename Strategy
     >
     static inline bool have_connected_interior(PolygonIterator polygons_first,
                                                PolygonIterator polygons_beyond,
                                                TurnIterator turns_first,
                                                TurnIterator turns_beyond,
-                                               VisitPolicy& visitor)
+                                               VisitPolicy& visitor,
+                                               Strategy const& strategy)
     {
         return has_property_per_polygon
             <
                 typename base::has_connected_interior
             >::apply(polygons_first, polygons_beyond,
-                     turns_first, turns_beyond, visitor);
+                     turns_first, turns_beyond, visitor, strategy);
     }
 
 
-    template <typename VisitPolicy>
+    template <typename VisitPolicy, typename Strategy>
     struct per_polygon
     {
-        per_polygon(VisitPolicy& policy) : m_policy(policy) {}
+        per_polygon(VisitPolicy& policy, Strategy const& strategy)
+            : m_policy(policy)
+            , m_strategy(strategy)
+        {}
 
         template <typename Polygon>
         inline bool apply(Polygon const& polygon) const
         {
-            return base::apply(polygon, m_policy);
+            return base::apply(polygon, m_policy, m_strategy);
         }
 
         VisitPolicy& m_policy;
+        Strategy const& m_strategy;
     };
 public:
-    template <typename VisitPolicy>
+    template <typename VisitPolicy, typename Strategy>
     static inline bool apply(MultiPolygon const& multipolygon,
-                             VisitPolicy& visitor)
+                             VisitPolicy& visitor,
+                             Strategy const& strategy)
     {
         typedef debug_validity_phase<MultiPolygon> debug_phase;
 
-        if (AllowEmptyMultiGeometries && boost::empty(multipolygon))
+        if (BOOST_GEOMETRY_CONDITION(AllowEmptyMultiGeometries)
+            && boost::empty(multipolygon))
         {
             return visitor.template apply<no_failure>();
         }
@@ -260,11 +304,11 @@ public:
 
         if (! detail::check_iterator_range
                   <
-                      per_polygon<VisitPolicy>,
+                      per_polygon<VisitPolicy, Strategy>,
                       false // do not check for empty multipolygon (done above)
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon),
-                           per_polygon<VisitPolicy>(visitor)))
+                           per_polygon<VisitPolicy, Strategy>(visitor, strategy)))
         {
             return false;
         }
@@ -273,11 +317,11 @@ public:
         // compute turns and check if all are acceptable
         debug_phase::apply(2);
 
-        typedef has_valid_self_turns<MultiPolygon> has_valid_turns;
+        typedef has_valid_self_turns<MultiPolygon, typename Strategy::cs_tag> has_valid_turns;
 
         std::deque<typename has_valid_turns::turn_type> turns;
         bool has_invalid_turns =
-            ! has_valid_turns::apply(multipolygon, turns, visitor);
+            ! has_valid_turns::apply(multipolygon, turns, visitor, strategy);
         debug_print_turns(turns.begin(), turns.end());
 
         if (has_invalid_turns)
@@ -294,7 +338,8 @@ public:
                                 boost::end(multipolygon),
                                 turns.begin(),
                                 turns.end(),
-                                visitor))
+                                visitor,
+                                strategy))
         {
             return false;
         }
@@ -307,7 +352,8 @@ public:
                                       boost::end(multipolygon),
                                       turns.begin(),
                                       turns.end(),
-                                      visitor))
+                                      visitor,
+                                      strategy))
         {
             return false;
         }
@@ -319,7 +365,8 @@ public:
                                               boost::end(multipolygon),
                                               turns.begin(),
                                               turns.end(),
-                                              visitor);
+                                              visitor,
+                                              strategy);
     }
 };
 
