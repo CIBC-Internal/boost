@@ -1,21 +1,21 @@
 #  For more information, please see: http://software.sci.utah.edu
-# 
+#
 #  The MIT License
-# 
+#
 #  Copyright (c) 2015 Scientific Computing and Imaging Institute,
 #  University of Utah.
-# 
-#  
+#
+#
 #  Permission is hereby granted, free of charge, to any person obtaining a
 #  copy of this software and associated documentation files (the "Software"),
 #  to deal in the Software without restriction, including without limitation
 #  the rights to use, copy, modify, merge, publish, distribute, sublicense,
 #  and/or sell copies of the Software, and to permit persons to whom the
 #  Software is furnished to do so, subject to the following conditions:
-# 
+#
 #  The above copyright notice and this permission notice shall be included
-#  in all copies or substantial portions of the Software. 
-# 
+#  in all copies or substantial portions of the Software.
+#
 #  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 #  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -139,13 +139,14 @@ if (BUILD_PYTHON)
       "--with-python-root=${SCI_PYTHON_ROOT}"
       "--with-python-version=${SCI_PYTHON_VERSION_SHORT}"
     )
+    configure_file(user-config.jam.mac.in ${CMAKE_CURRENT_SOURCE_DIR}/tools/build/src/user-config.jam @ONLY)
   endif()
 endif()
 
 
 add_custom_target(bootstrap ALL
   COMMAND ${BOOTSTRAP_COMMAND} ${BOOTSTRAP_ARGS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})  
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 if(WIN32)
@@ -174,7 +175,7 @@ if(FORCE_64BIT_BUILD)
 endif()
 
 if(APPLE)
-  # For use of -Wno-c99-extensions flag, see Boost ticket #10276 
+  # For use of -Wno-c99-extensions flag, see Boost ticket #10276
   list(APPEND B2_ARGS "toolset=clang" "cxxflags=-std=c++11" "cxxflags=-stdlib=libc++" "cxxflags=-Wno-c99-extensions" "linkflags=-stdlib=libc++")
 elseif(WIN32)
   set(TOOLSET "msvc")
@@ -196,7 +197,7 @@ elseif(WIN32)
   endif()
 elseif(UNIX)
   if(BOOST_UNIX_CLANG)
-    # For use of -Wno-c99-extensions flag, see Boost ticket #10276 
+    # For use of -Wno-c99-extensions flag, see Boost ticket #10276
     list(APPEND B2_ARGS "toolset=clang" "cxxflags=-Wno-c99-extensions")
   endif()
   list(APPEND B2_ARGS "cxxflags=-fPIC")
