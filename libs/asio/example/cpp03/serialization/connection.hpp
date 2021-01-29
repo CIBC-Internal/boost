@@ -2,7 +2,7 @@
 // connection.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2020 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -14,7 +14,7 @@
 #include <boost/asio.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <iomanip>
@@ -35,8 +35,8 @@ class connection
 {
 public:
   /// Constructor.
-  connection(boost::asio::io_service& io_service)
-    : socket_(io_service)
+  connection(const boost::asio::executor& ex)
+    : socket_(ex)
   {
   }
 
@@ -65,7 +65,7 @@ public:
     {
       // Something went wrong, inform the caller.
       boost::system::error_code error(boost::asio::error::invalid_argument);
-      socket_.get_io_service().post(boost::bind(handler, error));
+      boost::asio::post(socket_.get_executor(), boost::bind(handler, error));
       return;
     }
     outbound_header_ = header_stream.str();

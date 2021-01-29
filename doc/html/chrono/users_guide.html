@@ -1,12 +1,13 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>User's Guide</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../chrono.html" title="Chapter&#160;6.&#160;Boost.Chrono 2.0.5">
-<link rel="prev" href="../chrono.html" title="Chapter&#160;6.&#160;Boost.Chrono 2.0.5">
+<link rel="up" href="../chrono.html" title="Chapter 7. Boost.Chrono 2.0.8">
+<link rel="prev" href="../chrono.html" title="Chapter 7. Boost.Chrono 2.0.8">
 <link rel="next" href="reference.html" title="Reference">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -308,10 +309,37 @@
           </p></td></tr>
 </table></div>
 </div>
-<div class="section"><div class="titlepage"><div><div><h4 class="title">
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
 <a name="chrono.users_guide.getting_started.hello_world__"></a><a class="link" href="users_guide.html#chrono.users_guide.getting_started.hello_world__" title="Hello World!">Hello
         World! </a>
-</h4></div></div></div></div>
+</h4></div></div></div>
+<p>
+          [//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          If all you want to do is to time a program's execution, here is a complete
+          program:
+        </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">chrono</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cmath</span><span class="special">&gt;</span>
+
+<span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
+<span class="special">{</span>
+    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">chrono</span><span class="special">::</span><span class="identifier">system_clock</span><span class="special">::</span><span class="identifier">time_point</span> <span class="identifier">start</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">chrono</span><span class="special">::</span><span class="identifier">system_clock</span><span class="special">::</span><span class="identifier">now</span><span class="special">();</span>
+
+    <span class="keyword">for</span> <span class="special">(</span> <span class="keyword">long</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="number">10000000</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span> <span class="special">)</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">sqrt</span><span class="special">(</span> <span class="number">123.456L</span> <span class="special">);</span> <span class="comment">// burn some time</span>
+
+    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">chrono</span><span class="special">::</span><a class="link" href="reference.html#chrono.reference.cpp0x.duration_hpp.duration" title="Class Template duration&lt;&gt;"><code class="computeroutput"><span class="identifier">duration</span></code></a><span class="special">&lt;</span><span class="keyword">double</span><span class="special">&gt;</span> <span class="identifier">sec</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">chrono</span><span class="special">::</span><span class="identifier">system_clock</span><span class="special">::</span><span class="identifier">now</span><span class="special">()</span> <span class="special">-</span> <span class="identifier">start</span><span class="special">;</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"took "</span> <span class="special">&lt;&lt;</span> <span class="identifier">sec</span><span class="special">.</span><span class="identifier">count</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="string">" seconds\n"</span><span class="special">;</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+          Output was:
+        </p>
+<pre class="programlisting"><span class="identifier">took</span> <span class="number">0.832</span> <span class="identifier">seconds</span>
+</pre>
+</div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
@@ -348,8 +376,7 @@
 <dt><span class="section"><a href="users_guide.html#chrono.users_guide.tutorial.duration.how_complicated_is_it_to_build_a_function_taking_a__duration__parameter_">How
           Complicated is it to Build a Function Taking a <code class="computeroutput"><span class="identifier">duration</span></code>
           Parameter?</a></span></dt>
-<dt><span class="section"><a href="users_guide.html#chrono.users_guide.tutorial.duration.is_it_possible_for_the_user_to_pass_a___duration_to_a_function_with_the_units_being_ambiguous_">Is
-          it possible for the user to pass a <a class="link" href="reference.html#chrono.reference.cpp0x.duration_hpp.duration" title="Class Template duration&lt;&gt;"><code class="computeroutput"><span class="identifier">duration</span></code></a> to a function with the
+<dt><span class="section"><a href="users_guide.html#chrono.users_guide.tutorial.duration.is_it_possible_for_the_user_to_pass_a___duration_to_a_function_with_the_units_being_ambiguous_">Is it possible for the user to pass a <code class="computeroutput"><span class="identifier">duration</span></code> to a function with the
           units being ambiguous?</a></span></dt>
 <dt><span class="section"><a href="users_guide.html#chrono.users_guide.tutorial.duration.can_durations_overflow_">Can
           Durations Overflow?</a></span></dt>
@@ -447,7 +474,7 @@
           its representation. This can be any integral type, or even a floating-point
           type. Or it can be a user-defined type which emulates an arithmetic type.
           The six predefined units all use signed integral types as their representation.
-          And they all have a minimum range of &#177; 292 years. <a class="link" href="reference.html#chrono.reference.cpp0x.duration_hpp.duration_typedefs" title="duration typedefs"><code class="computeroutput"><span class="identifier">nanoseconds</span></code></a> needs 64 bits to cover
+          And they all have a minimum range of ± 292 years. <a class="link" href="reference.html#chrono.reference.cpp0x.duration_hpp.duration_typedefs" title="duration typedefs"><code class="computeroutput"><span class="identifier">nanoseconds</span></code></a> needs 64 bits to cover
           that range. <a class="link" href="reference.html#chrono.reference.cpp0x.duration_hpp.duration_typedefs" title="duration typedefs"><code class="computeroutput"><span class="identifier">hours</span></code></a> needs only 23 bits to cover
           that range.
         </p>
@@ -841,10 +868,8 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="chrono.users_guide.tutorial.duration.is_it_possible_for_the_user_to_pass_a___duration_to_a_function_with_the_units_being_ambiguous_"></a><a class="link" href="users_guide.html#chrono.users_guide.tutorial.duration.is_it_possible_for_the_user_to_pass_a___duration_to_a_function_with_the_units_being_ambiguous_" title="Is it possible for the user to pass a duration to a function with the units being ambiguous?">Is
-          it possible for the user to pass a <code class="computeroutput"><span class="identifier">duration</span></code> to a function with the
-          units being ambiguous?</a>
-</h5></div></div></div>
+<a name="chrono.users_guide.tutorial.duration.is_it_possible_for_the_user_to_pass_a___duration_to_a_function_with_the_units_being_ambiguous_"></a>Is it possible for the user to pass a <a class="link" href="reference.html#chrono.reference.cpp0x.duration_hpp.duration" title="Class Template duration&lt;&gt;"><code class="computeroutput"><span class="identifier">duration</span></code></a> to a function with the
+          units being ambiguous?</h5></div></div></div>
 <p>
             No. No matter which option the author of <code class="computeroutput"><span class="identifier">f</span></code>
             chooses above, the following client code will not compile:
@@ -1273,7 +1298,7 @@
 <span class="identifier">ClockTick</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">nanoseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">56</span> <span class="special">[</span><span class="number">1</span><span class="special">/</span><span class="number">5000000000</span><span class="special">]</span><span class="identifier">seconds</span>
 
 <span class="identifier">Set</span> <span class="identifier">cout</span> <span class="identifier">to</span> <span class="identifier">use</span> <span class="keyword">short</span> <span class="identifier">names</span><span class="special">:</span>
-<span class="identifier">milliseconds</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">microseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">3010</span> &#956;s
+<span class="identifier">milliseconds</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">microseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">3010</span> μs
 <span class="identifier">hours</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">minutes</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">190</span> <span class="identifier">m</span>
 <span class="identifier">ClockTick</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">nanoseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">56</span> <span class="special">[</span><span class="number">1</span><span class="special">/</span><span class="number">5000000000</span><span class="special">]</span><span class="identifier">s</span>
 
@@ -1315,7 +1340,7 @@
             The output could be
           </p>
 <pre class="programlisting"><span class="identifier">Set</span> <span class="identifier">cout</span> <span class="identifier">to</span> <span class="identifier">use</span> <span class="keyword">short</span> <span class="identifier">names</span><span class="special">:</span>
-<span class="identifier">milliseconds</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">microseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">3010</span> &#956;s
+<span class="identifier">milliseconds</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">microseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">3010</span> μs
 <span class="identifier">hours</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">minutes</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">190</span> <span class="identifier">m</span>
 <span class="identifier">ClockTick</span><span class="special">(</span><span class="number">3</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">nanoseconds</span><span class="special">(</span><span class="number">10</span><span class="special">)</span> <span class="special">=</span> <span class="number">56</span> <span class="special">[</span><span class="number">1</span><span class="special">/</span><span class="number">5000000000</span><span class="special">]</span><span class="identifier">s</span>
 
@@ -1326,7 +1351,7 @@
 <span class="identifier">high_resolution_clock</span><span class="special">::</span><span class="identifier">now</span><span class="special">()</span> <span class="special">=</span> <span class="number">37297387655134</span> <span class="identifier">nanoseconds</span> <span class="identifier">since</span> <span class="identifier">boot</span>
 </pre>
 <p>
-            The &#956; for microsecond is specified to be U+00B5, encoded as UTF-8, UTF-16
+            The μ for microsecond is specified to be U+00B5, encoded as UTF-8, UTF-16
             or UTF-32 as appropriate for the stream's character size.
           </p>
 <p>
@@ -2555,7 +2580,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2008 Howard Hinnant<br>Copyright &#169; 2006, 2008 Beman Dawes<br>Copyright &#169; 2009-2013 Vicente J. Botet Escriba<p>
+<td align="right"><div class="copyright-footer">Copyright © 2008 Howard Hinnant<br>Copyright © 2006, 2008 Beman Dawes<br>Copyright © 2009-2013 Vicente J. Botet Escriba<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

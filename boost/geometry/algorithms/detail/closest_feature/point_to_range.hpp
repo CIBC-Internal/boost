@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -12,9 +12,11 @@
 
 #include <utility>
 
-#include <boost/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -51,7 +53,7 @@ protected:
                              iterator_type& it_min2,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != last );
+        BOOST_GEOMETRY_ASSERT( first != last );
 
         Distance const zero = Distance(0);
 
@@ -71,8 +73,11 @@ protected:
         // check if other segments are closer
         for (++prev, ++it; it != last; ++prev, ++it)
         {
-            Distance dist = strategy.apply(point, *prev, *it);
-            if (geometry::math::equals(dist, zero))
+            Distance const dist = strategy.apply(point, *prev, *it);
+
+            // Stop only if we find exactly zero distance
+            // otherwise it may stop at some very small value and miss the min
+            if (dist == zero)
             {
                 dist_min = zero;
                 it_min1 = prev;
@@ -162,7 +167,7 @@ private:
                              iterator_type& it_min2,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != last );
+        BOOST_GEOMETRY_ASSERT( first != last );
 
         base_type::apply(point, first, last, strategy,
                          it_min1, it_min2, dist_min);

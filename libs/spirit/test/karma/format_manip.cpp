@@ -11,7 +11,6 @@
 #include <boost/spirit/include/karma_stream.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_statement.hpp>
 
 #include <string>
 #include <sstream>
@@ -129,7 +128,7 @@ main()
 
     {
         BOOST_TEST(test( "a2", 
-            (char_ << int_)[_1 = 'a', _2 = 2] 
+            (char_ << int_)[(_1 = 'a', _2 = 2)]
         ));
 
         fusion::vector<char, int> t('a', 2);

@@ -9,7 +9,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // base_object.hpp:
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -17,7 +17,7 @@
 //  See http://www.boost.org for updates, documentation, and revision history.
 
 // if no archive headers have been included this is a no op
-// this is to permit BOOST_EXPORT etc to be included in a 
+// this is to permit BOOST_EXPORT etc to be included in a
 // file declaration header
 
 #include <boost/config.hpp>
@@ -25,7 +25,6 @@
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/int.hpp>
-#include <boost/mpl/bool.hpp>
 #include <boost/mpl/identity.hpp>
 
 #include <boost/type_traits/is_base_and_derived.hpp>
@@ -84,18 +83,8 @@ namespace detail
     };
 
 } // namespace detail
-#if defined(__BORLANDC__) && __BORLANDC__ < 0x610
 template<class Base, class Derived>
-const Base & 
-base_object(const Derived & d)
-{
-    BOOST_STATIC_ASSERT(! is_pointer<Derived>::value);
-    detail::base_register<Base, Derived>::invoke();
-    return access::cast_reference<const Base, Derived>(d);
-}
-#else
-template<class Base, class Derived>
-typename detail::base_cast<Base, Derived>::type & 
+typename detail::base_cast<Base, Derived>::type &
 base_object(Derived &d)
 {
     BOOST_STATIC_ASSERT(( is_base_and_derived<Base,Derived>::value));
@@ -104,7 +93,6 @@ base_object(Derived &d)
     detail::base_register<type, Derived>::invoke();
     return access::cast_reference<type, Derived>(d);
 }
-#endif
 
 } // namespace serialization
 } // namespace boost

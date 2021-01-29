@@ -6,10 +6,11 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017.
+// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -27,6 +28,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -494,10 +496,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 
-#ifdef HAVE_TTMATH
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
     // test variant support
     test_variant_different_default_strategy<double>::apply();
 
@@ -509,9 +507,6 @@ int test_main(int, char* [])
     test_variant_with_strategy<float>::apply();
     test_variant_with_strategy<long double>::apply();
     test_variant_with_strategy<int, double>::apply();
-#ifdef HAVE_TTMATH
-    test_variant_with_strategy<ttmath_big>::apply();
-#endif
 
     test_variant_boxes<double>::apply();
     test_variant_boxes<int>::apply();

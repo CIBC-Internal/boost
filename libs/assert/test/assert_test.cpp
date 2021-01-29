@@ -2,14 +2,18 @@
 //  assert_test.cpp - a test for boost/assert.hpp
 //
 //  Copyright (c) 2002 Peter Dimov and Multi Media Ltd.
-//  Copyright (2) Beman Dawes 2011
+//  Copyright (c) Beman Dawes 2011
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
+
+#if defined(__GNUC__)
+# pragma GCC diagnostic ignored "-Waddress"
+#endif
 
 #include <boost/assert.hpp>
 

@@ -31,10 +31,13 @@ struct ts_real_policies : boost::spirit::qi::ureal_policies<T>
     //  2 decimal places Max
     template <typename Iterator, typename Attribute>
     static bool
-    parse_frac_n(Iterator& first, Iterator const& last, Attribute& attr)
+    parse_frac_n(Iterator& first, Iterator const& last, Attribute& attr, int& frac_digits)
     {
         namespace qi = boost::spirit::qi;
-        return qi::extract_uint<T, 10, 1, 2, true>::call(first, last, attr);
+        Iterator savef = first;
+        bool r = qi::extract_uint<Attribute, 10, 1, 2, true>::call(first, last, attr);
+        frac_digits = static_cast<int>(std::distance(savef, first));
+        return r;
     }
 
     //  No exponent
@@ -54,9 +57,9 @@ struct ts_real_policies : boost::spirit::qi::ureal_policies<T>
     }
 
     //  Thousands separated numbers
-    template <typename Iterator, typename Attribute>
+    template <typename Iterator, typename Accumulator>
     static bool
-    parse_n(Iterator& first, Iterator const& last, Attribute& attr)
+    parse_n(Iterator& first, Iterator const& last, Accumulator& result)
     {
         using boost::spirit::qi::uint_parser;
         namespace qi = boost::spirit::qi;
@@ -64,24 +67,18 @@ struct ts_real_policies : boost::spirit::qi::ureal_policies<T>
         uint_parser<unsigned, 10, 1, 3> uint3;
         uint_parser<unsigned, 10, 3, 3> uint3_3;
 
-        T result = 0;
         if (parse(first, last, uint3, result))
         {
-            bool hit = false;
-            T n;
-            Iterator save = first;
+            Accumulator n;
+            Iterator iter = first;
 
-            while (qi::parse(first, last, ',') && qi::parse(first, last, uint3_3, n))
+            while (qi::parse(iter, last, ',') && qi::parse(iter, last, uint3_3, n))
             {
                 result = result * 1000 + n;
-                save = first;
-                hit = true;
+                first = iter;
             }
 
-            first = save;
-            if (hit)
-                attr = result;
-            return hit;
+            return true;
         }
         return false;
     }
@@ -101,9 +98,9 @@ struct no_leading_dot_policy : boost::spirit::qi::real_policies<T>
 
 template <typename T>
 bool
-compare(T n, double expected)
+compare(T n, double expected
+  , T const eps = std::pow(10.0, -std::numeric_limits<T>::digits10))
 {
-    T const eps = std::pow(10.0, -std::numeric_limits<T>::digits10);
     T delta = n - expected;
     return (delta >= -eps) && (delta <= eps);
 }
@@ -115,15 +112,13 @@ struct custom_real
     double n;
     custom_real() : n(0) {}
     custom_real(double n_) : n(n_) {}
-    friend bool operator==(custom_real a, custom_real b) 
+    friend bool operator==(custom_real a, custom_real b)
         { return a.n == b.n; }
-    friend bool operator==(custom_real a, double b) 
-        { return a.n == b; }
-    friend custom_real operator*(custom_real a, custom_real b) 
+    friend custom_real operator*(custom_real a, custom_real b)
         { return custom_real(a.n * b.n); }
-    friend custom_real operator+(custom_real a, custom_real b) 
+    friend custom_real operator+(custom_real a, custom_real b)
         { return custom_real(a.n + b.n); }
-    friend custom_real operator-(custom_real a, custom_real b) 
+    friend custom_real operator-(custom_real a, custom_real b)
         { return custom_real(a.n - b.n); }
 };
 

@@ -11,9 +11,10 @@
 #include <iostream>
 
 #include <boost/math/concepts/real_concept.hpp>
+#include <boost/math/tools/test.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/typeof/typeof.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -36,7 +37,7 @@ void test_pow(T base)
 
     if ((base == 0) && N < 0)
     {
-       BOOST_CHECK_THROW(math::pow<N>(base), std::overflow_error);
+       BOOST_MATH_CHECK_THROW(math::pow<N>(base), std::overflow_error);
     }
     else
     {
@@ -192,6 +193,14 @@ BOOST_AUTO_TEST_CASE( test_main )
     cout << "Testing with concepts::real_concept precision bases and negative big exponents" << endl;
     test_with_big_exponents<boost::math::concepts::real_concept, -1>();
 #endif
+
+    #ifndef BOOST_NO_CXX14_CONSTEXPR
+    static_assert(boost::math::pow<8>(2)==256, "Pow is not constexpr");
+    static_assert(boost::math::pow<9>(2)==512, "Pow is not constexpr");
+    static_assert(boost::math::pow<2>(2)==4,   "Pow is not constexpr");
+    static_assert(boost::math::pow<1>(2)==2,   "Pow is not constexpr");
+    static_assert(boost::math::pow<0>(2)==1,   "Pow is not constexpr");
+    #endif
 
     test_return_types();
 

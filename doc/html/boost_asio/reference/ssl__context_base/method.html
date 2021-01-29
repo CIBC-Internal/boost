@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ssl::context_base::method</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../ssl__context_base.html" title="ssl::context_base">
 <link rel="prev" href="file_format.html" title="ssl::context_base::file_format">
@@ -27,30 +27,37 @@
 <a name="boost_asio.reference.ssl__context_base.method"></a><a class="link" href="method.html" title="ssl::context_base::method">ssl::context_base::method</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp166731120"></a> 
-Different methods supported by a context.
+          <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method"></a> 
+Different
+          methods supported by a context.
         </p>
-<pre class="programlisting"><span class="keyword">enum</span> <span class="identifier">method</span>
+<pre class="programlisting">enum method
 </pre>
 <p>
-          <a class="indexterm" name="idp166734656"></a>
- <a class="indexterm" name="idp166735760"></a>
- <a class="indexterm" name="idp166736864"></a>
- <a class="indexterm" name="idp166737968"></a>
- <a class="indexterm" name="idp166739072"></a>
- <a class="indexterm" name="idp166740176"></a>
- <a class="indexterm" name="idp166741280"></a>
- <a class="indexterm" name="idp166742384"></a>
- <a class="indexterm" name="idp166743488"></a>
- <a class="indexterm" name="idp166744592"></a>
- <a class="indexterm" name="idp166745696"></a>
- <a class="indexterm" name="idp166746800"></a>
- <a class="indexterm" name="idp166747904"></a>
- <a class="indexterm" name="idp166749008"></a>
- <a class="indexterm" name="idp166750112"></a>
- <a class="indexterm" name="idp166751216"></a>
- <a class="indexterm" name="idp166752320"></a>
- <a class="indexterm" name="idp166753424"></a>
+          <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv2"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv2_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv2_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv3"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv3_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv3_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv1"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv1_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv1_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv23"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv23_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.sslv23_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv11"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv11_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv11_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv12"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv12_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv12_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv13"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv13_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tlsv13_server"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tls"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tls_client"></a>
+ <a class="indexterm" name="boost_asio.indexterm.ssl__context_base.method.tls_server"></a>
         </p>
 <h6>
 <a name="boost_asio.reference.ssl__context_base.method.h0"></a>
@@ -131,12 +138,36 @@ Different methods supported by a context.
 <dd><p>
                 TLS version 1.2 server.
               </p></dd>
+<dt><span class="term">tlsv13</span></dt>
+<dd><p>
+                Generic TLS version 1.3.
+              </p></dd>
+<dt><span class="term">tlsv13_client</span></dt>
+<dd><p>
+                TLS version 1.3 client.
+              </p></dd>
+<dt><span class="term">tlsv13_server</span></dt>
+<dd><p>
+                TLS version 1.3 server.
+              </p></dd>
+<dt><span class="term">tls</span></dt>
+<dd><p>
+                Generic TLS.
+              </p></dd>
+<dt><span class="term">tls_client</span></dt>
+<dd><p>
+                TLS client.
+              </p></dd>
+<dt><span class="term">tls_server</span></dt>
+<dd><p>
+                TLS server.
+              </p></dd>
 </dl>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

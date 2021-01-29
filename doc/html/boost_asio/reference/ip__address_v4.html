@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ip::address_v4</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../reference.html" title="Reference">
 <link rel="prev" href="ip__address/to_v6.html" title="ip::address::to_v6">
@@ -29,7 +29,7 @@
 <p>
         Implements IP version 4 style addresses.
       </p>
-<pre class="programlisting"><span class="keyword">class</span> <span class="identifier">address_v4</span>
+<pre class="programlisting">class address_v4
 </pre>
 <h5>
 <a name="boost_asio.reference.ip__address_v4.h0"></a>
@@ -52,7 +52,8 @@
                 </p>
               </th>
 </tr></thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>
                 <p>
                   <a class="link" href="ip__address_v4/bytes_type.html" title="ip::address_v4::bytes_type"><span class="bold"><strong>bytes_type</strong></span></a>
@@ -63,7 +64,20 @@
                   The type used to represent an address as an array of bytes.
                 </p>
               </td>
-</tr></tbody>
+</tr>
+<tr>
+<td>
+                <p>
+                  <a class="link" href="ip__address_v4/uint_type.html" title="ip::address_v4::uint_type"><span class="bold"><strong>uint_type</strong></span></a>
+                </p>
+              </td>
+<td>
+                <p>
+                  The type used to represent an address as an unsigned integer.
+                </p>
+              </td>
+</tr>
+</tbody>
 </table></div>
 <h5>
 <a name="boost_asio.reference.ip__address_v4.h1"></a>
@@ -90,28 +104,21 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="ip__address_v4/address_v4.html" title="ip::address_v4::address_v4"><span class="bold"><strong>address_v4</strong></span></a>
+                  <a class="link" href="ip__address_v4/address_v4.html" title="ip::address_v4::address_v4"><span class="bold"><strong>address_v4</strong></span></a> <span class="silver">[constructor]</span>
                 </p>
               </td>
 <td>
                 <p>
-                  Default constructor.
-                </p>
-                <p>
-                  Construct an address from raw bytes.
-                </p>
-                <p>
-                  Construct an address from a unsigned long in host byte order.
-                </p>
-                <p>
-                  Copy constructor.
+                  Default constructor. <br> <span class="silver"> —</span><br> Construct an address from raw
+                  bytes. <br> <span class="silver"> —</span><br> Construct an address from an unsigned integer
+                  in host byte order. <br> <span class="silver"> —</span><br> Copy constructor.
                 </p>
               </td>
 </tr>
 <tr>
 <td>
                 <p>
-                  <a class="link" href="ip__address_v4/any.html" title="ip::address_v4::any"><span class="bold"><strong>any</strong></span></a>
+                  <a class="link" href="ip__address_v4/any.html" title="ip::address_v4::any"><span class="bold"><strong>any</strong></span></a> <span class="silver">[static]</span>
                 </p>
               </td>
 <td>
@@ -123,28 +130,28 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="ip__address_v4/broadcast.html" title="ip::address_v4::broadcast"><span class="bold"><strong>broadcast</strong></span></a>
+                  <a class="link" href="ip__address_v4/broadcast.html" title="ip::address_v4::broadcast"><span class="bold"><strong>broadcast</strong></span></a> <span class="silver">[static]</span>
                 </p>
               </td>
 <td>
                 <p>
                   Obtain an address object that represents the broadcast address.
-                </p>
-                <p>
-                  Obtain an address object that represents the broadcast address
-                  that corresponds to the specified address and netmask.
+                  <br> <span class="silver"> —</span><br> (Deprecated: Use network_v4 class.) Obtain an address
+                  object that represents the broadcast address that corresponds to
+                  the specified address and netmask.
                 </p>
               </td>
 </tr>
 <tr>
 <td>
                 <p>
-                  <a class="link" href="ip__address_v4/from_string.html" title="ip::address_v4::from_string"><span class="bold"><strong>from_string</strong></span></a>
+                  <a class="link" href="ip__address_v4/from_string.html" title="ip::address_v4::from_string"><span class="bold"><strong>from_string</strong></span></a> <span class="silver">[static]</span>
                 </p>
               </td>
 <td>
                 <p>
-                  Create an address from an IP address string in dotted decimal form.
+                  (Deprecated: Use make_address_v4().) Create an address from an
+                  IP address string in dotted decimal form.
                 </p>
               </td>
 </tr>
@@ -156,7 +163,8 @@
               </td>
 <td>
                 <p>
-                  Determine whether the address is a class A address.
+                  (Deprecated: Use network_v4 class.) Determine whether the address
+                  is a class A address.
                 </p>
               </td>
 </tr>
@@ -168,7 +176,8 @@
               </td>
 <td>
                 <p>
-                  Determine whether the address is a class B address.
+                  (Deprecated: Use network_v4 class.) Determine whether the address
+                  is a class B address.
                 </p>
               </td>
 </tr>
@@ -180,7 +189,8 @@
               </td>
 <td>
                 <p>
-                  Determine whether the address is a class C address.
+                  (Deprecated: Use network_v4 class.) Determine whether the address
+                  is a class C address.
                 </p>
               </td>
 </tr>
@@ -223,7 +233,7 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="ip__address_v4/loopback.html" title="ip::address_v4::loopback"><span class="bold"><strong>loopback</strong></span></a>
+                  <a class="link" href="ip__address_v4/loopback.html" title="ip::address_v4::loopback"><span class="bold"><strong>loopback</strong></span></a> <span class="silver">[static]</span>
                 </p>
               </td>
 <td>
@@ -235,13 +245,13 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="ip__address_v4/netmask.html" title="ip::address_v4::netmask"><span class="bold"><strong>netmask</strong></span></a>
+                  <a class="link" href="ip__address_v4/netmask.html" title="ip::address_v4::netmask"><span class="bold"><strong>netmask</strong></span></a> <span class="silver">[static]</span>
                 </p>
               </td>
 <td>
                 <p>
-                  Obtain the netmask that corresponds to the address, based on its
-                  address class.
+                  (Deprecated: Use network_v4 class.) Obtain the netmask that corresponds
+                  to the address, based on its address class.
                 </p>
               </td>
 </tr>
@@ -277,7 +287,21 @@
               </td>
 <td>
                 <p>
-                  Get the address as a string in dotted decimal format.
+                  Get the address as a string in dotted decimal format. <br> <span class="silver"> —</span><br>
+                  (Deprecated: Use other overload.) Get the address as a string in
+                  dotted decimal format.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <a class="link" href="ip__address_v4/to_uint.html" title="ip::address_v4::to_uint"><span class="bold"><strong>to_uint</strong></span></a>
+                </p>
+              </td>
+<td>
+                <p>
+                  Get the address as an unsigned integer in host byte order.
                 </p>
               </td>
 </tr>
@@ -412,7 +436,45 @@
                 </p>
               </th>
 </tr></thead>
-<tbody><tr>
+<tbody>
+<tr>
+<td>
+                <p>
+                  <a class="link" href="ip__address_v4/make_address_v4.html" title="ip::address_v4::make_address_v4"><span class="bold"><strong>make_address_v4</strong></span></a>
+                </p>
+              </td>
+<td>
+                <p>
+                  Create an IPv4 address from raw bytes in network order.
+                </p>
+                <p>
+                  Create an IPv4 address from an unsigned integer in host byte order.
+                </p>
+                <p>
+                  Create an IPv4 address from an IP address string in dotted decimal
+                  form.
+                </p>
+                <p>
+                  Create an IPv4 address from a IPv4-mapped IPv6 address.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <a class="link" href="ip__address_v4/make_network_v4.html" title="ip::address_v4::make_network_v4"><span class="bold"><strong>make_network_v4</strong></span></a>
+                </p>
+              </td>
+<td>
+                <p>
+                  Create an IPv4 network from an address and prefix length.
+                </p>
+                <p>
+                  Create an IPv4 network from an address and netmask.
+                </p>
+              </td>
+</tr>
+<tr>
 <td>
                 <p>
                   <a class="link" href="ip__address_v4/operator_lt__lt_.html" title="ip::address_v4::operator&lt;&lt;"><span class="bold"><strong>operator&lt;&lt;</strong></span></a>
@@ -422,11 +484,15 @@
                 <p>
                   Output an address as a string.
                 </p>
+                <p>
+                  Output a network as a string.
+                </p>
               </td>
-</tr></tbody>
+</tr>
+</tbody>
 </table></div>
 <p>
-        The <a class="link" href="ip__address_v4.html" title="ip::address_v4"><code class="computeroutput"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">address_v4</span></code></a>
+        The <a class="link" href="ip__address_v4.html" title="ip::address_v4"><code class="computeroutput">ip::address_v4</code></a>
         class provides the ability to use and manipulate IP version 4 addresses.
       </p>
 <h5>
@@ -453,7 +519,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

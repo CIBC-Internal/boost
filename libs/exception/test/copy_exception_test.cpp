@@ -29,7 +29,7 @@ err:
         }
 
     virtual
-    ~err() throw()
+    ~err() BOOST_NOEXCEPT_OR_NOTHROW
         {
         --exc_count;
         }
@@ -110,7 +110,7 @@ void
 thread_test()
     {
     boost::thread_group grp;
-    for( int i=0; i!=50; ++i )
+    for( int i=0; i!=100; ++i )
         grp.create_thread(&consume);
     grp.join_all ();
     }

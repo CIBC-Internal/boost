@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -14,10 +18,13 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_EVER_CIRCLING_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_EVER_CIRCLING_ITERATOR_HPP
 
-#include <boost/range.hpp>
-#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/difference_type.hpp>
+#include <boost/range/reference.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/iterators/base.hpp>
 
@@ -101,9 +108,22 @@ struct ever_circling_range_iterator
     <
         ever_circling_range_iterator<Range>,
         typename boost::range_value<Range>::type const,
-        boost::random_access_traversal_tag
+        boost::random_access_traversal_tag,
+        typename boost::range_reference<Range const>::type,
+        typename boost::range_difference<Range>::type
     >
 {
+private:
+    typedef boost::iterator_facade
+        <
+            ever_circling_range_iterator<Range>,
+            typename boost::range_value<Range>::type const,
+            boost::random_access_traversal_tag,
+            typename boost::range_reference<Range const>::type,
+            typename boost::range_difference<Range>::type
+        > base_type;
+
+public:
     /// Constructor including the range it is based on
     explicit inline ever_circling_range_iterator(Range& range)
         : m_range(&range)
@@ -119,12 +139,13 @@ struct ever_circling_range_iterator
         , m_index(0)
     {}
 
-    typedef std::ptrdiff_t difference_type;
+    typedef typename base_type::reference reference;
+    typedef typename base_type::difference_type difference_type;
 
 private:
     friend class boost::iterator_core_access;
 
-    inline typename boost::range_value<Range>::type const& dereference() const
+    inline reference dereference() const
     {
         return *m_iterator;
     }

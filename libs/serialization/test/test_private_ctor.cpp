@@ -1,7 +1,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // test_private_ctor.cpp
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -16,18 +16,20 @@
 #include <boost/archive/text_oarchive.hpp>
 
 class V {
+private:
     friend int test_main(int /* argc */, char * /* argv */[]);
     friend class boost::serialization::access;
-    int m_i;    
+    int m_i;
     V() :
         m_i(0)
     {}
-    ~V(){}
     template<class Archive>
     void serialize(Archive& ar, unsigned /*version*/)
     {
         ar & m_i;
     }
+public:
+    ~V(){}
     bool operator==(const V & v) const {
         return m_i == v.m_i;
     }
@@ -47,5 +49,18 @@ int test_main(int /* argc */, char * /* argv */[])
         ia >> v1;
     }
     BOOST_CHECK(v == v1);
+
+    const V *vptr = & v;
+    {
+        boost::archive::text_oarchive oa(ss);
+        oa << vptr;
+    }
+    V *vptr1;
+    {
+        boost::archive::text_iarchive ia(ss);
+        ia >> vptr1;
+    }
+    BOOST_CHECK(*vptr == *vptr1);
+
     return EXIT_SUCCESS;
 }

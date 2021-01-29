@@ -5,7 +5,7 @@
 # accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-# This file is template for Boost.Build tests. It creates a simple project that
+# This file is template for B2 tests. It creates a simple project that
 # builds one exe from one source, and checks that the exe is really created.
 
 import BoostBuild
@@ -27,7 +27,7 @@ int main() {}
 t.run_build_system()
 
 # First, create a list of three pathnames.
-file_list = BoostBuild.List("bin/$toolset/debug/") * \
+file_list = BoostBuild.List("bin/$toolset/debug*/") * \
     BoostBuild.List("hello.exe hello.obj")
 # Second, assert that those files were added as result of the last build system
 # invocation.

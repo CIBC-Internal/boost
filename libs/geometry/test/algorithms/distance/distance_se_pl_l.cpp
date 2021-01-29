@@ -1,9 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -11,13 +13,13 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_distance_spherical_equatorial_pl_l
+#define BOOST_TEST_MODULE test_distance_spherical_equatorial_pointlike_linear
 #endif
 
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_distance_se_common.hpp"
-
+#include "test_empty_geometry.hpp"
 
 typedef bg::cs::spherical_equatorial<bg::degree> cs_type;
 typedef bg::model::point<double, 2, cs_type> point_type;
@@ -122,19 +124,19 @@ void test_distance_point_segment(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<point_type, segment_type> tester;
 
+    double const d2r = bg::math::d2r<double>();
+
     tester::apply("p-s-01",
                   "POINT(0 0)",
                   "SEGMENT(2 0,3 0)",
-                  2.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                2.0 * bg::math::d2r * strategy.radius()),
+                  2.0 * d2r * strategy.radius(),
+                  to_comparable(strategy, 2.0 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-02",
                   "POINT(2.5 3)",
                   "SEGMENT(2 0,3 0)",
-                  3.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                3.0 * bg::math::d2r * strategy.radius()),
+                  3.0 * d2r * strategy.radius(),
+                  to_comparable(strategy, 3.0 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-03",
                   "POINT(2 0)",
@@ -159,48 +161,50 @@ void test_distance_point_segment(Strategy const& strategy)
                                          "POINT(3.5 3)",
                                          strategy),
                   strategy);
+    tester::apply("p-s-07",
+                  "POINT(0 0)",
+                  "SEGMENT(0 10,10 10)",
+                  ps_distance("POINT(0 0)", "SEGMENT(10 10,0 10)", strategy),
+                  pp_comparable_distance("POINT(0 0)",
+                                         "POINT(0 10)",
+                                         strategy),
+                  strategy);
     // very small distances to segment
     tester::apply("p-s-07",
                   "POINT(90 1e-3)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1e-3 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                1e-3 * bg::math::d2r * strategy.radius()),
+                  1e-3 * d2r * strategy.radius(),
+                  to_comparable(strategy, 1e-3 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-08",
                   "POINT(90 1e-4)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1e-4 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                1e-4 * bg::math::d2r * strategy.radius()),
+                  1e-4 * d2r * strategy.radius(),
+                  to_comparable(strategy, 1e-4 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-09",
                   "POINT(90 1e-5)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1e-5 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                1e-5 * bg::math::d2r * strategy.radius()),
+                  1e-5 * d2r * strategy.radius(),
+                  to_comparable(strategy, 1e-5 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-10",
                   "POINT(90 1e-6)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1e-6 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                1e-6 * bg::math::d2r * strategy.radius()),
+                  1e-6 * d2r * strategy.radius(),
+                  to_comparable(strategy, 1e-6 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-11",
                   "POINT(90 1e-7)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1e-7 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                1e-7 * bg::math::d2r * strategy.radius()),
+                  1e-7 * d2r * strategy.radius(),
+                  to_comparable(strategy, 1e-7 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-s-12",
                   "POINT(90 1e-8)",
                   "SEGMENT(0.5 0,175.5 0)",
-                  1e-8 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                1e-8 * bg::math::d2r * strategy.radius()),
+                  1e-8 * d2r * strategy.radius(),
+                  to_comparable(strategy, 1e-8 * d2r * strategy.radius()),
                   strategy);
 }
 
@@ -215,26 +219,26 @@ void test_distance_point_linestring(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<point_type, linestring_type> tester;
 
+    double const r = strategy.radius();
+    double const d2r = bg::math::d2r<double>();
+
     tester::apply("p-l-01",
                   "POINT(0 0)",
                   "LINESTRING(2 0,2 0)",
-                  2.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                2.0 * bg::math::d2r * strategy.radius()),
+                  2.0 * d2r * r,
+                  to_comparable(strategy, 2.0 * d2r * r),
                   strategy);
     tester::apply("p-l-02",
                   "POINT(0 0)",
                   "LINESTRING(2 0,3 0)",
-                  2.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                2.0 * bg::math::d2r * strategy.radius()),
+                  2.0 * d2r * r,
+                  to_comparable(strategy, 2.0 * d2r * r),
                   strategy);
     tester::apply("p-l-03",
                   "POINT(2.5 3)",
                   "LINESTRING(2 0,3 0)",
-                  3.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                3.0 * bg::math::d2r * strategy.radius()),
+                  3.0 * d2r * r,
+                  to_comparable(strategy, 3.0 * d2r * r),
                   strategy);
     tester::apply("p-l-04",
                   "POINT(2 0)",
@@ -254,9 +258,8 @@ void test_distance_point_linestring(Strategy const& strategy)
     tester::apply("p-l-07",
                   "POINT(7.5 10)",
                   "LINESTRING(1 0,2 0,3 0,4 0,5 0,6 0,7 0,8 0,9 0)",
-                  10.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                10.0 * bg::math::d2r * strategy.radius()),
+                  10.0 * d2r * r,
+                  to_comparable(strategy, 10.0 * d2r * r),
                   strategy);
     tester::apply("p-l-08",
                   "POINT(7.5 10)",
@@ -266,6 +269,26 @@ void test_distance_point_linestring(Strategy const& strategy)
                                          "SEGMENT(7 1,20 2)",
                                          strategy),
                   strategy);
+
+    // https://svn.boost.org/trac/boost/ticket/11982
+    tester::apply("p-l-09",
+                  "POINT(10.4 63.43)",
+                  "LINESTRING(10.733557 59.911923, 10.521812 59.887214)",
+                  0.06146397739758279 * r,
+                  0.000944156107132969,
+                  strategy);
+
+    //https://github.com/boostorg/geometry/issues/557
+    tester::apply("p-l-issue557",
+                  "POINT(51.99999790563572 43.71656981636763)",
+                  "LINESTRING(52.0000243071011 43.716569742012496,\
+                              52.0000121532845 43.71656942616241,\
+                              52.0 43.7165690998572,\
+                              51.999987847203 43.7165687638793)",
+                  1.35062e-08 * r,
+                  4.5604e-17,
+                  strategy);
+
 }
 
 //===========================================================================
@@ -282,19 +305,19 @@ void test_distance_point_multilinestring(Strategy const& strategy)
             point_type, multi_linestring_type
         > tester;
 
+    double const d2r = bg::math::d2r<double>();
+
     tester::apply("p-ml-01",
                   "POINT(0 0)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
-                  2.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                2.0 * bg::math::d2r * strategy.radius()),
+                  2.0 * d2r * strategy.radius(),
+                  to_comparable(strategy, 2.0 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-ml-02",
                   "POINT(2.5 3)",
                   "MULTILINESTRING((-5 0,-3 0),(2 0,3 0))",
-                  3.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                3.0 * bg::math::d2r * strategy.radius()),
+                  3.0 * d2r * strategy.radius(),
+                  to_comparable(strategy, 3.0 * d2r * strategy.radius()),
                   strategy);
     tester::apply("p-ml-03",
                   "POINT(2 0)",
@@ -431,6 +454,8 @@ void test_distance_multipoint_segment(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<multi_point_type, segment_type> tester;
 
+    double d2r = bg::math::d2r<double>();
+
     tester::apply("mp-s-01",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(2 0,0 2)",
@@ -442,9 +467,8 @@ void test_distance_multipoint_segment(Strategy const& strategy)
     tester::apply("mp-s-02",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
                   "SEGMENT(0 -3,1 -10)",
-                  3.0 * bg::math::d2r * strategy.radius(),
-                  to_comparable(strategy,
-                                3.0 * bg::math::d2r * strategy.radius()),
+                  3.0 * d2r * strategy.radius(),
+                  to_comparable(strategy, 3.0 * d2r * strategy.radius()),
                   strategy);
     tester::apply("mp-s-03",
                   "MULTIPOINT(0 0,1 0,0 1,1 1)",
@@ -468,44 +492,10 @@ void test_distance_multipoint_segment(Strategy const& strategy)
 }
 
 //===========================================================================
-
-template <typename Point, typename Strategy>
-void test_more_empty_input_pointlike_linear(Strategy const& strategy)
-{
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::endl;
-    std::cout << "testing on empty inputs... " << std::flush;
-#endif
-    bg::model::linestring<Point> line_empty;
-    bg::model::multi_point<Point> multipoint_empty;
-    bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
-
-    Point point = from_wkt<Point>("POINT(0 0)");
-    bg::model::linestring<Point> line =
-        from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
-
-    // 1st geometry is empty
-    test_empty_input(multipoint_empty, line, strategy);
-
-    // 2nd geometry is empty
-    test_empty_input(point, line_empty, strategy);
-    test_empty_input(point, multiline_empty, strategy);
-
-    // both geometries are empty
-    test_empty_input(multipoint_empty, line_empty, strategy);
-    test_empty_input(multipoint_empty, multiline_empty, strategy);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "done!" << std::endl;
-#endif
-}
-
-
-//===========================================================================
 //===========================================================================
 //===========================================================================
 
-BOOST_AUTO_TEST_CASE( test_all_point_segment )
+BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
     test_distance_point_segment(point_segment_strategy());
     test_distance_point_segment(point_segment_strategy(earth_radius_km));

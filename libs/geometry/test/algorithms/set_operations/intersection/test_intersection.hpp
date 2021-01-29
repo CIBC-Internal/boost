@@ -1,7 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2016, 2017.
+// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,8 +23,10 @@
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -33,28 +40,52 @@
 #endif
 
 #include <geometry_test_common.hpp>
+#include <count_set.hpp>
+#include <expectation_limits.hpp>
+#include <algorithms/check_validity.hpp>
+#include "../setop_output_type.hpp"
 
-template <typename G1, typename G2, typename OutputType>
-typename bg::default_area_result<G1>::type
-check_result(
-    std::vector<OutputType> const& intersection_output,
-    std::string const& caseid,
-    std::size_t expected_count = 0, int expected_point_count = 0,
-    double expected_length_or_area = 0,
-    double percentage = 0.0001,
-    bool debug = false)
+struct ut_settings : ut_base_settings
 {
+    double percentage;
+    bool debug;
+
+    explicit ut_settings(double p = 0.0001, bool tv = true)
+        : ut_base_settings(tv)
+        , percentage(p)
+        , debug(false)
+    {}
+
+};
+
+template<typename IntersectionOutput, typename G1, typename G2>
+void check_result(IntersectionOutput const& intersection_output,
+    std::string const& caseid,
+    G1 const& g1, G2 const& g2,
+    const count_set& expected_count, const count_set& expected_hole_count,
+    int expected_point_count, expectation_limits const& expected_length_or_area,
+    ut_settings const& settings)
+{
+    typedef typename boost::range_value<IntersectionOutput>::type OutputType;
     bool const is_line = bg::geometry_id<OutputType>::type::value == 2;
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
-    for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
+    std::size_t nholes = 0;
+    for (typename IntersectionOutput::const_iterator it = intersection_output.begin();
             it != intersection_output.end();
             ++it)
     {
-        if (expected_point_count > 0)
+      if (! expected_count.empty())
         {
-            n += bg::num_points(*it, true);
+            // here n should rather be of type std::size_t, but expected_point_count
+            // is set to -1 in some test cases so type int was left for now
+            n += static_cast<int>(bg::num_points(*it, true));
+        }
+
+        if (! expected_hole_count.empty())
+        {
+            nholes += bg::num_interior_rings(*it);
         }
 
         // instead of specialization we check it run-time here
@@ -62,14 +93,26 @@ check_result(
             ? bg::length(*it)
             : bg::area(*it);
 
-        if (debug)
+        if (settings.debug)
         {
             std::cout << std::setprecision(20) << bg::wkt(*it) << std::endl;
         }
     }
 
+    if (settings.test_validity())
+    {
+        std::string message;
+        bool const valid = check_validity<IntersectionOutput>
+                ::apply(intersection_output, caseid, g1, g2, message);
+
+        BOOST_CHECK_MESSAGE(valid,
+            "intersection: " << caseid << " not valid: " << message
+            << " type: " << (type_for_assert_message<G1, G2>()));
+    }
+
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    // Without rescaling, point count might easily differ (which is no problem)
     if (expected_point_count > 0)
     {
         BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
@@ -81,82 +124,100 @@ check_result(
     }
 #endif
 
-    if (expected_count > 0)
+    if (! expected_count.empty())
     {
-        BOOST_CHECK_MESSAGE(intersection_output.size() == expected_count,
-                "intersection: " << caseid
-                << " #outputs expected: " << expected_count
-                << " detected: " << intersection_output.size()
-                << " type: " << (type_for_assert_message<G1, G2>())
-                );
+        BOOST_CHECK_MESSAGE(expected_count.has(intersection_output.size()),
+                            "intersection: " << caseid
+                            << " #outputs expected: " << expected_count
+                            << " detected: " << intersection_output.size()
+                            << " type: " << (type_for_assert_message<G1, G2>())
+                            );
     }
 
-    double const detected_length_or_area = boost::numeric_cast<double>(length_or_area);
-    BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, percentage);
+    if (! expected_hole_count.empty())
+    {
+        BOOST_CHECK_MESSAGE(expected_hole_count.has(nholes),
+            "intersection: " << caseid
+            << " #holes expected: " << expected_hole_count
+            << " detected: " << nholes
+            << " type: " << (type_for_assert_message<G1, G2>())
+        );
+    }
+
+    BOOST_CHECK_MESSAGE(expected_length_or_area.contains(length_or_area, settings.percentage),
+            "intersection: " << caseid << std::setprecision(20)
+            << " #area expected: " << expected_length_or_area
+            << " detected: " << length_or_area
+            << " type: " << (type_for_assert_message<G1, G2>()));
 #endif
 
-    return length_or_area;
 }
 
 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
         G1 const& g1, G2 const& g2,
-        std::size_t expected_count = 0, int expected_point_count = 0,
-        double expected_length_or_area = 0,
-        double percentage = 0.0001,
-        bool debug = false)
+        const count_set& expected_count = count_set(),
+        const count_set& expected_hole_count = count_set(),
+        int expected_point_count = 0, expectation_limits const& expected_length_or_area = 0,
+        ut_settings const& settings = ut_settings())
 {
-    if (debug)
+    if (settings.debug)
     {
         std::cout << std::endl << "case " << caseid << std::endl;
     }
 
-    typedef typename bg::point_type<G1>::type point_type;
+    typedef typename setop_output_type<OutputType>::type result_type;
 
-    if (! debug)
+    typedef typename bg::point_type<G1>::type point_type;
+    boost::ignore_unused<point_type>();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    if (! settings.debug)
     {
         // Check _inserter behaviour with stratey
-        typedef bg::strategy_intersection
+        typedef typename bg::strategy::intersection::services::default_strategy
             <
-                typename bg::cs_tag<point_type>::type,
-                G1,
-                G2,
-                point_type,
-                typename bg::rescale_policy_type<point_type>::type,
-                CalculationType
-            > strategy;
-        std::vector<OutputType> clip;
-        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
+                typename bg::cs_tag<point_type>::type
+            >::type strategy_type;
+        result_type clip;
+        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy_type());
     }
+#endif
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
 
     // Check normal behaviour
-    std::vector<OutputType> intersection_output;
+    result_type intersection_output;
     bg::intersection(g1, g2, intersection_output);
 
-    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
-        expected_length_or_area, percentage, debug);
+    check_result(intersection_output, caseid, g1, g2, expected_count,
+        expected_hole_count, expected_point_count, expected_length_or_area,
+        settings);
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Check variant behaviour
     intersection_output.clear();
     bg::intersection(boost::variant<G1>(g1), g2, intersection_output);
 
-    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
-        expected_length_or_area, percentage, debug);
+    check_result(intersection_output, caseid, g1, g2, expected_count,
+        expected_hole_count, expected_point_count, expected_length_or_area,
+        settings);
 
     intersection_output.clear();
     bg::intersection(g1, boost::variant<G2>(g2), intersection_output);
 
-    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
-        expected_length_or_area, percentage, debug);
+    check_result(intersection_output, caseid, g1, g2, expected_count,
+        expected_hole_count, expected_point_count, expected_length_or_area,
+        settings);
 
     intersection_output.clear();
     bg::intersection(boost::variant<G1>(g1), boost::variant<G2>(g2), intersection_output);
 
-    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
-        expected_length_or_area, percentage, debug);
+    check_result(intersection_output, caseid, g1, g2, expected_count,
+        expected_hole_count, expected_point_count, expected_length_or_area,
+        settings);
+#endif
 
 #if defined(TEST_WITH_SVG)
     {
@@ -177,8 +238,8 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            << "_no_rob"
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
 #endif
             << ".svg";
 
@@ -196,7 +257,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
                     "stroke:rgb(51,51,153);stroke-width:3");
 
-        for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
+        for (typename result_type::const_iterator it = intersection_output.begin();
                 it != intersection_output.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
@@ -206,7 +267,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 #endif
 
 
-    if (debug)
+    if (settings.debug)
     {
         std::cout << "end case " << caseid << std::endl;
     }
@@ -214,13 +275,28 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     return length_or_area;
 }
 
+template <typename OutputType, typename CalculationType, typename G1, typename G2>
+typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
+        G1 const& g1, G2 const& g2,
+        const count_set& expected_count = count_set(), int expected_point_count = 0,
+        expectation_limits const& expected_length_or_area = 0,
+        ut_settings const& settings = ut_settings())
+{
+    return test_intersection<OutputType, CalculationType>(
+        caseid, g1, g2, expected_count, count_set(), expected_point_count,
+        expected_length_or_area, settings
+    );
+}
+
+// Version with expected hole count
 template <typename OutputType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_count = 0, int expected_point_count = 0,
-        double expected_length_or_area = 0,
-        double percentage = 0.0001,
-        bool debug = false)
+        const count_set& expected_count,
+        const count_set& expected_hole_count,
+        int expected_point_count,
+        expectation_limits const& expected_length_or_area,
+        ut_settings const& settings = ut_settings())
 {
     G1 g1;
     bg::read_wkt(wkt1, g1);
@@ -233,19 +309,35 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
     bg::correct(g2);
 
     return test_intersection<OutputType, void>(caseid, g1, g2,
-        expected_count, expected_point_count,
-        expected_length_or_area, percentage,
-        debug);
+        expected_count, expected_hole_count, expected_point_count,
+        expected_length_or_area, settings);
+}
+
+// Version without expected hole count
+template <typename OutputType, typename G1, typename G2>
+typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
+    std::string const& wkt1, std::string const& wkt2,
+    const count_set& expected_count,
+    int expected_point_count,
+    expectation_limits const& expected_length_or_area,
+    ut_settings const& settings = ut_settings())
+{
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+        expected_count, count_set(), expected_point_count,
+        expected_length_or_area,
+        settings);
 }
 
 template <typename OutputType, typename Areal, typename Linear>
 void test_one_lp(std::string const& caseid,
         std::string const& wkt_areal, std::string const& wkt_linear,
-        std::size_t expected_count = 0, int expected_point_count = 0,
-        double expected_length = 0,
-        double percentage = 0.0001,
-        bool debug1 = false, bool debug2 = false)
+        const count_set& expected_count = count_set(), int expected_point_count = 0,
+        expectation_limits const& expected_length = 0,
+        ut_settings const& settings = ut_settings())
 {
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << caseid << " -- start" << std::endl;
+#endif
     Areal areal;
     bg::read_wkt(wkt_areal, areal);
     bg::correct(areal);
@@ -255,14 +347,17 @@ void test_one_lp(std::string const& caseid,
 
     test_intersection<OutputType, void>(caseid, areal, linear,
         expected_count, expected_point_count,
-        expected_length, percentage, debug1);
+        expected_length, settings);
 
     // A linestring reversed should deliver exactly the same.
     bg::reverse(linear);
 
     test_intersection<OutputType, void>(caseid + "_rev", areal, linear,
         expected_count, expected_point_count,
-        expected_length, percentage, debug2);
+        expected_length, settings);
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << caseid << " -- end" << std::endl;
+#endif
 }
 
 template <typename Geometry1, typename Geometry2>
@@ -276,7 +371,7 @@ void test_point_output(std::string const& wkt1, std::string const& wkt2, unsigne
     bg::read_wkt(wkt2, g2);
     bg::correct(g2);
 
-    std::vector<typename bg::point_type<Geometry1>::type> points;
+    bg::model::multi_point<typename bg::point_type<Geometry1>::type> points;
     bg::intersection(g1, g2, points);
     BOOST_CHECK_EQUAL(points.size(), expected_count);
 }

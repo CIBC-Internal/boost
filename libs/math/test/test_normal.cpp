@@ -23,10 +23,11 @@
 // and   if (std::numeric_limits<RealType>::has_quiet_NaN)
 #endif
 
+#include <boost/math/tools/test.hpp>
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/normal.hpp>
     using boost::math::normal_distribution;
@@ -92,8 +93,13 @@ void test_spots(RealType)
    // give only 5 or 6 *fixed* places, so small values have fewer digits.
 
   // Check some bad parameters to the distribution,
-   BOOST_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(0, 0), std::domain_error); // zero sd
-   BOOST_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(0, -1), std::domain_error); // negative sd
+#ifndef BOOST_NO_EXCEPTIONS
+   BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(0, 0), std::domain_error); // zero sd
+   BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(0, -1), std::domain_error); // negative sd
+#else
+   BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType>(0, 0), std::domain_error); // zero sd
+   BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType>(0, -1), std::domain_error); // negative sd
+#endif
 
   // Tests on extreme values of random variate x, if has std::numeric_limits infinity etc.
     normal_distribution<RealType> N01;
@@ -105,19 +111,25 @@ void test_spots(RealType)
     BOOST_CHECK_EQUAL(cdf(N01, -std::numeric_limits<RealType>::infinity()), 0); // x = - infinity, cdf = 0
     BOOST_CHECK_EQUAL(cdf(complement(N01, +std::numeric_limits<RealType>::infinity())), 0); // x = + infinity, c cdf = 0
     BOOST_CHECK_EQUAL(cdf(complement(N01, -std::numeric_limits<RealType>::infinity())), 1); // x = - infinity, c cdf = 1
-    BOOST_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
-     BOOST_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
-     BOOST_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#ifndef BOOST_NO_EXCEPTIONS
+    BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
+     BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
+     BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType> nbad1(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#else
+    BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType>(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
+     BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType>(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
+     BOOST_MATH_CHECK_THROW(boost::math::normal_distribution<RealType>(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#endif
   }
 
   if (std::numeric_limits<RealType>::has_quiet_NaN)
   {
     // No longer allow x to be NaN, then these tests should throw.
-    BOOST_CHECK_THROW(pdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
-    BOOST_CHECK_THROW(cdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
-    BOOST_CHECK_THROW(cdf(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // x = + infinity
-    BOOST_CHECK_THROW(quantile(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // p = + infinity
-    BOOST_CHECK_THROW(quantile(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // p = + infinity
+    BOOST_MATH_CHECK_THROW(pdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
+    BOOST_MATH_CHECK_THROW(cdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
+    BOOST_MATH_CHECK_THROW(cdf(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // x = + infinity
+    BOOST_MATH_CHECK_THROW(quantile(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // p = + infinity
+    BOOST_MATH_CHECK_THROW(quantile(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // p = + infinity
   }
 
    cout << "Tolerance for type " << typeid(RealType).name()  << " is " << tolerance << " %" << endl;
@@ -257,14 +269,19 @@ void test_spots(RealType)
     BOOST_CHECK_CLOSE(
        skewness(dist)
        , static_cast<RealType>(0), tol2);
-    // kertosis:
+    // kurtosis:
     BOOST_CHECK_CLOSE(
        kurtosis(dist)
        , static_cast<RealType>(3), tol2);
-    // kertosis excess:
+    // kurtosis excess:
     BOOST_CHECK_CLOSE(
        kurtosis_excess(dist)
        , static_cast<RealType>(0), tol2);
+
+    RealType expected_entropy = log(boost::math::constants::two_pi<RealType>()*boost::math::constants::e<RealType>()*9)/2;
+    BOOST_CHECK_CLOSE(
+       entropy(dist)
+       ,expected_entropy, tol2);
 
     normal_distribution<RealType> norm01(0, 1); // Test default (0, 1)
     BOOST_CHECK_CLOSE(
@@ -288,10 +305,10 @@ void test_spots(RealType)
     // Error tests:
     check_out_of_range<boost::math::normal_distribution<RealType> >(0, 1); // (All) valid constructor parameter values.
     
-    BOOST_CHECK_THROW(pdf(normal_distribution<RealType>(0, 0), 0), std::domain_error);
-    BOOST_CHECK_THROW(pdf(normal_distribution<RealType>(0, -1), 0), std::domain_error);
-    BOOST_CHECK_THROW(quantile(normal_distribution<RealType>(0, 1), -1), std::domain_error);
-    BOOST_CHECK_THROW(quantile(normal_distribution<RealType>(0, 1), 2), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(normal_distribution<RealType>(0, 0), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(normal_distribution<RealType>(0, -1), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(normal_distribution<RealType>(0, 1), -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(normal_distribution<RealType>(0, 1), 2), std::domain_error);
 } // template <class RealType>void test_spots(RealType)
 
 BOOST_AUTO_TEST_CASE( test_main )
@@ -312,14 +329,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x0582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    

@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Guidelines for Boost Authors</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="Boost.Config">
 <link rel="up" href="../index.html" title="Boost.Config">
 <link rel="prev" href="cstdint.html" title="Standard Integer Types">
@@ -297,12 +297,12 @@
         and name the test file "<code class="computeroutput"><span class="identifier">boost_has_foo</span><span class="special">.</span><span class="identifier">ipp</span></code>".
         Try not to add feature test macros unnecessarily, if there is a platform
         specific macro that can already be used (for example <code class="computeroutput"><span class="identifier">_WIN32</span></code>,
-        <code class="computeroutput"><span class="identifier">__BEOS__</span></code>, or <code class="computeroutput"><span class="identifier">__linux</span></code>) to identify the feature then use
-        that. Try to keep the macro to a feature group, or header name, rather than
-        one specific API (for example <code class="computeroutput"><span class="identifier">BOOST_HAS_NL_TYPES_H</span></code>
+        <code class="computeroutput"><span class="identifier">__BEOS__</span></code>, or <code class="computeroutput"><span class="identifier">__linux__</span></code>) to identify the feature then
+        use that. Try to keep the macro to a feature group, or header name, rather
+        than one specific API (for example <code class="computeroutput"><span class="identifier">BOOST_HAS_NL_TYPES_H</span></code>
         rather than <code class="computeroutput"><span class="identifier">BOOST_HAS_CATOPEN</span></code>).
         If the macro describes a POSIX feature group, then add boilerplate code to
-        <a href="../../../../../boost/config/user.hpp" target="_top">&lt;boost/config/suffix.hpp&gt;</a>
+        <a href="../../../../../boost/config/detail/suffix.hpp" target="_top">&lt;boost/config/detail/suffix.hpp&gt;</a>
         to auto-detect the feature where possible (if you are wondering why we can't
         use POSIX feature test macro directly, remember that many of these features
         can be added by third party libraries, and are not therefore identified inside
@@ -333,15 +333,15 @@
         as well.
       </p>
 <p>
-        <a href="../../../../../boost/config/user.hpp" target="_top">&lt;boost/config/suffix.hpp&gt;</a>
+        <a href="../../../../../boost/config/detail/suffix.hpp" target="_top">&lt;boost/config/detail/suffix.hpp&gt;</a>
         is always included so be careful about modifying this file as it breaks dependencies
         for everyone. This file should include only "boilerplate" configuration
         code, and generally should change only when new macros are added.
       </p>
 <p>
-        <a href="../../../../../boost/config/select_compiler_config.hpp" target="_top">&lt;boost/config/select_compiler_config.hpp&gt;</a>,
-        <a href="../../../../../boost/config/select_platform_config.hpp" target="_top">&lt;boost/config/select_platform_config.hpp&gt;</a>
-        and <a href="../../../../../boost/config/select_stdlib_config.hpp" target="_top">&lt;boost/config/select_stdlib_config.hpp&gt;</a>
+        <a href="../../../../../boost/config/detail/select_compiler_config.hpp" target="_top">&lt;boost/config/detail/select_compiler_config.hpp&gt;</a>,
+        <a href="../../../../../boost/config/detail/select_platform_config.hpp" target="_top">&lt;boost/config/detail/select_platform_config.hpp&gt;</a>
+        and <a href="../../../../../boost/config/detail/select_stdlib_config.hpp" target="_top">&lt;boost/config/detail/select_stdlib_config.hpp&gt;</a>
         are included by default and should change only if support for a new compiler/standard
         library/platform is added.
       </p>
@@ -362,7 +362,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2001-2007 Beman Dawes, Vesa Karvonen, John
+<td align="right"><div class="copyright-footer">Copyright © 2001-2007 Beman Dawes, Vesa Karvonen, John
       Maddock<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

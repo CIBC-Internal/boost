@@ -177,6 +177,7 @@ class basic_managed_memory_impl
       //throw if constructor allocates memory. So we must catch it.
       BOOST_TRY{
          //Let's construct the allocator in memory
+         BOOST_ASSERT((0 == (std::size_t)addr % boost::move_detail::alignment_of<segment_manager>::value));
          mp_header       = ::new(addr, boost_container_new_t()) segment_manager(size);
       }
       BOOST_CATCH(...){
@@ -747,9 +748,9 @@ class create_open_func
       }
    }
 
-   std::size_t get_min_size() const
+   static std::size_t get_min_size()
    {
-      const size_type sz = m_frontend->get_segment_manager()->get_min_size();
+      const size_type sz = BasicManagedMemoryImpl::segment_manager::get_min_size();
       if(sz > std::size_t(-1)){
          //The minimum size is not representable by std::size_t
          BOOST_ASSERT(false);

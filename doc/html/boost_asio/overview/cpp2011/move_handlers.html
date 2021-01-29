@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Movable Handlers</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../cpp2011.html" title="C++ 2011 Support">
 <link rel="prev" href="move_objects.html" title="Movable I/O Objects">
@@ -28,55 +28,53 @@
         Handlers</a>
 </h4></div></div></div>
 <p>
-          As an optimisation, user-defined completion handlers may provide move constructors,
-          and Boost.Asio's implementation will use a handler's move constructor in
-          preference to its copy constructor. In certain circumstances, Boost.Asio
-          may be able to eliminate all calls to a handler's copy constructor. However,
-          handler types are still required to be copy constructible.
+          With C++11 and later, user-defined completion handlers are only required
+          to be move constructible, and are not required to be copy constructible.
         </p>
 <p>
           When move support is enabled, asynchronous that are documented as follows:
         </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Handler</span><span class="special">&gt;</span>
-<span class="keyword">void</span> <span class="identifier">async_XYZ</span><span class="special">(...,</span> <span class="identifier">Handler</span> <span class="identifier">handler</span><span class="special">);</span>
+<pre class="programlisting">template &lt;typename Handler&gt;
+void async_XYZ(..., Handler handler);
 </pre>
 <p>
           are actually declared as:
         </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Handler</span><span class="special">&gt;</span>
-<span class="keyword">void</span> <span class="identifier">async_XYZ</span><span class="special">(...,</span> <span class="identifier">Handler</span><span class="special">&amp;&amp;</span> <span class="identifier">handler</span><span class="special">);</span>
+<pre class="programlisting">template &lt;typename Handler&gt;
+void async_XYZ(..., Handler&amp;&amp; handler);
 </pre>
 <p>
           The handler argument is perfectly forwarded and the move construction occurs
-          within the body of <code class="computeroutput"><span class="identifier">async_XYZ</span><span class="special">()</span></code>. This ensures that all other function
-          arguments are evaluated prior to the move. This is critical when the other
-          arguments to <code class="computeroutput"><span class="identifier">async_XYZ</span><span class="special">()</span></code> are members of the handler. For example:
+          within the body of <code class="computeroutput">async_XYZ()</code>. This ensures that all other
+          function arguments are evaluated prior to the move. This is critical when
+          the other arguments to <code class="computeroutput">async_XYZ()</code> are members of the handler.
+          For example:
         </p>
-<pre class="programlisting"><span class="keyword">struct</span> <span class="identifier">my_operation</span>
-<span class="special">{</span>
-  <span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span><span class="special">&gt;</span> <span class="identifier">socket</span><span class="special">;</span>
-  <span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">&gt;&gt;</span> <span class="identifier">buffer</span><span class="special">;</span>
-  <span class="special">...</span>
-  <span class="keyword">void</span> <span class="keyword">operator</span><span class="special">(</span><span class="identifier">error_code</span> <span class="identifier">ec</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="identifier">length</span><span class="special">)</span>
-  <span class="special">{</span>
-    <span class="special">...</span>
-    <span class="identifier">socket</span><span class="special">-&gt;</span><span class="identifier">async_read_some</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">buffer</span><span class="special">(*</span><span class="identifier">buffer</span><span class="special">),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(*</span><span class="keyword">this</span><span class="special">));</span>
-    <span class="special">...</span>
-  <span class="special">}</span>
-<span class="special">};</span>
+<pre class="programlisting">struct my_operation
+{
+  unique_ptr&lt;tcp::socket&gt; socket;
+  unique_ptr&lt;vector&lt;char&gt;&gt; buffer;
+  ...
+  void operator(error_code ec, size_t length)
+  {
+    ...
+    socket-&gt;async_read_some(boost::asio::buffer(*buffer), std::move(*this));
+    ...
+  }
+};
 </pre>
 <p>
           Move support is automatically enabled for <code class="literal">g++</code> 4.5 and
           later, when the <code class="literal">-std=c++0x</code> or <code class="literal">-std=gnu++0x</code>
-          compiler options are used. It may be disabled by defining <code class="computeroutput"><span class="identifier">BOOST_ASIO_DISABLE_MOVE</span></code>, or explicitly
-          enabled for other compilers by defining <code class="computeroutput"><span class="identifier">BOOST_ASIO_HAS_MOVE</span></code>.
+          compiler options are used. It may be disabled by defining <code class="computeroutput">BOOST_ASIO_DISABLE_MOVE</code>,
+          or explicitly enabled for other compilers by defining <code class="computeroutput">BOOST_ASIO_HAS_MOVE</code>.
           Note that these macros also affect the availability of <a class="link" href="move_objects.html" title="Movable I/O Objects">movable
           I/O objects</a>.
         </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

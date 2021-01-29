@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>basic_raw_socket::shutdown (2 of 2 overloads)</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../shutdown.html" title="basic_raw_socket::shutdown">
 <link rel="prev" href="overload1.html" title="basic_raw_socket::shutdown (1 of 2 overloads)">
@@ -33,9 +33,9 @@
 <p>
             Disable sends or receives on the socket.
           </p>
-<pre class="programlisting"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">system</span><span class="special">::</span><span class="identifier">error_code</span> <span class="identifier">shutdown</span><span class="special">(</span>
-    <span class="identifier">shutdown_type</span> <span class="identifier">what</span><span class="special">,</span>
-    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">system</span><span class="special">::</span><span class="identifier">error_code</span> <span class="special">&amp;</span> <span class="identifier">ec</span><span class="special">);</span>
+<pre class="programlisting">void shutdown(
+    shutdown_type what,
+    boost::system::error_code &amp; ec);
 </pre>
 <p>
             This function is used to disable send operations, receive operations,
@@ -65,19 +65,19 @@
 <p>
             Shutting down the send side of the socket:
           </p>
-<pre class="programlisting"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">);</span>
-<span class="special">...</span>
-<span class="identifier">boost</span><span class="special">::</span><span class="identifier">system</span><span class="special">::</span><span class="identifier">error_code</span> <span class="identifier">ec</span><span class="special">;</span>
-<span class="identifier">socket</span><span class="special">.</span><span class="identifier">shutdown</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span><span class="special">::</span><span class="identifier">shutdown_send</span><span class="special">,</span> <span class="identifier">ec</span><span class="special">);</span>
-<span class="keyword">if</span> <span class="special">(</span><span class="identifier">ec</span><span class="special">)</span>
-<span class="special">{</span>
-  <span class="comment">// An error occurred.</span>
-<span class="special">}</span>
+<pre class="programlisting">boost::asio::ip::tcp::socket socket(my_context);
+...
+boost::system::error_code ec;
+socket.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
+if (ec)
+{
+  // An error occurred.
+}
 </pre>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

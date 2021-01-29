@@ -1,6 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2011-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -9,10 +16,20 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_PARTITION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_PARTITION_HPP
 
+
+#include <cstddef>
+#include <type_traits>
 #include <vector>
-#include <boost/range/algorithm/copy.hpp>
+
+#include <boost/range/begin.hpp>
+#include <boost/range/empty.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -20,7 +37,25 @@ namespace boost { namespace geometry
 namespace detail { namespace partition
 {
 
-typedef std::vector<std::size_t> index_vector_type;
+template <typename T, bool IsIntegral = std::is_integral<T>::value>
+struct divide_interval
+{
+    static inline T apply(T const& mi, T const& ma)
+    {
+        static T const two = 2;
+        return (mi + ma) / two;
+    }
+};
+
+template <typename T>
+struct divide_interval<T, true>
+{
+    static inline T apply(T const& mi, T const& ma)
+    {
+        // avoid overflow
+        return mi / 2 + ma / 2 + (mi % 2 + ma % 2) / 2;
+    }
+};
 
 template <int Dimension, typename Box>
 inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
@@ -28,9 +63,9 @@ inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
     typedef typename coordinate_type<Box>::type ctype;
 
     // Divide input box into two parts, e.g. left/right
-    ctype two = 2;
-    ctype mid = (geometry::get<min_corner, Dimension>(box)
-            + geometry::get<max_corner, Dimension>(box)) / two;
+    ctype mid = divide_interval<ctype>::apply(
+                    geometry::get<min_corner, Dimension>(box),
+                    geometry::get<max_corner, Dimension>(box));
 
     lower_box = box;
     upper_box = box;
@@ -38,31 +73,27 @@ inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
     geometry::set<min_corner, Dimension>(upper_box, mid);
 }
 
-// Divide collection into three subsets: lower, upper and oversized
+// Divide forward_range into three subsets: lower, upper and oversized
 // (not-fitting)
 // (lower == left or bottom, upper == right or top)
-template <typename OverlapsPolicy, typename InputCollection, typename Box>
+template <typename Box, typename IteratorVector, typename OverlapsPolicy>
 inline void divide_into_subsets(Box const& lower_box,
-        Box const& upper_box,
-        InputCollection const& collection,
-        index_vector_type const& input,
-        index_vector_type& lower,
-        index_vector_type& upper,
-        index_vector_type& exceeding)
+                                Box const& upper_box,
+                                IteratorVector const& input,
+                                IteratorVector& lower,
+                                IteratorVector& upper,
+                                IteratorVector& exceeding,
+                                OverlapsPolicy const& overlaps_policy)
 {
-    typedef boost::range_iterator
+    typedef typename boost::range_iterator
         <
-            index_vector_type const
-        >::type index_iterator_type;
+            IteratorVector const
+        >::type it_type;
 
-    for(index_iterator_type it = boost::begin(input);
-        it != boost::end(input);
-        ++it)
+    for(it_type it = boost::begin(input); it != boost::end(input); ++it)
     {
-        bool const lower_overlapping = OverlapsPolicy::apply(lower_box,
-                    collection[*it]);
-        bool const upper_overlapping = OverlapsPolicy::apply(upper_box,
-                    collection[*it]);
+        bool const lower_overlapping = overlaps_policy.apply(lower_box, **it);
+        bool const upper_overlapping = overlaps_policy.apply(upper_box, **it);
 
         if (lower_overlapping && upper_overlapping)
         {
@@ -84,410 +115,476 @@ inline void divide_into_subsets(Box const& lower_box,
     }
 }
 
-template <typename ExpandPolicy, typename Box, typename InputCollection>
-inline void expand_with_elements(Box& total,
-                InputCollection const& collection,
-                index_vector_type const& input)
-{
-    typedef boost::range_iterator<index_vector_type const>::type it_type;
-    for(it_type it = boost::begin(input); it != boost::end(input); ++it)
-    {
-        ExpandPolicy::apply(total, collection[*it]);
-    }
-}
-
-
-// Match collection with itself
-template <typename InputCollection, typename Policy>
-inline void handle_one(InputCollection const& collection,
-        index_vector_type const& input,
-        Policy& policy)
-{
-    if (boost::size(input) == 0)
-    {
-        return;
-    }
-
-    typedef boost::range_iterator<index_vector_type const>::type
-                index_iterator_type;
-
-    // Quadratic behaviour at lowest level (lowest quad, or all exceeding)
-    for(index_iterator_type it1 = boost::begin(input);
-        it1 != boost::end(input);
-        ++it1)
-    {
-        index_iterator_type it2 = it1;
-        for(++it2; it2 != boost::end(input); ++it2)
-        {
-            policy.apply(collection[*it1], collection[*it2]);
-        }
-    }
-}
-
-// Match collection 1 with collection 2
 template
 <
-    typename InputCollection1,
-    typename InputCollection2,
-    typename Policy
+    typename Box,
+    typename IteratorVector,
+    typename ExpandPolicy
 >
-inline void handle_two(
-        InputCollection1 const& collection1, index_vector_type const& input1,
-        InputCollection2 const& collection2, index_vector_type const& input2,
-        Policy& policy)
+inline void expand_with_elements(Box& total, IteratorVector const& input,
+                                 ExpandPolicy const& expand_policy)
 {
-    if (boost::size(input1) == 0 || boost::size(input2) == 0)
+    typedef typename boost::range_iterator<IteratorVector const>::type it_type;
+    for(it_type it = boost::begin(input); it != boost::end(input); ++it)
     {
-        return;
+        expand_policy.apply(total, **it);
+    }
+}
+
+
+// Match forward_range with itself
+template <typename IteratorVector, typename VisitPolicy>
+inline bool handle_one(IteratorVector const& input, VisitPolicy& visitor)
+{
+    if (boost::empty(input))
+    {
+        return true;
     }
 
-    typedef boost::range_iterator
-        <
-            index_vector_type const
-        >::type index_iterator_type;
+    typedef typename boost::range_iterator<IteratorVector const>::type it_type;
 
-    for(index_iterator_type it1 = boost::begin(input1);
+    // Quadratic behaviour at lowest level (lowest quad, or all exceeding)
+    for (it_type it1 = boost::begin(input); it1 != boost::end(input); ++it1)
+    {
+        it_type it2 = it1;
+        for (++it2; it2 != boost::end(input); ++it2)
+        {
+            if (! visitor.apply(**it1, **it2))
+            {
+                return false; // interrupt
+            }
+        }
+    }
+
+    return true;
+}
+
+// Match forward range 1 with forward range 2
+template
+<
+    typename IteratorVector1,
+    typename IteratorVector2,
+    typename VisitPolicy
+>
+inline bool handle_two(IteratorVector1 const& input1,
+                       IteratorVector2 const& input2,
+                       VisitPolicy& visitor)
+{
+    typedef typename boost::range_iterator
+        <
+            IteratorVector1 const
+        >::type iterator_type1;
+
+    typedef typename boost::range_iterator
+        <
+            IteratorVector2 const
+        >::type iterator_type2;
+
+    if (boost::empty(input1) || boost::empty(input2))
+    {
+        return true;
+    }
+
+    for(iterator_type1 it1 = boost::begin(input1);
         it1 != boost::end(input1);
         ++it1)
     {
-        for(index_iterator_type it2 = boost::begin(input2);
+        for(iterator_type2 it2 = boost::begin(input2);
             it2 != boost::end(input2);
             ++it2)
         {
-            policy.apply(collection1[*it1], collection2[*it2]);
+            if (! visitor.apply(**it1, **it2))
+            {
+                return false; // interrupt
+            }
         }
     }
+
+    return true;
 }
 
-inline bool recurse_ok(index_vector_type const& input,
-                std::size_t min_elements, std::size_t level)
+template <typename IteratorVector>
+inline bool recurse_ok(IteratorVector const& input,
+                       std::size_t min_elements, std::size_t level)
 {
     return boost::size(input) >= min_elements
         && level < 100;
 }
 
-inline bool recurse_ok(index_vector_type const& input1,
-                index_vector_type const& input2,
-                std::size_t min_elements, std::size_t level)
+template <typename IteratorVector1, typename IteratorVector2>
+inline bool recurse_ok(IteratorVector1 const& input1,
+                       IteratorVector2 const& input2,
+                       std::size_t min_elements, std::size_t level)
 {
     return boost::size(input1) >= min_elements
         && recurse_ok(input2, min_elements, level);
 }
 
-inline bool recurse_ok(index_vector_type const& input1,
-                index_vector_type const& input2,
-                index_vector_type const& input3,
-                std::size_t min_elements, std::size_t level)
+template
+<
+    typename IteratorVector1,
+    typename IteratorVector2,
+    typename IteratorVector3
+>
+inline bool recurse_ok(IteratorVector1 const& input1,
+                       IteratorVector2 const& input2,
+                       IteratorVector3 const& input3,
+                       std::size_t min_elements, std::size_t level)
 {
     return boost::size(input1) >= min_elements
         && recurse_ok(input2, input3, min_elements, level);
 }
 
-template
-<
-    int Dimension,
-    typename Box,
-    typename OverlapsPolicy1,
-    typename OverlapsPolicy2,
-    typename ExpandPolicy1,
-    typename ExpandPolicy2,
-    typename VisitBoxPolicy
->
-class partition_two_collections;
+
+template <int Dimension, typename Box>
+class partition_two_ranges;
 
 
-template
-<
-    int Dimension,
-    typename Box,
-    typename OverlapsPolicy,
-    typename ExpandPolicy,
-    typename VisitBoxPolicy
->
-class partition_one_collection
+template <int Dimension, typename Box>
+class partition_one_range
 {
-    typedef std::vector<std::size_t> index_vector_type;
-
-    template <typename InputCollection>
-    static inline Box get_new_box(InputCollection const& collection,
-                    index_vector_type const& input)
+    template <typename IteratorVector, typename ExpandPolicy>
+    static inline Box get_new_box(IteratorVector const& input,
+                                  ExpandPolicy const& expand_policy)
     {
         Box box;
         geometry::assign_inverse(box);
-        expand_with_elements<ExpandPolicy>(box, collection, input);
+        expand_with_elements(box, input, expand_policy);
         return box;
     }
 
-    template <typename InputCollection, typename Policy>
-    static inline void next_level(Box const& box,
-            InputCollection const& collection,
-            index_vector_type const& input,
-            std::size_t level, std::size_t min_elements,
-            Policy& policy, VisitBoxPolicy& box_policy)
+    template
+    <
+        typename IteratorVector,
+        typename VisitPolicy,
+        typename ExpandPolicy,
+        typename OverlapsPolicy,
+        typename VisitBoxPolicy
+    >
+    static inline bool next_level(Box const& box,
+                                  IteratorVector const& input,
+                                  std::size_t level, std::size_t min_elements,
+                                  VisitPolicy& visitor,
+                                  ExpandPolicy const& expand_policy,
+                                  OverlapsPolicy const& overlaps_policy,
+                                  VisitBoxPolicy& box_policy)
     {
         if (recurse_ok(input, min_elements, level))
         {
-            partition_one_collection
-            <
-                1 - Dimension,
-                Box,
-                OverlapsPolicy,
-                ExpandPolicy,
-                VisitBoxPolicy
-            >::apply(box, collection, input,
-                level + 1, min_elements, policy, box_policy);
+            return partition_one_range
+                <
+                    1 - Dimension,
+                    Box
+                >::apply(box, input, level + 1, min_elements,
+                         visitor, expand_policy, overlaps_policy, box_policy);
         }
         else
         {
-            handle_one(collection, input, policy);
+            return handle_one(input, visitor);
         }
     }
 
-    // Function to switch to two collections if there are geometries exceeding
-    // the separation line
-    template <typename InputCollection, typename Policy>
-    static inline void next_level2(Box const& box,
-            InputCollection const& collection,
-            index_vector_type const& input1,
-            index_vector_type const& input2,
-            std::size_t level, std::size_t min_elements,
-            Policy& policy, VisitBoxPolicy& box_policy)
+    // Function to switch to two forward ranges if there are
+    // geometries exceeding the separation line
+    template
+    <
+        typename IteratorVector,
+        typename VisitPolicy,
+        typename ExpandPolicy,
+        typename OverlapsPolicy,
+        typename VisitBoxPolicy
+    >
+    static inline bool next_level2(Box const& box,
+                                   IteratorVector const& input1,
+                                   IteratorVector const& input2,
+                                   std::size_t level, std::size_t min_elements,
+                                   VisitPolicy& visitor,
+                                   ExpandPolicy const& expand_policy,
+                                   OverlapsPolicy const& overlaps_policy,
+                                   VisitBoxPolicy& box_policy)
     {
-
         if (recurse_ok(input1, input2, min_elements, level))
         {
-            partition_two_collections
-            <
-                1 - Dimension,
-                Box,
-                OverlapsPolicy, OverlapsPolicy,
-                ExpandPolicy, ExpandPolicy,
-                VisitBoxPolicy
-            >::apply(box, collection, input1, collection, input2,
-                level + 1, min_elements, policy, box_policy);
+            return partition_two_ranges
+                <
+                    1 - Dimension, Box
+                >::apply(box, input1, input2, level + 1, min_elements,
+                         visitor, expand_policy, overlaps_policy,
+                         expand_policy, overlaps_policy, box_policy);
         }
         else
         {
-            handle_two(collection, input1, collection, input2, policy);
+            return handle_two(input1, input2, visitor);
         }
     }
 
 public :
-    template <typename InputCollection, typename Policy>
-    static inline void apply(Box const& box,
-            InputCollection const& collection,
-            index_vector_type const& input,
-            std::size_t level,
-            std::size_t min_elements,
-            Policy& policy, VisitBoxPolicy& box_policy)
+    template
+    <
+        typename IteratorVector,
+        typename VisitPolicy,
+        typename ExpandPolicy,
+        typename OverlapsPolicy,
+        typename VisitBoxPolicy
+    >
+    static inline bool apply(Box const& box,
+                             IteratorVector const& input,
+                             std::size_t level,
+                             std::size_t min_elements,
+                             VisitPolicy& visitor,
+                             ExpandPolicy const& expand_policy,
+                             OverlapsPolicy const& overlaps_policy,
+                             VisitBoxPolicy& box_policy)
     {
         box_policy.apply(box, level);
 
         Box lower_box, upper_box;
         divide_box<Dimension>(box, lower_box, upper_box);
 
-        index_vector_type lower, upper, exceeding;
-        divide_into_subsets<OverlapsPolicy>(lower_box, upper_box, collection,
-                    input, lower, upper, exceeding);
+        IteratorVector lower, upper, exceeding;
+        divide_into_subsets(lower_box, upper_box,
+                            input, lower, upper, exceeding,
+                            overlaps_policy);
 
-        if (boost::size(exceeding) > 0)
+        if (! boost::empty(exceeding))
         {
             // Get the box of exceeding-only
-            Box exceeding_box = get_new_box(collection, exceeding);
+            Box exceeding_box = get_new_box(exceeding, expand_policy);
 
-            // Recursively do exceeding elements only, in next dimension they
-            // will probably be less exceeding within the new box
-            next_level(exceeding_box, collection, exceeding, level,
-                min_elements, policy, box_policy);
-
-            // Switch to two collections, combine exceeding with lower resp upper
-            // but not lower/lower, upper/upper
-            next_level2(exceeding_box, collection, exceeding, lower, level,
-                min_elements, policy, box_policy);
-            next_level2(exceeding_box, collection, exceeding, upper, level,
-                min_elements, policy, box_policy);
+                   // Recursively do exceeding elements only, in next dimension they
+                   // will probably be less exceeding within the new box
+            if (! (next_level(exceeding_box, exceeding, level, min_elements,
+                              visitor, expand_policy, overlaps_policy, box_policy)
+                   // Switch to two forward ranges, combine exceeding with
+                   // lower resp upper, but not lower/lower, upper/upper
+                && next_level2(exceeding_box, exceeding, lower, level, min_elements,
+                               visitor, expand_policy, overlaps_policy, box_policy)
+                && next_level2(exceeding_box, exceeding, upper, level, min_elements,
+                               visitor, expand_policy, overlaps_policy, box_policy)) )
+            {
+                return false; // interrupt
+            }
         }
 
         // Recursively call operation both parts
-        next_level(lower_box, collection, lower, level, min_elements,
-                        policy, box_policy);
-        next_level(upper_box, collection, upper, level, min_elements,
-                        policy, box_policy);
+        return next_level(lower_box, lower, level, min_elements,
+                          visitor, expand_policy, overlaps_policy, box_policy)
+            && next_level(upper_box, upper, level, min_elements,
+                          visitor, expand_policy, overlaps_policy, box_policy);
     }
 };
 
 template
 <
     int Dimension,
-    typename Box,
-    typename OverlapsPolicy1,
-    typename OverlapsPolicy2,
-    typename ExpandPolicy1,
-    typename ExpandPolicy2,
-    typename VisitBoxPolicy
+    typename Box
 >
-class partition_two_collections
+class partition_two_ranges
 {
-    typedef std::vector<std::size_t> index_vector_type;
-
     template
     <
-        typename InputCollection1,
-        typename InputCollection2,
-        typename Policy
+        typename IteratorVector1,
+        typename IteratorVector2,
+        typename VisitPolicy,
+        typename ExpandPolicy1,
+        typename OverlapsPolicy1,
+        typename ExpandPolicy2,
+        typename OverlapsPolicy2,
+        typename VisitBoxPolicy
     >
-    static inline void next_level(Box const& box,
-            InputCollection1 const& collection1,
-            index_vector_type const& input1,
-            InputCollection2 const& collection2,
-            index_vector_type const& input2,
-            std::size_t level, std::size_t min_elements,
-            Policy& policy, VisitBoxPolicy& box_policy)
+    static inline bool next_level(Box const& box,
+                                  IteratorVector1 const& input1,
+                                  IteratorVector2 const& input2,
+                                  std::size_t level, std::size_t min_elements,
+                                  VisitPolicy& visitor,
+                                  ExpandPolicy1 const& expand_policy1,
+                                  OverlapsPolicy1 const& overlaps_policy1,
+                                  ExpandPolicy2 const& expand_policy2,
+                                  OverlapsPolicy2 const& overlaps_policy2,
+                                  VisitBoxPolicy& box_policy)
     {
-        partition_two_collections
-        <
-            1 - Dimension,
-            Box,
-            OverlapsPolicy1,
-            OverlapsPolicy2,
-            ExpandPolicy1,
-            ExpandPolicy2,
-            VisitBoxPolicy
-        >::apply(box, collection1, input1, collection2, input2,
-                level + 1, min_elements,
-                policy, box_policy);
+        return partition_two_ranges
+            <
+                1 - Dimension, Box
+            >::apply(box, input1, input2, level + 1, min_elements,
+                     visitor, expand_policy1, overlaps_policy1,
+                     expand_policy2, overlaps_policy2, box_policy);
     }
 
-    template
-    <
-        typename ExpandPolicy,
-        typename InputCollection
-    >
-    static inline Box get_new_box(InputCollection const& collection,
-                    index_vector_type const& input)
+    template <typename IteratorVector, typename ExpandPolicy>
+    static inline Box get_new_box(IteratorVector const& input,
+                                  ExpandPolicy const& expand_policy)
     {
         Box box;
         geometry::assign_inverse(box);
-        expand_with_elements<ExpandPolicy>(box, collection, input);
+        expand_with_elements(box, input, expand_policy);
         return box;
     }
 
     template
     <
-        typename InputCollection1,
-        typename InputCollection2
+        typename IteratorVector1, typename IteratorVector2,
+        typename ExpandPolicy1, typename ExpandPolicy2
     >
-    static inline Box get_new_box(InputCollection1 const& collection1,
-                    index_vector_type const& input1,
-                    InputCollection2 const& collection2,
-                    index_vector_type const& input2)
+    static inline Box get_new_box(IteratorVector1 const& input1,
+                                  IteratorVector2 const& input2,
+                                  ExpandPolicy1 const& expand_policy1,
+                                  ExpandPolicy2 const& expand_policy2)
     {
-        Box box = get_new_box<ExpandPolicy1>(collection1, input1);
-        expand_with_elements<ExpandPolicy2>(box, collection2, input2);
+        Box box = get_new_box(input1, expand_policy1);
+        expand_with_elements(box, input2, expand_policy2);
         return box;
     }
 
 public :
     template
     <
-        typename InputCollection1,
-        typename InputCollection2,
-        typename Policy
+        typename IteratorVector1,
+        typename IteratorVector2,
+        typename VisitPolicy,
+        typename ExpandPolicy1,
+        typename OverlapsPolicy1,
+        typename ExpandPolicy2,
+        typename OverlapsPolicy2,
+        typename VisitBoxPolicy
     >
-    static inline void apply(Box const& box,
-            InputCollection1 const& collection1, index_vector_type const& input1,
-            InputCollection2 const& collection2, index_vector_type const& input2,
-            std::size_t level,
-            std::size_t min_elements,
-            Policy& policy, VisitBoxPolicy& box_policy)
+    static inline bool apply(Box const& box,
+                             IteratorVector1 const& input1,
+                             IteratorVector2 const& input2,
+                             std::size_t level,
+                             std::size_t min_elements,
+                             VisitPolicy& visitor,
+                             ExpandPolicy1 const& expand_policy1,
+                             OverlapsPolicy1 const& overlaps_policy1,
+                             ExpandPolicy2 const& expand_policy2,
+                             OverlapsPolicy2 const& overlaps_policy2,
+                             VisitBoxPolicy& box_policy)
     {
         box_policy.apply(box, level);
 
         Box lower_box, upper_box;
         divide_box<Dimension>(box, lower_box, upper_box);
 
-        index_vector_type lower1, upper1, exceeding1;
-        index_vector_type lower2, upper2, exceeding2;
-        divide_into_subsets<OverlapsPolicy1>(lower_box, upper_box, collection1,
-                    input1, lower1, upper1, exceeding1);
-        divide_into_subsets<OverlapsPolicy2>(lower_box, upper_box, collection2,
-                    input2, lower2, upper2, exceeding2);
+        IteratorVector1 lower1, upper1, exceeding1;
+        IteratorVector2 lower2, upper2, exceeding2;
+        divide_into_subsets(lower_box, upper_box,
+                            input1, lower1, upper1, exceeding1,
+                            overlaps_policy1);
+        divide_into_subsets(lower_box, upper_box,
+                            input2, lower2, upper2, exceeding2,
+                            overlaps_policy2);
 
-        if (boost::size(exceeding1) > 0)
+        if (! boost::empty(exceeding1))
         {
             // All exceeding from 1 with 2:
 
             if (recurse_ok(exceeding1, exceeding2, min_elements, level))
             {
-                Box exceeding_box = get_new_box(collection1, exceeding1,
-                            collection2, exceeding2);
-                next_level(exceeding_box, collection1, exceeding1,
-                                collection2, exceeding2, level,
-                                min_elements, policy, box_policy);
+                Box exceeding_box = get_new_box(exceeding1, exceeding2,
+                                                expand_policy1, expand_policy2);
+                if (! next_level(exceeding_box, exceeding1, exceeding2, level,
+                                 min_elements, visitor, expand_policy1, overlaps_policy1,
+                                 expand_policy2, overlaps_policy2, box_policy))
+                {
+                    return false; // interrupt
+                }
             }
             else
             {
-                handle_two(collection1, exceeding1, collection2, exceeding2,
-                            policy);
+                if (! handle_two(exceeding1, exceeding2, visitor))
+                {
+                    return false; // interrupt
+                }
             }
 
             // All exceeding from 1 with lower and upper of 2:
 
-            // (Check sizes of all three collections to avoid recurse into
+            // (Check sizes of all three forward ranges to avoid recurse into
             // the same combinations again and again)
             if (recurse_ok(lower2, upper2, exceeding1, min_elements, level))
             {
-                Box exceeding_box
-                    = get_new_box<ExpandPolicy1>(collection1, exceeding1);
-                next_level(exceeding_box, collection1, exceeding1,
-                    collection2, lower2, level, min_elements, policy, box_policy);
-                next_level(exceeding_box, collection1, exceeding1,
-                    collection2, upper2, level, min_elements, policy, box_policy);
+                Box exceeding_box = get_new_box(exceeding1, expand_policy1);
+                if (! (next_level(exceeding_box, exceeding1, lower2, level,
+                                  min_elements, visitor, expand_policy1, overlaps_policy1,
+                                  expand_policy2, overlaps_policy2, box_policy)
+                    && next_level(exceeding_box, exceeding1, upper2, level,
+                                  min_elements, visitor, expand_policy1, overlaps_policy1,
+                                  expand_policy2, overlaps_policy2, box_policy)) )
+                {
+                    return false; // interrupt
+                }
             }
             else
             {
-                handle_two(collection1, exceeding1, collection2, lower2, policy);
-                handle_two(collection1, exceeding1, collection2, upper2, policy);
+                if (! (handle_two(exceeding1, lower2, visitor)
+                    && handle_two(exceeding1, upper2, visitor)) )
+                {
+                    return false; // interrupt
+                }
             }
         }
 
-        if (boost::size(exceeding2) > 0)
+        if (! boost::empty(exceeding2))
         {
             // All exceeding from 2 with lower and upper of 1:
             if (recurse_ok(lower1, upper1, exceeding2, min_elements, level))
             {
-                Box exceeding_box
-                    = get_new_box<ExpandPolicy2>(collection2, exceeding2);
-                next_level(exceeding_box, collection1, lower1,
-                    collection2, exceeding2, level, min_elements, policy, box_policy);
-                next_level(exceeding_box, collection1, upper1,
-                    collection2, exceeding2, level, min_elements, policy, box_policy);
+                Box exceeding_box = get_new_box(exceeding2, expand_policy2);
+                if (! (next_level(exceeding_box, lower1, exceeding2, level,
+                                  min_elements, visitor, expand_policy1, overlaps_policy1,
+                                  expand_policy2, overlaps_policy2, box_policy)
+                    && next_level(exceeding_box, upper1, exceeding2, level,
+                                  min_elements, visitor, expand_policy1, overlaps_policy1,
+                                  expand_policy2, overlaps_policy2, box_policy)) )
+                {
+                    return false; // interrupt
+                }
             }
             else
             {
-                handle_two(collection1, lower1, collection2, exceeding2, policy);
-                handle_two(collection1, upper1, collection2, exceeding2, policy);
+                if (! (handle_two(lower1, exceeding2, visitor)
+                    && handle_two(upper1, exceeding2, visitor)) )
+                {
+                    return false; // interrupt
+                }
             }
         }
 
         if (recurse_ok(lower1, lower2, min_elements, level))
         {
-            next_level(lower_box, collection1, lower1, collection2, lower2, level,
-                            min_elements, policy, box_policy);
+            if (! next_level(lower_box, lower1, lower2, level,
+                             min_elements, visitor, expand_policy1, overlaps_policy1,
+                             expand_policy2, overlaps_policy2, box_policy) )
+            {
+                return false; // interrupt
+            }
         }
         else
         {
-            handle_two(collection1, lower1, collection2, lower2, policy);
+            if (! handle_two(lower1, lower2, visitor))
+            {
+                return false; // interrupt
+            }
         }
+
         if (recurse_ok(upper1, upper2, min_elements, level))
         {
-            next_level(upper_box, collection1, upper1, collection2, upper2, level,
-                            min_elements, policy, box_policy);
+            if (! next_level(upper_box, upper1, upper2, level,
+                             min_elements, visitor, expand_policy1, overlaps_policy1,
+                             expand_policy2, overlaps_policy2, box_policy) )
+            {
+                return false; // interrupt
+            }
         }
         else
         {
-            handle_two(collection1, upper1, collection2, upper2, policy);
+            if (! handle_two(upper1, upper2, visitor))
+            {
+                return false; // interrupt
+            }
         }
+
+        return true;
     }
 };
 
@@ -513,135 +610,262 @@ struct include_all_policy
 template
 <
     typename Box,
-    typename ExpandPolicy1,
-    typename OverlapsPolicy1,
-    typename ExpandPolicy2 = ExpandPolicy1,
-    typename OverlapsPolicy2 = OverlapsPolicy1,
     typename IncludePolicy1 = detail::partition::include_all_policy,
-    typename IncludePolicy2 = detail::partition::include_all_policy,
-    typename VisitBoxPolicy = detail::partition::visit_no_policy
+    typename IncludePolicy2 = detail::partition::include_all_policy
 >
 class partition
 {
-    typedef std::vector<std::size_t> index_vector_type;
+    static const std::size_t default_min_elements = 16;
 
-    template <typename ExpandPolicy, typename IncludePolicy, typename InputCollection>
-    static inline void expand_to_collection(InputCollection const& collection,
-                Box& total, index_vector_type& index_vector)
+    template
+    <
+        typename IncludePolicy,
+        typename ForwardRange,
+        typename IteratorVector,
+        typename ExpandPolicy
+    >
+    static inline void expand_to_range(ForwardRange const& forward_range,
+                                       Box& total,
+                                       IteratorVector& iterator_vector,
+                                       ExpandPolicy const& expand_policy)
     {
-        std::size_t index = 0;
-        for(typename boost::range_iterator<InputCollection const>::type it
-            = boost::begin(collection);
-            it != boost::end(collection);
-            ++it, ++index)
+        for(typename boost::range_iterator<ForwardRange const>::type
+                it = boost::begin(forward_range);
+            it != boost::end(forward_range);
+            ++it)
         {
             if (IncludePolicy::apply(*it))
             {
-                ExpandPolicy::apply(total, *it);
-                index_vector.push_back(index);
+                expand_policy.apply(total, *it);
+                iterator_vector.push_back(it);
             }
         }
     }
 
-public :
-    template <typename InputCollection, typename VisitPolicy>
-    static inline void apply(InputCollection const& collection,
-            VisitPolicy& visitor,
-            std::size_t min_elements = 16,
-            VisitBoxPolicy box_visitor = detail::partition::visit_no_policy()
-            )
+public:
+    template
+    <
+        typename ForwardRange,
+        typename VisitPolicy,
+        typename ExpandPolicy,
+        typename OverlapsPolicy
+    >
+    static inline bool apply(ForwardRange const& forward_range,
+                             VisitPolicy& visitor,
+                             ExpandPolicy const& expand_policy,
+                             OverlapsPolicy const& overlaps_policy)
     {
-        if (std::size_t(boost::size(collection)) > min_elements)
-        {
-            index_vector_type index_vector;
-            Box total;
-            assign_inverse(total);
-            expand_to_collection<ExpandPolicy1, IncludePolicy1>(collection,
-                    total, index_vector);
-
-            detail::partition::partition_one_collection
-                <
-                    0, Box,
-                    OverlapsPolicy1,
-                    ExpandPolicy1,
-                    VisitBoxPolicy
-                >::apply(total, collection, index_vector, 0, min_elements,
-                                visitor, box_visitor);
-        }
-        else
-        {
-            typedef typename boost::range_iterator
-                <
-                    InputCollection const
-                >::type iterator_type;
-            for(iterator_type it1 = boost::begin(collection);
-                it1 != boost::end(collection);
-                ++it1)
-            {
-                iterator_type it2 = it1;
-                for(++it2; it2 != boost::end(collection); ++it2)
-                {
-                    visitor.apply(*it1, *it2);
-                }
-            }
-        }
+        return apply(forward_range, visitor, expand_policy, overlaps_policy,
+                     default_min_elements, detail::partition::visit_no_policy());
     }
 
     template
     <
-        typename InputCollection1,
-        typename InputCollection2,
-        typename VisitPolicy
+        typename ForwardRange,
+        typename VisitPolicy,
+        typename ExpandPolicy,
+        typename OverlapsPolicy
     >
-    static inline void apply(InputCollection1 const& collection1,
-                InputCollection2 const& collection2,
-                VisitPolicy& visitor,
-                std::size_t min_elements = 16,
-                VisitBoxPolicy box_visitor = detail::partition::visit_no_policy()
-                )
+    static inline bool apply(ForwardRange const& forward_range,
+                             VisitPolicy& visitor,
+                             ExpandPolicy const& expand_policy,
+                             OverlapsPolicy const& overlaps_policy,
+                             std::size_t min_elements)
     {
-        if (std::size_t(boost::size(collection1)) > min_elements
-            && std::size_t(boost::size(collection2)) > min_elements)
+        return apply(forward_range, visitor, expand_policy, overlaps_policy,
+                     min_elements, detail::partition::visit_no_policy());
+    }
+
+    template
+    <
+        typename ForwardRange,
+        typename VisitPolicy,
+        typename ExpandPolicy,
+        typename OverlapsPolicy,
+        typename VisitBoxPolicy
+    >
+    static inline bool apply(ForwardRange const& forward_range,
+                             VisitPolicy& visitor,
+                             ExpandPolicy const& expand_policy,
+                             OverlapsPolicy const& overlaps_policy,
+                             std::size_t min_elements,
+                             VisitBoxPolicy box_visitor)
+    {
+        typedef typename boost::range_iterator
+            <
+                ForwardRange const
+            >::type iterator_type;
+
+        if (std::size_t(boost::size(forward_range)) > min_elements)
         {
-            index_vector_type index_vector1, index_vector2;
+            std::vector<iterator_type> iterator_vector;
             Box total;
             assign_inverse(total);
-            expand_to_collection<ExpandPolicy1, IncludePolicy1>(collection1,
-                    total, index_vector1);
-            expand_to_collection<ExpandPolicy2, IncludePolicy2>(collection2,
-                    total, index_vector2);
+            expand_to_range<IncludePolicy1>(forward_range, total,
+                                            iterator_vector, expand_policy);
 
-            detail::partition::partition_two_collections
+            return detail::partition::partition_one_range
                 <
-                    0, Box, OverlapsPolicy1, OverlapsPolicy2,
-                    ExpandPolicy1, ExpandPolicy2, VisitBoxPolicy
-                >::apply(total,
-                    collection1, index_vector1,
-                    collection2, index_vector2,
-                    0, min_elements, visitor, box_visitor);
+                    0, Box
+                >::apply(total, iterator_vector, 0, min_elements,
+                         visitor, expand_policy, overlaps_policy, box_visitor);
         }
         else
         {
-            typedef typename boost::range_iterator
-                <
-                    InputCollection1 const
-                >::type iterator_type1;
-            typedef typename boost::range_iterator
-                <
-                    InputCollection2 const
-                >::type iterator_type2;
-            for(iterator_type1 it1 = boost::begin(collection1);
-                it1 != boost::end(collection1);
+            for(iterator_type it1 = boost::begin(forward_range);
+                it1 != boost::end(forward_range);
                 ++it1)
             {
-                for(iterator_type2 it2 = boost::begin(collection2);
-                    it2 != boost::end(collection2);
-                    ++it2)
+                iterator_type it2 = it1;
+                for(++it2; it2 != boost::end(forward_range); ++it2)
                 {
-                    visitor.apply(*it1, *it2);
+                    if (! visitor.apply(*it1, *it2))
+                    {
+                        return false; // interrupt
+                    }
                 }
             }
         }
+
+        return true;
+    }
+
+    template
+    <
+        typename ForwardRange1,
+        typename ForwardRange2,
+        typename VisitPolicy,
+        typename ExpandPolicy1,
+        typename OverlapsPolicy1
+    >
+    static inline bool apply(ForwardRange1 const& forward_range1,
+                             ForwardRange2 const& forward_range2,
+                             VisitPolicy& visitor,
+                             ExpandPolicy1 const& expand_policy1,
+                             OverlapsPolicy1 const& overlaps_policy1)
+    {
+        return apply(forward_range1, forward_range2, visitor,
+                     expand_policy1, overlaps_policy1, expand_policy1, overlaps_policy1,
+                     default_min_elements, detail::partition::visit_no_policy());
+    }
+
+    template
+    <
+        typename ForwardRange1,
+        typename ForwardRange2,
+        typename VisitPolicy,
+        typename ExpandPolicy1,
+        typename OverlapsPolicy1,
+        typename ExpandPolicy2,
+        typename OverlapsPolicy2
+    >
+    static inline bool apply(ForwardRange1 const& forward_range1,
+                             ForwardRange2 const& forward_range2,
+                             VisitPolicy& visitor,
+                             ExpandPolicy1 const& expand_policy1,
+                             OverlapsPolicy1 const& overlaps_policy1,
+                             ExpandPolicy2 const& expand_policy2,
+                             OverlapsPolicy2 const& overlaps_policy2)
+    {
+        return apply(forward_range1, forward_range2, visitor,
+                     expand_policy1, overlaps_policy1, expand_policy2, overlaps_policy2,
+                     default_min_elements, detail::partition::visit_no_policy());
+    }
+
+    template
+    <
+        typename ForwardRange1,
+        typename ForwardRange2,
+        typename VisitPolicy,
+        typename ExpandPolicy1,
+        typename OverlapsPolicy1,
+        typename ExpandPolicy2,
+        typename OverlapsPolicy2
+    >
+    static inline bool apply(ForwardRange1 const& forward_range1,
+                             ForwardRange2 const& forward_range2,
+                             VisitPolicy& visitor,
+                             ExpandPolicy1 const& expand_policy1,
+                             OverlapsPolicy1 const& overlaps_policy1,
+                             ExpandPolicy2 const& expand_policy2,
+                             OverlapsPolicy2 const& overlaps_policy2,
+                             std::size_t min_elements)
+    {
+        return apply(forward_range1, forward_range2, visitor,
+                     expand_policy1, overlaps_policy1, expand_policy2, overlaps_policy2,
+                     min_elements, detail::partition::visit_no_policy());
+    }
+
+    template
+    <
+        typename ForwardRange1,
+        typename ForwardRange2,
+        typename VisitPolicy,
+        typename ExpandPolicy1,
+        typename OverlapsPolicy1,
+        typename ExpandPolicy2,
+        typename OverlapsPolicy2,
+        typename VisitBoxPolicy
+    >
+    static inline bool apply(ForwardRange1 const& forward_range1,
+                             ForwardRange2 const& forward_range2,
+                             VisitPolicy& visitor,
+                             ExpandPolicy1 const& expand_policy1,
+                             OverlapsPolicy1 const& overlaps_policy1,
+                             ExpandPolicy2 const& expand_policy2,
+                             OverlapsPolicy2 const& overlaps_policy2,
+                             std::size_t min_elements,
+                             VisitBoxPolicy box_visitor)
+    {
+        typedef typename boost::range_iterator
+            <
+                ForwardRange1 const
+            >::type iterator_type1;
+
+        typedef typename boost::range_iterator
+            <
+                ForwardRange2 const
+            >::type iterator_type2;
+
+        if (std::size_t(boost::size(forward_range1)) > min_elements
+            && std::size_t(boost::size(forward_range2)) > min_elements)
+        {
+            std::vector<iterator_type1> iterator_vector1;
+            std::vector<iterator_type2> iterator_vector2;
+            Box total;
+            assign_inverse(total);
+            expand_to_range<IncludePolicy1>(forward_range1, total,
+                                            iterator_vector1, expand_policy1);
+            expand_to_range<IncludePolicy2>(forward_range2, total,
+                                            iterator_vector2, expand_policy2);
+
+            return detail::partition::partition_two_ranges
+                <
+                    0, Box
+                >::apply(total, iterator_vector1, iterator_vector2,
+                         0, min_elements, visitor, expand_policy1,
+                         overlaps_policy1, expand_policy2, overlaps_policy2,
+                         box_visitor);
+        }
+        else
+        {
+            for(iterator_type1 it1 = boost::begin(forward_range1);
+                it1 != boost::end(forward_range1);
+                ++it1)
+            {
+                for(iterator_type2 it2 = boost::begin(forward_range2);
+                    it2 != boost::end(forward_range2);
+                    ++it2)
+                {
+                    if (! visitor.apply(*it1, *it2))
+                    {
+                        return false; // interrupt
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 };
 

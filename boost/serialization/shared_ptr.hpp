@@ -48,26 +48,18 @@
             #else
             typedef mpl::int_<1> type;
             #endif
-            #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x570))
-            BOOST_STATIC_CONSTANT(int, value = 1);
-            #else
             BOOST_STATIC_CONSTANT(int, value = type::value);
-            #endif
         };
         // don't track shared pointers
         template<class T>
-        struct tracking_level< ::boost::shared_ptr< T > > { 
+        struct tracking_level< ::boost::shared_ptr< T > > {
             typedef mpl::integral_c_tag tag;
             #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206))
             typedef typename mpl::int_< ::boost::serialization::track_never> type;
             #else
             typedef mpl::int_< ::boost::serialization::track_never> type;
             #endif
-            #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x570))
-            BOOST_STATIC_CONSTANT(int, value = ::boost::serialization::track_never);
-            #else
             BOOST_STATIC_CONSTANT(int, value = type::value);
-            #endif
         };
     }}
     #define BOOST_SERIALIZATION_SHARED_PTR(T)
@@ -168,7 +160,7 @@ inline void load(
         ar.template get_helper<shared_ptr_helper<boost::shared_ptr> >(
             shared_ptr_helper_id
         );
-    h.reset(t,r);    
+    h.reset(t,r);
 }
 #endif
 
@@ -215,7 +207,7 @@ namespace serialization{
     };
     // don't track shared pointers
     template<class T>
-    struct tracking_level< ::std::shared_ptr< T > > { 
+    struct tracking_level< ::std::shared_ptr< T > > {
         typedef mpl::integral_c_tag tag;
         typedef mpl::int_< ::boost::serialization::track_never> type;
         BOOST_STATIC_CONSTANT(int, value = type::value);

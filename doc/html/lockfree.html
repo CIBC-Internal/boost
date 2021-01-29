@@ -1,11 +1,12 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>Chapter&#160;18.&#160;Boost.Lockfree</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 22. Boost.Lockfree</title>
 <link rel="stylesheet" href="../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="libraries.html" title="Part&#160;I.&#160;The Boost C++ Libraries (BoostBook Subset)">
+<link rel="up" href="libraries.html" title="Part I. The Boost C++ Libraries (BoostBook Subset)">
 <link rel="prev" href="boost_lexical_cast/performance.html" title="Performance">
 <link rel="next" href="lockfree/examples.html" title="Examples">
 </head>
@@ -25,11 +26,11 @@
 <div class="chapter">
 <div class="titlepage"><div>
 <div><h2 class="title">
-<a name="lockfree"></a>Chapter&#160;18.&#160;Boost.Lockfree</h2></div>
+<a name="lockfree"></a>Chapter 22. Boost.Lockfree</h2></div>
 <div><div class="author"><h3 class="author">
 <span class="firstname">Tim</span> <span class="surname">Blechmann</span>
 </h3></div></div>
-<div><p class="copyright">Copyright &#169; 2008-2011 Tim
+<div><p class="copyright">Copyright © 2008-2011 Tim
       Blechmann</p></div>
 <div><div class="legalnotice">
 <a name="lockfree.legal"></a><p>
@@ -124,7 +125,7 @@
 <p>
       Non-blocking data structures do not rely on locks and mutexes to ensure thread-safety.
       The synchronization is done completely in user-space without any direct interaction
-      with the operating system <a href="#ftn.lockfree.introduction___motivation.f0" class="footnote" name="lockfree.introduction___motivation.f0"><sup class="footnote">[4]</sup></a>. This implies that they are not prone to issues like priority inversion
+      with the operating system <a href="#ftn.lockfree.introduction___motivation.f0" class="footnote" name="lockfree.introduction___motivation.f0"><sup class="footnote">[8]</sup></a>. This implies that they are not prone to issues like priority inversion
       (a low-priority thread needs to wait for a high-priority thread).
     </p>
 <p>
@@ -146,7 +147,7 @@
       'wait-free' only mention the upper bound of an operation. Therefore lock-free
       data structures are not necessarily the best choice for every use case. In
       order to maximise the throughput of an application one should consider high-performance
-      concurrent data structures <a href="#ftn.lockfree.introduction___motivation.f1" class="footnote" name="lockfree.introduction___motivation.f1"><sup class="footnote">[5]</sup></a>.
+      concurrent data structures <a href="#ftn.lockfree.introduction___motivation.f1" class="footnote" name="lockfree.introduction___motivation.f1"><sup class="footnote">[9]</sup></a>.
     </p>
 <p>
       Lock-free data structures will be a better choice in order to optimize the
@@ -207,11 +208,11 @@
 <dl class="variablelist">
 <dt><span class="term"><code class="computeroutput"><a class="link" href="boost/lockfree/queue.html" title="Class template queue">boost::lockfree::queue</a></code></span></dt>
 <dd><p>
-            a lock-free multi-produced/multi-consumer queue
+            a lock-free multi-producer/multi-consumer queue
           </p></dd>
 <dt><span class="term"><code class="computeroutput"><a class="link" href="boost/lockfree/stack.html" title="Class template stack">boost::lockfree::stack</a></code></span></dt>
 <dd><p>
-            a lock-free multi-produced/multi-consumer stack
+            a lock-free multi-producer/multi-consumer stack
           </p></dd>
 <dt><span class="term"><code class="computeroutput"><a class="link" href="boost/lockfree/spsc_queue.html" title="Class template spsc_queue">boost::lockfree::spsc_queue</a></code></span></dt>
 <dd><p>
@@ -257,12 +258,12 @@
 </div>
 <div class="footnotes">
 <br><hr style="width:100; text-align:left;margin-left: 0">
-<div id="ftn.lockfree.introduction___motivation.f0" class="footnote"><p><a href="#lockfree.introduction___motivation.f0" class="para"><sup class="para">[4] </sup></a>
+<div id="ftn.lockfree.introduction___motivation.f0" class="footnote"><p><a href="#lockfree.introduction___motivation.f0" class="para"><sup class="para">[8] </sup></a>
         Spinlocks do not directly interact with the operating system either. However
         it is possible that the owning thread is preempted by the operating system,
         which violates the lock-free property.
       </p></div>
-<div id="ftn.lockfree.introduction___motivation.f1" class="footnote"><p><a href="#lockfree.introduction___motivation.f1" class="para"><sup class="para">[5] </sup></a>
+<div id="ftn.lockfree.introduction___motivation.f1" class="footnote"><p><a href="#lockfree.introduction___motivation.f1" class="para"><sup class="para">[9] </sup></a>
         <a href="http://threadingbuildingblocks.org/" target="_top">Intel's Thread Building
         Blocks library</a> provides many efficient concurrent data structures,
         which are not necessarily lock-free.
@@ -270,7 +271,7 @@
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: April 07, 2015 at 22:50:41 GMT</small></p></td>
+<td align="left"><p><small>Last revised: December 03, 2020 at 05:08:25 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>

@@ -37,8 +37,8 @@ typedef boost::match_flag_type match_flag_type;
 
 namespace boost{
 
-#ifdef __BORLANDC__
-#if __BORLANDC__ < 0x530
+#ifdef BOOST_BORLANDC
+#if BOOST_BORLANDC < 0x530
 //
 // we need to instantiate the vector classes we use
 // since declaring a reference to type doesn't seem to
@@ -68,8 +68,12 @@ inline std::string to_string(const char* i, const char* j)
 }
 
 }
-namespace re_detail{
+namespace BOOST_REGEX_DETAIL_NS{
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#pragma warning(disable:26812)
+#endif
 class RegExData
 {
 public:
@@ -103,6 +107,9 @@ public:
 #endif
    strings(), positions() {}
 };
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 void RegExData::update()
 {
@@ -141,12 +148,12 @@ void RegExData::clean()
 
 RegEx::RegEx()
 {
-   pdata = new re_detail::RegExData();
+   pdata = new BOOST_REGEX_DETAIL_NS::RegExData();
 }
 
 RegEx::RegEx(const RegEx& o)
 {
-   pdata = new re_detail::RegExData(*(o.pdata));
+   pdata = new BOOST_REGEX_DETAIL_NS::RegExData(*(o.pdata));
 }
 
 RegEx::~RegEx()
@@ -156,13 +163,13 @@ RegEx::~RegEx()
 
 RegEx::RegEx(const char* c, bool icase)
 {
-   pdata = new re_detail::RegExData();
+   pdata = new BOOST_REGEX_DETAIL_NS::RegExData();
    SetExpression(c, icase);
 }
 
 RegEx::RegEx(const std::string& s, bool icase)
 {
-   pdata = new re_detail::RegExData();
+   pdata = new BOOST_REGEX_DETAIL_NS::RegExData();
    SetExpression(s.c_str(), icase);
 }
 
@@ -200,7 +207,7 @@ std::string RegEx::Expression()const
 //
 bool RegEx::Match(const char* p, match_flag_type flags)
 {
-   pdata->t = re_detail::RegExData::type_pc;
+   pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pc;
    pdata->pbase = p;
    const char* end = p;
    while(*end)++end;
@@ -215,7 +222,7 @@ bool RegEx::Match(const char* p, match_flag_type flags)
 
 bool RegEx::Search(const char* p, match_flag_type flags)
 {
-   pdata->t = re_detail::RegExData::type_pc;
+   pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pc;
    pdata->pbase = p;
    const char* end = p;
    while(*end)++end;
@@ -227,7 +234,7 @@ bool RegEx::Search(const char* p, match_flag_type flags)
    }
    return false;
 }
-namespace re_detail{
+namespace BOOST_REGEX_DETAIL_NS{
 struct pred1
 {
    GrepCallback cb;
@@ -242,17 +249,17 @@ struct pred1
 }
 unsigned int RegEx::Grep(GrepCallback cb, const char* p, match_flag_type flags)
 {
-   pdata->t = re_detail::RegExData::type_pc;
+   pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pc;
    pdata->pbase = p;
    const char* end = p;
    while(*end)++end;
 
-   unsigned int result = regex_grep(re_detail::pred1(cb, this), p, end, pdata->e, flags);
+   unsigned int result = regex_grep(BOOST_REGEX_DETAIL_NS::pred1(cb, this), p, end, pdata->e, flags);
    if(result)
       pdata->update();
    return result;
 }
-namespace re_detail{
+namespace BOOST_REGEX_DETAIL_NS{
 struct pred2
 {
    std::vector<std::string>& v;
@@ -271,17 +278,17 @@ private:
 
 unsigned int RegEx::Grep(std::vector<std::string>& v, const char* p, match_flag_type flags)
 {
-   pdata->t = re_detail::RegExData::type_pc;
+   pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pc;
    pdata->pbase = p;
    const char* end = p;
    while(*end)++end;
 
-   unsigned int result = regex_grep(re_detail::pred2(v, this), p, end, pdata->e, flags);
+   unsigned int result = regex_grep(BOOST_REGEX_DETAIL_NS::pred2(v, this), p, end, pdata->e, flags);
    if(result)
       pdata->update();
    return result;
 }
-namespace re_detail{
+namespace BOOST_REGEX_DETAIL_NS{
 struct pred3
 {
    std::vector<std::size_t>& v;
@@ -300,18 +307,18 @@ private:
 }
 unsigned int RegEx::Grep(std::vector<std::size_t>& v, const char* p, match_flag_type flags)
 {
-   pdata->t = re_detail::RegExData::type_pc;
+   pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pc;
    pdata->pbase = p;
    const char* end = p;
    while(*end)++end;
 
-   unsigned int result = regex_grep(re_detail::pred3(v, p, this), p, end, pdata->e, flags);
+   unsigned int result = regex_grep(BOOST_REGEX_DETAIL_NS::pred3(v, p, this), p, end, pdata->e, flags);
    if(result)
       pdata->update();
    return result;
 }
 #ifndef BOOST_REGEX_NO_FILEITER
-namespace re_detail{
+namespace BOOST_REGEX_DETAIL_NS{
 struct pred4
 {
    GrepFileCallback cb;
@@ -338,17 +345,17 @@ void BuildFileList(std::list<std::string>* pl, const char* files, bool recurse)
    {
       // go through sub directories:
       char buf[MAX_PATH];
-      re_detail::overflow_error_if_not_zero(re_detail::strcpy_s(buf, MAX_PATH, start.root()));
+      BOOST_REGEX_DETAIL_NS::overflow_error_if_not_zero(BOOST_REGEX_DETAIL_NS::strcpy_s(buf, MAX_PATH, start.root()));
       if(*buf == 0)
       {
-         re_detail::overflow_error_if_not_zero(re_detail::strcpy_s(buf, MAX_PATH, "."));
-         re_detail::overflow_error_if_not_zero(re_detail::strcat_s(buf, MAX_PATH, directory_iterator::separator()));
-         re_detail::overflow_error_if_not_zero(re_detail::strcat_s(buf, MAX_PATH, "*"));
+         BOOST_REGEX_DETAIL_NS::overflow_error_if_not_zero(BOOST_REGEX_DETAIL_NS::strcpy_s(buf, MAX_PATH, "."));
+         BOOST_REGEX_DETAIL_NS::overflow_error_if_not_zero(BOOST_REGEX_DETAIL_NS::strcat_s(buf, MAX_PATH, directory_iterator::separator()));
+         BOOST_REGEX_DETAIL_NS::overflow_error_if_not_zero(BOOST_REGEX_DETAIL_NS::strcat_s(buf, MAX_PATH, "*"));
       }
       else
       {
-         re_detail::overflow_error_if_not_zero(re_detail::strcat_s(buf, MAX_PATH, directory_iterator::separator()));
-         re_detail::overflow_error_if_not_zero(re_detail::strcat_s(buf, MAX_PATH, "*"));
+         BOOST_REGEX_DETAIL_NS::overflow_error_if_not_zero(BOOST_REGEX_DETAIL_NS::strcat_s(buf, MAX_PATH, directory_iterator::separator()));
+         BOOST_REGEX_DETAIL_NS::overflow_error_if_not_zero(BOOST_REGEX_DETAIL_NS::strcat_s(buf, MAX_PATH, "*"));
       }
       directory_iterator dstart(buf);
       directory_iterator dend;
@@ -403,9 +410,9 @@ unsigned int RegEx::GrepFiles(GrepFileCallback cb, const char* files, bool recur
    while(start != end)
    {
       mapfile map((*start).c_str());
-      pdata->t = re_detail::RegExData::type_pf;
+      pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pf;
       pdata->fbase = map.begin();
-      re_detail::pred4 pred(cb, this, (*start).c_str());
+      BOOST_REGEX_DETAIL_NS::pred4 pred(cb, this, (*start).c_str());
       int r = regex_grep(pred, map.begin(), map.end(), pdata->e, flags);
       result += r;
       ++start;
@@ -430,7 +437,7 @@ unsigned int RegEx::FindFiles(FindFilesCallback cb, const char* files, bool recu
    while(start != end)
    {
       mapfile map((*start).c_str());
-      pdata->t = re_detail::RegExData::type_pf;
+      pdata->t = BOOST_REGEX_DETAIL_NS::RegExData::type_pf;
       pdata->fbase = map.begin();
 
       if(regex_search(map.begin(), map.end(), pdata->fm, pdata->e, flags))
@@ -456,7 +463,7 @@ std::string RegEx::Merge(const std::string& in, const std::string& fmt,
                     bool copy, match_flag_type flags)
 {
    std::string result;
-   re_detail::string_out_iterator<std::string> i(result);
+   BOOST_REGEX_DETAIL_NS::string_out_iterator<std::string> i(result);
    if(!copy) flags |= format_no_copy;
    regex_replace(i, in.begin(), in.end(), pdata->e, fmt.c_str(), flags);
    return result;
@@ -467,7 +474,7 @@ std::string RegEx::Merge(const char* in, const char* fmt,
 {
    std::string result;
    if(!copy) flags |= format_no_copy;
-   re_detail::string_out_iterator<std::string> i(result);
+   BOOST_REGEX_DETAIL_NS::string_out_iterator<std::string> i(result);
    regex_replace(i, in, in + std::strlen(in), pdata->e, fmt, flags);
    return result;
 }
@@ -489,13 +496,13 @@ std::size_t RegEx::Position(int i)const
 {
    switch(pdata->t)
    {
-   case re_detail::RegExData::type_pc:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pc:
       return pdata->m[i].matched ? pdata->m[i].first - pdata->pbase : RegEx::npos;
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pf:
 #ifndef BOOST_REGEX_NO_FILEITER
-   case re_detail::RegExData::type_pf:
       return pdata->fm[i].matched ? pdata->fm[i].first - pdata->fbase : RegEx::npos;
 #endif
-   case re_detail::RegExData::type_copy:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_copy:
       {
       std::map<int, std::ptrdiff_t, std::less<int> >::iterator pos = pdata->positions.find(i);
       if(pos == pdata->positions.end())
@@ -516,13 +523,13 @@ std::size_t RegEx::Length(int i)const
 {
    switch(pdata->t)
    {
-   case re_detail::RegExData::type_pc:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pc:
       return pdata->m[i].matched ? pdata->m[i].second - pdata->m[i].first : RegEx::npos;
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pf:
 #ifndef BOOST_REGEX_NO_FILEITER
-   case re_detail::RegExData::type_pf:
       return pdata->fm[i].matched ? pdata->fm[i].second - pdata->fm[i].first : RegEx::npos;
 #endif
-   case re_detail::RegExData::type_copy:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_copy:
       {
       std::map<int, std::string, std::less<int> >::iterator pos = pdata->strings.find(i);
       if(pos == pdata->strings.end())
@@ -537,13 +544,13 @@ bool RegEx::Matched(int i)const
 {
    switch(pdata->t)
    {
-   case re_detail::RegExData::type_pc:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pc:
       return pdata->m[i].matched;
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pf:
 #ifndef BOOST_REGEX_NO_FILEITER
-   case re_detail::RegExData::type_pf:
       return pdata->fm[i].matched;
-#endif      
-   case re_detail::RegExData::type_copy:
+#endif
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_copy:
       {
       std::map<int, std::string, std::less<int> >::iterator pos = pdata->strings.find(i);
       if(pos == pdata->strings.end())
@@ -560,15 +567,15 @@ std::string RegEx::What(int i)const
    std::string result;
    switch(pdata->t)
    {
-   case re_detail::RegExData::type_pc:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pc:
       if(pdata->m[i].matched) 
          result.assign(pdata->m[i].first, pdata->m[i].second);
       break;
-   case re_detail::RegExData::type_pf:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_pf:
       if(pdata->m[i].matched) 
          result.assign(to_string(pdata->m[i].first, pdata->m[i].second));
       break;
-   case re_detail::RegExData::type_copy:
+   case BOOST_REGEX_DETAIL_NS::RegExData::type_copy:
       {
       std::map<int, std::string, std::less<int> >::iterator pos = pdata->strings.find(i);
       if(pos != pdata->strings.end())
@@ -583,7 +590,7 @@ const std::size_t RegEx::npos = ~static_cast<std::size_t>(0);
 
 } // namespace boost
 
-#if defined(__BORLANDC__) && (__BORLANDC__ >= 0x550) && (__BORLANDC__ <= 0x551) && !defined(_RWSTD_COMPILE_INSTANTIATE)
+#if defined(BOOST_BORLANDC) && (BOOST_BORLANDC >= 0x550) && (BOOST_BORLANDC <= 0x551) && !defined(_RWSTD_COMPILE_INSTANTIATE)
 //
 // this is an ugly hack to work around an ugly problem:
 // by default this file will produce unresolved externals during

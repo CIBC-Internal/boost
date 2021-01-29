@@ -7,10 +7,6 @@
 #if !defined(BOOST_SPIRIT_X3_GUARD_FERBRUARY_02_2013_0649PM)
 #define BOOST_SPIRIT_X3_GUARD_FERBRUARY_02_2013_0649PM
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #include <boost/spirit/home/x3/support/context.hpp>
 #include <boost/spirit/home/x3/directive/expect.hpp>
 
@@ -30,7 +26,7 @@ namespace boost { namespace spirit { namespace x3
         typedef unary_parser<Subject, guard<Subject, Handler>> base_type;
         static bool const is_pass_through_unary = true;
 
-        guard(Subject const& subject, Handler handler)
+        constexpr guard(Subject const& subject, Handler handler)
           : base_type(subject), handler(handler) {}
 
         template <typename Iterator, typename Context

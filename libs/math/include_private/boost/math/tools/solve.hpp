@@ -32,7 +32,7 @@ namespace boost{ namespace math{ namespace tools{
 // Find x such that Ax = b
 //
 // Caution: this uses undocumented, and untested ublas code,
-// however short of writing our own LU-decompostion code
+// however short of writing our own LU-decomposition code
 // it's the only game in town.
 //
 template <class T>
@@ -51,7 +51,7 @@ boost::numeric::ublas::vector<T> solve(
    // iterate to reduce error:
    //
    boost::numeric::ublas::vector<T> delta(b.size());
-   for(unsigned i = 0; i < 1; ++i)
+   for(unsigned k = 0; k < 1; ++k)
    {
       noalias(delta) = prod(A_, b);
       delta -= b_;

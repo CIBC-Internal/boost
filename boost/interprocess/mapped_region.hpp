@@ -190,7 +190,7 @@ class mapped_region
    //!mapped memory page, accessing that page can trigger a segmentation fault.
    //!Depending on the OS, this operation might fail (XSI shared memory), it can decommit storage
    //!and free a portion of the virtual address space (e.g.POSIX) or this
-   //!function can release some physical memory wihout freeing any virtual address space(Windows).
+   //!function can release some physical memory without freeing any virtual address space(Windows).
    //!Returns true on success. Never throws.
    bool shrink_by(std::size_t bytes, bool from_back = true);
 
@@ -297,7 +297,7 @@ inline bool mapped_region::priv_flush_param_check
    if(m_base == 0)
       return false;
 
-   if(mapping_offset >= m_size || (mapping_offset + numbytes) > m_size){
+   if(mapping_offset >= m_size || numbytes > (m_size - size_t(mapping_offset))){
       return false;
    }
 
@@ -346,14 +346,14 @@ inline void mapped_region::priv_size_from_mapping_size
    (offset_t mapping_size, offset_t offset, offset_t page_offset, std::size_t &size)
 {
    //Check if mapping size fits in the user address space
-   //as offset_t is the maximum file size and its signed.
+   //as offset_t is the maximum file size and it's signed.
    if(mapping_size < offset ||
       boost::uintmax_t(mapping_size - (offset - page_offset)) >
          boost::uintmax_t(std::size_t(-1))){
       error_info err(size_error);
       throw interprocess_exception(err);
    }
-   size = static_cast<std::size_t>(mapping_size - (offset - page_offset));
+   size = static_cast<std::size_t>(mapping_size - offset);
 }
 
 inline offset_t mapped_region::priv_page_offset_addr_fixup(offset_t offset, const void *&address)
@@ -383,7 +383,7 @@ inline mapped_region::mapped_region()
 template<int dummy>
 inline std::size_t mapped_region::page_size_holder<dummy>::get_page_size()
 {
-   winapi::system_info info;
+   winapi::interprocess_system_info info;
    winapi::get_system_info(&info);
    return std::size_t(info.dwAllocationGranularity);
 }
@@ -523,8 +523,8 @@ inline bool mapped_region::flush(std::size_t mapping_offset, std::size_t numbyte
 
 inline bool mapped_region::shrink_by(std::size_t bytes, bool from_back)
 {
-   void *shrink_page_start;
-   std::size_t shrink_page_bytes;
+   void *shrink_page_start = 0;
+   std::size_t shrink_page_bytes = 0;
    if(!this->priv_shrink_param_check(bytes, from_back, shrink_page_start, shrink_page_bytes)){
       return false;
    }
@@ -621,7 +621,10 @@ inline mapped_region::mapped_region
          throw interprocess_exception(err);
       }
       //Attach memory
-      void *base = ::shmat(map_hnd.handle, (void*)address, flag);
+      //Some old shmat implementation take the address as a non-const void pointer
+      //so uncast it to make code portable.
+      void *const final_address = const_cast<void *>(address);
+      void *base = ::shmat(map_hnd.handle, final_address, flag);
       if(base == (void*)-1){
          error_info err(system_error_code());
          throw interprocess_exception(err);
@@ -876,7 +879,7 @@ struct null_mapped_region_function
    bool operator()(void *, std::size_t , bool) const
       {   return true;   }
 
-   std::size_t get_min_size() const
+   static std::size_t get_min_size()
    {  return 0;  }
 };
 

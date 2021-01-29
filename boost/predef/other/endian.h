@@ -1,5 +1,5 @@
 /*
-Copyright Rene Rivera 2013-2014
+Copyright Rene Rivera 2013-2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at
 http://www.boost.org/LICENSE_1_0.txt)
@@ -13,10 +13,10 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <boost/predef/library/c/gnu.h>
 #include <boost/predef/os/macos.h>
 #include <boost/predef/os/bsd.h>
-#include <boost/predef/os/android.h>
+#include <boost/predef/platform/android.h>
 
-/*`
-[heading `BOOST_ENDIAN_*`]
+/* tag::reference[]
+= `BOOST_ENDIAN_*`
 
 Detection of endian memory ordering. There are four defined macros
 in this header that define the various generally possible endian
@@ -37,12 +37,12 @@ programatic bi-endianness is available.
 This implementation is a compilation of various publicly available
 information and acquired knowledge:
 
-# The indispensable documentation of "Pre-defined Compiler Macros"
-  [@http://sourceforge.net/p/predef/wiki/Endianness Endianness].
-# The various endian specifications available in the
-  [@http://wikipedia.org/ Wikipedia] computer architecture pages.
-# Generally available searches for headers that define endianness.
- */
+. The indispensable documentation of "Pre-defined Compiler Macros"
+  http://sourceforge.net/p/predef/wiki/Endianness[Endianness].
+. The various endian specifications available in the
+  http://wikipedia.org/[Wikipedia] computer architecture pages.
+. Generally available searches for headers that define endianness.
+*/ // end::reference[]
 
 #define BOOST_ENDIAN_BIG_BYTE BOOST_VERSION_NUMBER_NOT_AVAILABLE
 #define BOOST_ENDIAN_BIG_WORD BOOST_VERSION_NUMBER_NOT_AVAILABLE
@@ -54,7 +54,7 @@ information and acquired knowledge:
  */
 #if !BOOST_ENDIAN_BIG_BYTE && !BOOST_ENDIAN_BIG_WORD && \
     !BOOST_ENDIAN_LITTLE_BYTE && !BOOST_ENDIAN_LITTLE_WORD
-#   if BOOST_LIB_C_GNU || BOOST_OS_ANDROID
+#   if BOOST_LIB_C_GNU || BOOST_PLAT_ANDROID
 #       include <endian.h>
 #   else
 #       if BOOST_OS_MACOS
@@ -127,7 +127,8 @@ information and acquired knowledge:
         defined(__AARCH64EL__) || \
         defined(_MIPSEL) || \
         defined(__MIPSEL) || \
-        defined(__MIPSEL__)
+        defined(__MIPSEL__) || \
+        defined(__riscv)
 #       undef BOOST_ENDIAN_LITTLE_BYTE
 #       define BOOST_ENDIAN_LITTLE_BYTE BOOST_VERSION_NUMBER_AVAILABLE
 #   endif
@@ -140,7 +141,7 @@ information and acquired knowledge:
     !BOOST_ENDIAN_LITTLE_BYTE && !BOOST_ENDIAN_LITTLE_WORD
 #   include <boost/predef/architecture.h>
 #   if BOOST_ARCH_M68K || \
-        BOOST_ARCH_PARISK || \
+        BOOST_ARCH_PARISC || \
         BOOST_ARCH_SPARC || \
         BOOST_ARCH_SYS370 || \
         BOOST_ARCH_SYS390 || \
@@ -148,8 +149,7 @@ information and acquired knowledge:
 #       undef BOOST_ENDIAN_BIG_BYTE
 #       define BOOST_ENDIAN_BIG_BYTE BOOST_VERSION_NUMBER_AVAILABLE
 #   endif
-#   if BOOST_ARCH_AMD64 || \
-        BOOST_ARCH_IA64 || \
+#   if BOOST_ARCH_IA64 || \
         BOOST_ARCH_X86 || \
         BOOST_ARCH_BLACKFIN
 #       undef BOOST_ENDIAN_LITTLE_BYTE
@@ -189,6 +189,8 @@ information and acquired knowledge:
 #define BOOST_ENDIAN_LITTLE_BYTE_NAME "Byte-Swapped Little-Endian"
 #define BOOST_ENDIAN_LITTLE_WORD_NAME "Word-Swapped Little-Endian"
 
+#endif
+
 #include <boost/predef/detail/test.h>
 BOOST_PREDEF_DECLARE_TEST(BOOST_ENDIAN_BIG_BYTE,BOOST_ENDIAN_BIG_BYTE_NAME)
 
@@ -200,6 +202,3 @@ BOOST_PREDEF_DECLARE_TEST(BOOST_ENDIAN_LITTLE_BYTE,BOOST_ENDIAN_LITTLE_BYTE_NAME
 
 #include <boost/predef/detail/test.h>
 BOOST_PREDEF_DECLARE_TEST(BOOST_ENDIAN_LITTLE_WORD,BOOST_ENDIAN_LITTLE_WORD_NAME)
-
-
-#endif

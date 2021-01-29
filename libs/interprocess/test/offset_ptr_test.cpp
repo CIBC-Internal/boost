@@ -8,11 +8,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/offset_ptr.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 using namespace boost::interprocess;
 
@@ -27,7 +27,7 @@ class VirtualDerived
    : public virtual Base
 {};
 
-bool test_types_and_conversions()
+void test_types_and_conversions()
 {
    typedef offset_ptr<int>                pint_t;
    typedef offset_ptr<const int>          pcint_t;
@@ -45,16 +45,26 @@ bool test_types_and_conversions()
    BOOST_STATIC_ASSERT((ipcdetail::is_same<pcvint_t::value_type, int>::value));
    int dummy_int = 9;
 
-   {  pint_t pint(&dummy_int);   pcint_t  pcint(pint);
-      if(pcint.get()  != &dummy_int)   return false;  }
-   {  pint_t pint(&dummy_int);   pvint_t  pvint(pint);
-      if(pvint.get()  != &dummy_int)   return false;  }
-   {  pint_t pint(&dummy_int);   pcvint_t  pcvint(pint);
-      if(pcvint.get()  != &dummy_int)  return false;  }
-   {  pcint_t pcint(&dummy_int); pcvint_t  pcvint(pcint);
-         if(pcvint.get()  != &dummy_int)  return false;  }
-   {  pvint_t pvint(&dummy_int); pcvint_t  pcvint(pvint);
-      if(pcvint.get()  != &dummy_int)  return false;  }
+   {  pint_t pint(&dummy_int);
+      pcint_t  pcint(pint);
+      BOOST_TEST(pcint.get() == &dummy_int);
+   }
+   {  pint_t pint(&dummy_int);
+      pvint_t  pvint(pint);
+      BOOST_TEST(pvint.get() == &dummy_int);
+   }
+   {  pint_t pint(&dummy_int);
+      pcvint_t  pcvint(pint);
+      BOOST_TEST(pcvint.get() == &dummy_int);
+   }
+   {  pcint_t pcint(&dummy_int);
+      pcvint_t  pcvint(pcint);
+      BOOST_TEST(pcvint.get() == &dummy_int);
+   }
+   {  pvint_t pvint(&dummy_int);
+      pcvint_t  pcvint(pvint);
+      BOOST_TEST(pcvint.get() == &dummy_int);
+   }
 
    pint_t   pint(0);
    pcint_t  pcint(0);
@@ -66,89 +76,71 @@ bool test_types_and_conversions()
    pvint    = &dummy_int;
    pcvint   = &dummy_int;
 
-   {   pcint  = pint;   if(pcint.get() != &dummy_int)   return false;  }
-   {   pvint  = pint;   if(pvint.get() != &dummy_int)   return false;  }
-   {   pcvint = pint;   if(pcvint.get() != &dummy_int)  return false;  }
-   {   pcvint = pcint;  if(pcvint.get() != &dummy_int)  return false;  }
-   {   pcvint = pvint;  if(pcvint.get() != &dummy_int)  return false;  }
+   {  pcint  = pint;
+      BOOST_TEST(pcint.get() == &dummy_int);
+   }
+   {  pvint  = pint;
+      BOOST_TEST(pvint.get() == &dummy_int);
+   }
+   {  pcvint = pint;
+      BOOST_TEST(pcvint.get() == &dummy_int);
+   }
+   {  pcvint = pcint;
+      BOOST_TEST(pcvint.get() == &dummy_int);
+   }
+   {  pcvint = pvint;
+      BOOST_TEST(pcvint.get() == &dummy_int);
+   }
 
-   if(!pint)
-      return false;
+   BOOST_TEST(pint);
 
    pint = 0;
-   if(pint)
-      return false;
+   BOOST_TEST(!pint);
 
-   if(pint != 0)
-      return false;
+   BOOST_TEST(pint == 0);
 
-   if(0 != pint)
-      return false;
+   BOOST_TEST(0 == pint);
 
    pint = &dummy_int;
-   if(0 == pint)
-      return false;
-
-   if(pint == 0)
-      return false;
+   BOOST_TEST(0 != pint);
 
    pcint = &dummy_int;
 
-   if( (pcint - pint) != 0)
-      return false;
-
-   if( (pint - pcint) != 0)
-      return false;
-
-   return true;
+   BOOST_TEST( (pcint - pint) == 0);
+   BOOST_TEST( (pint - pcint) == 0);
 }
 
 template<class BasePtr, class DerivedPtr>
-bool test_base_derived_impl()
+void test_base_derived_impl()
 {
    typename DerivedPtr::element_type d;
    DerivedPtr pderi(&d);
 
    BasePtr pbase(pderi);
    pbase = pderi;
-   if(pbase != pderi)
-      return false;
-   if(!(pbase == pderi))
-      return false;
-   if((pbase - pderi) != 0)
-      return false;
-   if(pbase < pderi)
-      return false;
-   if(pbase > pderi)
-      return false;
-   if(!(pbase <= pderi))
-      return false;
-   if(!(pbase >= pderi))
-      return false;
-
-   return true;
+   BOOST_TEST(pbase == pderi);
+   BOOST_TEST(!(pbase != pderi));
+   BOOST_TEST((pbase - pderi) == 0);
+   BOOST_TEST(!(pbase < pderi));
+   BOOST_TEST(!(pbase > pderi));
+   BOOST_TEST(pbase <= pderi);
+   BOOST_TEST((pbase >= pderi));
 }
 
-bool test_base_derived()
+void test_base_derived()
 {
    typedef offset_ptr<Base>               pbase_t;
    typedef offset_ptr<const Base>         pcbas_t;
    typedef offset_ptr<Derived>            pderi_t;
    typedef offset_ptr<VirtualDerived>     pvder_t;
 
-   if(!test_base_derived_impl<pbase_t, pderi_t>())
-      return false;
-   if(!test_base_derived_impl<pbase_t, pvder_t>())
-      return false;
-   if(!test_base_derived_impl<pcbas_t, pderi_t>())
-      return false;
-   if(!test_base_derived_impl<pcbas_t, pvder_t>())
-      return false;
-
-   return true;
+   test_base_derived_impl<pbase_t, pderi_t>();
+   test_base_derived_impl<pbase_t, pvder_t>();
+   test_base_derived_impl<pcbas_t, pderi_t>();
+   test_base_derived_impl<pcbas_t, pvder_t>();
 }
 
-bool test_arithmetic()
+void test_arithmetic()
 {
    typedef offset_ptr<int> pint_t;
    const int NumValues = 5;
@@ -156,74 +148,64 @@ bool test_arithmetic()
 
    //Initialize p
    pint_t p = values;
-   if(p.get() != values)
-      return false;
+   BOOST_TEST(p.get() == values);
 
    //Initialize p + NumValues
    pint_t pe = &values[NumValues];
-   if(pe == p)
-      return false;
-   if(pe.get() != &values[NumValues])
-      return false;
+   BOOST_TEST(pe != p);
+   BOOST_TEST(pe.get() == &values[NumValues]);
 
    //ptr - ptr
-   if((pe - p) != NumValues)
-      return false;
+   BOOST_TEST((pe - p) == NumValues);
+
    //ptr - integer
-   if((pe - NumValues) != p)
-      return false;
+   BOOST_TEST((pe - NumValues) == p);
+
    //ptr + integer
-   if((p + NumValues) != pe)
-      return false;
+   BOOST_TEST((p + NumValues) == pe);
+
    //integer + ptr
-   if((NumValues + p) != pe)
-      return false;
+   BOOST_TEST((NumValues + p) == pe);
+
    //indexing
-   if(pint_t(&p[NumValues])   != pe)
-      return false;
-   if(pint_t(&pe[-NumValues]) != p)
-      return false;
+   BOOST_TEST(pint_t(&p[NumValues]) == pe);
+   BOOST_TEST(pint_t(&pe[-NumValues]) == p);
 
    //ptr -= integer
    pint_t p0 = pe;
    p0-= NumValues;
-   if(p != p0)
-      return false;
+   BOOST_TEST(p == p0);
+
    //ptr += integer
    pint_t penew = p0;
    penew += NumValues;
-   if(penew != pe)
-      return false;
+   BOOST_TEST(penew == pe);
 
    //++ptr
    penew = p0;
    for(int j = 0; j != NumValues; ++j, ++penew);
-   if(penew != pe)
-      return false;
+   BOOST_TEST(penew == pe);
+
    //--ptr
    p0 = pe;
    for(int j = 0; j != NumValues; ++j, --p0);
-   if(p != p0)
-      return false;
+   BOOST_TEST(p == p0);
+
    //ptr++
    penew = p0;
    for(int j = 0; j != NumValues; ++j){
       pint_t p_new_copy = penew;
-      if(p_new_copy != penew++)
-         return false;
+      BOOST_TEST(p_new_copy == penew++);
    }
    //ptr--
    p0 = pe;
    for(int j = 0; j != NumValues; ++j){
       pint_t p0_copy = p0;
-      if(p0_copy != p0--)
-         return false;
+      BOOST_TEST(p0_copy == p0--);
    }
-
-   return true;
 }
 
-bool test_comparison()
+void test_comparison()
 {
    typedef offset_ptr<int> pint_t;
    const int NumValues = 5;
@@ -231,31 +213,21 @@ bool test_comparison()
 
    //Initialize p
    pint_t p = values;
-   if(p.get() != values)
-      return false;
+   BOOST_TEST(p.get() == values);
 
    //Initialize p + NumValues
    pint_t pe = &values[NumValues];
-   if(pe == p)
-      return false;
-   if(pe.get() != &values[NumValues])
-      return false;
+   BOOST_TEST(pe != p);
+
+   BOOST_TEST(pe.get() == &values[NumValues]);
 
    //operators
-   if(p == pe)
-      return false;
-   if(p != p)
-      return false;
-   if(!(p < pe))
-      return false;
-   if(!(p <= pe))
-      return false;
-   if(!(pe > p))
-      return false;
-   if(!(pe >= p))
-      return false;
-
-   return true;
+   BOOST_TEST(p != pe);
+   BOOST_TEST(p == p);
+   BOOST_TEST((p < pe));
+   BOOST_TEST((p <= pe));
+   BOOST_TEST((pe > p));
+   BOOST_TEST((pe >= p));
 }
 
 bool test_pointer_traits()
@@ -274,76 +246,47 @@ bool test_pointer_traits()
    return true;
 }
 
-int main()
+struct node 
 {
-   if(!test_types_and_conversions())
-      return 1;
-   if(!test_base_derived())
-      return 1;
-   if(!test_arithmetic())
-      return 1;
-   if(!test_comparison())
-      return 1;
-   if(!test_pointer_traits())
-      return 1;
-   return 0;
-}
+   offset_ptr<node> next;
+};
 
-#include <boost/interprocess/detail/config_end.hpp>
+void test_pointer_plus_bits()
+{
+   BOOST_STATIC_ASSERT((boost::intrusive::max_pointer_plus_bits< offset_ptr<void>, boost::move_detail::alignment_of<node>::value >::value >= 1U));
+   typedef boost::intrusive::pointer_plus_bits< offset_ptr<node>, 1u > ptr_plus_bits;
 
-/*
-//Offset ptr benchmark
-#include <vector>
-#include <iostream>
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/containers/vector.hpp>
-#include <boost/interprocess/allocators/allocator.hpp>
-#include <boost/timer.hpp>
-#include <cstddef>
+   node n, n2;
+   offset_ptr<node> pnode(&n);
 
-template<class InIt,
-   class Ty> inline
-   Ty accumulate2(InIt First, InIt Last, Ty Val)
-   {   // return sum of Val and all in [First, Last)
-   for (; First != Last; ++First) //First = First + 1)
-      Val = Val + *First;
-   return (Val);
-   }
+   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n);
+   BOOST_TEST(0 == ptr_plus_bits::get_bits(pnode));
+   ptr_plus_bits::set_bits(pnode, 1u);
+   BOOST_TEST(1 == ptr_plus_bits::get_bits(pnode));
+   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n);
 
-template <typename Vector>
-void time_test(const Vector& vec, std::size_t iterations, const char* label) {
-  // assert(!vec.empty())
-  boost::timer t;
-  typename Vector::const_iterator first = vec.begin();
-  typename Vector::value_type result(0);
-  while (iterations != 0) {
-    result = accumulate2(first, first + vec.size(), result);
-    --iterations;
-  }
-  std::cout << label << t.elapsed() << " " << result << std::endl;
+   ptr_plus_bits::set_pointer(pnode, &n2);
+   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n2);
+   BOOST_TEST(1 == ptr_plus_bits::get_bits(pnode));
+   ptr_plus_bits::set_bits(pnode, 0u);
+   BOOST_TEST(0 == ptr_plus_bits::get_bits(pnode));
+   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n2);
+
+   ptr_plus_bits::set_pointer(pnode, offset_ptr<node>());
+   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) ==0);
+   BOOST_TEST(0 == ptr_plus_bits::get_bits(pnode));
+   ptr_plus_bits::set_bits(pnode, 1u);
+   BOOST_TEST(1 == ptr_plus_bits::get_bits(pnode));
+   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == 0);
 }
 
 int main()
 {
-   using namespace boost::interprocess;
-   typedef allocator<double, managed_shared_memory::segment_manager> alloc_t;
-
-   std::size_t n = 0x1 << 26;
-   std::size_t file_size = n * sizeof(double) + 1000000;
-
-   {
-      shared_memory_object::remove("MyMappedFile");
-      managed_shared_memory segment(open_or_create, "MyMappedFile", file_size);
-      shared_memory_object::remove("MyMappedFile");
-      alloc_t alloc_inst(segment.get_segment_manager());
-      vector<double, alloc_t>  v0(n, double(42.42), alloc_inst);
-      time_test(v0, 10, "iterator   shared:     ");
-   }
-   {
-      std::vector<double>      v1(n, double(42.42));
-      time_test(v1, 10, "iterator   non-shared: ");
-   }
-  return 0;
+   test_types_and_conversions();
+   test_base_derived();
+   test_arithmetic();
+   test_comparison();
+   test_pointer_traits();
+   test_pointer_plus_bits();
+   return ::boost::report_errors();
 }
-
-*/

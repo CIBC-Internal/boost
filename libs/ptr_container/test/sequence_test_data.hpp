@@ -10,8 +10,14 @@
 //
 
 #include "test_data.hpp"
+#include <boost/ptr_container/detail/ptr_container_disable_deprecated.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/bind.hpp>
+
+#if defined(BOOST_PTR_CONTAINER_DISABLE_DEPRECATED)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 template< typename C, typename B, typename T >
 void reversible_container_test();
@@ -24,8 +30,8 @@ void reversible_container_test()
 {
     using namespace boost;
     
-    BOOST_MESSAGE( "starting reversible container test" ); 
-    enum { max_cnt = 10, size = 100 };
+    BOOST_TEST_MESSAGE( "starting reversible container test" ); 
+    enum { max_cnt = 10 };
     C  c;
     set_capacity<C>()( c );
     BOOST_CHECK( c.size() == 0 );
@@ -46,7 +52,7 @@ void reversible_container_test()
         
     c.assign( c3 );
     set_capacity<C>()( c );
-    BOOST_MESSAGE( "finished construction test" ); 
+    BOOST_TEST_MESSAGE( "finished construction test" ); 
 
     C a_copy( c );
     BOOST_CHECK_EQUAL( a_copy.size(), c.size() );
@@ -56,18 +62,24 @@ void reversible_container_test()
     a_copy = a_copy;
     BOOST_CHECK( a_copy.empty() );
     BOOST_CHECK( !c.empty() );
-    BOOST_MESSAGE( "finished copying test" ); 
+    BOOST_TEST_MESSAGE( "finished copying test" ); 
 
     BOOST_DEDUCED_TYPENAME C::allocator_type alloc        = c.get_allocator();
     hide_warning(alloc);
     BOOST_DEDUCED_TYPENAME C::iterator i                  = c.begin();
     BOOST_DEDUCED_TYPENAME C::const_iterator ci           = c2.begin();
     BOOST_DEDUCED_TYPENAME C::iterator i2                 = c.end();
+    hide_warning(i2);
     BOOST_DEDUCED_TYPENAME C::const_iterator ci2          = c2.begin();
+    hide_warning(ci2);
     BOOST_DEDUCED_TYPENAME C::reverse_iterator ri         = c.rbegin();
+    hide_warning(ri);
     BOOST_DEDUCED_TYPENAME C::const_reverse_iterator cri  = c2.rbegin();
+    hide_warning(cri);
     BOOST_DEDUCED_TYPENAME C::reverse_iterator rv2        = c.rend();
+    hide_warning(rv2);
     BOOST_DEDUCED_TYPENAME C::const_reverse_iterator cvr2 = c2.rend();
+    hide_warning(cvr2);
     i  = c.rbegin().base();
     ci = c2.rbegin().base();
     i  = c.rend().base();
@@ -75,14 +87,22 @@ void reversible_container_test()
     BOOST_CHECK_EQUAL( std::distance( c.rbegin(), c.rend() ),
                        std::distance( c.begin(), c.end() ) );
                          
-    BOOST_MESSAGE( "finished iterator test" ); 
+    BOOST_TEST_MESSAGE( "finished iterator test" ); 
 
     BOOST_DEDUCED_TYPENAME C::size_type s                 = c.size();
     hide_warning(s);
     BOOST_DEDUCED_TYPENAME C::size_type s2                = c.max_size();
     hide_warning(s2);
     c.push_back( new T );
+    std::size_t size = 2u;
+#ifndef BOOST_NO_AUTO_PTR
     c.push_back( std::auto_ptr<T>( new T ) );
+    ++size;
+#endif
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    c.push_back( std::unique_ptr<T>( new T ) );
+    ++size;
+#endif
     bool b                                                = c.empty();
     BOOST_CHECK( !c.empty() );
     b                                                     = is_null( c.begin() );
@@ -95,17 +115,26 @@ void reversible_container_test()
     hide_warning(r2);
     BOOST_DEDUCED_TYPENAME C::const_reference cr2         = c2.back();
     hide_warning(cr2);
-    BOOST_MESSAGE( "finished accessors test" ); 
+    BOOST_TEST_MESSAGE( "finished accessors test" ); 
     
     c.push_back( new T );
-    BOOST_CHECK_EQUAL( c.size(), 4u );
+    ++size;
+    BOOST_CHECK_EQUAL( c.size(), size );
 
     c.pop_back(); 
     BOOST_CHECK( !c.empty() );
     c.insert( c.end(), new T );
+#ifndef BOOST_NO_AUTO_PTR
     std::auto_ptr<T> ap(new T);
     c.insert( c.end(), ap );
-    BOOST_CHECK_EQUAL( c.size(), 5u );
+    ++size;
+#endif
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    std::unique_ptr<T> up( new T );
+    c.insert( c.end(), std::move( up ) );
+    ++size;
+#endif
+    BOOST_CHECK_EQUAL( c.size(), size );
 
 #if defined(BOOST_NO_SFINAE) || defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
 #else
@@ -127,7 +156,7 @@ void reversible_container_test()
 #else
     swap(c4,c3);
 #endif    
-    BOOST_MESSAGE( "finished modifiers test" ); 
+    BOOST_TEST_MESSAGE( "finished modifiers test" ); 
              
     c.push_back( new T ); c.push_back( new T ); c.push_back( new T ); 
     typedef BOOST_DEDUCED_TYPENAME C::auto_type auto_type;
@@ -136,12 +165,21 @@ void reversible_container_test()
 #else
     auto_type ptr       = c.release( c.begin() );
 #endif    
-    std::auto_ptr<C> ap2 = c.release();
+#ifndef BOOST_NO_AUTO_PTR
+    std::auto_ptr<C> ap2   = c.release();
+#else
+    std::unique_ptr<C> up2 = c.release();
+#endif
     c                   = c2.clone();
     BOOST_CHECK( !c.empty() );
     auto_type ptr2      = c.replace( c.begin(), new T );
+#ifndef BOOST_NO_AUTO_PTR
     ptr2                = c.replace( c.begin(), std::auto_ptr<T>( new T ) );
-    BOOST_MESSAGE( "finished release/clone/replace test" ); 
+#endif
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    ptr2                = c.replace( c.begin(), std::unique_ptr<T>( new T ) );
+#endif
+    BOOST_TEST_MESSAGE( "finished release/clone/replace test" ); 
                      
     c3.push_back( new T );
     c3.push_back( new T );
@@ -157,7 +195,7 @@ void reversible_container_test()
     c3. BOOST_NESTED_TEMPLATE transfer<C>( c3.begin(), c );
     BOOST_CHECK( !c3.empty() );
     BOOST_CHECK( c.empty() );
-    BOOST_MESSAGE( "finished transfer test" );  
+    BOOST_TEST_MESSAGE( "finished transfer test" );  
 
     c3.resize( 0u );
     BOOST_CHECK( c3.empty() );
@@ -165,7 +203,7 @@ void reversible_container_test()
     BOOST_CHECK_EQUAL( c3.size(), 10u );
     c3.resize( 12u, &*c3.begin() );
     BOOST_CHECK_EQUAL( c3.size(), 12u );
-    BOOST_MESSAGE( "finished resize test" );  
+    BOOST_TEST_MESSAGE( "finished resize test" );  
     
 }
 
@@ -174,7 +212,7 @@ void reversible_container_test()
 template< class CDerived, class CBase, class T >
 void test_transfer()
 {
-    BOOST_MESSAGE( "starting transfer test" );
+    BOOST_TEST_MESSAGE( "starting transfer test" );
     CDerived from;
     CBase    to;
 
@@ -184,7 +222,7 @@ void test_transfer()
     from.push_back( new T );
     from.push_back( new T );
     to. BOOST_NESTED_TEMPLATE transfer<CDerived>( to.end(), from );
-    BOOST_MESSAGE( "finished transfer test" );
+    BOOST_TEST_MESSAGE( "finished transfer test" );
 }
 
 
@@ -236,7 +274,7 @@ struct equal_to_int
 template< class IntContainer >
 void random_access_algorithms_test()
 {
-    BOOST_MESSAGE( "starting random accessors algorithms test" );
+    BOOST_TEST_MESSAGE( "starting random accessors algorithms test" );
 
     IntContainer c;
     set_capacity<IntContainer>()( c );
@@ -296,6 +334,9 @@ void random_access_algorithms_test()
     BOOST_CHECK( c2.empty() );
     BOOST_CHECK( c.size() == 9u );
     BOOST_CHECK( is_sorted< std::less_equal<int> >( c ) ); 
-    BOOST_MESSAGE( "finished random accessors algorithms test" );
+    BOOST_TEST_MESSAGE( "finished random accessors algorithms test" );
 }
 
+#if defined(BOOST_PTR_CONTAINER_DISABLE_DEPRECATED)
+#pragma GCC diagnostic pop
+#endif

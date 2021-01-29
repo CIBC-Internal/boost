@@ -89,15 +89,18 @@ void test_classify(T t, const char* type)
       if(t != 0)
       {
          BOOST_CHECK_EQUAL((::boost::math::fpclassify)(t), (int)FP_NORMAL);
-         BOOST_CHECK_EQUAL((::boost::math::fpclassify)(-t), (int)FP_NORMAL);
          BOOST_CHECK_EQUAL((::boost::math::isfinite)(t), true);
-         BOOST_CHECK_EQUAL((::boost::math::isfinite)(-t), true);
          BOOST_CHECK_EQUAL((::boost::math::isinf)(t), false);
-         BOOST_CHECK_EQUAL((::boost::math::isinf)(-t), false);
          BOOST_CHECK_EQUAL((::boost::math::isnan)(t), false);
-         BOOST_CHECK_EQUAL((::boost::math::isnan)(-t), false);
          BOOST_CHECK_EQUAL((::boost::math::isnormal)(t), true);
-         BOOST_CHECK_EQUAL((::boost::math::isnormal)(-t), true);
+         if(!std::numeric_limits<T>::is_integer)
+         {
+            BOOST_CHECK_EQUAL((::boost::math::fpclassify)(-t), (int)FP_NORMAL);
+            BOOST_CHECK_EQUAL((::boost::math::isfinite)(-t), true);
+            BOOST_CHECK_EQUAL((::boost::math::isinf)(-t), false);
+            BOOST_CHECK_EQUAL((::boost::math::isnormal)(-t), true);
+            BOOST_CHECK_EQUAL((::boost::math::isnan)(-t), false);
+         }
       }
    }
    if(std::numeric_limits<T>::has_denorm)
@@ -174,7 +177,7 @@ void test_classify(T t, const char* type)
       BOOST_CHECK_EQUAL((::boost::math::isnan)(-t), false);
       BOOST_CHECK_EQUAL((::boost::math::isnormal)(t), false);
       BOOST_CHECK_EQUAL((::boost::math::isnormal)(-t), false);
-#if !defined(__BORLANDC__) && !(defined(__DECCXX) && !defined(_IEEE_FP))
+#if !defined(BOOST_BORLANDC) && !(defined(__DECCXX) && !defined(_IEEE_FP))
       // divide by zero on Borland triggers a C++ exception :-(
       // divide by zero on Compaq CXX triggers a C style signal :-(
       t = 2;
@@ -210,7 +213,7 @@ void test_classify(T t, const char* type)
    {
       std::cout << "Infinity not tested" << std::endl;
    }
-#ifndef __BORLANDC__
+#ifndef BOOST_BORLANDC
    // NaN's:
    // Note that Borland throws an exception if we even try to obtain a Nan
    // by calling std::numeric_limits<T>::quiet_NaN() !!!!!!!

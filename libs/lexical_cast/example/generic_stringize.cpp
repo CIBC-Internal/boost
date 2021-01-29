@@ -1,9 +1,13 @@
-// Copyright 2013 Antony Polukhin
+// Copyright Antony Polukhin, 2013-2020.
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See the accompanying file LICENSE_1_0.txt
 // or a copy at <http://www.boost.org/LICENSE_1_0.txt>.)
 
+#include <boost/config.hpp>
+#ifdef BOOST_MSVC
+# pragma warning(disable: 4512) // generic_stringize.cpp(37) : warning C4512: 'stringize_functor' : assignment operator could not be generated
+#endif
 
 //[lexical_cast_stringize
 /*`
@@ -43,16 +47,21 @@ std::string stringize(const Sequence& seq) {
 }
 
 //` Step 3: Using the `stringize` with different types:
-#include <cassert>
 #include <boost/fusion/adapted/boost_tuple.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
 
 int main() {
     boost::tuple<char, int, char, int> decim('-', 10, 'e', 5);
-    assert(stringize(decim) == "-10e5");
+    if (stringize(decim) != "-10e5") {
+        return 1;
+    }
 
-    std::pair<short, std::string> value_and_type(270, "Kelvin");
-    assert(stringize(value_and_type) == "270Kelvin");
+    std::pair<int, std::string> value_and_type(270, "Kelvin");
+    if (stringize(value_and_type) != "270Kelvin") {
+        return 2;
+    }
+
+    return 0;
 }
 
 //] [/lexical_cast_stringize]

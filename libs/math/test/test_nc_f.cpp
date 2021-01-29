@@ -20,13 +20,14 @@
 #  define TEST_REAL_CONCEPT
 #endif
 
+#include <boost/math/tools/test.hpp>
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #include <boost/math/distributions/non_central_f.hpp> // for chi_squared_distribution
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // for test_main
 #include <boost/test/results_collector.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE
+#include <boost/test/tools/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE
 #include "test_out_of_range.hpp"
 
 #include "functor.hpp"
@@ -68,28 +69,10 @@ using std::numeric_limits;
 void expected_results()
 {
    //
-   // Define the max and mean errors expected for
-   // various compilers and platforms.
-   //
-   const char* largest_type;
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-   if(boost::math::policies::digits<double, boost::math::policies::policy<> >() == boost::math::policies::digits<long double, boost::math::policies::policy<> >())
-   {
-      largest_type = "(long\\s+)?double|real_concept";
-   }
-   else
-   {
-      largest_type = "long double|real_concept";
-   }
-#else
-   largest_type = "(long\\s+)?double|real_concept";
-#endif
-
-   //
-   // Finish off by printing out the compiler/stdlib/platform names,
+   // Printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.
    //
-   std::cout << "Tests run with " << BOOST_COMPILER << ", " 
+   std::cout << "Tests run with " << BOOST_COMPILER << ", "
       << BOOST_STDLIB << ", " << BOOST_PLATFORM << std::endl;
 }
 
@@ -142,7 +125,7 @@ void test_spot(
    {
       //
       // We can only check this if P is not too close to 1,
-      // so that we can guarentee Q is reasonably free of error:
+      // so that we can guarantee Q is reasonably free of error:
       //
       BOOST_CHECK_CLOSE(
          cdf(complement(dist, x)), Q, tol);
@@ -250,11 +233,11 @@ void test_spots(RealType)
    BOOST_MATH_STD_USING
 
    //
-   // 5 eps expressed as a persentage, otherwise the limit of the test data:
+   // 5 eps expressed as a percentage, otherwise the limit of the test data:
    //
    RealType tol2 = (std::max)(boost::math::tools::epsilon<RealType>() * 500, RealType(1e-25));
    RealType x = 2;
-   
+
    boost::math::non_central_f_distribution<RealType> dist(20, 15, 30);
    // mean:
    BOOST_CHECK_CLOSE(
@@ -281,7 +264,7 @@ void test_spots(RealType)
       coefficient_of_variation(dist)
       , standard_deviation(dist) / mean(dist), tol2);
    BOOST_CHECK_CLOSE(
-      median(dist), 
+      median(dist),
       quantile(
       dist,
       static_cast<RealType>(0.5)), static_cast<RealType>(tol2));
@@ -304,12 +287,12 @@ void test_spots(RealType)
 
    // Error handling checks:
    check_out_of_range<boost::math::non_central_f_distribution<RealType> >(1, 1, 1);
-   BOOST_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(0, 1, 1), 0), std::domain_error);
-   BOOST_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(-1, 1, 1), 0), std::domain_error);
-   BOOST_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(1, 0, 1), 0), std::domain_error);
-   BOOST_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(1, -1, 1), 0), std::domain_error);
-   BOOST_CHECK_THROW(quantile(boost::math::non_central_f_distribution<RealType>(1, 1, 1), -1), std::domain_error);
-   BOOST_CHECK_THROW(quantile(boost::math::non_central_f_distribution<RealType>(1, 1, 1), 2), std::domain_error);
+   BOOST_MATH_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(0, 1, 1), 0), std::domain_error);
+   BOOST_MATH_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(-1, 1, 1), 0), std::domain_error);
+   BOOST_MATH_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(1, 0, 1), 0), std::domain_error);
+   BOOST_MATH_CHECK_THROW(pdf(boost::math::non_central_f_distribution<RealType>(1, -1, 1), 0), std::domain_error);
+   BOOST_MATH_CHECK_THROW(quantile(boost::math::non_central_f_distribution<RealType>(1, 1, 1), -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(quantile(boost::math::non_central_f_distribution<RealType>(1, 1, 1), 2), std::domain_error);
 } // template <class RealType>void test_spots(RealType)
 
 BOOST_AUTO_TEST_CASE( test_main )
@@ -322,11 +305,10 @@ BOOST_AUTO_TEST_CASE( test_main )
    test_spots(0.0); // Test double.
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
    test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
    test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #endif
 
-   
-} // BOOST_AUTO_TEST_CASE( test_main )
 
+} // BOOST_AUTO_TEST_CASE( test_main )

@@ -24,7 +24,7 @@
 // is strictly defined as a discrete function:
 // only integral values of k are envisaged.
 // However because the method of calculation uses a continuous gamma function,
-// it is convenient to treat it as if a continous function,
+// it is convenient to treat it as if a continuous function,
 // and permit non-integral values of k.
 // To enforce the strict mathematical model, users should use floor or ceil functions
 // on k outside this function to ensure that k is integral.
@@ -105,7 +105,7 @@ namespace boost
       template <class RealType, class Policy>
       inline bool check_dist_and_prob(const char* function, RealType p, RealType prob, RealType* result, const Policy& pol)
       {
-        if(check_dist(function, p, result, pol) && detail::check_probability(function, prob, result, pol) == false)
+        if((check_dist(function, p, result, pol) && detail::check_probability(function, prob, result, pol)) == false)
         {
           return false;
         }

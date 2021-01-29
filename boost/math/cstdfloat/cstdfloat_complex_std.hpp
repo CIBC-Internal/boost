@@ -10,8 +10,8 @@
 // Implement a specialization of std::complex<> for *anything* that
 // is defined as BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE.
 
-#ifndef _BOOST_CSTDFLOAT_COMPLEX_STD_2014_02_15_HPP_
-  #define _BOOST_CSTDFLOAT_COMPLEX_STD_2014_02_15_HPP_
+#ifndef BOOST_MATH_CSTDFLOAT_COMPLEX_STD_2014_02_15_HPP_
+  #define BOOST_MATH_CSTDFLOAT_COMPLEX_STD_2014_02_15_HPP_
 
   #if defined(__GNUC__)
   #pragma GCC system_header
@@ -19,6 +19,7 @@
 
   #include <complex>
   #include <boost/math/constants/constants.hpp>
+  #include <boost/math/tools/cxx03_warn.hpp>
 
   namespace std
   {
@@ -85,9 +86,9 @@
     public:
       typedef BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE value_type;
 
-      explicit complex(const complex<float>&);
-      explicit complex(const complex<double>&);
-      explicit complex(const complex<long double>&);
+      complex(const complex<float>&);
+      complex(const complex<double>&);
+      complex(const complex<long double>&);
 
       #if defined(BOOST_NO_CXX11_CONSTEXPR)
       complex(const value_type& r = value_type(),
@@ -95,7 +96,7 @@
                                                     im(i) { }
 
       template<typename X>
-      complex(const complex<X>& x) : re(x.real()),
+      explicit complex(const complex<X>& x) : re(x.real()),
                                      im(x.imag()) { }
 
       const value_type& real() const { return re; }
@@ -109,7 +110,7 @@
                                                                     im(i) { }
 
       template<typename X>
-      BOOST_CONSTEXPR complex(const complex<X>& x) : re(x.real()),
+      explicit BOOST_CONSTEXPR complex(const complex<X>& x) : re(x.real()),
                                                      im(x.imag()) { }
 
       value_type real() const { return re; }
@@ -201,13 +202,13 @@
     };
 
     // Constructors from built-in complex representation of floating-point types.
-    complex<BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE>::complex(const complex<float>& f)        : re(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( f.real())), im(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( f.imag())) { }
-    complex<BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE>::complex(const complex<double>& d)       : re(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( d.real())), im(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( d.imag())) { }
-    complex<BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE>::complex(const complex<long double>& ld) : re(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE(ld.real())), im(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE(ld.imag())) { }
+    inline complex<BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE>::complex(const complex<float>& f)        : re(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( f.real())), im(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( f.imag())) { }
+    inline complex<BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE>::complex(const complex<double>& d)       : re(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( d.real())), im(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE( d.imag())) { }
+    inline complex<BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE>::complex(const complex<long double>& ld) : re(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE(ld.real())), im(BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE(ld.imag())) { }
   } // namespace std
 
   namespace boost { namespace math { namespace cstdfloat { namespace detail {
-  template<class float_type> std::complex<float_type> multiply_by_i(const std::complex<float_type>& x)
+  template<class float_type> inline std::complex<float_type> multiply_by_i(const std::complex<float_type>& x)
   {
     // Multiply x (in C) by I (the imaginary component), and return the result.
     return std::complex<float_type>(-x.imag(), x.real());
@@ -638,4 +639,4 @@
     }
   } // namespace std
 
-#endif // _BOOST_CSTDFLOAT_COMPLEX_STD_2014_02_15_HPP_
+#endif // BOOST_MATH_CSTDFLOAT_COMPLEX_STD_2014_02_15_HPP_

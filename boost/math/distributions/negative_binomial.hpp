@@ -19,7 +19,7 @@
 // In a sequence of Bernoulli trials or events
 // (independent, yes or no, succeed or fail) with success_fraction probability p,
 // negative_binomial is the probability that k or fewer failures
-// preceed the r th trial's success.
+// precede the r th trial's success.
 // random variable k is the number of failures (NOT the probability).
 
 // Negative_binomial distribution is a discrete probability distribution.
@@ -27,7 +27,7 @@
 // (like others including the binomial, Poisson & Bernoulli)
 // is strictly defined as a discrete function: only integral values of k are envisaged.
 // However because of the method of calculation using a continuous gamma function,
-// it is convenient to treat it as if a continous function,
+// it is convenient to treat it as if a continuous function,
 // and permit non-integral values of k.
 
 // However, by default the policy is to use discrete_quantile_policy.
@@ -124,7 +124,7 @@ namespace boost
       template <class RealType, class Policy>
       inline bool check_dist_and_prob(const char* function, const RealType& r, RealType p, RealType prob, RealType* result, const Policy& pol)
       {
-        if(check_dist(function, r, p, result, pol) && detail::check_probability(function, prob, result, pol) == false)
+        if((check_dist(function, r, p, result, pol) && detail::check_probability(function, prob, result, pol)) == false)
         {
           return false;
         }

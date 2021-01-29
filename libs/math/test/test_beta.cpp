@@ -46,7 +46,7 @@ void expected_results()
       "Mac OS.*",                    // platform
       "(long\\s+)?double",           // test type(s)
       "Beta Function: Medium.*",     // test data group
-      "boost::math::beta", 200, 35); // test function
+      "beta", 200, 35); // test function
 #endif
 
    add_expected_result(
@@ -55,42 +55,42 @@ void expected_results()
       ".*",                          // platform
       "(long\\s+)?double",           // test type(s)
       "Beta Function: Small.*",      // test data group
-      "boost::math::beta", 8, 5);    // test function
+      "beta", 8, 5);    // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       "(long\\s+)?double",           // test type(s)
       "Beta Function: Medium.*",     // test data group
-      "boost::math::beta", 160, 35); // test function
+      "beta", 160, 35); // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       "(long\\s+)?double",           // test type(s)
       "Beta Function: Divergent.*",  // test data group
-      "boost::math::beta", 30, 6);   // test function
+      "beta", 30, 6);   // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       "real_concept",                // test type(s)
       "Beta Function: Small.*",      // test data group
-      "boost::math::beta", 15, 15);   // test function
+      "beta", 25, 15);   // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       "real_concept",                // test type(s)
       "Beta Function: Medium.*",     // test data group
-      "boost::math::beta", 150, 40); // test function
+      "beta", 150, 40); // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       "real_concept",                // test type(s)
       "Beta Function: Divergent.*",  // test data group
-      "boost::math::beta", 25, 8);   // test function
+      "beta", 30, 15);   // test function
 
    //
    // Finish off by printing out the compiler/stdlib/platform names,
@@ -108,14 +108,14 @@ BOOST_AUTO_TEST_CASE( test_main )
    test_spots(0.0);
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
    test_spots(0.0L);
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
    test_spots(boost::math::concepts::real_concept(0.1));
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    test_beta(0.1F, "float");
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_main )
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
    test_beta(0.1L, "long double");
 #ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
    test_beta(boost::math::concepts::real_concept(0.1), "real_concept");
 #endif
 #endif
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 

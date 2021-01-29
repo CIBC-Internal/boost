@@ -11,7 +11,13 @@
 
 #include "test_data.hpp"
 #include <boost/ptr_container/exception.hpp>
+#include <boost/ptr_container/detail/ptr_container_disable_deprecated.hpp>
 #include <boost/range/sub_range.hpp>
+
+#if defined(BOOST_PTR_CONTAINER_DISABLE_DEPRECATED)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 template< typename C, typename B, typename T, bool Ordered >
 void ptr_set_test();
@@ -33,9 +39,12 @@ struct test_algorithms
         delete t;
 
         BOOST_DEDUCED_TYPENAME Cont::reverse_iterator ri         = c.rbegin();
+        hide_warning(ri);
         BOOST_DEDUCED_TYPENAME Cont::const_reverse_iterator cri  = c2.rbegin();
         BOOST_DEDUCED_TYPENAME Cont::reverse_iterator rv2        = c.rend();
+        hide_warning(rv2);
         BOOST_DEDUCED_TYPENAME Cont::const_reverse_iterator cvr2 = c2.rend();
+        hide_warning(cvr2);
         cri = c.crbegin();
         cri = c.crend();
     }
@@ -55,7 +64,7 @@ void ptr_set_test()
 {   
     using namespace boost;
     
-    BOOST_MESSAGE( "starting associative container test" ); 
+    BOOST_TEST_MESSAGE( "starting associative container test" ); 
     enum { max_cnt = 10, size = 100 };
     C  c;
     BOOST_CHECK( c.size() == 0 );
@@ -67,7 +76,7 @@ void ptr_set_test()
     
     C c3;
     
-    BOOST_MESSAGE( "finished construction test" ); 
+    BOOST_TEST_MESSAGE( "finished construction test" ); 
 
     C a_copy( c );
     BOOST_CHECK_EQUAL( a_copy.size(), c.size() );
@@ -77,33 +86,42 @@ void ptr_set_test()
     a_copy = c;
     a_copy = a_copy;
     BOOST_CHECK( a_copy.empty() );
-    
-    BOOST_MESSAGE( "finished copying test" ); 
-                 
+
+    BOOST_TEST_MESSAGE( "finished copying test" ); 
+
     BOOST_DEDUCED_TYPENAME C::allocator_type alloc        = c.get_allocator();
     BOOST_DEDUCED_TYPENAME C::iterator i                  = c.begin();
     BOOST_DEDUCED_TYPENAME C::const_iterator ci           = c2.begin();
     ci = c.cbegin();
     ci = c.cend();
     BOOST_DEDUCED_TYPENAME C::iterator i2                 = c.end();
+    hide_warning(i2);
     BOOST_DEDUCED_TYPENAME C::const_iterator ci2          = c2.begin();
-                             
-    BOOST_MESSAGE( "finished iterator test" ); 
-   
+    hide_warning(ci2);
+
+    BOOST_TEST_MESSAGE( "finished iterator test" ); 
+
     BOOST_DEDUCED_TYPENAME C::size_type s                 = c.size();
     BOOST_DEDUCED_TYPENAME C::size_type s2                = c.max_size();
     hide_warning(s2);
     BOOST_CHECK_EQUAL( c.size(), s );
     bool b                                                = c.empty();
     hide_warning(b);
-    BOOST_MESSAGE( "finished accessors test" ); 
+    BOOST_TEST_MESSAGE( "finished accessors test" ); 
     
     T* t = new T;
     c.insert( c.end(), t );    
-    c.insert( c.end(), std::auto_ptr<T>( new T ) );
     c.insert( new T ); 
+#ifndef BOOST_NO_AUTO_PTR
+    c.insert( c.end(), std::auto_ptr<T>( new T ) );
     std::auto_ptr<T> ap( new T );
     c.insert( ap );
+#endif
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    c.insert( c.end(), std::unique_ptr<T>( new T ) );
+    std::unique_ptr<T> up( new T );
+    c.insert( std::move( up ) );
+#endif
     c3.insert( c.begin(), c.end() ); 
     c.erase( c.begin() );
     c3.erase( c3.begin(), c3.end() );
@@ -126,13 +144,17 @@ void ptr_set_test()
     //
     c3.erase( boost::make_iterator_range(c3) );
     BOOST_CHECK( c3.empty() );
-    BOOST_MESSAGE( "finished modifiers test" ); 
+    BOOST_TEST_MESSAGE( "finished modifiers test" ); 
              
     c.insert( c.end(), new T );
     typename C::auto_type ptr2  = c.release( c.begin() );
-    std::auto_ptr<C> ap2         = c.release();
+#ifndef BOOST_NO_AUTO_PTR
+    std::auto_ptr<C> ap2        = c.release();
+#else
+    std::unique_ptr<C> up2      = c.release();
+#endif
     c                           = c2.clone();
-    BOOST_MESSAGE( "finished release/clone test" ); 
+    BOOST_TEST_MESSAGE( "finished release/clone test" ); 
 
     c3.insert( new T );
     c3.insert( new T );
@@ -165,12 +187,12 @@ void ptr_set_test()
     BOOST_CHECK( c3.empty() );
 #endif    
 
-    BOOST_MESSAGE( "finished transfer test" );         
+    BOOST_TEST_MESSAGE( "finished transfer test" );         
   
     C c4;
     c4.swap(c3);
     swap(c4,c3); 
-    BOOST_MESSAGE( "finished set/map interface test" );         
+    BOOST_TEST_MESSAGE( "finished set/map interface test" );         
     
     sub_range<C>        sub;
     sub_range<const C> csub;
@@ -185,7 +207,10 @@ void ptr_set_test()
     csub = c2.equal_range( *t );         
     delete t;
        
-    BOOST_MESSAGE( "finished algorithms interface test" );         
+    BOOST_TEST_MESSAGE( "finished algorithms interface test" );         
     
 }
 
+#if defined(BOOST_PTR_CONTAINER_DISABLE_DEPRECATED)
+#pragma GCC diagnostic pop
+#endif

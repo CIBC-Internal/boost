@@ -26,6 +26,7 @@
 #  define TEST_REAL_CONCEPT
 #endif
 
+#include <boost/math/tools/test.hpp>
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 using ::boost::math::concepts::real_concept;
 
@@ -37,7 +38,7 @@ using boost::math::geometric; // using typedef for geometric_distribution<double
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // for test_main
-#include <boost/test/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE_FRACTION
+#include <boost/test/tools/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE_FRACTION
 #include "test_out_of_range.hpp"
 
 #include <iostream>
@@ -297,7 +298,7 @@ if(std::numeric_limits<RealType>::is_specialized)
   tolerance);
 
   BOOST_CHECK_CLOSE_FRACTION( //> formatC(dgeom(0,0.5), digits=17)[1] "    0.5"
-    //  R treates geom as a discrete distribution.
+    //  R treats geom as a discrete distribution.
     // > formatC(dgeom(1.999999,0.5, FALSE), digits=17) [1] "   0"
     // Warning message:
     // In dgeom(1.999999, 0.5, FALSE) : non-integer x = 1.999999
@@ -308,7 +309,7 @@ if(std::numeric_limits<RealType>::is_specialized)
 
   BOOST_CHECK_CLOSE_FRACTION( // > formatC(pgeom(0.0001,0.5, TRUE), digits=17)[1] " 0.5"
     // > formatC(pgeom(0.0001,0.5, FALSE), digits=17) [1] "               0.5"
-    //  R treates geom as a discrete distribution.
+    //  R treats geom as a discrete distribution.
   pdf(geometric_distribution<RealType>(static_cast<RealType>(0.5)),
   static_cast<RealType>(0.0001L) ),  // Number of failures, k is very small but not integral,
   static_cast<RealType>(0.4999653438420768L), // nearly success probability.
@@ -386,7 +387,7 @@ if(std::numeric_limits<RealType>::is_specialized)
   ///////////////////////////////////////////////////
   BOOST_CHECK_CLOSE_FRACTION( //
     // > formatC(dgeom(0.0001,0.5, FALSE), digits=17) [1] "               0.5"
-    //  R treates geom as a discrete distribution.
+    //  R treats geom as a discrete distribution.
     // But Boost.Math is continuous, so if you want R behaviour,
     // make number of failures, k into an integer with the floor function.
   pdf(geometric_distribution<RealType>(static_cast<RealType>(0.5)),
@@ -401,7 +402,7 @@ if(std::numeric_limits<RealType>::is_specialized)
 
   BOOST_CHECK_CLOSE_FRACTION( // > formatC(pgeom(0.0001,0.5, TRUE), digits=17)[1] "               0.5"
     // > formatC(pgeom(0.0001,0.5, FALSE), digits=17) [1] "               0.5"
-    //  R treates geom as a discrete distribution.
+    //  R treats geom as a discrete distribution.
     // But Boost.Math is continuous, so if you want R behaviour,
     // make number of failures, k into an integer with the floor function.
   pdf(geometric_distribution<RealType>(static_cast<RealType>(0.5)),
@@ -411,7 +412,7 @@ if(std::numeric_limits<RealType>::is_specialized)
 
   BOOST_CHECK_CLOSE_FRACTION( // > formatC(pgeom(0.0001,0.5, TRUE), digits=17)[1] "               0.5"
     // > formatC(pgeom(0.0001,0.5, FALSE), digits=17) [1] "               0.5"
-    //  R treates geom as a discrete distribution.
+    //  R treats geom as a discrete distribution.
     // But Boost.Math is continuous, so if you want R behaviour,
     // make number of failures, k into an integer with the floor function.
   pdf(geometric_distribution<RealType>(static_cast<RealType>(0.5)),
@@ -615,7 +616,7 @@ if(std::numeric_limits<RealType>::is_specialized)
     // Note that these assume that  BOOST_MATH_OVERFLOW_ERROR_POLICY is NOT throw_on_error.
     // #define BOOST_MATH_THROW_ON_OVERFLOW_POLICY ==  throw_on_error would throw here.
     // #define BOOST_MAT_DOMAIN_ERROR_POLICY IS defined throw_on_error,
-    //  so the throw path of error handling is tested below with BOOST_CHECK_THROW tests.
+    //  so the throw path of error handling is tested below with BOOST_MATH_CHECK_THROW tests.
 
     BOOST_CHECK(
     quantile(  // At P == 1 so k failures should be infinite.
@@ -681,43 +682,43 @@ if(std::numeric_limits<RealType>::is_specialized)
 
   // Check that duff arguments throw domain_error:
 
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   pdf( // Negative success_fraction!
   geometric_distribution<RealType>(static_cast<RealType>(-0.25)),
   static_cast<RealType>(0)), std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   pdf( // Success_fraction > 1!
   geometric_distribution<RealType>(static_cast<RealType>(1.25)),
   static_cast<RealType>(0)),
   std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   pdf( // Negative k argument !
   geometric_distribution<RealType>(static_cast<RealType>(0.25)),
   static_cast<RealType>(-1)),
   std::domain_error);
-  //BOOST_CHECK_THROW(
+  //BOOST_MATH_CHECK_THROW(
   //pdf( // check limit on k (failures)
   //geometric_distribution<RealType>(static_cast<RealType>(0.25)),
   //std::numeric_limits<RealType>infinity()),
   //std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   cdf(  // Negative k argument !
   geometric_distribution<RealType>(static_cast<RealType>(0.25)),
   static_cast<RealType>(-1)),
   std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   cdf( // Negative success_fraction!
   geometric_distribution<RealType>(static_cast<RealType>(-0.25)),
   static_cast<RealType>(0)), std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   cdf( // Success_fraction > 1!
   geometric_distribution<RealType>(static_cast<RealType>(1.25)),
   static_cast<RealType>(0)), std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   quantile(  // Negative success_fraction!
   geometric_distribution<RealType>(static_cast<RealType>(-0.25)),
   static_cast<RealType>(0)), std::domain_error);
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
   quantile( // Success_fraction > 1!
   geometric_distribution<RealType>(static_cast<RealType>(1.25)),
   static_cast<RealType>(0)), std::domain_error);
@@ -779,7 +780,7 @@ BOOST_AUTO_TEST_CASE( test_main )
 #ifdef TEST_LDOUBLE
   test_spots(0.0L); // Test long double.
 #endif
-  #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+  #if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
 #ifdef TEST_REAL_CONCEPT
     test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
@@ -788,7 +789,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
   

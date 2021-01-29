@@ -50,7 +50,7 @@ void expected_results()
    largest_type = "(long\\s+)?double";
 #endif
    //
-   // Linux special cases, error rates seem to be much higer here
+   // Linux special cases, error rates seem to be much higher here
    // even though the implementation contains nothing but basic
    // arithmetic?
    //
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
    
 }

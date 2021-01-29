@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>posix::basic_descriptor</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../reference.html" title="Reference">
 <link rel="prev" href="placeholders__signal_number.html" title="placeholders::signal_number">
@@ -29,11 +29,10 @@
 <p>
         Provides POSIX descriptor functionality.
       </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span>
-    <span class="keyword">typename</span> <a class="link" href="DescriptorService.html" title="Descriptor service requirements">DescriptorService</a><span class="special">&gt;</span>
-<span class="keyword">class</span> <span class="identifier">basic_descriptor</span> <span class="special">:</span>
-  <span class="keyword">public</span> <span class="identifier">basic_io_object</span><span class="special">&lt;</span> <span class="identifier">DescriptorService</span> <span class="special">&gt;,</span>
-  <span class="keyword">public</span> <span class="identifier">posix</span><span class="special">::</span><span class="identifier">descriptor_base</span>
+<pre class="programlisting">template&lt;
+    typename <a class="link" href="Executor1.html" title="Executor requirements">Executor</a> = any_io_executor&gt;
+class basic_descriptor :
+  public posix::descriptor_base
 </pre>
 <h5>
 <a name="boost_asio.reference.posix__basic_descriptor.h0"></a>
@@ -60,6 +59,18 @@
 <tr>
 <td>
                 <p>
+                  <a class="link" href="posix__basic_descriptor__rebind_executor.html" title="posix::basic_descriptor::rebind_executor"><span class="bold"><strong>rebind_executor</strong></span></a>
+                </p>
+              </td>
+<td>
+                <p>
+                  Rebinds the descriptor type to another executor.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
                   <a class="link" href="posix__basic_descriptor/bytes_readable.html" title="posix::basic_descriptor::bytes_readable"><span class="bold"><strong>bytes_readable</strong></span></a>
                 </p>
               </td>
@@ -73,12 +84,12 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="posix__basic_descriptor/implementation_type.html" title="posix::basic_descriptor::implementation_type"><span class="bold"><strong>implementation_type</strong></span></a>
+                  <a class="link" href="posix__basic_descriptor/executor_type.html" title="posix::basic_descriptor::executor_type"><span class="bold"><strong>executor_type</strong></span></a>
                 </p>
               </td>
 <td>
                 <p>
-                  The underlying implementation type of I/O object.
+                  The type of the executor associated with the object.
                 </p>
               </td>
 </tr>
@@ -90,7 +101,7 @@
               </td>
 <td>
                 <p>
-                  A basic_descriptor is always the lowest layer.
+                  A descriptor is always the lowest layer.
                 </p>
               </td>
 </tr>
@@ -109,38 +120,12 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="posix__basic_descriptor/native_type.html" title="posix::basic_descriptor::native_type"><span class="bold"><strong>native_type</strong></span></a>
+                  <a class="link" href="posix__basic_descriptor/wait_type.html" title="posix::basic_descriptor::wait_type"><span class="bold"><strong>wait_type</strong></span></a>
                 </p>
               </td>
 <td>
                 <p>
-                  (Deprecated: Use native_handle_type.) The native representation
-                  of a descriptor.
-                </p>
-              </td>
-</tr>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/non_blocking_io.html" title="posix::basic_descriptor::non_blocking_io"><span class="bold"><strong>non_blocking_io</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  (Deprecated: Use non_blocking().) IO control command to set the
-                  blocking mode of the descriptor.
-                </p>
-              </td>
-</tr>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/service_type.html" title="posix::basic_descriptor::service_type"><span class="bold"><strong>service_type</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  The type of the service that will be used to provide I/O operations.
+                  Wait types.
                 </p>
               </td>
 </tr>
@@ -184,18 +169,27 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="posix__basic_descriptor/basic_descriptor.html" title="posix::basic_descriptor::basic_descriptor"><span class="bold"><strong>basic_descriptor</strong></span></a>
+                  <a class="link" href="posix__basic_descriptor/async_wait.html" title="posix::basic_descriptor::async_wait"><span class="bold"><strong>async_wait</strong></span></a>
                 </p>
               </td>
 <td>
                 <p>
-                  Construct a basic_descriptor without opening it.
+                  Asynchronously wait for the descriptor to become ready to read,
+                  ready to write, or to have pending error conditions.
                 </p>
+              </td>
+</tr>
+<tr>
+<td>
                 <p>
-                  Construct a basic_descriptor on an existing native descriptor.
+                  <a class="link" href="posix__basic_descriptor/basic_descriptor.html" title="posix::basic_descriptor::basic_descriptor"><span class="bold"><strong>basic_descriptor</strong></span></a> <span class="silver">[constructor]</span>
                 </p>
+              </td>
+<td>
                 <p>
-                  Move-construct a basic_descriptor from another.
+                  Construct a descriptor without opening it. <br> <span class="silver"> —</span><br> Construct
+                  a descriptor on an existing native descriptor. <br> <span class="silver"> —</span><br> Move-construct
+                  a descriptor from another.
                 </p>
               </td>
 </tr>
@@ -226,12 +220,12 @@
 <tr>
 <td>
                 <p>
-                  <a class="link" href="posix__basic_descriptor/get_io_service.html" title="posix::basic_descriptor::get_io_service"><span class="bold"><strong>get_io_service</strong></span></a>
+                  <a class="link" href="posix__basic_descriptor/get_executor.html" title="posix::basic_descriptor::get_executor"><span class="bold"><strong>get_executor</strong></span></a>
                 </p>
               </td>
 <td>
                 <p>
-                  Get the io_service associated with the object.
+                  Get the executor associated with the object.
                 </p>
               </td>
 </tr>
@@ -267,22 +261,8 @@
               </td>
 <td>
                 <p>
-                  Get a reference to the lowest layer.
-                </p>
-                <p>
-                  Get a const reference to the lowest layer.
-                </p>
-              </td>
-</tr>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/native.html" title="posix::basic_descriptor::native"><span class="bold"><strong>native</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  (Deprecated: Use native_handle().) Get the native descriptor representation.
+                  Get a reference to the lowest layer. <br> <span class="silver"> —</span><br> Get a const
+                  reference to the lowest layer.
                 </p>
               </td>
 </tr>
@@ -307,9 +287,8 @@
 <td>
                 <p>
                   Gets the non-blocking mode of the native descriptor implementation.
-                </p>
-                <p>
-                  Sets the non-blocking mode of the native descriptor implementation.
+                  <br> <span class="silver"> —</span><br> Sets the non-blocking mode of the native descriptor
+                  implementation.
                 </p>
               </td>
 </tr>
@@ -321,10 +300,8 @@
               </td>
 <td>
                 <p>
-                  Gets the non-blocking mode of the descriptor.
-                </p>
-                <p>
-                  Sets the non-blocking mode of the descriptor.
+                  Gets the non-blocking mode of the descriptor. <br> <span class="silver"> —</span><br> Sets
+                  the non-blocking mode of the descriptor.
                 </p>
               </td>
 </tr>
@@ -336,7 +313,7 @@
               </td>
 <td>
                 <p>
-                  Move-assign a basic_descriptor from another.
+                  Move-assign a descriptor from another.
                 </p>
               </td>
 </tr>
@@ -349,6 +326,19 @@
 <td>
                 <p>
                   Release ownership of the native descriptor implementation.
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  <a class="link" href="posix__basic_descriptor/wait.html" title="posix::basic_descriptor::wait"><span class="bold"><strong>wait</strong></span></a>
+                </p>
+              </td>
+<td>
+                <p>
+                  Wait for the descriptor to become ready to read, ready to write,
+                  or to have pending error conditions.
                 </p>
               </td>
 </tr>
@@ -376,35 +366,10 @@
                 </p>
               </th>
 </tr></thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>
                 <p>
-                  <a class="link" href="posix__basic_descriptor/get_implementation.html" title="posix::basic_descriptor::get_implementation"><span class="bold"><strong>get_implementation</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  Get the underlying implementation of the I/O object.
-                </p>
-              </td>
-</tr>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/get_service.html" title="posix::basic_descriptor::get_service"><span class="bold"><strong>get_service</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  Get the service associated with the I/O object.
-                </p>
-              </td>
-</tr>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/_basic_descriptor.html" title="posix::basic_descriptor::~basic_descriptor"><span class="bold"><strong>~basic_descriptor</strong></span></a>
+                  <a class="link" href="posix__basic_descriptor/_basic_descriptor.html" title="posix::basic_descriptor::~basic_descriptor"><span class="bold"><strong>~basic_descriptor</strong></span></a> <span class="silver">[destructor]</span>
                 </p>
               </td>
 <td>
@@ -412,66 +377,14 @@
                   Protected destructor to prevent deletion through this type.
                 </p>
               </td>
-</tr>
-</tbody>
-</table></div>
-<h5>
-<a name="boost_asio.reference.posix__basic_descriptor.h3"></a>
-        <span class="phrase"><a name="boost_asio.reference.posix__basic_descriptor.protected_data_members"></a></span><a class="link" href="posix__basic_descriptor.html#boost_asio.reference.posix__basic_descriptor.protected_data_members">Protected
-        Data Members</a>
-      </h5>
-<div class="informaltable"><table class="table">
-<colgroup>
-<col>
-<col>
-</colgroup>
-<thead><tr>
-<th>
-                <p>
-                  Name
-                </p>
-              </th>
-<th>
-                <p>
-                  Description
-                </p>
-              </th>
-</tr></thead>
-<tbody>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/implementation.html" title="posix::basic_descriptor::implementation"><span class="bold"><strong>implementation</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  (Deprecated: Use get_implementation().) The underlying implementation
-                  of the I/O object.
-                </p>
-              </td>
-</tr>
-<tr>
-<td>
-                <p>
-                  <a class="link" href="posix__basic_descriptor/service.html" title="posix::basic_descriptor::service"><span class="bold"><strong>service</strong></span></a>
-                </p>
-              </td>
-<td>
-                <p>
-                  (Deprecated: Use get_service().) The service associated with the
-                  I/O object.
-                </p>
-              </td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 <p>
-        The <a class="link" href="posix__basic_descriptor.html" title="posix::basic_descriptor"><code class="computeroutput"><span class="identifier">posix</span><span class="special">::</span><span class="identifier">basic_descriptor</span></code></a> class template
-        provides the ability to wrap a POSIX descriptor.
+        The <a class="link" href="posix__basic_descriptor.html" title="posix::basic_descriptor"><code class="computeroutput">posix::basic_descriptor</code></a>
+        class template provides the ability to wrap a POSIX descriptor.
       </p>
 <h5>
-<a name="boost_asio.reference.posix__basic_descriptor.h4"></a>
+<a name="boost_asio.reference.posix__basic_descriptor.h3"></a>
         <span class="phrase"><a name="boost_asio.reference.posix__basic_descriptor.thread_safety"></a></span><a class="link" href="posix__basic_descriptor.html#boost_asio.reference.posix__basic_descriptor.thread_safety">Thread
         Safety</a>
       </h5>
@@ -482,7 +395,7 @@
         <span class="emphasis"><em>Shared</em></span> <span class="emphasis"><em>objects:</em></span> Unsafe.
       </p>
 <h5>
-<a name="boost_asio.reference.posix__basic_descriptor.h5"></a>
+<a name="boost_asio.reference.posix__basic_descriptor.h4"></a>
         <span class="phrase"><a name="boost_asio.reference.posix__basic_descriptor.requirements"></a></span><a class="link" href="posix__basic_descriptor.html#boost_asio.reference.posix__basic_descriptor.requirements">Requirements</a>
       </h5>
 <p>
@@ -494,7 +407,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

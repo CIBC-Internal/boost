@@ -14,6 +14,8 @@
 //  20 Jul 99  header name changed to .hpp
 //  20 Apr 99  additional error tests added.
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <boost/config.hpp>
 
 #if defined(BOOST_MSVC)
@@ -29,13 +31,13 @@
 
 #endif
 
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 # pragma warn -8092 // template argument passed to 'find' is not an iterator
 #endif
 
 #include <boost/smart_ptr.hpp>
 
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 #include <iostream>
 #include <set>

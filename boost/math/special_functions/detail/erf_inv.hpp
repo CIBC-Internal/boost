@@ -8,6 +8,9 @@
 
 #ifdef _MSC_VER
 #pragma once
+#pragma warning(push)
+#pragma warning(disable:4127) // Conditional expression is constant
+#pragma warning(disable:4702) // Unreachable code: optimization warning
 #endif
 
 namespace boost{ namespace math{ 
@@ -18,7 +21,7 @@ namespace detail{
 // this version is for 80-bit long double's and smaller:
 //
 template <class T, class Policy>
-T erf_inv_imp(const T& p, const T& q, const Policy&, const boost::mpl::int_<64>*)
+T erf_inv_imp(const T& p, const T& q, const Policy&, const boost::integral_constant<int, 64>*)
 {
    BOOST_MATH_STD_USING // for ADL of std names.
 
@@ -291,12 +294,12 @@ private:
 };
 
 template <class T, class Policy>
-T erf_inv_imp(const T& p, const T& q, const Policy& pol, const boost::mpl::int_<0>*)
+T erf_inv_imp(const T& p, const T& q, const Policy& pol, const boost::integral_constant<int, 0>*)
 {
    //
    // Generic version, get a guess that's accurate to 64-bits (10^-19)
    //
-   T guess = erf_inv_imp(p, q, pol, static_cast<mpl::int_<64> const*>(0));
+   T guess = erf_inv_imp(p, q, pol, static_cast<boost::integral_constant<int, 64> const*>(0));
    T result;
    //
    // If T has more bit's than 64 in it's mantissa then we need to iterate,
@@ -334,31 +337,37 @@ struct erf_inv_initializer
       static bool is_value_non_zero(T);
       static void do_init()
       {
-         boost::math::erf_inv(static_cast<T>(0.25), Policy());
-         boost::math::erf_inv(static_cast<T>(0.55), Policy());
-         boost::math::erf_inv(static_cast<T>(0.95), Policy());
-         boost::math::erfc_inv(static_cast<T>(1e-15), Policy());
-         // These following initializations must not be called if
-         // type T can not hold the relevant values without
-         // underflow to zero.  We check this at runtime because
-         // some tools such as valgrind silently change the precision
-         // of T at runtime, and numeric_limits basically lies!
-         if(is_value_non_zero(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-130))))
-            boost::math::erfc_inv(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-130)), Policy());
+         // If std::numeric_limits<T>::digits is zero, we must not call
+         // our initialization code here as the precision presumably
+         // varies at runtime, and will not have been set yet.
+         if(std::numeric_limits<T>::digits)
+         {
+            boost::math::erf_inv(static_cast<T>(0.25), Policy());
+            boost::math::erf_inv(static_cast<T>(0.55), Policy());
+            boost::math::erf_inv(static_cast<T>(0.95), Policy());
+            boost::math::erfc_inv(static_cast<T>(1e-15), Policy());
+            // These following initializations must not be called if
+            // type T can not hold the relevant values without
+            // underflow to zero.  We check this at runtime because
+            // some tools such as valgrind silently change the precision
+            // of T at runtime, and numeric_limits basically lies!
+            if(is_value_non_zero(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-130))))
+               boost::math::erfc_inv(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-130)), Policy());
 
-         // Some compilers choke on constants that would underflow, even in code that isn't instantiated
-         // so try and filter these cases out in the preprocessor:
+            // Some compilers choke on constants that would underflow, even in code that isn't instantiated
+            // so try and filter these cases out in the preprocessor:
 #if LDBL_MAX_10_EXP >= 800
-         if(is_value_non_zero(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-800))))
-            boost::math::erfc_inv(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-800)), Policy());
-         if(is_value_non_zero(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-900))))
-            boost::math::erfc_inv(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-900)), Policy());
+            if(is_value_non_zero(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-800))))
+               boost::math::erfc_inv(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-800)), Policy());
+            if(is_value_non_zero(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-900))))
+               boost::math::erfc_inv(static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 1e-900)), Policy());
 #else
-         if(is_value_non_zero(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-800))))
-            boost::math::erfc_inv(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-800)), Policy());
-         if(is_value_non_zero(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-900))))
-            boost::math::erfc_inv(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-900)), Policy());
+            if(is_value_non_zero(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-800))))
+               boost::math::erfc_inv(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-800)), Policy());
+            if(is_value_non_zero(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-900))))
+               boost::math::erfc_inv(static_cast<T>(BOOST_MATH_HUGE_CONSTANT(T, 64, 1e-900)), Policy());
 #endif
+         }
       }
       void force_instantiate()const{}
    };
@@ -421,11 +430,10 @@ typename tools::promote_args<T>::type erfc_inv(T z, const Policy& pol)
    // to use, based on the number of bits in the mantissa of T:
    //
    typedef typename policies::precision<result_type, Policy>::type precision_type;
-   typedef typename mpl::if_<
-      mpl::or_<mpl::less_equal<precision_type, mpl::int_<0> >, mpl::greater<precision_type, mpl::int_<64> > >,
-      mpl::int_<0>,
-      mpl::int_<64>
-   >::type tag_type;
+   typedef boost::integral_constant<int,
+      precision_type::value <= 0 ? 0 :
+      precision_type::value <= 64 ? 64 : 0
+   > tag_type;
    //
    // Likewise use internal promotion, so we evaluate at a higher
    // precision internally if it's appropriate:
@@ -487,11 +495,10 @@ typename tools::promote_args<T>::type erf_inv(T z, const Policy& pol)
    // to use, based on the number of bits in the mantissa of T:
    //
    typedef typename policies::precision<result_type, Policy>::type precision_type;
-   typedef typename mpl::if_<
-      mpl::or_<mpl::less_equal<precision_type, mpl::int_<0> >, mpl::greater<precision_type, mpl::int_<64> > >,
-      mpl::int_<0>,
-      mpl::int_<64>
-   >::type tag_type;
+   typedef boost::integral_constant<int,
+      precision_type::value <= 0 ? 0 :
+      precision_type::value <= 64 ? 64 : 0
+   > tag_type;
    //
    // Likewise use internal promotion, so we evaluate at a higher
    // precision internally if it's appropriate:
@@ -531,6 +538,10 @@ inline typename tools::promote_args<T>::type erf_inv(T z)
 
 } // namespace math
 } // namespace boost
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_MATH_SF_ERF_INV_HPP
 

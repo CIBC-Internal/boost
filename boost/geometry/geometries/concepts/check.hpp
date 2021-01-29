@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -16,9 +20,11 @@
 #define BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_CHECK_HPP
 
 
+#include <type_traits>
+
 #include <boost/concept_check.hpp>
 #include <boost/concept/requires.hpp>
-#include <boost/type_traits/is_const.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/tag.hpp>
@@ -63,7 +69,7 @@ template
 <
     typename Geometry,
     typename GeometryTag = typename geometry::tag<Geometry>::type,
-    bool IsConst = boost::is_const<Geometry>::type::value
+    bool IsConst = std::is_const<Geometry>::type::value
 >
 struct check : not_implemented<GeometryTag>
 {};
@@ -71,108 +77,108 @@ struct check : not_implemented<GeometryTag>
 
 template <typename Geometry>
 struct check<Geometry, point_tag, true>
-    : detail::concept_check::check<concept::ConstPoint<Geometry> >
+    : detail::concept_check::check<concepts::ConstPoint<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, point_tag, false>
-    : detail::concept_check::check<concept::Point<Geometry> >
+    : detail::concept_check::check<concepts::Point<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, linestring_tag, true>
-    : detail::concept_check::check<concept::ConstLinestring<Geometry> >
+    : detail::concept_check::check<concepts::ConstLinestring<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, linestring_tag, false>
-    : detail::concept_check::check<concept::Linestring<Geometry> >
+    : detail::concept_check::check<concepts::Linestring<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, ring_tag, true>
-    : detail::concept_check::check<concept::ConstRing<Geometry> >
+    : detail::concept_check::check<concepts::ConstRing<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, ring_tag, false>
-    : detail::concept_check::check<concept::Ring<Geometry> >
+    : detail::concept_check::check<concepts::Ring<Geometry> >
 {};
 
 template <typename Geometry>
 struct check<Geometry, polygon_tag, true>
-    : detail::concept_check::check<concept::ConstPolygon<Geometry> >
+    : detail::concept_check::check<concepts::ConstPolygon<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, polygon_tag, false>
-    : detail::concept_check::check<concept::Polygon<Geometry> >
+    : detail::concept_check::check<concepts::Polygon<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, box_tag, true>
-    : detail::concept_check::check<concept::ConstBox<Geometry> >
+    : detail::concept_check::check<concepts::ConstBox<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, box_tag, false>
-    : detail::concept_check::check<concept::Box<Geometry> >
+    : detail::concept_check::check<concepts::Box<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, segment_tag, true>
-    : detail::concept_check::check<concept::ConstSegment<Geometry> >
+    : detail::concept_check::check<concepts::ConstSegment<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, segment_tag, false>
-    : detail::concept_check::check<concept::Segment<Geometry> >
+    : detail::concept_check::check<concepts::Segment<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, multi_point_tag, true>
-    : detail::concept_check::check<concept::ConstMultiPoint<Geometry> >
+    : detail::concept_check::check<concepts::ConstMultiPoint<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, multi_point_tag, false>
-    : detail::concept_check::check<concept::MultiPoint<Geometry> >
+    : detail::concept_check::check<concepts::MultiPoint<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, multi_linestring_tag, true>
-    : detail::concept_check::check<concept::ConstMultiLinestring<Geometry> >
+    : detail::concept_check::check<concepts::ConstMultiLinestring<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, multi_linestring_tag, false>
-    : detail::concept_check::check<concept::MultiLinestring<Geometry> >
+    : detail::concept_check::check<concepts::MultiLinestring<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, multi_polygon_tag, true>
-    : detail::concept_check::check<concept::ConstMultiPolygon<Geometry> >
+    : detail::concept_check::check<concepts::ConstMultiPolygon<Geometry> >
 {};
 
 
 template <typename Geometry>
 struct check<Geometry, multi_polygon_tag, false>
-    : detail::concept_check::check<concept::MultiPolygon<Geometry> >
+    : detail::concept_check::check<concepts::MultiPolygon<Geometry> >
 {};
 
 
@@ -182,7 +188,7 @@ struct check<Geometry, multi_polygon_tag, false>
 
 
 
-namespace concept
+namespace concepts
 {
 
 
@@ -213,10 +219,14 @@ struct checker<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const>
     \ingroup concepts
 */
 template <typename Geometry>
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
 inline void check()
 {
     detail::checker<Geometry> c;
-    boost::ignore_unused_variable_warning(c);
+    boost::ignore_unused(c);
 }
 
 
@@ -226,6 +236,10 @@ inline void check()
     \ingroup concepts
 */
 template <typename Geometry1, typename Geometry2>
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
 inline void check_concepts_and_equal_dimensions()
 {
     check<Geometry1>();
@@ -234,7 +248,7 @@ inline void check_concepts_and_equal_dimensions()
 }
 
 
-} // namespace concept
+} // namespace concepts
 
 
 }} // namespace boost::geometry

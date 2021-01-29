@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <string>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/signals2/deconstruct.hpp>
 #include <boost/signals2/signal.hpp>
@@ -75,7 +75,7 @@ private:
   // give boost::signals2::deconstruct access to private constructor
   friend class boost::signals2::deconstruct_access;
   // private constructor to force use of deconstruct
-  TextView()
+  TextView() : m_document(0)
   {}
 
   Document*               m_document;
@@ -112,7 +112,7 @@ private:
   // give boost::signals2::deconstruct access to private constructor
   friend class boost::signals2::deconstruct_access;
   // private constructor to force use of deconstruct
-  HexView()
+  HexView(): m_document(0)
   {}
 
   Document*               m_document;

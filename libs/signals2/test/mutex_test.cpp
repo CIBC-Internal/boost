@@ -12,12 +12,15 @@
 // added to test boost::signals2::mutex.
 // For more information, see http://www.boost.org
 
-// note boost/test/minimal.hpp can cause windows.h to get included, which
+// Note boost/test/minimal.hpp can cause windows.h to get included, which
 // can screw up our checks of _WIN32_WINNT if it is included
 // after boost/signals2/mutex.hpp.  Frank Hess 2009-03-07.
-#include <boost/test/minimal.hpp>
+// We now use boost/test/included/unit_test.hpp, not sure if above still
+// applies, but might as well leave the include where it is.
+#define BOOST_TEST_MODULE mutex_test
+#include <boost/test/included/unit_test.hpp>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/signals2/dummy_mutex.hpp>
 #include <boost/signals2/mutex.hpp>
 #include <boost/thread/locks.hpp>
@@ -26,44 +29,31 @@
 #include <boost/thread/thread_time.hpp>
 #include <boost/thread/condition.hpp>
 
+using namespace boost::placeholders;
+
 class execution_monitor
 {
 public:
-    enum wait_type { use_sleep_only, use_mutex, use_condition };
-
-    execution_monitor(wait_type type, int secs)
-        : done(false), m_type(type), m_secs(secs) { }
+    execution_monitor(int secs)
+        : done(false), m_secs(secs) { }
     void start()
     {
-        if (m_type != use_sleep_only) {
-            boost::mutex::scoped_lock lock(mutex); done = false;
-        } else {
-            done = false;
-        }
+        boost::mutex::scoped_lock lock(mutex); 
+        done = false;
     }
     void finish()
     {
-        if (m_type != use_sleep_only) {
-            boost::mutex::scoped_lock lock(mutex);
-            done = true;
-            if (m_type == use_condition)
-                cond.notify_one();
-        } else {
-            done = true;
-        }
+        boost::mutex::scoped_lock lock(mutex);
+        done = true;
+        cond.notify_one();
     }
     bool wait()
     {
         boost::posix_time::time_duration timeout = boost::posix_time::seconds(m_secs);
-        if (m_type != use_condition)
-            boost::this_thread::sleep(timeout);
-        if (m_type != use_sleep_only) {
-            boost::mutex::scoped_lock lock(mutex);
-            while (m_type == use_condition && !done) {
-                if (!cond.timed_wait(lock, timeout))
-                    break;
-            }
-            return done;
+        boost::mutex::scoped_lock lock(mutex);
+        while (!done) {
+            if (!cond.timed_wait(lock, timeout))
+                break;
         }
         return done;
     }
@@ -72,7 +62,6 @@ private:
     boost::mutex mutex;
     boost::condition cond;
     bool done;
-    wait_type m_type;
     int m_secs;
 };
 
@@ -104,10 +93,9 @@ private:
 };
 
 template <typename F>
-void timed_test(F func, int secs,
-    execution_monitor::wait_type type = execution_monitor::use_sleep_only)
+void timed_test(F func, int secs)
 {
-    execution_monitor monitor(type, secs);
+    execution_monitor monitor(secs);
     indirect_adapter<F> ifunc(func, monitor);
     monitor.start();
     boost::thread thrd(ifunc);
@@ -230,7 +218,11 @@ struct test_lock_exclusion
     {
         Lock lock(m);
 
-        locked=false;
+	{
+            boost::lock_guard<boost::mutex> lk(done_mutex);
+            locked=false;
+	}
+
         done=false;
 
         boost::thread t(test_func,this);
@@ -293,10 +285,8 @@ void test_dummy_mutex()
     timed_test(&do_test_dummy_mutex, 2);
 }
 
-int test_main(int, char*[])
+BOOST_AUTO_TEST_CASE(test_main)
 {
     test_mutex();
     test_dummy_mutex();
-
-    return 0;
 }

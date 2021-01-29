@@ -24,6 +24,9 @@ main()
     using spirit_test::test_attr;
     using boost::spirit::x3::expectation_failure;
 
+    BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(expect['x']);
+    BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(char_ > char_);
+
     {
         try
         {
@@ -70,6 +73,10 @@ main()
         }
     }
 
+#if defined(BOOST_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Woverloaded-shift-op-parentheses"
+#endif
     { // Test that attributes with > (sequences) work just like >> (sequences)
 
         using boost::fusion::vector;
@@ -101,7 +108,17 @@ main()
             BOOST_TEST((at_c<1>(attr) == 'b'));
             BOOST_TEST((at_c<2>(attr) == 'c'));
         }
+
+        {
+            std::string attr;
+            BOOST_TEST((test_attr("'azaaz'",
+                "'" > *(char_("a") | char_("z")) > "'", attr, space)));
+            BOOST_TEST(attr == "azaaz");
+        }
     }
+#if defined(BOOST_CLANG)
+#pragma clang diagnostic pop
+#endif
 
     {
         try
@@ -129,41 +146,5 @@ main()
         }
     }
 
-    //~ {
-        //~ try
-        //~ {
-            //~ BOOST_TEST((test("aA", no_case[char_('a') > 'a'])));
-            //~ BOOST_TEST((test("BEGIN END", no_case[lit("begin") > "end"], space)));
-            //~ BOOST_TEST((!test("BEGIN END", no_case[lit("begin") > "nend"], space)));
-        //~ }
-        //~ catch (expectation_failure<char const*> const& x)
-        //~ {
-            //~ std::cout << "expected: " << x.which();
-            //~ std::cout << " got: \"" << x.where() << '"' << std::endl;
-        //~ }
-    //~ }
-
-    //~ {
-        //~ using boost::spirit::x3::rule;
-        //~ using boost::spirit::x3::eps;
-        //~ rule<const wchar_t*, void(int)> r;
-        //~ r = eps > eps(_r1);
-    //~ }
-
-    { // test various what results
-
-        //~ using boost::spirit::x3::compile;
-        //~ BOOST_TEST((x3::what(compile<x3::domain>('a')) == "'a'"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>("hello")) == "\"hello\""));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::space)) == "space"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::bool_)) == "boolean"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::true_)) == "true"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::false_)) == "false"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::int_)) == "integer"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::hex)) == "hexadecimal integer"));
-        //~ BOOST_TEST((x3::what(compile<x3::domain>(x3::double_)) == "real number"));
-    }
-
     return boost::report_errors();
 }
-

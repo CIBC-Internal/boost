@@ -1,54 +1,38 @@
-# Copyright Rene Rivera 2011
-# Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+#|
+Copyright Rene Rivera 2011-2019
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+|#
 
-using quickbook ;
-using boostbook ;
+import asciidoctor ;
+import modules ;
 import path ;
 
-if ! $(BOOST_ROOT)
-{
-    BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ;
-}
+project predefdoc ;
 
-if $(BOOST_PREDEF_ROOT)
-{
-    path-constant BOOST_PREDEF_INCLUDE_ROOT : $(BOOST_PREDEF_ROOT)/include ;
-}
-else
-{
-    path-constant BOOST_PREDEF_INCLUDE_ROOT : $(BOOST_ROOT) ;
-}
+path-constant PYGMENTS_DIR : . ;
 
-local BOOST_PREDEF_HEADERS = [ path.glob-tree $(BOOST_PREDEF_INCLUDE_ROOT)/boost/predef : *.h ] ;
+doc-dir = [ MATCH "--doc-dir=(.*)" : [ modules.peek : ARGV ] ] ;
+doc-dir ?= . ;
 
-xml predef
+local headers = [ glob-tree-ex $(BOOST_PREDEF_INCLUDE) : *.h ] ;
+
+html index : predef.adoc :
     :
-        predef.qbk
-    :
-        <dependency>$(BOOST_PREDEF_INCLUDE_ROOT)/boost/predef.h
-        <dependency>$(BOOST_PREDEF_HEADERS)
+        <flags>--require=$(PYGMENTS_DIR)/pygments_init.rb
+        <flags>--trace
+        <flags>--verbose
+        <dependency>$(PYGMENTS_DIR)/pygments_init.rb
+        <dependency>$(headers)
     ;
-explicit predef ;
+explicit index ;
 
-boostbook standalone
-    :
-        predef
-    :
-        <xsl:param>boost.root=../../..
-        #<xsl:param>generate.section.toc.level=3
-        <xsl:param>chunk.section.depth=2
-        <xsl:param>chunk.first.sections=1
-    
-        <dependency>images
-        <dependency>callouts
-        <dependency>css
-    ;
+install html : index : <location>$(doc-dir) ;
+explicit html ;
 
-install images : [ glob $(BOOST_ROOT)/doc/src/images/*.png ] : <location>html/images ;
-explicit images ;
-install callouts : [ glob $(BOOST_ROOT)/doc/src/images/callouts/*.png ] : <location>html/images/callouts ;
-explicit callouts ;
-install css : [ glob $(BOOST_ROOT)/doc/src/*.css ] : <location>html ;
-explicit css ;
+alias boostdoc ;
+explicit boostdoc ;
+
+alias boostrelease : html ;
+explicit boostrelease ;

@@ -9,9 +9,6 @@
 #include <iostream>
 #include <boost/detail/lightweight_test.hpp>
 
-using namespace std;
-
-//#define BOOST_SPIRIT_DEBUG
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_loops.hpp>
 using namespace BOOST_SPIRIT_CLASSIC_NS;

@@ -1,5 +1,5 @@
 /*
-Copyright Rene Rivera 2008-2013
+Copyright Rene Rivera 2008-2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at
 http://www.boost.org/LICENSE_1_0.txt)
@@ -11,32 +11,33 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
 
-/*`
-[heading `BOOST_ARCH_PPC`]
+/* tag::reference[]
+= `BOOST_ARCH_PPC`
 
-[@http://en.wikipedia.org/wiki/PowerPC PowerPC] architecture.
+http://en.wikipedia.org/wiki/PowerPC[PowerPC] architecture.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__powerpc`] [__predef_detection__]]
-    [[`__powerpc__`] [__predef_detection__]]
-    [[`__POWERPC__`] [__predef_detection__]]
-    [[`__ppc__`] [__predef_detection__]]
-    [[`_M_PPC`] [__predef_detection__]]
-    [[`_ARCH_PPC`] [__predef_detection__]]
-    [[`__PPCGECKO__`] [__predef_detection__]]
-    [[`__PPCBROADWAY__`] [__predef_detection__]]
-    [[`_XENON`] [__predef_detection__]]
+| `+__powerpc+` | {predef_detection}
+| `+__powerpc__+` | {predef_detection}
+| `+__POWERPC__+` | {predef_detection}
+| `+__ppc__+` | {predef_detection}
+| `+_M_PPC+` | {predef_detection}
+| `+_ARCH_PPC+` | {predef_detection}
+| `+__PPCGECKO__+` | {predef_detection}
+| `+__PPCBROADWAY__+` | {predef_detection}
+| `+_XENON+` | {predef_detection}
 
-    [[`__ppc601__`] [6.1.0]]
-    [[`_ARCH_601`] [6.1.0]]
-    [[`__ppc603__`] [6.3.0]]
-    [[`_ARCH_603`] [6.3.0]]
-    [[`__ppc604__`] [6.4.0]]
-    [[`__ppc604__`] [6.4.0]]
-    ]
- */
+| `+__ppc601__+` | 6.1.0
+| `+_ARCH_601+` | 6.1.0
+| `+__ppc603__+` | 6.3.0
+| `+_ARCH_603+` | 6.3.0
+| `+__ppc604__+` | 6.4.0
+| `+__ppc604__+` | 6.4.0
+|===
+*/ // end::reference[]
 
 #define BOOST_ARCH_PPC BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
@@ -66,8 +67,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_ARCH_PPC_NAME "PowerPC"
 
+#endif
+
 #include <boost/predef/detail/test.h>
 BOOST_PREDEF_DECLARE_TEST(BOOST_ARCH_PPC,BOOST_ARCH_PPC_NAME)
-
-
-#endif

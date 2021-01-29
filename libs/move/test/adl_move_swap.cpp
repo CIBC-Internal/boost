@@ -8,7 +8,6 @@
 // See http://www.boost.org/libs/move for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <boost/move/detail/config_begin.hpp>
 #include <boost/move/adl_move_swap.hpp>
 #include <boost/move/core.hpp>
 #include <boost/core/lightweight_test.hpp>
@@ -91,7 +90,7 @@ int main()
       movable x, y;
       swap_stats::reset_stats();
       ::boost::adl_move_swap(x, y);
-      #if defined(BOOST_NO_RVALUE_REFERENCES)
+      #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
       //In non rvalue reference compilers,
       //movable classes with no swap() member uses
       //boost::move() to implement swap.
@@ -117,7 +116,7 @@ int main()
       movable_swap_member x, y;
       swap_stats::reset_stats();
       ::boost::adl_move_swap(x, y);
-      #if defined(BOOST_NO_RVALUE_REFERENCES)
+      #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
       //In non rvalue reference compilers,
       //movable classes with no swap() member uses
       //boost::move() to implement swap.
@@ -166,4 +165,3 @@ int main()
    }
    return ::boost::report_errors();
 }
-#include <boost/move/detail/config_end.hpp>

@@ -1,4 +1,4 @@
-//  endian/example/conversion_use_case.cpp 
+//  endian/example/conversion_use_case.cpp
 
 //  Copyright Beman Dawes 2014
 
@@ -44,8 +44,8 @@ int main()
 
   for (auto &out_rec : recs)  // write each record
   {
-    out_rec.balance = boost::endian::native_to_big(rec.balance);  // reverse if needed
+    out_rec.balance = boost::endian::native_to_big(out_rec.balance);  // reverse if needed
     out.write((const char*)&out_rec, sizeof(out_rec));
   }
-    
+
 }

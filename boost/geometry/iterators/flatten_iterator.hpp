@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -10,13 +10,13 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
-#include <boost/assert.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/iterator.hpp>
+#include <type_traits>
+
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
+#include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry
 {
@@ -93,18 +93,18 @@ public:
           m_inner_it(other.m_inner_it)
     {
         static const bool are_conv
-            = boost::is_convertible
+            = std::is_convertible
                 <
                     OtherOuterIterator, OuterIterator
                 >::value
-           && boost::is_convertible
+           && std::is_convertible
                 <
                     OtherInnerIterator, InnerIterator
                 >::value;
 
-        BOOST_MPL_ASSERT_MSG((are_conv),
-                             NOT_CONVERTIBLE,
-                             (types<OtherOuterIterator, OtherInnerIterator>));
+        BOOST_GEOMETRY_STATIC_ASSERT((are_conv),
+            "Other iterators have to be convertible to member iterators.",
+            OtherOuterIterator, OtherInnerIterator);
     }
 
     flatten_iterator& operator=(flatten_iterator const& other)
@@ -154,8 +154,8 @@ private:
 
     inline Reference dereference() const
     {
-        BOOST_ASSERT( m_outer_it != m_outer_end );
-        BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
+        BOOST_GEOMETRY_ASSERT( m_outer_it != m_outer_end );
+        BOOST_GEOMETRY_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
         return *m_inner_it;
     }
 
@@ -194,8 +194,8 @@ private:
 
     inline void increment()
     {
-        BOOST_ASSERT( m_outer_it != m_outer_end );
-        BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
+        BOOST_GEOMETRY_ASSERT( m_outer_it != m_outer_end );
+        BOOST_GEOMETRY_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
 
         ++m_inner_it;
         if ( m_inner_it == AccessInnerEnd::apply(*m_outer_it) )
@@ -215,12 +215,9 @@ private:
                 --m_outer_it;
             }
             while ( empty(m_outer_it) );
-            m_inner_it = --AccessInnerEnd::apply(*m_outer_it);
-        }
-        else
-        {
-            --m_inner_it;
-        }
+            m_inner_it = AccessInnerEnd::apply(*m_outer_it);
+        }        
+        --m_inner_it;
     }
 };
 

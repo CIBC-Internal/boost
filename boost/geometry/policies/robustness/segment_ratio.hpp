@@ -2,6 +2,10 @@
 
 // Copyright (c) 2013 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,10 +13,12 @@
 #ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 #define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 
-#include <boost/assert.hpp>
+#include <type_traits>
+
 #include <boost/config.hpp>
 #include <boost/rational.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 
@@ -26,7 +32,7 @@ namespace detail { namespace segment_ratio
 template
 <
     typename Type,
-    bool IsIntegral = boost::is_integral<Type>::type::value
+    bool IsIntegral = std::is_integral<Type>::type::value
 >
 struct less {};
 
@@ -47,17 +53,19 @@ struct less<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_ASSERT(lhs.denominator() != 0);
-        BOOST_ASSERT(rhs.denominator() != 0);
-        return lhs.numerator() * rhs.denominator()
-             < rhs.numerator() * lhs.denominator();
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
+        Type const a = lhs.numerator() / lhs.denominator();
+        Type const b = rhs.numerator() / rhs.denominator();
+        return ! geometry::math::equals(a, b)
+            && a < b;
     }
 };
 
 template
 <
     typename Type,
-    bool IsIntegral = boost::is_integral<Type>::type::value
+    bool IsIntegral = std::is_integral<Type>::type::value
 >
 struct equal {};
 
@@ -78,13 +86,11 @@ struct equal<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_ASSERT(lhs.denominator() != 0);
-        BOOST_ASSERT(rhs.denominator() != 0);
-        return geometry::math::equals
-            (
-                lhs.numerator() * rhs.denominator(),
-                rhs.numerator() * lhs.denominator()
-            );
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
+        Type const a = lhs.numerator() / lhs.denominator();
+        Type const b = rhs.numerator() / rhs.denominator();
+        return geometry::math::equals(a, b);
     }
 };
 
@@ -139,15 +145,12 @@ public :
             m_denominator = -m_denominator;
         }
 
-        typedef typename promote_floating_point<Type>::type num_type;
-        static const num_type scale = 1000000.0;
         m_approximation =
             m_denominator == 0 ? 0
-            : boost::numeric_cast<double>
-                (
-                    boost::numeric_cast<num_type>(m_numerator) * scale
-                  / boost::numeric_cast<num_type>(m_denominator)
-                );
+            : (
+                boost::numeric_cast<fp_type>(m_numerator) * scale()
+                / boost::numeric_cast<fp_type>(m_denominator)
+            );
     }
 
     inline bool is_zero() const { return math::equals(m_numerator, 0); }
@@ -178,9 +181,21 @@ public :
         return m_numerator > m_denominator;
     }
 
+    inline bool near_end() const
+    {
+        if (left() || right())
+        {
+            return false;
+        }
+
+        static fp_type const small_part_of_scale = scale() / 100;
+        return m_approximation < small_part_of_scale
+            || m_approximation > scale() - small_part_of_scale;
+    }
+
     inline bool close_to(thistype const& other) const
     {
-        return geometry::math::abs(m_approximation - other.m_approximation) < 2;
+        return geometry::math::abs(m_approximation - other.m_approximation) < 50;
     }
 
     inline bool operator< (thistype const& other) const
@@ -222,6 +237,17 @@ public :
 
 
 private :
+    // NOTE: if this typedef is used then fp_type is non-fundamental type
+    // if Type is non-fundamental type
+    //typedef typename promote_floating_point<Type>::type fp_type;
+
+    // TODO: What with user-defined numeric types?
+    //       Shouldn't here is_integral be checked?
+    typedef std::conditional_t
+        <
+            std::is_floating_point<Type>::value, Type, double
+        > fp_type;
+
     Type m_numerator;
     Type m_denominator;
 
@@ -230,7 +256,13 @@ private :
     // Boost.Rational is used if the approximations are close.
     // Reason: performance, Boost.Rational does a GCD by default and also the
     // comparisons contain while-loops.
-    double m_approximation;
+    fp_type m_approximation;
+
+
+    static inline fp_type scale()
+    {
+        return 1000000.0;
+    }
 };
 
 

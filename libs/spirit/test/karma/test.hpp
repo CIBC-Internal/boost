@@ -53,9 +53,16 @@ namespace spirit_test
         if (!result)
             std::cerr << "in " << func << ": result is false" << std::endl;
         else if (generated != expected)
-            std::cerr << "in " << func << ": generated \""
-                << std::string(generated.begin(), generated.end())
-                << "\"" << std::endl;
+        {
+            std::cerr << "in " << func << ": generated \"";
+            BOOST_FOREACH(typename boost::make_unsigned<Char>::type c, generated) {
+                if (c >= 32 && c < 127)
+                    std::cerr << static_cast<char>(static_cast<unsigned char>(c));
+                else
+                    std::cerr << "\\x" << std::hex << +c;
+            }
+            std::cerr << "\"\n";
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -250,7 +257,8 @@ namespace spirit_test
 
         print_binary_if_failed("binary_test", result, generated
           , std::string(expected, size));
-        return result && !std::memcmp(generated.c_str(), expected, size);
+        return result && generated.size() == size
+            && !std::memcmp(generated.c_str(), expected, size);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -272,7 +280,8 @@ namespace spirit_test
 
         print_binary_if_failed("binary_test", result, generated
           , std::string(expected, size));
-        return result && !std::memcmp(generated.c_str(), expected, size);
+        return result && generated.size() == size
+            && !std::memcmp(generated.c_str(), expected, size);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -294,7 +303,8 @@ namespace spirit_test
 
         print_binary_if_failed("binary_test_delimited", result, generated
           , std::string(expected, size));
-        return result && !std::memcmp(generated.c_str(), expected, size);
+        return result && generated.size() == size
+            && !std::memcmp(generated.c_str(), expected, size);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -316,7 +326,8 @@ namespace spirit_test
 
         print_binary_if_failed("binary_test_delimited", result, generated
           , std::string(expected, size));
-        return result && !std::memcmp(generated.c_str(), expected, size);
+        return result && generated.size() == size
+            && !std::memcmp(generated.c_str(), expected, size);
     }
 
 }   // namespace spirit_test

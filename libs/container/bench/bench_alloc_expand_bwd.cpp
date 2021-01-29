@@ -13,17 +13,19 @@
 #endif
 
 #include <boost/container/allocator.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 
 #define BOOST_CONTAINER_VECTOR_ALLOC_STATS
 
 #include <boost/container/vector.hpp>
 #include <memory>    //std::allocator
 #include <iostream>  //std::cout, std::endl
+#include <cassert>   //assert
 
-#include <boost/timer/timer.hpp>
-using boost::timer::cpu_timer;
-using boost::timer::cpu_times;
-using boost::timer::nanosecond_type;
+#include <boost/move/detail/nsec_clock.hpp>
+using boost::move_detail::cpu_timer;
+using boost::move_detail::cpu_times;
+using boost::move_detail::nanosecond_type;
 
 namespace bc = boost::container;
 
@@ -108,10 +110,10 @@ void vector_test_template(unsigned int num_iterations, unsigned int num_elements
       bc::vector<MyInt, IntAllocator> v;
       v.reset_alloc_stats();
       void *first_mem = 0;
-      try{
-         first_mem = boost_cont_malloc(sizeof(MyInt)*num_elements*3/2);
+      BOOST_TRY{
+         first_mem = bc::dlmalloc_malloc(sizeof(MyInt)*num_elements*3/2);
          v.push_back(MyInt(0));
-         boost_cont_free(first_mem);
+         bc::dlmalloc_free(first_mem);
 
          for(unsigned int e = 0; e != num_elements; ++e){
             v.push_back(MyInt(e));
@@ -120,13 +122,14 @@ void vector_test_template(unsigned int num_iterations, unsigned int num_elements
          numexpand += v.num_expand_bwd;
          capacity = static_cast<unsigned int>(v.capacity());
       }
-      catch(...){
-         boost_cont_free(first_mem);
-         throw;
+      BOOST_CATCH(...){
+         bc::dlmalloc_free(first_mem);
+         BOOST_RETHROW;
       }
+      BOOST_CATCH_END
    }
 
-   assert(boost_cont_allocated_memory() == 0);
+   assert(bc::dlmalloc_allocated_memory() == 0);
 
    timer.stop();
    nanosecond_type nseconds = timer.elapsed().wall;
@@ -165,26 +168,30 @@ void vector_test_template(unsigned int num_iterations, unsigned int num_elements
                   << "    -----------------------------------    "
                   << std::endl;
    }
-   boost_cont_trim(0);
+   bc::dlmalloc_trim(0);
 }
 
 int main(int argc, const char *argv[])
 {
-   #define SINGLE_TEST
-   #ifndef SINGLE_TEST
+   //#define SINGLE_TEST
+   #define SIMPLE_IT
+   #ifdef SINGLE_TEST
       #ifdef NDEBUG
-      unsigned int numit [] = { 20000, 200000, 2000000, 20000000 };
+      unsigned int numit [] = { 10 };
+      #else
+      unsigned int numit [] = { 10 };
+      #endif
+      unsigned int numele [] = { 10000 };
+   #elif defined(SIMPLE_IT)
+      unsigned int numit [] = { 3 };
+      unsigned int numele[] = { 10000 };
+   #else
+      #ifdef NDEBUG
+      unsigned int numit [] = { 2000, 20000, 200000, 2000000 };
       #else
       unsigned int numit [] = { 100, 1000, 10000, 100000 };
       #endif
       unsigned int numele [] = { 10000, 1000,   100,     10       };
-   #else
-      #ifdef NDEBUG
-      unsigned int numit [] = { 20000 };
-      #else
-      unsigned int numit [] = { 100 };
-      #endif
-      unsigned int numele [] = { 10000 };
    #endif
 
    bool csv_output = argc == 2 && (strcmp(argv[1], "--csv-output") == 0);

@@ -44,7 +44,7 @@ at x = 3= 2. In other words,
 
 The expected result is
 
- 0:74535 59924 99929 89880 . (5)
+ 0:74535 59924 99929 89880 . (5)
 The program below uses the derivative template in order to perform
 the numerical calculation of this derivative. The program also compares the
 numerically-obtained result with the expected result and reports the absolute
@@ -53,7 +53,7 @@ bits of lost precision.
 
 */
 
-/*` [note Rquires the C++11 feature of
+/*` [note Requires the C++11 feature of
 [@http://en.wikipedia.org/wiki/Anonymous_function#C.2B.2B anonymous functions]
 for the derivative function calls like `[]( const double & x_) -> double`.
 */

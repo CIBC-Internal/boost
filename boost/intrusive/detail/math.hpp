@@ -23,6 +23,8 @@
 
 #include <cstddef>
 #include <climits>
+#include <boost/intrusive/detail/mpl.hpp>
+#include <cstring>
 
 namespace boost {
 namespace intrusive {
@@ -74,8 +76,8 @@ namespace detail {
    inline std::size_t floor_log2 (std::size_t x)
    {
       unsigned long log2;
-      BOOST_INTRUSIVE_BSR_INTRINSIC( &log2, (unsigned long)x );
-      return log2;
+      BOOST_INTRUSIVE_BSR_INTRINSIC( &log2, x );
+      return static_cast<std::size_t>(log2);
    }
 
    #undef BOOST_INTRUSIVE_BSR_INTRINSIC
@@ -127,7 +129,7 @@ namespace detail {
    {  return (n >> 1) + ((n & 1u) & (n != 1)); }
 
    template<std::size_t N>
-   inline std::size_t floor_log2 (std::size_t x, integer<std::size_t, N>)
+   inline std::size_t floor_log2 (std::size_t x, integral_constant<std::size_t, N>)
    {
       const std::size_t Bits = N;
       const bool Size_t_Bits_Power_2= !(Bits & (Bits-1));
@@ -156,7 +158,7 @@ namespace detail {
    //http://stackoverflow.com/questions/11376288/fast-computing-of-log2-for-64-bit-integers
    //Thanks to Desmond Hume
 
-   inline std::size_t floor_log2 (std::size_t v, integer<std::size_t, 32>)
+   inline std::size_t floor_log2 (std::size_t v, integral_constant<std::size_t, 32>)
    {
       static const int MultiplyDeBruijnBitPosition[32] =
       {
@@ -173,7 +175,7 @@ namespace detail {
       return MultiplyDeBruijnBitPosition[(std::size_t)(v * 0x07C4ACDDU) >> 27];
    }
 
-   inline std::size_t floor_log2 (std::size_t v, integer<std::size_t, 64>)
+   inline std::size_t floor_log2 (std::size_t v, integral_constant<std::size_t, 64>)
    {
       static const std::size_t MultiplyDeBruijnBitPosition[64] = {
       63,  0, 58,  1, 59, 47, 53,  2,
@@ -198,7 +200,7 @@ namespace detail {
    inline std::size_t floor_log2 (std::size_t x)
    {
       const std::size_t Bits = sizeof(std::size_t)*CHAR_BIT;
-      return floor_log2(x, integer<std::size_t, Bits>());
+      return floor_log2(x, integral_constant<std::size_t, Bits>());
    }
 
 #endif
@@ -207,19 +209,13 @@ namespace detail {
 //http://www.flipcode.com/archives/Fast_log_Function.shtml
 inline float fast_log2 (float val)
 {
-   union caster_t
-   {
-      unsigned x;
-      float val;
-   } caster;
-
-   caster.val = val;
-   unsigned x = caster.x;
+   float f = val;
+   unsigned x;
+   std::memcpy(&x, &val, sizeof(f));
    const int log_2 = int((x >> 23) & 255) - 128;
    x &= ~(unsigned(255u) << 23u);
    x += unsigned(127) << 23u;
-   caster.x = x;
-   val = caster.val;
+   std::memcpy(&val, &x, sizeof(f));
    //1+log2(m), m ranging from 1 to 2
    //3rd degree polynomial keeping first derivate continuity.
    //For less precision the line can be commented out
@@ -227,9 +223,28 @@ inline float fast_log2 (float val)
    return val + static_cast<float>(log_2);
 }
 
+inline bool is_pow2(std::size_t x)
+{  return (x & (x-1)) == 0;  }
+
+template<std::size_t N>
+struct static_is_pow2
+{
+   static const bool value = (N & (N-1)) == 0;
+};
+
 inline std::size_t ceil_log2 (std::size_t x)
 {
-   return static_cast<std::size_t>((x & (x-1)) != 0) + floor_log2(x);
+   return static_cast<std::size_t>(!(is_pow2)(x)) + floor_log2(x);
+}
+
+inline std::size_t ceil_pow2 (std::size_t x)
+{
+   return std::size_t(1u) << (ceil_log2)(x);
+}
+
+inline std::size_t previous_or_equal_pow2(std::size_t x)
+{
+   return std::size_t(1u) << floor_log2(x);
 }
 
 template<class SizeType, std::size_t N>
@@ -242,7 +257,7 @@ template<class SizeType, class Enabler = void >
 struct sqrt2_pow_max;
 
 template <class SizeType>
-struct sqrt2_pow_max<SizeType, typename enable_if< numbits_eq<SizeType, 32> >::type>
+struct sqrt2_pow_max<SizeType, typename voider<typename enable_if< numbits_eq<SizeType, 32> >::type>::type>
 {
    static const SizeType value = 0xb504f334;
    static const std::size_t pow   = 31;
@@ -251,7 +266,7 @@ struct sqrt2_pow_max<SizeType, typename enable_if< numbits_eq<SizeType, 32> >::t
 #ifndef BOOST_NO_INT64_T
 
 template <class SizeType>
-struct sqrt2_pow_max<SizeType, typename enable_if< numbits_eq<SizeType, 64> >::type>
+struct sqrt2_pow_max<SizeType, typename voider<typename enable_if< numbits_eq<SizeType, 64> >::type>::type>
 {
    static const SizeType value = 0xb504f333f9de6484ull;
    static const std::size_t pow   = 63;

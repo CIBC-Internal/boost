@@ -9,7 +9,9 @@
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/spirit/include/lex.hpp>
 #include <boost/spirit/include/lex_lexertl.hpp>
-#include <boost/spirit/include/phoenix.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_function.hpp>
+#include <boost/phoenix/operator/self.hpp>
 
 namespace lex = boost::spirit::lex;
 namespace phoenix = boost::phoenix;

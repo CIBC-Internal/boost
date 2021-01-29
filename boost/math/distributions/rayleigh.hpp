@@ -182,7 +182,7 @@ inline RealType cdf(const complemented2_type<rayleigh_distribution<RealType, Pol
    RealType ea = x * x / (2 * sigma * sigma);
    // Fix for VC11/12 x64 bug in exp(float):
    if (ea >= tools::max_value<RealType>())
-	   return 0;
+      return 0;
    result =  exp(-ea);
    return result;
 } // cdf complement
@@ -285,6 +285,13 @@ inline RealType kurtosis_excess(const rayleigh_distribution<RealType, Policy>& /
   // return -(6 * pi<RealType>() * pi<RealType>() - 24 * pi<RealType>() + 16) /
   //   (four_minus_pi<RealType>() * four_minus_pi<RealType>());
 } // kurtosis
+
+template <class RealType, class Policy>
+inline RealType entropy(const rayleigh_distribution<RealType, Policy>& dist)
+{
+   using std::log;
+   return 1 + log(dist.sigma()*constants::one_div_root_two<RealType>()) + constants::euler<RealType>()/2;
+}
 
 } // namespace math
 } // namespace boost

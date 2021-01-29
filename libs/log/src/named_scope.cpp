@@ -13,18 +13,21 @@
  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
  */
 
-#include <memory>
+#include <boost/log/detail/config.hpp>
 #include <utility>
 #include <algorithm>
+#include <boost/type_index.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/log/attributes/attribute.hpp>
 #include <boost/log/attributes/attribute_value.hpp>
 #include <boost/log/attributes/named_scope.hpp>
 #include <boost/log/utility/type_dispatch/type_dispatcher.hpp>
+#include <boost/log/detail/allocator_traits.hpp>
 #include <boost/log/detail/singleton.hpp>
 #if !defined(BOOST_LOG_NO_THREADS)
 #include <boost/thread/tss.hpp>
 #endif
+#include "unique_ptr.hpp"
 #include <boost/log/detail/header.hpp>
 
 namespace boost {
@@ -54,7 +57,6 @@ BOOST_LOG_ANONYMOUS_NAMESPACE {
             entry._m_pPrev = top;
             entry._m_pNext = &this->m_RootNode;
 
-            BOOST_LOG_ASSUME(&entry != 0);
             this->m_RootNode._m_pPrev = top->_m_pNext =
                 const_cast< aux::named_scope_list_node* >(
                     static_cast< const aux::named_scope_list_node* >(&entry));
@@ -89,7 +91,7 @@ BOOST_LOG_ANONYMOUS_NAMESPACE {
 
         //! The method dispatches the value to the given object. It returns true if the
         //! object was capable to consume the real attribute value type and false otherwise.
-        bool dispatch(type_dispatcher& dispatcher)
+        bool dispatch(type_dispatcher& dispatcher) BOOST_OVERRIDE
         {
             type_dispatcher::callback< scope_stack > callback =
                 dispatcher.get_callback< scope_stack >();
@@ -105,11 +107,11 @@ BOOST_LOG_ANONYMOUS_NAMESPACE {
         /*!
          * \return The attribute value type
          */
-        type_info_wrapper get_type() const { return type_info_wrapper(typeid(scope_stack)); }
+        typeindex::type_index get_type() const BOOST_OVERRIDE { return typeindex::type_id< scope_stack >(); }
 
         //! The method is called when the attribute value is passed to another thread (e.g.
         //! in case of asynchronous logging). The value should ensure it properly owns all thread-specific data.
-        intrusive_ptr< attribute_value::impl > detach_from_thread()
+        intrusive_ptr< attribute_value::impl > detach_from_thread() BOOST_OVERRIDE
         {
             if (!m_DetachedValue)
             {
@@ -151,7 +153,7 @@ struct BOOST_SYMBOL_VISIBLE named_scope::impl :
 
 #else
     //! Pointer to the scope stack
-    std::auto_ptr< scope_list > pScopes;
+    log::aux::unique_ptr< scope_list > pScopes;
 #endif
 
     //! The method returns current thread scope stack
@@ -164,7 +166,7 @@ struct BOOST_SYMBOL_VISIBLE named_scope::impl :
 #endif
         if (!p)
         {
-            std::auto_ptr< scope_list > pNew(new scope_list());
+            log::aux::unique_ptr< scope_list > pNew(new scope_list());
             pScopes.reset(pNew.get());
 #if defined(BOOST_LOG_USE_COMPILER_TLS)
             pScopesCache = p = pNew.release();
@@ -183,7 +185,7 @@ struct BOOST_SYMBOL_VISIBLE named_scope::impl :
     }
 
     //! The method returns the actual attribute value. It must not return NULL.
-    attribute_value get_value()
+    attribute_value get_value() BOOST_OVERRIDE
     {
         return attribute_value(new named_scope_value(&get_scope_list()));
     }
@@ -208,11 +210,11 @@ BOOST_LOG_API named_scope_list::named_scope_list(named_scope_list const& that) :
     if (m_Size > 0)
     {
         // Copy the container contents
-        pointer p = allocator_type::allocate(that.size());
+        pointer p = log::aux::allocator_traits< allocator_type >::allocate(*static_cast< allocator_type* >(this), that.size());
         aux::named_scope_list_node* prev = &m_RootNode;
         for (const_iterator src = that.begin(), end = that.end(); src != end; ++src, ++p)
         {
-            allocator_type::construct(p, *src); // won't throw
+            log::aux::allocator_traits< allocator_type >::construct(*static_cast< allocator_type* >(this), p, *src); // won't throw
             p->_m_pPrev = prev;
             prev->_m_pNext = p;
             prev = p;
@@ -230,8 +232,8 @@ BOOST_LOG_API named_scope_list::~named_scope_list()
         iterator it(m_RootNode._m_pNext);
         iterator end(&m_RootNode);
         while (it != end)
-            allocator_type::destroy(&*(it++));
-        allocator_type::deallocate(static_cast< pointer >(m_RootNode._m_pNext), m_Size);
+            log::aux::allocator_traits< allocator_type >::destroy(*static_cast< allocator_type* >(this), &*(it++));
+        log::aux::allocator_traits< allocator_type >::deallocate(*static_cast< allocator_type* >(this), static_cast< pointer >(m_RootNode._m_pNext), m_Size);
     }
 }
 

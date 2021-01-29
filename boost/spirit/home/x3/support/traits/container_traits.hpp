@@ -9,19 +9,16 @@
 #if !defined(BOOST_SPIRIT_X3_CONTAINER_FEBRUARY_06_2007_1001AM)
 #define BOOST_SPIRIT_X3_CONTAINER_FEBRUARY_06_2007_1001AM
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #include <boost/fusion/support/category_of.hpp>
 #include <boost/spirit/home/x3/support/unused.hpp>
-#include <boost/detail/iterator.hpp>
 #include <boost/fusion/include/deque.hpp>
-#include <boost/mpl/has_xxx.hpp>
-#include <boost/mpl/bool.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/type_traits/make_void.hpp>
+
 #include <vector>
 #include <string>
+#include <iterator>
+#include <algorithm>
 
 namespace boost { namespace spirit { namespace x3 { namespace traits
 {
@@ -31,20 +28,27 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
 
     namespace detail
     {
-        BOOST_MPL_HAS_XXX_TRAIT_DEF(value_type)
-        BOOST_MPL_HAS_XXX_TRAIT_DEF(iterator)
-        BOOST_MPL_HAS_XXX_TRAIT_DEF(size_type)
-        BOOST_MPL_HAS_XXX_TRAIT_DEF(reference)
+        template <typename T, typename Enabler = void>
+        struct is_container_impl : mpl::false_ {};
+
+        template <typename T>
+        struct is_container_impl<T, void_t<
+            typename T::value_type, typename T::iterator,
+            typename T::size_type, typename T::reference> > : mpl::true_ {};
+
+        template <typename T, typename Enabler = void>
+        struct is_associative_impl : mpl::false_ {};
+
+        template <typename T>
+        struct is_associative_impl<T, void_t<typename T::key_type>>
+            : mpl::true_ {};
     }
 
-    template <typename T, typename Enable = void>
-    struct is_container
-      : mpl::bool_<
-            detail::has_value_type<T>::value &&
-            detail::has_iterator<T>::value &&
-            detail::has_size_type<T>::value &&
-            detail::has_reference<T>::value>
-    {};
+    template <typename T>
+    using is_container = typename detail::is_container_impl<T>::type;
+
+    template <typename T>
+    using is_associative = typename detail::is_associative_impl<T>::type;
 
     ///////////////////////////////////////////////////////////////////////////
     namespace detail
@@ -115,7 +119,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
         template <typename T>
         static bool call(Container& c, T&& val)
         {
-            c.insert(c.end(), std::move(val));
+            c.insert(c.end(), static_cast<T&&>(val));
             return true;
         }
     };
@@ -123,7 +127,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     template <typename Container, typename T>
     inline bool push_back(Container& c, T&& val)
     {
-        return push_back_container<Container>::call(c, std::move(val));
+        return push_back_container<Container>::call(c, static_cast<T&&>(val));
     }
 
     template <typename Container>
@@ -133,7 +137,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     }
 
     template <typename T>
-    inline bool push_back(unused_type, T const&)
+    inline bool push_back(unused_type, T&&)
     {
         return true;
     }
@@ -150,21 +154,24 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     template <typename Container, typename Enable = void>
     struct append_container
     {
-        // Not all containers have "reserve"
-        template <typename Container_>
-        static void reserve(Container_& c, std::size_t size) {}
-
-        template <typename T>
-        static void reserve(std::vector<T>& c, std::size_t size)
+    private:
+        template <typename Iterator>
+        static void insert(Container& c, Iterator first, Iterator last, mpl::false_)
         {
-            c.reserve(size);
+            c.insert(c.end(), first, last);
         }
 
         template <typename Iterator>
+        static void insert(Container& c, Iterator first, Iterator last, mpl::true_)
+        {
+            c.insert(first, last);
+        }
+
+    public:
+        template <typename Iterator>
         static bool call(Container& c, Iterator first, Iterator last)
         {
-            reserve(c, c.size() + std::distance(first, last));
-            c.insert(c.end(), first, last);
+            insert(c, first, last, is_associative<Container>{});
             return true;
         }
     };
@@ -176,7 +183,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     }
 
     template <typename Iterator>
-    inline bool append(unused_type, Iterator first, Iterator last)
+    inline bool append(unused_type, Iterator /* first */, Iterator /* last */)
     {
         return true;
     }
@@ -253,7 +260,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     template <typename Iterator, typename Enable = void>
     struct deref_iterator
     {
-        typedef typename boost::detail::iterator_traits<Iterator>::reference type;
+        typedef typename std::iterator_traits<Iterator>::reference type;
         static type call(Iterator& it)
         {
             return *it;

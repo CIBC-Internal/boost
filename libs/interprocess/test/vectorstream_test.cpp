@@ -8,7 +8,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/interprocess/streams/vectorstream.hpp>
@@ -39,6 +38,14 @@ static int vectorstream_test()
 {
    {  //Test high watermarking initialization
       my_stringstream_t my_stringstream;
+
+      if(my_stringstream.tellg() != std::streampos(0)){
+         return 1;
+      }
+      if(my_stringstream.tellp() != std::streampos(0)){
+         return 1;
+      }
+
       int a (0);
       my_stringstream << 11;
       my_stringstream >> a;
@@ -173,5 +180,3 @@ int main ()
    }
    return 0;
 }
-
-#include <boost/interprocess/detail/config_end.hpp>

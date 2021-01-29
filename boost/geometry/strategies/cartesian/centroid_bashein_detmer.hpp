@@ -1,12 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -22,15 +21,15 @@
 
 #include <cstddef>
 
-#include <boost/mpl/if.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/type_traits.hpp>
 
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
-#include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 
 namespace boost { namespace geometry
@@ -130,21 +129,17 @@ private :
     //   whatever it is and whatever the point-type(s) are.
     // Else, use the most appropriate coordinate type
     //    of the two points, but at least double
-    typedef typename
-        boost::mpl::if_c
+    typedef std::conditional_t
         <
-            boost::is_void<CalculationType>::type::value,
+            std::is_void<CalculationType>::value,
             typename select_most_precise
-            <
-                typename select_coordinate_type
-                    <
-                        Point,
-                        PointOfSegment
-                    >::type,
-                double
-            >::type,
+                <
+                    typename coordinate_type<Point>::type,
+                    typename coordinate_type<PointOfSegment>::type,
+                    double
+                >::type,
             CalculationType
-        >::type calculation_type;
+        > calculation_type;
 
     /*! subclass to keep state */
     class sums
@@ -206,11 +201,18 @@ public :
                     Point
                 >::type coordinate_type;
 
-            set<0>(centroid,
-                boost::numeric_cast<coordinate_type>(state.sum_x / a3));
-            set<1>(centroid,
-                boost::numeric_cast<coordinate_type>(state.sum_y / a3));
-            return true;
+            // Prevent NaN centroid coordinates
+            if (boost::math::isfinite(a3))
+            {
+                // NOTE: above calculation_type is checked, not the centroid coordinate_type
+                // which means that the centroid can still be filled with INF
+                // if e.g. calculation_type is double and centroid contains floats
+                set<0>(centroid,
+                    boost::numeric_cast<coordinate_type>(state.sum_x / a3));
+                set<1>(centroid,
+                    boost::numeric_cast<coordinate_type>(state.sum_y / a3));
+                return true;
+            }
         }
 
         return false;

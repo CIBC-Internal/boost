@@ -3,8 +3,6 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-// #define BOOST_SPIRIT_LEXERTL_DEBUG
-
 #include <boost/config/warning_disable.hpp>
 #include <boost/detail/lightweight_test.hpp>
 
@@ -12,8 +10,7 @@
 #include <boost/spirit/include/lex_lexertl_position_token.hpp>
 #include <boost/spirit/include/phoenix_object.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_statement.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/spirit/include/phoenix_container.hpp>
 
 namespace lex = boost::spirit::lex;
 namespace phoenix = boost::phoenix;
@@ -108,7 +105,6 @@ test_token_ids(int const* ids, std::vector<Token> const& tokens)
         if (*ids == -1)
             return false;           // reached end of expected data
 
-        typename Token::token_value_type const& value (t.value());
         if (t.id() != static_cast<std::size_t>(*ids))        // token id must match
             return false;
         ++ids;
@@ -126,7 +122,6 @@ test_token_states(std::size_t const* states, std::vector<Token> const& tokens)
         if (*states == std::size_t(-1))
             return false;           // reached end of expected data
 
-        typename Token::token_value_type const& value (t.value());
         if (t.state() != *states)            // token state must match
             return false;
         ++states;

@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>basic_seq_packet_socket::operator= (1 of 2 overloads)</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../operator_eq_.html" title="basic_seq_packet_socket::operator=">
 <link rel="prev" href="../operator_eq_.html" title="basic_seq_packet_socket::operator=">
@@ -28,11 +28,11 @@
           (1 of 2 overloads)</a>
 </h5></div></div></div>
 <p>
-            Move-assign a <a class="link" href="../../basic_seq_packet_socket.html" title="basic_seq_packet_socket"><code class="computeroutput"><span class="identifier">basic_seq_packet_socket</span></code></a> from
-            another.
+            Move-assign a <a class="link" href="../../basic_seq_packet_socket.html" title="basic_seq_packet_socket"><code class="computeroutput">basic_seq_packet_socket</code></a>
+            from another.
           </p>
-<pre class="programlisting"><span class="identifier">basic_seq_packet_socket</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span>
-    <span class="identifier">basic_seq_packet_socket</span> <span class="special">&amp;&amp;</span> <span class="identifier">other</span><span class="special">);</span>
+<pre class="programlisting">basic_seq_packet_socket &amp; operator=(
+    basic_seq_packet_socket &amp;&amp; other);
 </pre>
 <p>
             This assignment operator moves a sequenced packet socket from one object
@@ -47,7 +47,7 @@
 <dl class="variablelist">
 <dt><span class="term">other</span></dt>
 <dd><p>
-                  The other <a class="link" href="../../basic_seq_packet_socket.html" title="basic_seq_packet_socket"><code class="computeroutput"><span class="identifier">basic_seq_packet_socket</span></code></a>
+                  The other <a class="link" href="../../basic_seq_packet_socket.html" title="basic_seq_packet_socket"><code class="computeroutput">basic_seq_packet_socket</code></a>
                   object from which the move will occur.
                 </p></dd>
 </dl>
@@ -58,12 +58,13 @@
           </h6>
 <p>
             Following the move, the moved-from object is in the same state as if
-            constructed using the <code class="computeroutput"><span class="identifier">basic_seq_packet_socket</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">&amp;)</span> <span class="identifier">constructor</span></code>.
+            constructed using the <code class="computeroutput">basic_seq_packet_socket(const executor_type&amp;)</code>
+            constructor.
           </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

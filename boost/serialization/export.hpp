@@ -32,7 +32,7 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not.hpp>
-#include <boost/mpl/bool.hpp>
+#include <boost/mpl/bool_fwd.hpp>
 
 #include <boost/serialization/extended_type_info.hpp> // for guid_defined only
 #include <boost/serialization/static_warning.hpp>
@@ -41,8 +41,6 @@
 #include <boost/serialization/singleton.hpp>
 
 #include <boost/archive/detail/register_archive.hpp>
-
-#include <iostream>
 
 namespace boost {
 namespace archive {
@@ -62,14 +60,14 @@ struct export_impl
     static const basic_pointer_iserializer &
     enable_load(mpl::true_){
         return boost::serialization::singleton<
-            pointer_iserializer<Archive, Serializable> 
+            pointer_iserializer<Archive, Serializable>
         >::get_const_instance();
     }
 
     static const basic_pointer_oserializer &
     enable_save(mpl::true_){
         return boost::serialization::singleton<
-            pointer_oserializer<Archive, Serializable> 
+            pointer_oserializer<Archive, Serializable>
         >::get_const_instance();
     }
     inline static void enable_load(mpl::false_) {}
@@ -86,9 +84,6 @@ struct ptr_serialization_support
 {
 # if defined(BOOST_MSVC) || defined(__SUNPRO_CC)
     virtual BOOST_DLLEXPORT void instantiate() BOOST_USED;
-# elif defined(__BORLANDC__)   
-    static BOOST_DLLEXPORT void instantiate() BOOST_USED;
-    enum { x = sizeof(instantiate(),3) };
 # else
     static BOOST_DLLEXPORT void instantiate() BOOST_USED;
     typedef instantiate_function<
@@ -98,21 +93,15 @@ struct ptr_serialization_support
 };
 
 template <class Archive, class Serializable>
-BOOST_DLLEXPORT void 
+BOOST_DLLEXPORT void
 ptr_serialization_support<Archive,Serializable>::instantiate()
 {
     export_impl<Archive,Serializable>::enable_save(
-        #if ! defined(__BORLANDC__)
-        typename 
-        #endif
-        Archive::is_saving()
+        typename Archive::is_saving()
     );
 
     export_impl<Archive,Serializable>::enable_load(
-        #if ! defined(__BORLANDC__)
-        typename 
-        #endif
-        Archive::is_loading()
+        typename Archive::is_loading()
     );
 }
 
@@ -210,7 +199,7 @@ namespace {                                                                    \
 
 # define BOOST_SERIALIZATION_MWERKS_BASE_AND_DERIVED(Base,Derived)
 
-#endif 
+#endif
 
 // check for unnecessary export.  T isn't polymorphic so there is no
 // need to export it.

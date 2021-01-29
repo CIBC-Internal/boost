@@ -9,8 +9,8 @@
 
 // Implement quadruple-precision I/O stream operations.
 
-#ifndef _BOOST_CSTDFLOAT_IOSTREAM_2014_02_15_HPP_
-  #define _BOOST_CSTDFLOAT_IOSTREAM_2014_02_15_HPP_
+#ifndef BOOST_MATH_CSTDFLOAT_IOSTREAM_2014_02_15_HPP_
+  #define BOOST_MATH_CSTDFLOAT_IOSTREAM_2014_02_15_HPP_
 
   #include <boost/math/cstdfloat/cstdfloat_types.hpp>
   #include <boost/math/cstdfloat/cstdfloat_limits.hpp>
@@ -97,15 +97,18 @@
 
         char* my_buffer2 = static_cast<char*>(0U);
 
+#ifndef BOOST_NO_EXCEPTIONS
         try
         {
+#endif
           my_buffer2 = new char[v + 3];
+#ifndef BOOST_NO_EXCEPTIONS
         }
         catch(const std::bad_alloc&)
         {
           BOOST_THROW_EXCEPTION(std::runtime_error("Formatting of boost::float128_t failed while allocating memory."));
         }
-
+#endif
         const int v2 = ::quadmath_snprintf(my_buffer2,
                                             v + 3,
                                             my_format_string,
@@ -768,4 +771,4 @@
 
   #endif // Not BOOST_CSTDFLOAT_NO_LIBQUADMATH_SUPPORT (i.e., the user would like to have libquadmath support)
 
-#endif // _BOOST_CSTDFLOAT_IOSTREAM_2014_02_15_HPP_
+#endif // BOOST_MATH_CSTDFLOAT_IOSTREAM_2014_02_15_HPP_

@@ -4,8 +4,8 @@
 //  @date   Aug 14, 2011
 //  @author Andrew Hundt <ATHundt@gmail.com>
 //
-//  (C) 2011-2013 Andrew Hundt <ATHundt@gmail.com>
-//  (C) 2013-2013 Ion Gaztanaga
+//  (C) Copyright 2011-2013 Andrew Hundt <ATHundt@gmail.com>
+//  (C) Copyright 2013-2013 Ion Gaztanaga
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -14,23 +14,28 @@
 //  @brief  varray_benchmark.cpp compares the performance of boost::container::varray to boost::container::vector
 
 #include "varray.hpp"
-#include "boost/container/vector.hpp"
-#include "boost/container/static_vector.hpp"
+#include <boost/container/vector.hpp>
+#include <boost/container/static_vector.hpp>
+#include <boost/core/no_exceptions_support.hpp>
+
 #include "../test/movable_int.hpp"
 #include <vector>
 #include <iostream>
-#include <boost/timer/timer.hpp>
+#include <boost/move/detail/nsec_clock.hpp>
 #include <algorithm>
 #include <exception>
+#include <iomanip>
 
-using boost::timer::cpu_timer;
-using boost::timer::cpu_times;
-using boost::timer::nanosecond_type;
+using boost::move_detail::cpu_timer;
+using boost::move_detail::cpu_times;
+using boost::move_detail::nanosecond_type;
+
+static const std::size_t N = 500;
 
 #ifdef NDEBUG
-static const std::size_t N = 300;
+static const std::size_t Iter = 50;
 #else
-static const std::size_t N = 100;
+static const std::size_t Iter = 5;
 #endif
 
 //#define BENCH_SIMPLE_CONSTRUCTION
@@ -79,8 +84,7 @@ cpu_times time_it()
    sortTime.stop();rotateTime.stop();destructionTime.stop();
    cpu_timer totalTime, constructTime;
    std::srand (0);
-   for(std::size_t i = 0; i< N; ++i){
-
+   for(std::size_t i = 0; i< Iter; ++i){
      constructTime.resume();
      {
       T &v = generate<T>();
@@ -97,49 +101,44 @@ cpu_times time_it()
      destructionTime.stop();
    }
    totalTime.stop();
-   std::cout << "  construction took " << boost::timer::format(constructTime.elapsed());
-   std::cout << "  sort took       " << boost::timer::format(sortTime.elapsed());
-   std::cout << "  rotate took      " << boost::timer::format(rotateTime.elapsed());
-   std::cout << "  destruction took  " << boost::timer::format(destructionTime.elapsed());
-   std::cout << "  Total time =     " << boost::timer::format(totalTime.elapsed()) << std::endl;
+   std::cout << std::fixed << std::setw( 11 );
+   std::cout << "  construction took " << double(constructTime.elapsed().wall)/double(1000000000) << "s\n";
+   std::cout << "  sort took         " << double(sortTime.elapsed().wall)/double(1000000000) << "s\n";
+   std::cout << "  rotate took       " << double(rotateTime.elapsed().wall)/double(1000000000) << "s\n";
+   std::cout << "  destruction took  " << double(destructionTime.elapsed().wall)/double(1000000000) << "s\n";
+   std::cout << "  Total time =      " << double(totalTime.elapsed().wall)/double(1000000000) << "s\n";
    return totalTime.elapsed();
 }
 
 void compare_times(cpu_times time_numerator, cpu_times time_denominator){
    std::cout
-   << "\n  wall        = " << ((double)time_numerator.wall/(double)time_denominator.wall)
-   << "\n  user        = " << ((double)time_numerator.user/(double)time_denominator.user)
-   << "\n  system      = " << ((double)time_numerator.system/(double)time_denominator.system)
-   << "\n  (user+system) = " << ((double)(time_numerator.system+time_numerator.user)/(double)(time_denominator.system+time_denominator.user)) << "\n\n";
+   << "\n  wall       = " << ((double)time_numerator.wall/(double)time_denominator.wall) << "\n\n";
 }
 
 int main()
 {
-   try {
-      std::cout << "N = " << N << "\n\n";
+   std::cout << "N = " << N << " Iter = " << Iter << "\n\n";
 
-      std::cout << "varray benchmark:" << std::endl;
-      cpu_times time_varray = time_it<boost::container::varray<boost::container::varray<basic_type_t,N>,N > >();
+   std::cout << "varray benchmark:" << std::endl;
+   cpu_times time_varray = time_it<boost::container::varray<boost::container::varray<basic_type_t,N>,N > >();
 
-      std::cout << "boost::container::static_vector benchmark" << std::endl;
-      cpu_times time_boost_static_vector = time_it<boost::container::static_vector<boost::container::static_vector<basic_type_t,N>,N > >();
+   std::cout << "boost::container::static_vector benchmark" << std::endl;
+   cpu_times time_boost_static_vector = time_it<boost::container::static_vector<boost::container::static_vector<basic_type_t,N>,N > >();
 
-      std::cout << "boost::container::vector benchmark"  << std::endl;
-      cpu_times time_boost_vector = time_it<boost::container::vector<boost::container::vector<basic_type_t> > >();
+   std::cout << "boost::container::vector benchmark"  << std::endl;
+   cpu_times time_boost_vector = time_it<boost::container::vector<boost::container::vector<basic_type_t> > >();
 
-      std::cout << "std::vector benchmark" << std::endl;
-      cpu_times time_standard_vector = time_it<std::vector<std::vector<basic_type_t> > >();
+   std::cout << "std::vector benchmark" << std::endl;
+   cpu_times time_standard_vector = time_it<std::vector<std::vector<basic_type_t> > >();
 
-      std::cout << "varray/boost::container::vector total time comparison:";
-      compare_times(time_varray, time_boost_vector);
+   std::cout << "varray/boost::container::vector total time comparison:";
+   compare_times(time_varray, time_boost_vector);
 
-      std::cout << "varray/boost::container::static_vector total time comparison:";
-      compare_times(time_varray, time_boost_static_vector);
+   std::cout << "varray/boost::container::static_vector total time comparison:";
+   compare_times(time_varray, time_boost_static_vector);
 
-      std::cout << "varray/std::vector total time comparison:";
-      compare_times(time_varray,time_standard_vector);
-   }catch(std::exception e){
-      std::cout << e.what();
-   }
+   std::cout << "varray/std::vector total time comparison:";
+   compare_times(time_varray,time_standard_vector);
+
    return 0;
 }

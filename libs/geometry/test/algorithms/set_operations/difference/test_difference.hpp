@@ -1,7 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2016, 2017, 2019.
+// Modifications copyright (c) 2016-2019, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -13,6 +19,10 @@
 #include <iomanip>
 
 #include <geometry_test_common.hpp>
+#include <count_set.hpp>
+#include <expectation_limits.hpp>
+#include <algorithms/check_validity.hpp>
+#include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
@@ -24,15 +34,18 @@
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/remove_spikes.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
 
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -47,6 +60,29 @@
 #endif
 
 
+struct ut_settings : ut_base_settings
+{
+    double percentage;
+    bool sym_difference;
+    bool remove_spikes;
+
+    explicit ut_settings(double p = 0.0001, bool tv = true, bool sd = true)
+        : ut_base_settings(tv)
+        , percentage(p)
+        , sym_difference(sd)
+        , remove_spikes(false)
+    {}
+
+};
+
+inline ut_settings tolerance(double percentage)
+{
+    ut_settings result;
+    result.percentage = percentage;
+    return result;
+}
+
+
 template <typename Output, typename G1, typename G2>
 void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Output const& output)
 {
@@ -57,12 +93,21 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
         typedef typename bg::coordinate_type<G1>::type coordinate_type;
         typedef typename bg::point_type<G1>::type point_type;
 
+        bool const ccw =
+            bg::point_order<G1>::value == bg::counterclockwise
+            || bg::point_order<G2>::value == bg::counterclockwise;
+        bool const open =
+            bg::closure<G1>::value == bg::open
+            || bg::closure<G2>::value == bg::open;
+
         std::ostringstream filename;
         filename << "difference_"
             << caseid << "_"
             << string_from_type<coordinate_type>::name()
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            << "_no_rob"
+            << (ccw ? "_ccw" : "")
+            << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
 #endif
             << ".svg";
 
@@ -88,77 +133,110 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
 }
 
 template <typename OutputType, typename G1, typename G2>
-void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
-        int expected_count, int expected_point_count,
-        double expected_area,
-        double percentage = 0.0001,
-        bool sym = false)
+std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
+        const count_set& expected_count,
+        int expected_rings_count, int expected_point_count,
+        expectation_limits const& expected_area,
+        bool sym,
+        ut_settings const& settings)
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     boost::ignore_unused<coordinate_type>();
 
-    std::vector<OutputType> clip;
+    bg::model::multi_polygon<OutputType> result;
+
 
     if (sym)
     {
-        bg::sym_difference(g1, g2, clip);
+        bg::sym_difference(g1, g2, result);
     }
     else
     {
-        bg::difference(g1, g2, clip);
+        bg::difference(g1, g2, result);
     }
 
-    typename bg::default_area_result<G1>::type area = 0;
-    std::size_t n = 0;
-    for (typename std::vector<OutputType>::iterator it = clip.begin();
-            it != clip.end();
-            ++it)
+    if (settings.remove_spikes)
     {
-        if (expected_point_count >= 0)
+        bg::remove_spikes(result);
+    }
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    {
+        bg::model::multi_polygon<OutputType> result_s;
+        typedef typename bg::strategy::relate::services::default_strategy
+            <
+                G1, G2
+            >::type strategy_type;
+        if (sym)
         {
-            n += bg::num_points(*it);
+            bg::sym_difference(g1, g2, result_s, strategy_type());
+        }
+        else
+        {
+            bg::difference(g1, g2, result_s, strategy_type());
         }
 
-        area += bg::area(*it);
+        if (settings.remove_spikes)
+        {
+            bg::remove_spikes(result_s);
+        }
+        BOOST_CHECK_EQUAL(bg::num_points(result), bg::num_points(result_s));
     }
+#endif
 
-    difference_output(caseid, g1, g2, clip);
 
-#ifndef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+    std::ostringstream return_string;
+    return_string << bg::wkt(result);
+
+    typename bg::default_area_result<G1>::type const area = bg::area(result);
+
+#if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+    if (settings.test_validity())
+    {
+        // std::cout << bg::dsv(result) << std::endl;
+        typedef bg::model::multi_polygon<OutputType> result_type;
+        std::string message;
+        bool const valid = check_validity<result_type>::apply(result, caseid, g1, g2, message);
+        BOOST_CHECK_MESSAGE(valid,
+            "difference: " << caseid << " not valid " << message
+            << " type: " << (type_for_assert_message<G1, G2>()));
+    }
+#endif
+
+    difference_output(caseid, g1, g2, result);
+
+#if ! (defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) \
+    || defined(BOOST_GEOMETRY_DEBUG_ASSEMBLE))
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
-        typedef typename bg::point_type<G1>::type point_type;
-        typedef typename bg::rescale_policy_type<point_type>::type
-            rescale_policy_type;
-
-        rescale_policy_type rescale_policy
-                = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
-
-        std::vector<OutputType> inserted, array_with_one_empty_geometry;
+        typename setop_output_type<OutputType>::type
+            inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
         if (sym)
         {
             boost::copy(array_with_one_empty_geometry,
                 bg::detail::sym_difference::sym_difference_insert<OutputType>
-                    (g1, g2, rescale_policy, std::back_inserter(inserted)));
+                    (g1, g2, std::back_inserter(inserted)));
         }
         else
         {
             boost::copy(array_with_one_empty_geometry,
                 bg::detail::difference::difference_insert<OutputType>(
-                    g1, g2, rescale_policy, std::back_inserter(inserted)));
+                    g1, g2, std::back_inserter(inserted)));
         }
 
-        BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
+        BOOST_CHECK_EQUAL(boost::size(result), boost::size(inserted) - 1);
     }
 #endif
 
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     if (expected_point_count >= 0)
     {
+        std::size_t const n = bg::num_points(result);
         BOOST_CHECK_MESSAGE(bg::math::abs(int(n) - expected_point_count) < 3,
                 "difference: " << caseid
                 << " #points expected: " << expected_point_count
@@ -166,23 +244,51 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
+#endif
 
-    if (expected_count >= 0)
+    if (! expected_count.empty())
     {
-        BOOST_CHECK_MESSAGE(int(clip.size()) == expected_count,
+        BOOST_CHECK_MESSAGE(expected_count.has(boost::size(result)),
+                            "difference: " << caseid
+                            << " #outputs expected: " << expected_count
+                            << " detected: " << result.size()
+                            << " type: " << (type_for_assert_message<G1, G2>())
+                            );
+    }
+
+    if (expected_rings_count >= 0)
+    {
+        int nrings = int(boost::size(result) + bg::num_interior_rings(result));
+        BOOST_CHECK_MESSAGE(nrings == expected_rings_count,
                 "difference: " << caseid
-                << " #outputs expected: " << expected_count
-                << " detected: " << clip.size()
+                << " #rings expected: " << expected_rings_count
+                << " detected: " << nrings
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
 
-    BOOST_CHECK_CLOSE(area, expected_area, percentage);
+    BOOST_CHECK_MESSAGE(expected_area.contains(area, settings.percentage),
+            "difference: " << caseid << std::setprecision(20)
+            << " #area expected: " << expected_area
+            << " detected: " << area
+            << " type: " << (type_for_assert_message<G1, G2>())
+            );
 #endif
 
-
+    return return_string.str();
 }
 
+template <typename OutputType, typename G1, typename G2>
+std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
+        const count_set&  expected_count, int expected_point_count,
+        expectation_limits const& expected_area,
+        bool sym,
+        ut_settings const& settings)
+{
+    return test_difference<OutputType>(caseid, g1, g2,
+        expected_count, -1, expected_point_count, expected_area,
+        sym, settings);
+}
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
 static int counter = 0;
@@ -190,31 +296,22 @@ static int counter = 0;
 
 
 template <typename OutputType, typename G1, typename G2>
-void test_one(std::string const& caseid,
+std::string test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        int expected_count1,
+        const count_set& expected_count1,
+        int expected_rings_count1,
         int expected_point_count1,
-        double expected_area1,
-
-        int expected_count2,
+        expectation_limits const& expected_area1,
+        const count_set& expected_count2,
+        int expected_rings_count2,
         int expected_point_count2,
-        double expected_area2,
-
-        double percentage = 0.0001)
+        expectation_limits const& expected_area2,
+        const count_set&  expected_count_s,
+        int expected_rings_count_s,
+        int expected_point_count_s,
+        expectation_limits const& expected_area_s,
+        ut_settings const& settings = ut_settings())
 {
-#ifdef BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
-    std::cout
-        << "-- " << caseid << std::endl
-        << "with qu as (" << std::endl
-        << "select geometry::STGeomFromText('" << wkt1 << "',0) as p," << std::endl
-        << "geometry::STGeomFromText('" << wkt2 << "',0) as q)" << std::endl
-        << "select " << std::endl
-        << " p.STDifference(q).STNumGeometries() as cnt1,p.STDifference(q).STNumPoints() as pcnt1,p.STDifference(q).STArea() as area1," << std::endl
-        << " q.STDifference(p).STNumGeometries() as cnt2,q.STDifference(p).STNumPoints() as pcnt2,q.STDifference(p).STArea() as area2," << std::endl
-        << " p.STDifference(q) as d1,q.STDifference(p) as d2 from qu" << std::endl << std::endl;
-#endif
-
-
     G1 g1;
     bg::read_wkt(wkt1, g1);
 
@@ -224,55 +321,96 @@ void test_one(std::string const& caseid,
     bg::correct(g1);
     bg::correct(g2);
 
-    test_difference<OutputType>(caseid + "_a", g1, g2,
-        expected_count1, expected_point_count1,
-        expected_area1, percentage);
+    std::string result = test_difference<OutputType>(caseid + "_a", g1, g2,
+        expected_count1, expected_rings_count1, expected_point_count1,
+        expected_area1, false, settings);
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-    return;
+    return result;
 #endif
+
     test_difference<OutputType>(caseid + "_b", g2, g1,
-        expected_count2, expected_point_count2,
-        expected_area2, percentage);
-    test_difference<OutputType>(caseid + "_s", g1, g2,
+        expected_count2, expected_rings_count2, expected_point_count2,
+        expected_area2, false, settings);
+
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_SYMDIFFERENCE)
+    if (settings.sym_difference)
+#endif
+    {
+        test_difference<OutputType>(caseid + "_s", g1, g2,
+            expected_count_s,
+            expected_rings_count_s,
+            expected_point_count_s,
+            expected_area_s,
+            true, settings);
+    }
+    return result;
+}
+
+template <typename OutputType, typename G1, typename G2>
+std::string test_one(std::string const& caseid,
+        std::string const& wkt1, std::string const& wkt2,
+        const count_set&  expected_count1,
+        int expected_rings_count1,
+        int expected_point_count1,
+        expectation_limits const& expected_area1,
+        const count_set&  expected_count2,
+        int expected_rings_count2,
+        int expected_point_count2,
+        expectation_limits const& expected_area2,
+        ut_settings const& settings = ut_settings())
+{
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+        expected_count1, expected_rings_count1, expected_point_count1, expected_area1,
+        expected_count2, expected_rings_count2, expected_point_count2, expected_area2,
+        expected_count1 + expected_count2,
+        expected_rings_count1 + expected_rings_count2,
+        expected_point_count1 >= 0 && expected_point_count2 >= 0
+            ? (expected_point_count1 + expected_point_count2) : -1,
+        expected_area1 + expected_area2,
+        settings);
+}
+
+template <typename OutputType, typename G1, typename G2>
+std::string test_one(std::string const& caseid,
+        std::string const& wkt1, std::string const& wkt2,
+        const count_set&  expected_count1,
+        int expected_point_count1,
+        expectation_limits const& expected_area1,
+        const count_set&  expected_count2,
+        int expected_point_count2,
+        expectation_limits const& expected_area2,
+        const count_set&  expected_count_s,
+        int expected_point_count_s,
+        expectation_limits const& expected_area_s,
+        ut_settings const& settings = ut_settings())
+{
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+        expected_count1, -1, expected_point_count1, expected_area1,
+        expected_count2, -1, expected_point_count2, expected_area2,
+        expected_count_s, -1, expected_point_count_s, expected_area_s,
+        settings);
+}
+
+template <typename OutputType, typename G1, typename G2>
+std::string test_one(std::string const& caseid,
+        std::string const& wkt1, std::string const& wkt2,
+        const count_set&  expected_count1,
+        int expected_point_count1,
+        expectation_limits const& expected_area1,
+        const count_set&  expected_count2,
+        int expected_point_count2,
+        expectation_limits const& expected_area2,
+        ut_settings const& settings = ut_settings())
+{
+    return test_one<OutputType, G1, G2>(caseid, wkt1, wkt2,
+        expected_count1, expected_point_count1, expected_area1,
+        expected_count2, expected_point_count2, expected_area2,
         expected_count1 + expected_count2,
         expected_point_count1 >= 0 && expected_point_count2 >= 0
             ? (expected_point_count1 + expected_point_count2) : -1,
         expected_area1 + expected_area2,
-        percentage, true);
-
-
-#ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
-    std::cout
-        << (counter > 0 ? "union " : "")
-        << "select " << counter++
-        << ", '" << caseid << "' as caseid"
-        << ", ST_NumPoints(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_NumGeometries(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_Area(ST_Difference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        //<< ", " << expected_area1 << " as expected_area_a"
-        //<< ", " << expected_count1 << " as expected_count_a"
-        << ", ST_NumPoints(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) "
-        << ", ST_NumGeometries(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) "
-        << ", ST_Area(ST_Difference(ST_GeomFromText('" << wkt2 << "'), "
-        << "      ST_GeomFromText('" << wkt1 << "'))) "
-        //<< ", " << expected_area2 << " as expected_area_b"
-        //<< ", " << expected_count2 << " as expected_count_b"
-        << ", ST_NumPoints(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_NumGeometries(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        << ", ST_Area(ST_SymDifference(ST_GeomFromText('" << wkt1 << "'), "
-        << "      ST_GeomFromText('" << wkt2 << "'))) "
-        //<< ", " << expected_area1 + expected_area2 << " as expected_area_s"
-        //<< ", " << expected_count1 + expected_count2 << " as expected_count_s"
-        << std::endl;
-#endif
-
+        settings);
 }
 
 template <typename OutputType, typename G1, typename G2>
@@ -289,14 +427,16 @@ void test_one_lp(std::string const& caseid,
     bg::read_wkt(wkt2, g2);
 
     bg::correct(g1);
+    bg::correct(g2);
 
-    std::vector<OutputType> pieces;
+    typedef typename setop_output_type<OutputType>::type result_type;
+    result_type pieces;
     bg::difference(g1, g2, pieces);
 
     typename bg::default_length_result<G1>::type length = 0;
     std::size_t n = 0;
     std::size_t piece_count = 0;
-    for (typename std::vector<OutputType>::iterator it = pieces.begin();
+    for (typename result_type::iterator it = pieces.begin();
             it != pieces.end();
             ++it)
     {
@@ -316,7 +456,12 @@ void test_one_lp(std::string const& caseid,
 
     if (expected_point_count >= 0)
     {
-        BOOST_CHECK_EQUAL(n, std::size_t(expected_point_count));
+        BOOST_CHECK_MESSAGE(n == std::size_t(expected_point_count),
+                "difference: " << caseid
+                << " #points expected: " << std::size_t(expected_point_count)
+                << " detected: " << n
+                << " type: " << (type_for_assert_message<G1, G2>())
+                );
     }
 
     BOOST_CHECK_CLOSE(length, expected_length, 0.001);
@@ -324,7 +469,6 @@ void test_one_lp(std::string const& caseid,
     std::string lp = "lp_";
     difference_output(lp + caseid, g1, g2, pieces);
 }
-
 
 
 #endif

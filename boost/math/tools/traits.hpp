@@ -26,8 +26,7 @@ as defined above, and has member functions "scale" and "location".
 #endif
 
 #include <boost/mpl/has_xxx.hpp>
-// should be the last #include
-#include <boost/type_traits/detail/bool_trait_def.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 
 namespace boost{ namespace math{ namespace tools{
 
@@ -35,6 +34,7 @@ namespace detail{
 
 BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_value_type, value_type, true)
 BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_policy_type, policy_type, true)
+BOOST_MPL_HAS_XXX_TRAIT_NAMED_DEF(has_backend_type, backend_type, true)
 
 template<class D>
 char cdf(const D& ...);
@@ -101,8 +101,8 @@ struct is_scaled_distribution_imp
 
 } // namespace detail
 
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_distribution,T,::boost::math::tools::detail::is_distribution_imp<T>::value)
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(is_scaled_distribution,T,::boost::math::tools::detail::is_scaled_distribution_imp<T>::value)
+template <class T> struct is_distribution : public boost::integral_constant<bool, ::boost::math::tools::detail::is_distribution_imp<T>::value> {};
+template <class T> struct is_scaled_distribution : public boost::integral_constant<bool, ::boost::math::tools::detail::is_scaled_distribution_imp<T>::value> {};
 
 }}}
 

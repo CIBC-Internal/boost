@@ -16,7 +16,7 @@
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/weibull.hpp>
     using boost::math::weibull_distribution;
@@ -70,7 +70,7 @@ void test_spots(RealType)
    // using the online calculator at 
    // http://espse.ed.psu.edu/edpsych/faculty/rhale/hale/507Mat/statlets/free/pdist.htm
    //
-   // Tolerance is just over 5 decimal digits expressed as a persentage:
+   // Tolerance is just over 5 decimal digits expressed as a percentage:
    // that's the limit of the test data.
    RealType tolerance = 2e-5f * 100;  
    cout << "Tolerance for type " << typeid(RealType).name()  << " is " << tolerance << " %" << endl;
@@ -301,11 +301,11 @@ void test_spots(RealType)
     skewness(dist), 
     (boost::math::tgamma(1 + 3/dist.shape()) * pow(dist.scale(), RealType(3)) - 3 * mean(dist) * variance(dist) - pow(mean(dist), RealType(3))) / pow(standard_deviation(dist), RealType(3)), 
     tolerance * 100);
-   // kertosis:
+   // kurtosis:
    BOOST_CHECK_CLOSE(
     kurtosis(dist)
     , kurtosis_excess(dist) + 3, tolerance);
-   // kertosis excess:
+   // kurtosis excess:
    BOOST_CHECK_CLOSE(
     kurtosis_excess(dist), 
     (pow(dist.scale(), RealType(4)) * boost::math::tgamma(1 + 4/dist.shape()) 
@@ -314,6 +314,11 @@ void test_spots(RealType)
          - 6 * variance(dist) * mean(dist) * mean(dist) 
          - pow(mean(dist), RealType(4))) / (variance(dist) * variance(dist)), 
     tolerance * 1000);
+
+   RealType expected_entropy = boost::math::constants::euler<RealType>()*(1-1/dist.shape()) + log(dist.scale()/dist.shape()) + 1;
+   BOOST_CHECK_CLOSE(
+    entropy(dist)
+    , expected_entropy, tolerance);
 
    //
    // Special cases:
@@ -328,21 +333,21 @@ void test_spots(RealType)
    //
    // Error checks:
    //
-   BOOST_CHECK_THROW(weibull_distribution<RealType>(1, -1), std::domain_error);
-   BOOST_CHECK_THROW(weibull_distribution<RealType>(-1, 1), std::domain_error);
-   BOOST_CHECK_THROW(weibull_distribution<RealType>(1, 0), std::domain_error);
-   BOOST_CHECK_THROW(weibull_distribution<RealType>(0, 1), std::domain_error);
-   BOOST_CHECK_THROW(pdf(dist, -1), std::domain_error);
-   BOOST_CHECK_THROW(cdf(dist, -1), std::domain_error);
-   BOOST_CHECK_THROW(cdf(complement(dist, -1)), std::domain_error);
-   BOOST_CHECK_THROW(quantile(dist, 1), std::overflow_error);
-   BOOST_CHECK_THROW(quantile(complement(dist, 0)), std::overflow_error);
-   BOOST_CHECK_THROW(quantile(dist, -1), std::domain_error);
-   BOOST_CHECK_THROW(quantile(complement(dist, -1)), std::domain_error);
+   BOOST_MATH_CHECK_THROW(weibull_distribution<RealType>(1, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(weibull_distribution<RealType>(-1, 1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(weibull_distribution<RealType>(1, 0), std::domain_error);
+   BOOST_MATH_CHECK_THROW(weibull_distribution<RealType>(0, 1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(pdf(dist, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(cdf(dist, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(cdf(complement(dist, -1)), std::domain_error);
+   BOOST_MATH_CHECK_THROW(quantile(dist, 1), std::overflow_error);
+   BOOST_MATH_CHECK_THROW(quantile(complement(dist, 0)), std::overflow_error);
+   BOOST_MATH_CHECK_THROW(quantile(dist, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(quantile(complement(dist, -1)), std::domain_error);
 
    BOOST_CHECK_EQUAL(pdf(dist, 0), exp(-pow(RealType(0) / RealType(3), RealType(2))) * pow(RealType(0), RealType(1)) * RealType(2) / RealType(3));
    BOOST_CHECK_EQUAL(pdf(weibull_distribution<RealType>(1, 3), 0), exp(-pow(RealType(0) / RealType(3), RealType(1))) * pow(RealType(0), RealType(0)) * RealType(1) / RealType(3));
-   BOOST_CHECK_THROW(pdf(weibull_distribution<RealType>(0.5, 3), 0), std::overflow_error);
+   BOOST_MATH_CHECK_THROW(pdf(weibull_distribution<RealType>(0.5, 3), 0), std::overflow_error);
 
    check_out_of_range<weibull_distribution<RealType> >(1, 1);
 } // template <class RealType>void test_spots(RealType)
@@ -361,14 +366,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x0582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    

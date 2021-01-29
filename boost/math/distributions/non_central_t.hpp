@@ -53,7 +53,7 @@ namespace boost
             if(pois == 0)
                return init_val;
             T xterm, beta;
-            // Recurrance & starting beta terms:
+            // Recurrence & starting beta terms:
             beta = x < y
                ? detail::ibeta_imp(T(k + 1), T(v / 2), x, pol, false, true, &xterm)
                : detail::ibeta_imp(T(v / 2), T(k + 1), y, pol, true, true, &xterm);
@@ -90,7 +90,7 @@ namespace boost
                betaf -= xtermf;
                T term = poisf * betaf;
                sum += term;
-               if((fabs(last_term) > fabs(term)) && (fabs(term/sum) < errtol))
+               if((fabs(last_term) >= fabs(term)) && (fabs(term/sum) < errtol))
                   break;
                last_term = term;
                ++count;
@@ -358,7 +358,7 @@ namespace boost
                s = boost::math::sign(pzero - q);
             if(s != boost::math::sign(guess))
             {
-               guess = s;
+               guess = static_cast<T>(s);
             }
 
             value_type result = detail::generic_quantile(

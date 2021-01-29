@@ -7,6 +7,12 @@
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2018-2020.
+// Modifications copyright (c) 2018-2020, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -16,25 +22,24 @@
 
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/type_traits.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-
+#include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
 
@@ -87,12 +92,13 @@ struct assign_inverse_box_or_segment
         typedef typename coordinate_type<point_type>::type bound_type;
 
         initialize<0, 0, dimension<BoxOrSegment>::type::value>::apply(
-            geometry, boost::numeric::bounds<bound_type>::highest()
+            geometry, geometry::bounds<bound_type>::highest()
         );
         initialize<1, 0, dimension<BoxOrSegment>::type::value>::apply(
-            geometry, boost::numeric::bounds<bound_type>::lowest()
+            geometry, geometry::bounds<bound_type>::lowest()
         );
     }
+
 };
 
 
@@ -248,11 +254,9 @@ namespace dispatch
 template <typename GeometryTag, typename Geometry, std::size_t DimensionCount>
 struct assign
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for this Geometry type.",
+        GeometryTag, Geometry, std::integral_constant<std::size_t, DimensionCount>);
 };
 
 template <typename Point>

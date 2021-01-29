@@ -1,5 +1,5 @@
 /*
-Copyright Rene Rivera 2011-2013
+Copyright Rene Rivera 2011-2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at
 http://www.boost.org/LICENSE_1_0.txt)
@@ -13,19 +13,20 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
 
-/*`
-[heading `BOOST_LIB_STD_CXX`]
+/* tag::reference[]
+= `BOOST_LIB_STD_CXX`
 
-[@http://libcxx.llvm.org/ libc++] C++ Standard Library.
+http://libcxx.llvm.org/[libc++] {CPP} Standard Library.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`_LIBCPP_VERSION`] [__predef_detection__]]
+| `+_LIBCPP_VERSION+` | {predef_detection}
 
-    [[`_LIBCPP_VERSION`] [V.0.P]]
-    ]
- */
+| `+_LIBCPP_VERSION+` | V.0.P
+|===
+*/ // end::reference[]
 
 #define BOOST_LIB_STD_CXX BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
@@ -40,8 +41,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_LIB_STD_CXX_NAME "libc++"
 
+#endif
+
 #include <boost/predef/detail/test.h>
 BOOST_PREDEF_DECLARE_TEST(BOOST_LIB_STD_CXX,BOOST_LIB_STD_CXX_NAME)
-
-
-#endif

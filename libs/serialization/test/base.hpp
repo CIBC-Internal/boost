@@ -9,28 +9,28 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // base.hpp    simple class test
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
+#include <boost/config.hpp>
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/preprocessor/facilities/empty.hpp>
 
-#include "test_decl.hpp"
-
 #if defined(BASE_IMPORT)
-    #define DLL_DECL IMPORT_DECL
+    #define DLL_DECL BOOST_SYMBOL_IMPORT
 #elif defined(BASE_EXPORT)
-    #define DLL_DECL EXPORT_DECL
+    #define DLL_DECL BOOST_SYMBOL_EXPORT
 #else
-    #define DLL_DECL(x)
+    #define DLL_DECL
 #endif
 
-class DLL_DECL(BOOST_PP_EMPTY()) base
+class DLL_DECL base
 {
     friend class boost::serialization::access;
     template<class Archive>

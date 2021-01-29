@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -17,22 +21,20 @@
 
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/range.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/type_traits/remove_reference.hpp>
-
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/for_each.hpp>
-#include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
@@ -153,7 +155,23 @@ struct range_to_range
             geometry::closure<Range1>::value
         >::type view_type;
 
+    struct default_policy
+    {
+        template <typename Point1, typename Point2>
+        static inline void apply(Point1 const& point1, Point2 & point2)
+        {
+            geometry::detail::conversion::convert_point_to_point(point1, point2);
+        }
+    };
+    
     static inline void apply(Range1 const& source, Range2& destination)
+    {
+        apply(source, destination, default_policy());
+    }
+
+    template <typename ConvertPointPolicy>
+    static inline ConvertPointPolicy apply(Range1 const& source, Range2& destination,
+                                           ConvertPointPolicy convert_point)
     {
         geometry::clear(destination);
 
@@ -179,8 +197,12 @@ struct range_to_range
             it != boost::end(view) && i < n;
             ++it, ++i)
         {
-            geometry::append(destination, *it);
+            typename boost::range_value<Range2>::type point;
+            convert_point.apply(*it, point);
+            range::push_back(destination, point);
         }
+
+        return convert_point;
     }
 };
 
@@ -205,7 +227,7 @@ struct polygon_to_polygon
         // Container should be resizeable
         traits::resize
             <
-                typename boost::remove_reference
+                typename std::remove_reference
                 <
                     typename traits::interior_mutable_type<Polygon2>::type
                 >::type
@@ -274,10 +296,15 @@ template
     typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
     typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
     std::size_t DimensionCount = dimension<Geometry1>::type::value,
-    bool UseAssignment = boost::is_same<Geometry1, Geometry2>::value
-                         && !boost::is_array<Geometry1>::value
+    bool UseAssignment = std::is_same<Geometry1, Geometry2>::value
+                         && !std::is_array<Geometry1>::value
 >
-struct convert: not_implemented<Tag1, Tag2, boost::mpl::int_<DimensionCount> >
+struct convert
+    : not_implemented
+        <
+            Tag1, Tag2,
+            std::integral_constant<std::size_t, DimensionCount>
+        >
 {};
 
 
@@ -435,7 +462,7 @@ struct convert<Polygon, Ring, polygon_tag, ring_tag, DimensionCount, false>
 
 // Dispatch for multi <-> multi, specifying their single-version as policy.
 // Note that, even if the multi-types are mutually different, their single
-// version types might be the same and therefore we call boost::is_same again
+// version types might be the same and therefore we call std::is_same again
 
 template <typename Multi1, typename Multi2, std::size_t DimensionCount>
 struct convert<Multi1, Multi2, multi_tag, multi_tag, DimensionCount, false>
@@ -494,7 +521,7 @@ struct convert
 {
     static inline void apply(Geometry1 const& geometry1, Geometry2& geometry2)
     {
-        concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2>();
+        concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2>();
         dispatch::convert<Geometry1, Geometry2>::apply(geometry1, geometry2);
     }
 };
@@ -522,7 +549,7 @@ struct convert<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
         Geometry2& geometry2
     )
     {
-        apply_visitor(visitor(geometry2), geometry1);
+        boost::apply_visitor(visitor(geometry2), geometry1);
     }
 };
 

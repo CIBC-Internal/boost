@@ -15,10 +15,11 @@
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #include <boost/math/distributions/rayleigh.hpp>
     using boost::math::rayleigh_distribution;
+#include <boost/math/tools/test.hpp>
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include "test_out_of_range.hpp"
 
 #include <iostream>
@@ -89,32 +90,32 @@ void test_spots(RealType T)
    rayleigh_distribution<RealType> dist(0.5);
 
    check_out_of_range<rayleigh_distribution<RealType> >(1);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(dist,
        RealType(1.)), // quantile unity should overflow.
        std::overflow_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(complement(dist,
        RealType(0.))), // quantile complement zero should overflow.
        std::overflow_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        pdf(dist, RealType(-1)), // Bad negative x.
        std::domain_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        cdf(dist, RealType(-1)), // Bad negative x.
        std::domain_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        cdf(rayleigh_distribution<RealType>(-1), // bad sigma < 0
        RealType(1)),
        std::domain_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        cdf(rayleigh_distribution<RealType>(0), // bad sigma == 0
        RealType(1)),
        std::domain_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(dist, RealType(-1)), // negative quantile probability.
        std::domain_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(dist, RealType(2)), // > unity  quantile probability.
        std::domain_error);
 
@@ -212,6 +213,13 @@ void test_spots(RealType T)
       ::boost::math::kurtosis_excess(rayleigh_distribution<RealType>(2)),
       ::boost::math::kurtosis(rayleigh_distribution<RealType>(2)) -3,
          tolerance* 100); // %
+
+
+   RealType expected_entropy = 1 + log(boost::math::constants::root_two<RealType>()) + boost::math::constants::euler<RealType>()/2;
+   BOOST_CHECK_CLOSE(
+      ::boost::math::entropy(rayleigh_distribution<RealType>(2)),
+      expected_entropy,
+         tolerance* 100);
    return;
 
 } // template <class RealType>void test_spots(RealType)
@@ -301,14 +309,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    

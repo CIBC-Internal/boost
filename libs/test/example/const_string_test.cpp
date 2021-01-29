@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2001-2005.
+//  (C) Copyright Gennadiy Rozental 2001-2014.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( constructors_test )
     BOOST_CHECK_EQUAL( std::strcmp( cs2.data(), "test_string" ), 0 );
 
     const_string cs3( cs1 );
-    BOOST_CHECK_EQUAL( std::strcmp( cs1.data(), "test_string" ), 0 );
+    BOOST_CHECK_EQUAL( std::strcmp( cs3.data(), "test_string" ), 0 );
 
     const_string cs4( "test_string", 4 );
     BOOST_CHECK_EQUAL( std::strncmp( cs4.data(), "test", cs4.length() ), 0 );
@@ -67,8 +67,6 @@ BOOST_AUTO_TEST_CASE( data_access_test )
     BOOST_CHECK_EQUAL( cs1[(size_t)0], cs1.at( 0 ) );
     BOOST_CHECK_EQUAL( cs1[(size_t)2], cs1.at( 5 ) );
     BOOST_CHECK_EQUAL( cs1.at( cs1.length() - 1 ), 'g' );
-
-    BOOST_CHECK_THROW( cs1.at( cs1.length() ), std::out_of_range );
 
     BOOST_CHECK_EQUAL( common_layer::first_char()( cs1  ), 't' );
     BOOST_CHECK_EQUAL( common_layer::last_char()( cs1  ) , 'g' );

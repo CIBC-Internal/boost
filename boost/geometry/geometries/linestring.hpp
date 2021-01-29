@@ -5,6 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -19,18 +22,15 @@
 #include <vector>
 
 #include <boost/concept/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
-#include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
-#endif
 #endif
 
 namespace boost { namespace geometry
@@ -46,6 +46,7 @@ namespace model
 \tparam Container \tparam_container
 \tparam Allocator \tparam_allocator
 
+\qbk{[include reference/geometries/linestring.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_linestring Linestring Concept]
@@ -60,7 +61,7 @@ template
 >
 class linestring : public Container<Point, Allocator<Point> >
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
     typedef Container<Point, Allocator<Point> > base_type;
 
@@ -76,7 +77,6 @@ public :
         : base_type(begin, end)
     {}
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{linestring}
@@ -97,7 +97,6 @@ public :
 //    }
 //#endif
 
-#endif
 #endif
 };
 

@@ -8,10 +8,6 @@
 #if !defined(BOOST_SPIRIT_X3_PRINT_ATTRIBUTE_JANUARY_20_2013_0814AM)
 #define BOOST_SPIRIT_X3_PRINT_ATTRIBUTE_JANUARY_20_2013_0814AM
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #include <boost/variant.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/fusion/include/is_sequence.hpp>
@@ -71,9 +67,8 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     template <typename Out, typename T, typename Enable = void>
     struct print_attribute_debug
     {
-        // for plain data types
-        template <typename T_>
-        static void call(Out& out, T_ const& val, unused_attribute)
+        // for unused_type
+        static void call(Out& out, unused_type, unused_attribute)
         {
             out << "unused";
         }

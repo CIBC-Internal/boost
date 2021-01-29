@@ -35,6 +35,11 @@ main()
         BOOST_TEST(test("x", char_('a', 'z')));
         BOOST_TEST(!test("x", char_('0', '9')));
 
+        BOOST_TEST(test("0", char_('0', '9')));
+        BOOST_TEST(test("9", char_('0', '9')));
+        BOOST_TEST(!test("0", ~char_('0', '9')));
+        BOOST_TEST(!test("9", ~char_('0', '9')));
+
         BOOST_TEST(!test("x", ~char_));
         BOOST_TEST(!test("x", ~char_('x')));
         BOOST_TEST(test(" ", ~char_('x')));
@@ -102,7 +107,7 @@ main()
         BOOST_TEST(test(L"x", wide::char_(L"x")));
 
         BOOST_TEST(test("x", ascii::char_("a", "z")));
-        BOOST_TEST(test(L"x", ascii::char_(L"a", L"z")));
+        BOOST_TEST(test(L"x", wide::char_(L"a", L"z")));
     }
 
     {
@@ -152,6 +157,18 @@ main()
         print_info(what('x'));
         print_info(what(char_('a','z')));
         print_info(what(alpha));
+    }
+
+    {
+        namespace ascii = boost::spirit::qi::ascii;
+        char const* input = "\x80";
+
+        // ascii > 7 bits (this should fail, not assert!)
+        BOOST_TEST(!test(input, ascii::char_));
+        BOOST_TEST(!test(input, ascii::char_('a')));
+        BOOST_TEST(!test(input, ascii::alnum));
+        BOOST_TEST(!test(input, ascii::char_("a-z")));
+        BOOST_TEST(!test(input, ascii::char_('0', '9')));
     }
 
     return boost::report_errors();

@@ -3,6 +3,11 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -41,18 +46,11 @@
 template <typename Geometry>
 inline void test_assemble(std::string const& id, Geometry const& p, Geometry const& q, char operation = 'i')
 {
-    typedef typename bg::point_type<Geometry>::type point_type;
-    typedef typename bg::rescale_policy_type<point_type>::type
-        rescale_policy_type;
-    rescale_policy_type rescale_policy
-        = bg::get_rescale_policy<rescale_policy_type>(p, q);
-
-
     std::vector<Geometry> u, i, d1, d2;
     bg::detail::union_::union_insert<Geometry>(p, q, std::back_inserter(u));
     bg::detail::intersection::intersection_insert<Geometry>(p, q, std::back_inserter(i));
-    bg::detail::difference::difference_insert<Geometry>(p, q, rescale_policy, std::back_inserter(d1));
-    bg::detail::difference::difference_insert<Geometry>(q, p, rescale_policy, std::back_inserter(d2));
+    bg::detail::difference::difference_insert<Geometry>(p, q, std::back_inserter(d1));
+    bg::detail::difference::difference_insert<Geometry>(q, p, std::back_inserter(d2));
 
     if (operation == 'i')
     {
@@ -83,9 +81,9 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
         type diff_d1 = (area_u - area_q) - area_d1;
         type diff_d2 = (area_u - area_p) - area_d2;
 
-        bool ok = abs(diff) < 0.001
-            && abs(diff_d1) < 0.001
-            && abs(diff_d2) < 0.001;
+        bool ok = bg::math::abs(diff) < 0.001
+            && bg::math::abs(diff_d1) < 0.001
+            && bg::math::abs(diff_d2) < 0.001;
 
         BOOST_CHECK_MESSAGE(ok,
             id << " diff:  "

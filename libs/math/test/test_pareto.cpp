@@ -23,10 +23,11 @@
 #  pragma warning(disable: 4100) // unreferenced formal parameter.
 #endif
 
+#include <boost/math/tools/test.hpp> // for real_concept
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/pareto.hpp>
     using boost::math::pareto_distribution;
@@ -223,10 +224,10 @@ void test_spots(RealType)
     // skewness:
     BOOST_CHECK_CLOSE_FRACTION(
        skewness(pareto15), static_cast<RealType>(4.6475800154489004L), tol5eps);
-    // kertosis:
+    // kurtosis:
     BOOST_CHECK_CLOSE_FRACTION(
        kurtosis(pareto15), static_cast<RealType>(73.8L), tol5eps);
-    // kertosis excess:
+    // kurtosis excess:
     BOOST_CHECK_CLOSE_FRACTION(
        kurtosis_excess(pareto15), static_cast<RealType>(70.8L), tol5eps);
     // Check difference between kurtosis and excess:
@@ -234,18 +235,22 @@ void test_spots(RealType)
       kurtosis_excess(pareto15), kurtosis(pareto15) - static_cast<RealType>(3L), tol5eps);
     // Check kurtosis excess = kurtosis - 3;
 
+    RealType expected_entropy = 1 + RealType(1)/RealType(5) + log(RealType(1)/RealType(5));
+    BOOST_CHECK_CLOSE_FRACTION(
+      entropy(pareto15), expected_entropy, tol5eps);
+
     // Error condition checks:
     check_out_of_range<pareto_distribution<RealType> >(1, 1);
-    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(0, 1), 0), std::domain_error);
-    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(1, 0), 0), std::domain_error);
-    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(-1, 1), 0), std::domain_error);
-    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(1, -1), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(pareto_distribution<RealType>(0, 1), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(pareto_distribution<RealType>(1, 0), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(pareto_distribution<RealType>(-1, 1), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(pareto_distribution<RealType>(1, -1), 0), std::domain_error);
 
-    BOOST_CHECK_THROW(pdf(pareto_distribution<RealType>(1, 1), 0), std::domain_error);
-    BOOST_CHECK_THROW(cdf(pareto_distribution<RealType>(1, 1), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(pdf(pareto_distribution<RealType>(1, 1), 0), std::domain_error);
+    BOOST_MATH_CHECK_THROW(cdf(pareto_distribution<RealType>(1, 1), 0), std::domain_error);
 
-    BOOST_CHECK_THROW(quantile(pareto_distribution<RealType>(1, 1), -1), std::domain_error);
-    BOOST_CHECK_THROW(quantile(pareto_distribution<RealType>(1, 1), 2), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(pareto_distribution<RealType>(1, 1), -1), std::domain_error);
+    BOOST_MATH_CHECK_THROW(quantile(pareto_distribution<RealType>(1, 1), 2), std::domain_error);
 } // template <class RealType>void test_spots(RealType)
 
 BOOST_AUTO_TEST_CASE( test_main )
@@ -272,61 +277,74 @@ BOOST_AUTO_TEST_CASE( test_main )
   BOOST_CHECK_EQUAL(support(myp2).second, (numeric_limits<double>::max)());
 
   // Check some bad parameters to the distribution.
-   BOOST_CHECK_THROW(boost::math::pareto mypm1(-1, 1), std::domain_error); // Using typedef
-   BOOST_CHECK_THROW(boost::math::pareto myp0(0, 1), std::domain_error); // Using typedef
-   BOOST_CHECK_THROW(boost::math::pareto myp1m1(1, -1), std::domain_error); // Using typedef
-   BOOST_CHECK_THROW(boost::math::pareto myp10(1, 0), std::domain_error); // Using typedef
+#ifndef BOOST_NO_EXCEPTIONS
+   BOOST_MATH_CHECK_THROW(boost::math::pareto mypm1(-1, 1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto myp0(0, 1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto myp1m1(1, -1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto myp10(1, 0), std::domain_error); // Using typedef
+#else
+   BOOST_MATH_CHECK_THROW(boost::math::pareto(-1, 1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto(0, 1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto(1, -1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto(1, 0), std::domain_error); // Using typedef
+#endif
 
   // Check some moments that should fail because shape not big enough.
-  BOOST_CHECK_THROW(variance(myp2), std::domain_error);
-  BOOST_CHECK_THROW(standard_deviation(myp2), std::domain_error);
-  BOOST_CHECK_THROW(skewness(myp2), std::domain_error);
-  BOOST_CHECK_THROW(kurtosis(myp2), std::domain_error);
-  BOOST_CHECK_THROW(kurtosis_excess(myp2), std::domain_error);
+  BOOST_MATH_CHECK_THROW(variance(myp2), std::domain_error);
+  BOOST_MATH_CHECK_THROW(standard_deviation(myp2), std::domain_error);
+  BOOST_MATH_CHECK_THROW(skewness(myp2), std::domain_error);
+  BOOST_MATH_CHECK_THROW(kurtosis(myp2), std::domain_error);
+  BOOST_MATH_CHECK_THROW(kurtosis_excess(myp2), std::domain_error);
 
   // Test on extreme values of distribution parameters,
   // using just double because it has numeric_limit infinity etc.
-   BOOST_CHECK_THROW(boost::math::pareto mypinf1(+std::numeric_limits<double>::infinity(), 1), std::domain_error); // Using typedef
-   BOOST_CHECK_THROW(boost::math::pareto myp1inf(1, +std::numeric_limits<double>::infinity()), std::domain_error); // Using typedef
-   BOOST_CHECK_THROW(boost::math::pareto mypinf1(+std::numeric_limits<double>::infinity(), +std::numeric_limits<double>::infinity()), std::domain_error); // Using typedef
+#ifndef BOOST_NO_EXCEPTIONS
+  BOOST_MATH_CHECK_THROW(boost::math::pareto mypinf1(+std::numeric_limits<double>::infinity(), 1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto myp1inf(1, +std::numeric_limits<double>::infinity()), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto mypinf1(+std::numeric_limits<double>::infinity(), +std::numeric_limits<double>::infinity()), std::domain_error); // Using typedef
+#else
+  BOOST_MATH_CHECK_THROW(boost::math::pareto(+std::numeric_limits<double>::infinity(), 1), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto(1, +std::numeric_limits<double>::infinity()), std::domain_error); // Using typedef
+   BOOST_MATH_CHECK_THROW(boost::math::pareto(+std::numeric_limits<double>::infinity(), +std::numeric_limits<double>::infinity()), std::domain_error); // Using typedef
+#endif
 
   // Test on extreme values of random variate x, using just double because it has numeric_limit infinity etc..
   // No longer allow x to be + or - infinity, then these tests should throw.
-  BOOST_CHECK_THROW(pdf(pareto11, +std::numeric_limits<double>::infinity()), std::domain_error); // x = + infinity
-  BOOST_CHECK_THROW(pdf(pareto11, -std::numeric_limits<double>::infinity()), std::domain_error); // x = - infinity
-  BOOST_CHECK_THROW(cdf(pareto11, +std::numeric_limits<double>::infinity()), std::domain_error); // x = + infinity
-  BOOST_CHECK_THROW(cdf(pareto11, -std::numeric_limits<double>::infinity()), std::domain_error); // x = - infinity
+  BOOST_MATH_CHECK_THROW(pdf(pareto11, +std::numeric_limits<double>::infinity()), std::domain_error); // x = + infinity
+  BOOST_MATH_CHECK_THROW(pdf(pareto11, -std::numeric_limits<double>::infinity()), std::domain_error); // x = - infinity
+  BOOST_MATH_CHECK_THROW(cdf(pareto11, +std::numeric_limits<double>::infinity()), std::domain_error); // x = + infinity
+  BOOST_MATH_CHECK_THROW(cdf(pareto11, -std::numeric_limits<double>::infinity()), std::domain_error); // x = - infinity
 
   BOOST_CHECK_EQUAL(pdf(pareto11, 0.5), 0); // x < scale but > 0
   BOOST_CHECK_EQUAL(pdf(pareto11, (std::numeric_limits<double>::min)()), 0); // x almost zero but > 0
   BOOST_CHECK_EQUAL(pdf(pareto11, 1), 1); // x == scale, result == shape == 1
   BOOST_CHECK_EQUAL(pdf(pareto11, +(std::numeric_limits<double>::max)()), 0); // x = +max, pdf has fallen to zero.
 
-  BOOST_CHECK_THROW(pdf(pareto11, 0), std::domain_error); // x == 0
-  BOOST_CHECK_THROW(pdf(pareto11, -1), std::domain_error); // x = -1
-  BOOST_CHECK_THROW(pdf(pareto11, -(std::numeric_limits<double>::max)()), std::domain_error); // x = - max
-  BOOST_CHECK_THROW(pdf(pareto11, -(std::numeric_limits<double>::min)()), std::domain_error); // x = - min
+  BOOST_MATH_CHECK_THROW(pdf(pareto11, 0), std::domain_error); // x == 0
+  BOOST_MATH_CHECK_THROW(pdf(pareto11, -1), std::domain_error); // x = -1
+  BOOST_MATH_CHECK_THROW(pdf(pareto11, -(std::numeric_limits<double>::max)()), std::domain_error); // x = - max
+  BOOST_MATH_CHECK_THROW(pdf(pareto11, -(std::numeric_limits<double>::min)()), std::domain_error); // x = - min
 
   BOOST_CHECK_EQUAL(cdf(pareto11, 1), 0); // x == scale, cdf = zero.
   BOOST_CHECK_EQUAL(cdf(pareto11, +(std::numeric_limits<double>::max)()), 1); // x = + max, cdf = unity.
 
-  BOOST_CHECK_THROW(cdf(pareto11, 0), std::domain_error); // x == 0
-  BOOST_CHECK_THROW(cdf(pareto11, -(std::numeric_limits<double>::min)()), std::domain_error); // x = - min,
-  BOOST_CHECK_THROW(cdf(pareto11, -(std::numeric_limits<double>::max)()), std::domain_error); // x = - max,
+  BOOST_MATH_CHECK_THROW(cdf(pareto11, 0), std::domain_error); // x == 0
+  BOOST_MATH_CHECK_THROW(cdf(pareto11, -(std::numeric_limits<double>::min)()), std::domain_error); // x = - min,
+  BOOST_MATH_CHECK_THROW(cdf(pareto11, -(std::numeric_limits<double>::max)()), std::domain_error); // x = - max,
 
    // (Parameter value, arbitrarily zero, only communicates the floating point type).
   test_spots(0.0F); // Test float. OK at decdigits = 0 tol5eps = 0.0001 %
   test_spots(0.0); // Test double. OK at decdigits 7, tol5eps = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x0582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    

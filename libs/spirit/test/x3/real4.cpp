@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2001-2011 Hartmut Kaiser
     Copyright (c) 2011      Bryce Lelbach
 
@@ -25,8 +25,10 @@ main()
         using boost::spirit::x3::real_policies;
         using boost::spirit::x3::parse;
 
-        real_parser<real_concept, real_policies<real_concept> > custom_real;
+        constexpr real_parser<real_concept, real_policies<real_concept> > custom_real;
         real_concept d;
+
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(custom_real);
 
         BOOST_TEST(test("-1234", custom_real));
         BOOST_TEST(test_attr("-1234", custom_real, d) && compare(d, -1234));

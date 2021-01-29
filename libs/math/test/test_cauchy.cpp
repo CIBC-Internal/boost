@@ -18,7 +18,7 @@
 
 // #define BOOST_MATH_ASSERT_UNDEFINED_POLICY false 
 // To compile even if Cauchy mean is used.
-
+#include <boost/math/tools/test.hpp>
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #include <boost/math/distributions/cauchy.hpp>
     using boost::math::cauchy_distribution;
@@ -27,7 +27,7 @@
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <iostream>
    using std::cout;
@@ -37,9 +37,13 @@ template <class RealType>
 void test_spots(RealType T)
 {
   // Check some bad parameters to construct the distribution,
-  BOOST_CHECK_THROW(boost::math::cauchy_distribution<RealType> nbad1(0, 0), std::domain_error); // zero scale.
-  BOOST_CHECK_THROW(boost::math::cauchy_distribution<RealType> nbad1(0, -1), std::domain_error); // negative scale (shape).
-
+#ifndef BOOST_NO_EXCEPTIONS
+  BOOST_MATH_CHECK_THROW(boost::math::cauchy_distribution<RealType> nbad1(0, 0), std::domain_error); // zero scale.
+  BOOST_MATH_CHECK_THROW(boost::math::cauchy_distribution<RealType> nbad1(0, -1), std::domain_error); // negative scale (shape).
+#else
+  BOOST_MATH_CHECK_THROW(boost::math::cauchy_distribution<RealType>(0, 0), std::domain_error); // zero scale.
+  BOOST_MATH_CHECK_THROW(boost::math::cauchy_distribution<RealType>(0, -1), std::domain_error); // negative scale (shape).
+#endif
   cauchy_distribution<RealType> C01;
 
   BOOST_CHECK_EQUAL(C01.location(), 0); // Check standard values.
@@ -652,41 +656,46 @@ void test_spots(RealType T)
    BOOST_CHECK_EQUAL(
        median(dist),
        static_cast<RealType>(0));
+   RealType expected_entropy = log(2*boost::math::constants::two_pi<RealType>());
+   BOOST_CHECK_CLOSE(
+       entropy(dist),
+       expected_entropy, tolerance);
+
    //
    // Things that now don't compile (BOOST-STATIC_ASSERT_FAILURE) by default.
    // #define BOOST_MATH_ASSERT_UNDEFINED_POLICY false 
    // To compile even if Cauchy mean is used.
    // See policy reference, mathematically undefined function policies
    //
-   //BOOST_CHECK_THROW(
+   //BOOST_MATH_CHECK_THROW(
    //    mean(dist),
    //    std::domain_error);
-   //BOOST_CHECK_THROW(
+   //BOOST_MATH_CHECK_THROW(
    //    variance(dist),
    //    std::domain_error);
-   //BOOST_CHECK_THROW(
+   //BOOST_MATH_CHECK_THROW(
    //    standard_deviation(dist),
    //    std::domain_error);
-   //BOOST_CHECK_THROW(
+   //BOOST_MATH_CHECK_THROW(
    //    kurtosis(dist),
    //    std::domain_error);
-   //BOOST_CHECK_THROW(
+   //BOOST_MATH_CHECK_THROW(
    //    kurtosis_excess(dist),
    //    std::domain_error);
-   //BOOST_CHECK_THROW(
+   //BOOST_MATH_CHECK_THROW(
    //    skewness(dist),
    //    std::domain_error);
 
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(dist, RealType(0.0)),
        std::overflow_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(dist, RealType(1.0)),
        std::overflow_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(complement(dist, RealType(0.0))),
        std::overflow_error);
-   BOOST_CHECK_THROW(
+   BOOST_MATH_CHECK_THROW(
        quantile(complement(dist, RealType(1.0))),
        std::overflow_error);
 
@@ -712,14 +721,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
 } // BOOST_AUTO_TEST_CASE( test_main )

@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ip::udp::endpoint</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../ip__udp.html" title="ip::udp">
 <link rel="prev" href="../ip__udp.html" title="ip::udp">
@@ -27,10 +27,10 @@
 <a name="boost_asio.reference.ip__udp.endpoint"></a><a class="link" href="endpoint.html" title="ip::udp::endpoint">ip::udp::endpoint</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp150308752"></a> 
+          <a class="indexterm" name="boost_asio.indexterm.ip__udp.endpoint"></a> 
 The type of a UDP endpoint.
         </p>
-<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">basic_endpoint</span><span class="special">&lt;</span> <span class="identifier">udp</span> <span class="special">&gt;</span> <span class="identifier">endpoint</span><span class="special">;</span>
+<pre class="programlisting">typedef basic_endpoint&lt; udp &gt; endpoint;
 </pre>
 <h6>
 <a name="boost_asio.reference.ip__udp.endpoint.h0"></a>
@@ -112,9 +112,7 @@ The type of a UDP endpoint.
                 </td>
 <td>
                   <p>
-                    Get the IP address associated with the endpoint.
-                  </p>
-                  <p>
+                    Get the IP address associated with the endpoint. <br> <span class="silver"> —</span><br>
                     Set the IP address associated with the endpoint.
                   </p>
                 </td>
@@ -122,26 +120,20 @@ The type of a UDP endpoint.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_endpoint/basic_endpoint.html" title="ip::basic_endpoint::basic_endpoint"><span class="bold"><strong>basic_endpoint</strong></span></a>
+                    <a class="link" href="../ip__basic_endpoint/basic_endpoint.html" title="ip::basic_endpoint::basic_endpoint"><span class="bold"><strong>basic_endpoint</strong></span></a> <span class="silver">[constructor]</span>
                   </p>
                 </td>
 <td>
                   <p>
-                    Default constructor.
-                  </p>
-                  <p>
-                    Construct an endpoint using a port number, specified in the host's
-                    byte order. The IP address will be the any address (i.e. INADDR_ANY
-                    or in6addr_any). This constructor would typically be used for
-                    accepting new connections.
-                  </p>
-                  <p>
-                    Construct an endpoint using a port number and an IP address.
-                    This constructor may be used for accepting connections on a specific
-                    interface or for making a connection to a remote endpoint.
-                  </p>
-                  <p>
-                    Copy constructor.
+                    Default constructor. <br> <span class="silver"> —</span><br> Construct an endpoint using
+                    a port number, specified in the host's byte order. The IP address
+                    will be the any address (i.e. INADDR_ANY or in6addr_any). This
+                    constructor would typically be used for accepting new connections.
+                    <br> <span class="silver"> —</span><br> Construct an endpoint using a port number and an
+                    IP address. This constructor may be used for accepting connections
+                    on a specific interface or for making a connection to a remote
+                    endpoint. <br> <span class="silver"> —</span><br> Copy constructor. <br> <span class="silver"> —</span><br> Move
+                    constructor.
                   </p>
                 </td>
 </tr>
@@ -177,7 +169,8 @@ The type of a UDP endpoint.
                 </td>
 <td>
                   <p>
-                    Assign from another endpoint.
+                    Assign from another endpoint. <br> <span class="silver"> —</span><br> Move-assign from
+                    another endpoint.
                   </p>
                 </td>
 </tr>
@@ -190,11 +183,9 @@ The type of a UDP endpoint.
 <td>
                   <p>
                     Get the port associated with the endpoint. The port number is
-                    always in the host's byte order.
-                  </p>
-                  <p>
-                    Set the port associated with the endpoint. The port number is
-                    always in the host's byte order.
+                    always in the host's byte order. <br> <span class="silver"> —</span><br> Set the port associated
+                    with the endpoint. The port number is always in the host's byte
+                    order.
                   </p>
                 </td>
 </tr>
@@ -368,8 +359,9 @@ The type of a UDP endpoint.
 </tr></tbody>
 </table></div>
 <p>
-          The <a class="link" href="../ip__basic_endpoint.html" title="ip::basic_endpoint"><code class="computeroutput"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">basic_endpoint</span></code></a> class template
-          describes an endpoint that may be associated with a particular socket.
+          The <a class="link" href="../ip__basic_endpoint.html" title="ip::basic_endpoint"><code class="computeroutput">ip::basic_endpoint</code></a>
+          class template describes an endpoint that may be associated with a particular
+          socket.
         </p>
 <h6>
 <a name="boost_asio.reference.ip__udp.endpoint.h4"></a>
@@ -394,7 +386,7 @@ The type of a UDP endpoint.
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

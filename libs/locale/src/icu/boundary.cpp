@@ -8,6 +8,7 @@
 #define BOOST_LOCALE_SOURCE
 #include <boost/locale/boundary.hpp>
 #include <boost/locale/generator.hpp>
+#include <boost/locale/hold_ptr.hpp>
 #include <unicode/uversion.h>
 #if U_ICU_VERSION_MAJOR_NUM*100 + U_ICU_VERSION_MINOR_NUM >= 306
 #include <unicode/utext.h>
@@ -31,7 +32,11 @@ index_type map_direct(boundary_type t,icu::BreakIterator *it,int reserve)
 {
     index_type indx;
     indx.reserve(reserve);
+#if U_ICU_VERSION_MAJOR_NUM >= 52
+    icu::BreakIterator *rbbi=it;
+#else
     icu::RuleBasedBreakIterator *rbbi=dynamic_cast<icu::RuleBasedBreakIterator *>(it);
+#endif
     
     indx.push_back(break_info());
     it->first();
@@ -99,10 +104,10 @@ index_type map_direct(boundary_type t,icu::BreakIterator *it,int reserve)
     return indx;
 }
 
-std::auto_ptr<icu::BreakIterator> get_iterator(boundary_type t,icu::Locale const &loc)
+icu::BreakIterator *get_iterator(boundary_type t,icu::Locale const &loc)
 {
     UErrorCode err=U_ZERO_ERROR;
-    std::auto_ptr<icu::BreakIterator> bi;
+    hold_ptr<icu::BreakIterator> bi;
     switch(t) {
     case character:
         bi.reset(icu::BreakIterator::createCharacterInstance(loc,err));
@@ -122,7 +127,7 @@ std::auto_ptr<icu::BreakIterator> get_iterator(boundary_type t,icu::Locale const
     check_and_throw_icu_error(err);
     if(!bi.get())
         throw std::runtime_error("Failed to create break iterator");
-    return bi;
+    return bi.release();
 }
 
 
@@ -130,7 +135,7 @@ template<typename CharType>
 index_type do_map(boundary_type t,CharType const *begin,CharType const *end,icu::Locale const &loc,std::string const &encoding)
 {
     index_type indx;
-    std::auto_ptr<icu::BreakIterator> bi(get_iterator(t,loc));
+    hold_ptr<icu::BreakIterator> bi(get_iterator(t,loc));
    
 #if U_ICU_VERSION_MAJOR_NUM*100 + U_ICU_VERSION_MINOR_NUM >= 306
     UErrorCode err=U_ZERO_ERROR;
@@ -207,11 +212,11 @@ namespace impl_icu {
             return std::locale(in,new boundary_indexing_impl<char>(cd));
         case wchar_t_facet:
             return std::locale(in,new boundary_indexing_impl<wchar_t>(cd));
-        #ifdef BOOST_HAS_CHAR16_T
+        #ifdef BOOST_LOCALE_ENABLE_CHAR16_T
         case char16_t_facet:
             return std::locale(in,new boundary_indexing_impl<char16_t>(cd));
         #endif
-        #ifdef BOOST_HAS_CHAR32_T
+        #ifdef BOOST_LOCALE_ENABLE_CHAR32_T
         case char32_t_facet:
             return std::locale(in,new boundary_indexing_impl<char32_t>(cd));
         #endif

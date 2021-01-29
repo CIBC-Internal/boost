@@ -7,10 +7,10 @@
 // See http://www.boost.org/libs/interprocess for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/intermodule_singleton.hpp>
 #include <boost/interprocess/detail/portable_intermodule_singleton.hpp>
 #include <iostream>
+#include <cstdlib> //for std::abort
 
 using namespace boost::interprocess;
 
@@ -184,7 +184,8 @@ class LogPhoenixTester
             sstr << "Logger<Tag>::constructed_times != Logger<Tag>::destroyed_times\n";
             sstr << "(" << Logger<Tag>::constructed_times << " vs. " << Logger<Tag>::destroyed_times << ")\n";
          }
-         throw std::runtime_error(sstr.str().c_str());
+         std::cout << "~LogPhoenixTester(), error: " << sstr.str() << std::endl;
+         std::abort();
       }
    }
 };
@@ -214,7 +215,8 @@ class LogDeadReferenceUser
          LogSingleton::get().log_it();
          std::string s("LogDeadReferenceUser failed for LogSingleton ");
          s += typeid(LogSingleton).name();
-         throw std::runtime_error(s.c_str());
+         std::cout << "~LogDeadReferenceUser(), error: " << s << std::endl;
+         std::abort();
       }
       catch(interprocess_exception &){
          //Correct behaviour
@@ -323,5 +325,3 @@ int main ()
 
    return 0;
 }
-
-#include <boost/interprocess/detail/config_end.hpp>

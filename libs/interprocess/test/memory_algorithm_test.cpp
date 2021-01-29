@@ -8,7 +8,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/mem_algo/simple_seq_fit.hpp>
 #include <boost/interprocess/mem_algo/rbtree_best_fit.hpp>
@@ -69,7 +68,7 @@ int test_rbtree_best_fit()
 
 int main ()
 {
-   const std::size_t void_ptr_align = ::boost::container::container_detail::alignment_of<offset_ptr<void> >::value;
+   const std::size_t void_ptr_align = ::boost::container::dtl::alignment_of<offset_ptr<void> >::value;
 
    if(test_simple_seq_fit()){
       return 1;
@@ -87,5 +86,3 @@ int main ()
    shared_memory_object::remove(shMemName);
    return 0;
 }
-
-#include <boost/interprocess/detail/config_end.hpp>

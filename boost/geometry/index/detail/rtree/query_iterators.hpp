@@ -4,6 +4,10 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -20,7 +24,7 @@ namespace boost { namespace geometry { namespace index { namespace detail { name
 template <typename Value, typename Allocators>
 struct end_query_iterator
 {
-    typedef std::input_iterator_tag iterator_category;
+    typedef std::forward_iterator_tag iterator_category;
     typedef Value value_type;
     typedef typename Allocators::const_reference reference;
     typedef typename Allocators::difference_type difference_type;
@@ -58,25 +62,32 @@ struct end_query_iterator
     }
 };
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates>
+template <typename MembersHolder, typename Predicates>
 class spatial_query_iterator
 {
-    typedef visitors::spatial_query_incremental<Value, Options, Translator, Box, Allocators, Predicates> visitor_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::translator_type translator_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
+
+    typedef visitors::spatial_query_incremental<MembersHolder, Predicates> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
 public:
-    typedef std::input_iterator_tag iterator_category;
-    typedef Value value_type;
-    typedef typename Allocators::const_reference reference;
-    typedef typename Allocators::difference_type difference_type;
-    typedef typename Allocators::const_pointer pointer;
+    typedef std::forward_iterator_tag iterator_category;
+    typedef typename MembersHolder::value_type value_type;
+    typedef typename allocators_type::const_reference reference;
+    typedef typename allocators_type::difference_type difference_type;
+    typedef typename allocators_type::const_pointer pointer;
 
-    inline spatial_query_iterator(Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
+    inline spatial_query_iterator()
     {}
 
-    inline spatial_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
+    inline spatial_query_iterator(parameters_type const& par, translator_type const& t, Predicates const& p)
+        : m_visitor(par, t, p)
+    {}
+
+    inline spatial_query_iterator(node_pointer root, parameters_type const& par, translator_type const& t, Predicates const& p)
+        : m_visitor(par, t, p)
     {
         m_visitor.initialize(root);
     }
@@ -109,12 +120,12 @@ public:
         return l.m_visitor == r.m_visitor;
     }
 
-    friend bool operator==(spatial_query_iterator const& l, end_query_iterator<Value, Allocators> const& /*r*/)
+    friend bool operator==(spatial_query_iterator const& l, end_query_iterator<value_type, allocators_type> const& /*r*/)
     {
         return l.m_visitor.is_end();
     }
 
-    friend bool operator==(end_query_iterator<Value, Allocators> const& /*l*/, spatial_query_iterator const& r)
+    friend bool operator==(end_query_iterator<value_type, allocators_type> const& /*l*/, spatial_query_iterator const& r)
     {
         return r.m_visitor.is_end();
     }
@@ -123,25 +134,32 @@ private:
     visitor_type m_visitor;
 };
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, unsigned NearestPredicateIndex>
+template <typename MembersHolder, typename Predicates, unsigned NearestPredicateIndex>
 class distance_query_iterator
 {
-    typedef visitors::distance_query_incremental<Value, Options, Translator, Box, Allocators, Predicates, NearestPredicateIndex> visitor_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::translator_type translator_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
+
+    typedef visitors::distance_query_incremental<MembersHolder, Predicates, NearestPredicateIndex> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
 public:
-    typedef std::input_iterator_tag iterator_category;
-    typedef Value value_type;
-    typedef typename Allocators::const_reference reference;
-    typedef typename Allocators::difference_type difference_type;
-    typedef typename Allocators::const_pointer pointer;
+    typedef std::forward_iterator_tag iterator_category;
+    typedef typename MembersHolder::value_type value_type;
+    typedef typename allocators_type::const_reference reference;
+    typedef typename allocators_type::difference_type difference_type;
+    typedef typename allocators_type::const_pointer pointer;
 
-    inline distance_query_iterator(Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
+    inline distance_query_iterator()
     {}
 
-    inline distance_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
+    inline distance_query_iterator(parameters_type const& par, translator_type const& t, Predicates const& p)
+        : m_visitor(par, t, p)
+    {}
+
+    inline distance_query_iterator(node_pointer root, parameters_type const& par, translator_type const& t, Predicates const& p)
+        : m_visitor(par, t, p)
     {
         m_visitor.initialize(root);
     }
@@ -174,12 +192,12 @@ public:
         return l.m_visitor == r.m_visitor;
     }
 
-    friend bool operator==(distance_query_iterator const& l, end_query_iterator<Value, Allocators> const& /*r*/)
+    friend bool operator==(distance_query_iterator const& l, end_query_iterator<value_type, allocators_type> const& /*r*/)
     {
         return l.m_visitor.is_end();
     }
 
-    friend bool operator==(end_query_iterator<Value, Allocators> const& /*l*/, distance_query_iterator const& r)
+    friend bool operator==(end_query_iterator<value_type, allocators_type> const& /*l*/, distance_query_iterator const& r)
     {
         return r.m_visitor.is_end();
     }
@@ -188,22 +206,19 @@ private:
     visitor_type m_visitor;
 };
 
+
 template <typename L, typename R>
 inline bool operator!=(L const& l, R const& r)
 {
     return !(l == r);
 }
 
-}}}}}} // namespace boost::geometry::index::detail::rtree::iterators
-
-
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
 template <typename Value, typename Allocators>
 class query_iterator_base
 {
 public:
-    typedef std::input_iterator_tag iterator_category;
+    typedef std::forward_iterator_tag iterator_category;
     typedef Value value_type;
     typedef typename Allocators::const_reference reference;
     typedef typename Allocators::difference_type difference_type;
@@ -226,12 +241,13 @@ class query_iterator_wrapper
     typedef query_iterator_base<Value, Allocators> base_t;
 
 public:
-    typedef std::input_iterator_tag iterator_category;
+    typedef std::forward_iterator_tag iterator_category;
     typedef Value value_type;
     typedef typename Allocators::const_reference reference;
     typedef typename Allocators::difference_type difference_type;
     typedef typename Allocators::const_pointer pointer;
 
+    query_iterator_wrapper() : m_iterator() {}
     explicit query_iterator_wrapper(Iterator const& it) : m_iterator(it) {}
 
     virtual base_t * clone() const { return new query_iterator_wrapper(m_iterator); }
@@ -258,13 +274,14 @@ class query_iterator
     typedef boost::scoped_ptr<iterator_base> iterator_ptr;
 
 public:
-    typedef std::input_iterator_tag iterator_category;
+    typedef std::forward_iterator_tag iterator_category;
     typedef Value value_type;
     typedef typename Allocators::const_reference reference;
     typedef typename Allocators::difference_type difference_type;
     typedef typename Allocators::const_pointer pointer;
 
-    query_iterator() {}
+    query_iterator()
+    {}
 
     template <typename It>
     query_iterator(It const& it)

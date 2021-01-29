@@ -4,9 +4,9 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-//#define KARMA_FAIL_COMPILATION
-
 #include "real.hpp"
+
+#include <boost/phoenix/core/value.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 int main()

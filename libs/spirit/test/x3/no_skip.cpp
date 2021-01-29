@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2013 Agustin Berge
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -21,6 +21,8 @@ main()
     using boost::spirit::x3::ascii::char_;
     using boost::spirit::x3::lexeme;
     using boost::spirit::x3::no_skip;
+
+    BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(no_skip['x']);
 
     // without skipping no_skip is equivalent to lexeme
     {

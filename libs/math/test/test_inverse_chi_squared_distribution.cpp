@@ -14,13 +14,14 @@
 
 // http://www.wolframalpha.com/input/?i=inverse+chisquare+distribution
 
+#include <boost/math/tools/test.hpp>
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 using ::boost::math::concepts::real_concept;
 
 //#include <boost/math/tools/test.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // for test_main
-#include <boost/test/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE_FRACTION
+#include <boost/test/tools/floating_point_comparison.hpp> // for BOOST_CHECK_CLOSE_FRACTION
 #include "test_out_of_range.hpp"
 
 #include <boost/math/distributions/inverse_chi_squared.hpp> // for inverse_chisquared_distribution
@@ -141,33 +142,45 @@ void test_spots(RealType)
   );
   
   // Check some bad parameters to the distribution cause expected exception to be thrown.
-  BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad1(-1), std::domain_error); // negative degrees_of_freedom.
-  BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad2(1, -1), std::domain_error); // negative scale.
-  BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad3(-1, -1), std::domain_error); // negative scale and degrees_of_freedom.
+#ifndef BOOST_NO_EXCEPTIONS
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad1(-1), std::domain_error); // negative degrees_of_freedom.
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad2(1, -1), std::domain_error); // negative scale.
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> ichsqbad3(-1, -1), std::domain_error); // negative scale and degrees_of_freedom.
+#else
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType>(-1), std::domain_error); // negative degrees_of_freedom.
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType>(1, -1), std::domain_error); // negative scale.
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType>(-1, -1), std::domain_error); // negative scale and degrees_of_freedom.
+#endif
   check_out_of_range<boost::math::inverse_chi_squared_distribution<RealType> >(1, 1);
 
   inverse_chi_squared_distribution<RealType> ichsq;
 
   if(std::numeric_limits<RealType>::has_infinity)
   {
-    BOOST_CHECK_THROW(pdf(ichsq, +std::numeric_limits<RealType>::infinity()), std::domain_error); // x = + infinity, pdf = 0
-    BOOST_CHECK_THROW(pdf(ichsq, -std::numeric_limits<RealType>::infinity()),  std::domain_error); // x = - infinity, pdf = 0
-    BOOST_CHECK_THROW(cdf(ichsq, +std::numeric_limits<RealType>::infinity()),std::domain_error ); // x = + infinity, cdf = 1
-    BOOST_CHECK_THROW(cdf(ichsq, -std::numeric_limits<RealType>::infinity()), std::domain_error); // x = - infinity, cdf = 0
-    BOOST_CHECK_THROW(cdf(complement(ichsq, +std::numeric_limits<RealType>::infinity())), std::domain_error); // x = + infinity, c cdf = 0
-    BOOST_CHECK_THROW(cdf(complement(ichsq, -std::numeric_limits<RealType>::infinity())), std::domain_error); // x = - infinity, c cdf = 1
-    BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> nbad1(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
-    BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> nbad1(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
-    BOOST_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> nbad1(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+    BOOST_MATH_CHECK_THROW(pdf(ichsq, +std::numeric_limits<RealType>::infinity()), std::domain_error); // x = + infinity, pdf = 0
+    BOOST_MATH_CHECK_THROW(pdf(ichsq, -std::numeric_limits<RealType>::infinity()),  std::domain_error); // x = - infinity, pdf = 0
+    BOOST_MATH_CHECK_THROW(cdf(ichsq, +std::numeric_limits<RealType>::infinity()),std::domain_error ); // x = + infinity, cdf = 1
+    BOOST_MATH_CHECK_THROW(cdf(ichsq, -std::numeric_limits<RealType>::infinity()), std::domain_error); // x = - infinity, cdf = 0
+    BOOST_MATH_CHECK_THROW(cdf(complement(ichsq, +std::numeric_limits<RealType>::infinity())), std::domain_error); // x = + infinity, c cdf = 0
+    BOOST_MATH_CHECK_THROW(cdf(complement(ichsq, -std::numeric_limits<RealType>::infinity())), std::domain_error); // x = - infinity, c cdf = 1
+#ifndef BOOST_NO_EXCEPTIONS
+    BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> nbad1(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> nbad1(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType> nbad1(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#else
+    BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType>(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType>(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::inverse_chi_squared_distribution<RealType>(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#endif
   }
 
   if (std::numeric_limits<RealType>::has_quiet_NaN)
   { // If no longer allow x or p to be NaN, then these tests should throw.
-    BOOST_CHECK_THROW(pdf(ichsq, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
-    BOOST_CHECK_THROW(cdf(ichsq, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
-    BOOST_CHECK_THROW(cdf(complement(ichsq, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // x = + infinity
-    BOOST_CHECK_THROW(quantile(ichsq, std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // p = + quiet_NaN
-    BOOST_CHECK_THROW(quantile(complement(ichsq, std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // p = + quiet_NaN
+    BOOST_MATH_CHECK_THROW(pdf(ichsq, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
+    BOOST_MATH_CHECK_THROW(cdf(ichsq, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
+    BOOST_MATH_CHECK_THROW(cdf(complement(ichsq, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // x = + infinity
+    BOOST_MATH_CHECK_THROW(quantile(ichsq, std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // p = + quiet_NaN
+    BOOST_MATH_CHECK_THROW(quantile(complement(ichsq, std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // p = + quiet_NaN
   }
     // Spot check for pdf using 'naive pdf' function
   for(RealType x = 0.5; x < 5; x += 0.5)
@@ -242,62 +255,62 @@ void test_spots(RealType)
     cdf(complement(inverse_chi_squared_distribution<RealType>(3), static_cast<RealType>(0)))
     , static_cast<RealType>(1));
 
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     pdf(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(-1)), // degrees_of_freedom negative.
     static_cast<RealType>(1)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     pdf(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(-1)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     cdf(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(-1)),
     static_cast<RealType>(1)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     cdf(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(-1)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     cdf(complement(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(-1)),
     static_cast<RealType>(1))), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     cdf(complement(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(-1))), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     quantile(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(-1)),
     static_cast<RealType>(0.5)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     quantile(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(-1)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     quantile(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(1.1)), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     quantile(complement(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(-1)),
     static_cast<RealType>(0.5))), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     quantile(complement(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(-1))), std::domain_error
     );
-  BOOST_CHECK_THROW(
+  BOOST_MATH_CHECK_THROW(
     quantile(complement(
     inverse_chi_squared_distribution<RealType>(static_cast<RealType>(8)),
     static_cast<RealType>(1.1))), std::domain_error
@@ -410,10 +423,10 @@ BOOST_AUTO_TEST_CASE( test_main )
   inverse_chi_squared_distribution<> ichsq23(2., 3.); // Using default RealType double.
   BOOST_CHECK_EQUAL(ichsq23.degrees_of_freedom(), 2.); //
   BOOST_CHECK_EQUAL(ichsq23.scale(), 3.); //
-  BOOST_CHECK_THROW(mean(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 2
-  BOOST_CHECK_THROW(variance(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 4
-  BOOST_CHECK_THROW(skewness(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 6
-  BOOST_CHECK_THROW(kurtosis_excess(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 8
+  BOOST_MATH_CHECK_THROW(mean(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 2
+  BOOST_MATH_CHECK_THROW(variance(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 4
+  BOOST_MATH_CHECK_THROW(skewness(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 6
+  BOOST_MATH_CHECK_THROW(kurtosis_excess(ichsq23), std::domain_error); // Degrees of freedom (nu) must be > 8
 
   { // Check relationship between inverse gamma and inverse chi_squared distributions.
   using boost::math::inverse_gamma_distribution;
@@ -464,14 +477,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   
   // Check throws from bad parameters.
   inverse_chi_squared ig051(0.5, 1.); // degrees_of_freedom < 1, so wrong for mean.
-  BOOST_CHECK_THROW(mean(ig051), std::domain_error);
+  BOOST_MATH_CHECK_THROW(mean(ig051), std::domain_error);
   inverse_chi_squared ig191(1.9999, 1.); // degrees_of_freedom < 2, so wrong for variance.
-  BOOST_CHECK_THROW(variance(ig191), std::domain_error);
+  BOOST_MATH_CHECK_THROW(variance(ig191), std::domain_error);
   inverse_chi_squared ig291(2.9999, 1.); // degrees_of_freedom < 3, so wrong for skewness.
-  BOOST_CHECK_THROW(skewness(ig291), std::domain_error);
+  BOOST_MATH_CHECK_THROW(skewness(ig291), std::domain_error);
   inverse_chi_squared ig391(3.9999, 1.); // degrees_of_freedom < 1, so wrong for kurtosis and kurtosis_excess.
-  BOOST_CHECK_THROW(kurtosis(ig391), std::domain_error);
-  BOOST_CHECK_THROW(kurtosis_excess(ig391), std::domain_error);
+  BOOST_MATH_CHECK_THROW(kurtosis(ig391), std::domain_error);
+  BOOST_MATH_CHECK_THROW(kurtosis_excess(ig391), std::domain_error);
   
   inverse_chi_squared ig102(10, 2); // Wolfram.com/ page 2, quantile = 2.96859.
   //http://reference.wolfram.com/mathematica/ref/InverseChiSquareDistribution.html
@@ -486,14 +499,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x0582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
   std::cout << "<note>The long double tests have been disabled on this platform "
     "either because the long double overloads of the usual math functions are "
     "not available at all, or because they are too inaccurate for these tests "
-    "to pass.</note>" << std::cout;
+    "to pass.</note>" << std::endl;
 #endif
 
  /*    */

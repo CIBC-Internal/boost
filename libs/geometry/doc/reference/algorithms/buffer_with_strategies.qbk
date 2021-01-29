@@ -15,9 +15,11 @@ The 5 strategies give the user control to the generated buffer
 
 * convex corners can be rounded or sharp
 * line-ends can be rounded or flat
-* distance can be symmetric or assymetric, and can be specified as negative (deflate)
+* distance can be symmetric or assymetric, and positive or negative
 * around points the shape can be circular or square
 * the sides can be controlled (currently there is only one option provided)
+
+By specifying a negative distance for the distance_strategy, for the (multi) polygon case, the polygon will be smaller (also known as deflate). The distance cannot be 0.
 
 The next figure shows where in the generated buffer the strategies have effect
 
@@ -33,16 +35,16 @@ side_straight
 
 [heading Supported geometries]
 [table
-[[ ][2D Cartesian]]
-[[Point][[$img/ok.png]]]
-[[Segment][[$img/nyi.png]]]
-[[Box][[$img/nyi.png]]]
-[[Linestring][[$img/ok.png]]]
-[[Ring][[$img/ok.png]]]
-[[Polygon][[$img/ok.png]]]
-[[MultiPoint][[$img/ok.png]]]
-[[MultiLinestring][[$img/ok.png]]]
-[[MultiPolygon][[$img/ok.png]]]
+[[ ][2D Cartesian][Geographic]]
+[[Point][[$img/ok.png]][[$img/ok.png]]]
+[[Segment][[$img/nyi.png]][[$img/nyi.png]]]
+[[Box][[$img/nyi.png]][[$img/nyi.png]]]
+[[Linestring][[$img/ok.png]][[$img/nyi.png]]]
+[[Ring][[$img/ok.png]][[$img/nyi.png]]]
+[[Polygon][[$img/ok.png]][[$img/nyi.png]]]
+[[MultiPoint][[$img/ok.png]][[$img/nyi.png]]]
+[[MultiLinestring][[$img/ok.png]][[$img/nyi.png]]]
+[[MultiPolygon][[$img/ok.png]][[$img/nyi.png]]]
 ]
 
 
@@ -67,4 +69,5 @@ side_straight
 * DistanceStrategy: [link geometry.reference.strategies.strategy_buffer_distance_asymmetric distance_asymmetric]
 * PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_circle point_circle (cartesian)]
 * PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_square point_square (cartesian)]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_geographic_point_circle geographic_point_circle (geographic)]
 * SideStrategy: [link geometry.reference.strategies.strategy_buffer_side_straight side_straight (cartesian)]

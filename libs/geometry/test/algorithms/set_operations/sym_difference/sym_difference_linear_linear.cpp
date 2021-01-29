@@ -23,7 +23,7 @@
 #include "test_sym_difference_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
@@ -629,7 +629,7 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
          "lmlsdf18d"
          );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     tester::apply
         (from_wkt<L>("LINESTRING(1 5,4 2,1 -1.1,1 6,1 189.7654,2 5,-0.7654 3)"),
          from_wkt<ML>("MULTILINESTRING((2 5,-0.7654 2),\
@@ -791,7 +791,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                       (10 10,11 10),(12 10,15 10),(20 10,30 20),\
                       (1 1,2 0),(-1 -1,0 0),(9 0,11 10),(12 10,13 0.3),\
                       (10 20,15 10),(20 10,25 10,30 15))"),
-         "mlmlsdf06"
+         "mlmlsdf06",
+         4.0 * std::numeric_limits<double>::epsilon()
         );
 
     tester::apply

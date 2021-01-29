@@ -11,7 +11,7 @@
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/lognormal.hpp>
     using boost::math::lognormal_distribution;
@@ -225,14 +225,19 @@ void test_spots(RealType)
    BOOST_CHECK_CLOSE(
     skewness(dist)
     , static_cast<RealType>(729551.38304660255658441529235697L), tolerance);
-   // kertosis:
+   // kurtosis:
    BOOST_CHECK_CLOSE(
     kurtosis(dist)
     , static_cast<RealType>(4312295840576303.2363383232038251L), tolerance);
-   // kertosis excess:
+   // kurtosis excess:
    BOOST_CHECK_CLOSE(
     kurtosis_excess(dist)
     , static_cast<RealType>(4312295840576300.2363383232038251L), tolerance);
+
+   RealType expected_entropy = 8 + log(boost::math::constants::two_pi<RealType>()*boost::math::constants::e<RealType>()*9)/2;
+   BOOST_CHECK_CLOSE(
+    entropy(dist)
+    , expected_entropy, tolerance);
 
    BOOST_CHECK_CLOSE(
     range(dist).first
@@ -250,13 +255,13 @@ void test_spots(RealType)
    //
    // Error checks:
    //
-   BOOST_CHECK_THROW(lognormal_distribution<RealType>(0, 0), std::domain_error);
-   BOOST_CHECK_THROW(lognormal_distribution<RealType>(2, -1), std::domain_error);
-   BOOST_CHECK_THROW(pdf(dist, -1), std::domain_error);
-   BOOST_CHECK_THROW(cdf(dist, -1), std::domain_error);
-   BOOST_CHECK_THROW(cdf(complement(dist, -1)), std::domain_error);
-   BOOST_CHECK_THROW(quantile(dist, 1), std::overflow_error);
-   BOOST_CHECK_THROW(quantile(complement(dist, 0)), std::overflow_error);
+   BOOST_MATH_CHECK_THROW(lognormal_distribution<RealType>(0, 0), std::domain_error);
+   BOOST_MATH_CHECK_THROW(lognormal_distribution<RealType>(2, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(pdf(dist, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(cdf(dist, -1), std::domain_error);
+   BOOST_MATH_CHECK_THROW(cdf(complement(dist, -1)), std::domain_error);
+   BOOST_MATH_CHECK_THROW(quantile(dist, 1), std::overflow_error);
+   BOOST_MATH_CHECK_THROW(quantile(complement(dist, 0)), std::overflow_error);
    check_out_of_range<lognormal_distribution<RealType> >(1, 2);
 
 } // template <class RealType>void test_spots(RealType)
@@ -281,14 +286,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x0582))
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    

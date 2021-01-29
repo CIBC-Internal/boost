@@ -1,10 +1,10 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>General Type Properties</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Boost.TypeTraits">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../index.html" title="Chapter 1. Boost.TypeTraits">
 <link rel="up" href="../value_traits.html" title="Type Traits that Describe the Properties of a Type">
 <link rel="prev" href="primary.html" title="Categorizing a Type">
 <link rel="next" href="relate.html" title="Relationships Between Two Types">
@@ -55,6 +55,9 @@
 <span class="keyword">struct</span> <a class="link" href="../../reference/has_nothrow_copy.html" title="has_nothrow_copy">has_nothrow_copy_constructor</a><span class="special">;</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/has_nothrow_destruct.html" title="has_nothrow_destructor">has_nothrow_destructor</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <a class="link" href="../../reference/has_trivial_assign.html" title="has_trivial_assign">has_trivial_assign</a><span class="special">;</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
@@ -78,11 +81,35 @@
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <a class="link" href="../../reference/is_abstract.html" title="is_abstract">is_abstract</a><span class="special">;</span>
 
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">U</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_assignable.html" title="is_assignable">is_assignable</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_copy_constructible.html" title="is_copy_constructible">is_copy_constructible</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_copy_assignable.html" title="is_copy_assignable">is_copy_assignable</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">,</span> <span class="keyword">class</span><span class="special">...</span> <span class="identifier">Args</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_constructible.html" title="is_constructible">is_constructible</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_default_constructible.html" title="is_default_constructible">is_default_constructible</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">,</span> <span class="keyword">class</span><span class="special">...</span> <span class="identifier">Args</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_list_constructible.html" title="is_list_constructible">is_list_constructible</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_destructible.html" title="is_destructible">is_destructible</a><span class="special">;</span>
+
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <a class="link" href="../../reference/is_const.html" title="is_const">is_const</a><span class="special">;</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <a class="link" href="../../reference/is_empty.html" title="is_empty">is_empty</a><span class="special">;</span>
+
+<span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">struct</span> <a class="link" href="../../reference/is_final.html" title="is_final">is_final</a><span class="special">;</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <a class="link" href="../../reference/is_stateless.html" title="is_stateless">is_stateless</a><span class="special">;</span>
@@ -111,11 +138,11 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2000, 2011 Adobe Systems Inc, David Abrahams,
-      Frederic Bron, Steve Cleary, Beman Dawes, Aleksey Gurtovoy, Howard Hinnant,
-      Jesse Jones, Mat Marcus, Itay Maman, John Maddock, Alexander Nasonov, Thorsten
-      Ottosen, Roman Perepelitsa, Robert Ramey, Jeremy Siek, Robert Stewart and Steven
-      Watanabe<p>
+<td align="right"><div class="copyright-footer">Copyright © 2000, 2011 Adobe Systems Inc, David Abrahams,
+      Frederic Bron, Steve Cleary, Beman Dawes, Glen Fernandes, Aleksey Gurtovoy,
+      Howard Hinnant, Jesse Jones, Mat Marcus, Itay Maman, John Maddock, Alexander
+      Nasonov, Thorsten Ottosen, Roman Perepelitsa, Robert Ramey, Jeremy Siek, Robert
+      Stewart and Steven Watanabe<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

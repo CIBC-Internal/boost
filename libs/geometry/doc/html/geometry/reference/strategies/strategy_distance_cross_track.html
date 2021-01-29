@@ -1,13 +1,13 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>strategy::distance::cross_track</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Geometry">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../index.html" title="Chapter 1. Geometry">
 <link rel="up" href="../strategies.html" title="Strategies">
 <link rel="prev" href="strategy_distance_projected_point.html" title="strategy::distance::projected_point">
-<link rel="next" href="strategy_area_surveyor.html" title="strategy::area::surveyor">
+<link rel="next" href="strategy_distance_cross_track_point_box.html" title="strategy::distance::cross_track_point_box">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -20,14 +20,14 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="strategy_distance_projected_point.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../strategies.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="strategy_area_surveyor.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="strategy_distance_projected_point.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../strategies.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="strategy_distance_cross_track_point_box.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="geometry.reference.strategies.strategy_distance_cross_track"></a><a class="link" href="strategy_distance_cross_track.html" title="strategy::distance::cross_track">strategy::distance::cross_track</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp131041664"></a><a class="indexterm" name="idp131042352"></a><a class="indexterm" name="idp131043040"></a>
+          <a class="indexterm" name="idm45353162683808"></a><a class="indexterm" name="idm45353162683184"></a><a class="indexterm" name="idm45353162682560"></a>
 Strategy functor for distance point to segment calculation.
         </p>
 <h6>
@@ -234,6 +234,36 @@ Strategy functor for distance point to segment calculation.
 <td>
                   <p>
 </p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">relate_segment_segment_strategy_type</span> <span class="identifier">get_relate_segment_segment_strategy</span><span class="special">()</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">point_in_geometry_strategy_type</span> <span class="identifier">get_point_in_geometry_strategy</span><span class="special">()</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+</p>
 <pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Point</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">PointOfSegment</span><span class="special">&gt;</span>
 <span class="identifier">return_type</span><span class="special">&lt;</span> <span class="identifier">Point</span><span class="special">,</span> <span class="identifier">PointOfSegment</span> <span class="special">&gt;::</span><span class="identifier">type</span> <span class="identifier">apply</span><span class="special">(</span><span class="identifier">Point</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">p</span><span class="special">,</span> <span class="identifier">PointOfSegment</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">sp1</span><span class="special">,</span> <span class="identifier">PointOfSegment</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">sp2</span><span class="special">)</span></pre>
 <p>
@@ -252,6 +282,28 @@ Strategy functor for distance point to segment calculation.
                   <p>
                     <span class="bold"><strong>PointOfSegment const &amp;</strong></span>:
                     <span class="emphasis"><em>sp2</em></span>:
+                  </p>
+                </td>
+<td>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+</p>
+<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">T1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">T2</span><span class="special">&gt;</span>
+<span class="identifier">radius_type</span> <span class="identifier">vertical_or_meridian</span><span class="special">(</span><span class="identifier">T1</span> <span class="identifier">lat1</span><span class="special">,</span> <span class="identifier">T2</span> <span class="identifier">lat2</span><span class="special">)</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                  <p>
+                    <span class="bold"><strong>T1</strong></span>: <span class="emphasis"><em>lat1</em></span>:
+                  </p>
+                  <p>
+                    <span class="bold"><strong>T2</strong></span>: <span class="emphasis"><em>lat2</em></span>:
                   </p>
                 </td>
 <td>
@@ -293,8 +345,8 @@ Strategy functor for distance point to segment calculation.
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2009-2015 Barend Gehrels, Bruno Lalande,
-      Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates<p>
+<td align="right"><div class="copyright-footer">Copyright © 2009-2019 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam
+      Wulkiewicz, Oracle and/or its affiliates<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
@@ -302,7 +354,7 @@ Strategy functor for distance point to segment calculation.
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="strategy_distance_projected_point.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../strategies.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="strategy_area_surveyor.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="strategy_distance_projected_point.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../strategies.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="strategy_distance_cross_track_point_box.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

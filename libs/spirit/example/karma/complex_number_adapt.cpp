@@ -22,6 +22,7 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/include/adapt_adt.hpp>
+#include <boost/spirit/include/support_adapt_adt_attributes.hpp>
 
 #include <iostream>
 #include <string>
@@ -89,7 +90,7 @@ namespace client
             //  Begin grammar
             (
                &true_ << '(' << double_ << ", " << double_ << ')'
-            |   omit[bool_]  << double_ 
+            |   omit[bool_]  << double_ << omit[double_]
             ),
             //  End grammar
 

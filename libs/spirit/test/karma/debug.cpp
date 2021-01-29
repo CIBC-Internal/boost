@@ -16,9 +16,6 @@
 #include <boost/spirit/include/karma_action.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-#include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/spirit/include/phoenix_statement.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 
 #include <string>
@@ -39,8 +36,6 @@ int main()
     using boost::spirit::karma::debug;
     using boost::spirit::karma::space;
     using boost::spirit::karma::eps;
-
-    namespace phx = boost::phoenix;
 
     typedef spirit_test::output_iterator<char>::type outiter_type;
 
@@ -102,7 +97,7 @@ int main()
         BOOST_SPIRIT_DEBUG_NODE(b);
         BOOST_SPIRIT_DEBUG_NODE(c);
 
-        start %= eps[_a = 0, _b = 2.0] << *(a[++_a] | b | c);
+        start %= eps[(_a = 0, _b = 2.0)] << *(a[++_a] | b | c);
         BOOST_SPIRIT_DEBUG_NODE(start);
         BOOST_TEST(test("abacabba", start, v));
     }

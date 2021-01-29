@@ -11,7 +11,7 @@
 #ifndef _BOOST_POLYGAMMA_DETAIL_2013_07_30_HPP_
   #define _BOOST_POLYGAMMA_DETAIL_2013_07_30_HPP_
 
-  #include <cmath>
+#include <cmath>
   #include <limits>
   #include <boost/cstdint.hpp>
   #include <boost/math/policies/policy.hpp>
@@ -27,7 +27,13 @@
   #include <boost/static_assert.hpp>
   #include <boost/type_traits/is_convertible.hpp>
 
-  namespace boost { namespace math { namespace detail{
+#ifdef _MSC_VER
+#pragma once
+#pragma warning(push)
+#pragma warning(disable:4702) // Unreachable code (release mode only warning)
+#endif
+
+namespace boost { namespace math { namespace detail{
 
   template<class T, class Policy>
   T polygamma_atinfinityplus(const int n, const T& x, const Policy& pol, const char* function) // for large values of x such as for x> 400
@@ -44,8 +50,8 @@
         // x is crazy large, just concentrate on the first part of the expression and use logs:
         if(n == 1) return 1 / x;
         T nlx = n * log(x);
-        if((nlx < tools::log_max_value<T>()) && (n < max_factorial<T>::value))
-           return ((n & 1) ? 1 : -1) * boost::math::factorial<T>(n - 1) * pow(x, -n);
+        if((nlx < tools::log_max_value<T>()) && (n < (int)max_factorial<T>::value))
+           return ((n & 1) ? 1 : -1) * boost::math::factorial<T>(n - 1, pol) * pow(x, -n);
         else
          return ((n & 1) ? 1 : -1) * exp(boost::math::lgamma(T(n), pol) - n * log(x));
      }
@@ -71,13 +77,13 @@
      // or the power term underflows, this just gets set to 0 and then we
      // know that we have to use logs for the initial terms:
      //
-     part_term = ((n > boost::math::max_factorial<T>::value) && (T(n) * n > tools::log_max_value<T>())) 
+     part_term = ((n > (int)boost::math::max_factorial<T>::value) && (T(n) * n > tools::log_max_value<T>())) 
         ? T(0) : static_cast<T>(boost::math::factorial<T>(n - 1, pol) * pow(x, -n - 1));
      if(part_term == 0)
      {
         // Either n is very large, or the power term underflows,
         // set the initial values of part_term, term and sum via logs:
-        part_term = boost::math::lgamma(n, pol) - (n + 1) * log(x);
+        part_term = static_cast<T>(boost::math::lgamma(n, pol) - (n + 1) * log(x));
         sum = exp(part_term + log(n + 2 * x) - boost::math::constants::ln_two<T>());
         part_term += log(T(n) * (n + 1)) - boost::math::constants::ln_two<T>() - log(x);
         part_term = exp(part_term);
@@ -155,7 +161,7 @@
           sum0 += z_plus_k_pow_minus_m_minus_one;
           z += 1;
        }
-       sum0 *= boost::math::factorial<T>(n);
+       sum0 *= boost::math::factorial<T>(n, pol);
     }
     else
     {
@@ -234,12 +240,12 @@
            return policies::raise_evaluation_error<T>(function, "Series did not converge, best value is %1%", sum, pol);
      }
      //
-     // We need to multiply by the scale, at each stage checking for oveflow:
+     // We need to multiply by the scale, at each stage checking for overflow:
      //
      if(boost::math::tools::max_value<T>() / scale < sum)
         return boost::math::policies::raise_overflow_error<T>(function, 0, pol);
      sum *= scale;
-     return n & 1 ? sum : -sum;
+     return n & 1 ? sum : T(-sum);
   }
 
   //
@@ -272,13 +278,13 @@
      // C[k+1, n+1]  += (k-n-1) * C[k, n];
      //
      // Note that there are many different ways of representing this derivative thanks to
-     // the many trigomonetric identies available.  In particular, the sum of powers of
+     // the many trigonometric identies available.  In particular, the sum of powers of
      // cosines could be replaced by a sum of cosine multiple angles, and indeed if you
      // plug the derivative into Mathematica this is the form it will give.  The two
      // forms are related via the Chebeshev polynomials of the first kind and
      // T_n(cos(x)) = cos(n x).  The polynomial form has the great advantage that
      // all the cosine terms are zero at half integer arguments - right where this
-     // function has it's minumum - thus avoiding cancellation error in this region.
+     // function has it's minimum - thus avoiding cancellation error in this region.
      //
      // And finally, since every other term in the polynomials is zero, we can save
      // space by only storing the non-zero terms.  This greatly complexifies
@@ -402,7 +408,17 @@
      static boost::detail::lightweight_mutex m;
      boost::detail::lightweight_mutex::scoped_lock l(m);
 #endif
+     static int digits = tools::digits<T>();
      static std::vector<std::vector<T> > table(1, std::vector<T>(1, T(-1)));
+
+     int current_digits = tools::digits<T>();
+
+     if(digits != current_digits)
+     {
+        // Oh my... our precision has changed!
+        table = std::vector<std::vector<T> >(1, std::vector<T>(1, T(-1)));
+        digits = current_digits;
+     }
 
      int index = n - 1;
 
@@ -432,7 +448,7 @@
      }
      T sum = boost::math::tools::evaluate_even_polynomial(&table[index][0], c, table[index].size());
      if(index & 1)
-        sum *= c;  // First coeffient is order 1, and really an odd polynomial.
+        sum *= c;  // First coefficient is order 1, and really an odd polynomial.
      if(sum == 0)
         return sum;
      //
@@ -443,7 +459,7 @@
      if(s == 0)
         return sum * boost::math::policies::raise_overflow_error<T>(function, 0, pol);
      power_terms -= log(fabs(s)) * (n + 1);
-     power_terms += boost::math::lgamma(T(n));
+     power_terms += boost::math::lgamma(T(n), pol);
      power_terms += log(fabs(sum));
 
      if(power_terms > boost::math::tools::log_max_value<T>())
@@ -505,7 +521,7 @@
     // would mean setting the limit to ~ 1 / n,
     // but we can tolerate a small amount of divergence:
     //
-    T small_x_limit = std::min(T(T(5) / n), T(0.25f));
+    T small_x_limit = (std::min)(T(T(5) / n), T(0.25f));
     if(x < small_x_limit)
     {
       return polygamma_nearzero(n, x, pol, function);
@@ -533,6 +549,10 @@
   }
 
 } } } // namespace boost::math::detail
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif // _BOOST_POLYGAMMA_DETAIL_2013_07_30_HPP_
 

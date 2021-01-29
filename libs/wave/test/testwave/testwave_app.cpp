@@ -12,7 +12,7 @@
 
 // system headers
 #include <string>
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 #include <ctime>
 
@@ -35,10 +35,31 @@
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>      // token type
 #include <boost/wave/cpplexer/cpp_lex_iterator.hpp>   // lexer type
 
+///////////////////////////////////////////////////////////////////////////////
+//  Include lexer specifics, import lexer names
+#if BOOST_WAVE_SEPARATE_LEXER_INSTANTIATION == 0
+#include <boost/wave/cpplexer/re2clex/cpp_re2c_lexer.hpp>
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+//  Include the grammar definitions, if these shouldn't be compiled separately
+//  (ATTENTION: _very_ large compilation times!)
+#if BOOST_WAVE_SEPARATE_GRAMMAR_INSTANTIATION == 0
+#include <boost/wave/grammars/cpp_intlit_grammar.hpp>
+#include <boost/wave/grammars/cpp_chlit_grammar.hpp>
+#include <boost/wave/grammars/cpp_grammar.hpp>
+#include <boost/wave/grammars/cpp_expression_grammar.hpp>
+#include <boost/wave/grammars/cpp_predef_macros_grammar.hpp>
+#include <boost/wave/grammars/cpp_defined_grammar.hpp>
+#endif
+
 //  test application related headers
 #include "cmd_line_utils.hpp"
 #include "testwave_app.hpp"
 #include "collect_hooks_information.hpp"
+
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/detail/utf8_codecvt_facet.hpp>
 
 # ifdef BOOST_NO_STDC_NAMESPACE
 namespace std
@@ -58,6 +79,31 @@ namespace fs = boost::filesystem;
 #define TESTWAVE_VERSION_SUBMINOR        0
 
 namespace {
+    struct fs_path_imbue_utf8
+    {
+        explicit fs_path_imbue_utf8(bool enable)
+            : m_enabled(enable), m_prevLocale()
+        {
+            if (!m_enabled) return;
+            static std::locale global_loc = std::locale();
+            static std::locale utf_8_loc(global_loc, new boost::filesystem::detail::utf8_codecvt_facet);
+            
+            m_prevLocale = boost::filesystem::path::imbue(utf_8_loc);
+            
+        }
+        ~fs_path_imbue_utf8()
+        {
+            if (!m_enabled) return;
+            boost::filesystem::path::imbue(m_prevLocale);
+        }
+    private:
+        fs_path_imbue_utf8();
+        fs_path_imbue_utf8(fs_path_imbue_utf8 const&);
+        fs_path_imbue_utf8& operator=(fs_path_imbue_utf8 const&);
+
+        bool m_enabled;
+        std::locale m_prevLocale;
+    };
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename Iterator>
@@ -167,7 +213,7 @@ testwave_app::got_expected_result(std::string const& filename,
                         std::string source = expected.substr(pos1+3, p-pos1-3);
                         std::string result, error, hooks;
                         bool pp_result = preprocess_file(filename, source,
-                            result, error, hooks, true);
+                            result, error, hooks, "", true);
                         if (!pp_result) {
                             std::cerr
                                 << "testwave: preprocessing error in $E directive: "
@@ -373,6 +419,14 @@ testwave_app::testwave_app(po::variables_map const& vm)
 #if BOOST_WAVE_SUPPORT_CPP0X != 0
         ("c++11", "enable C++11 mode (implies --variadics and --long_long)")
 #endif
+#if BOOST_WAVE_SUPPORT_CPP1Z != 0
+        ("c++17", "enable C++17 mode (implies --variadics and --long_long, adds __has_include)")
+#endif
+#if BOOST_WAVE_SUPPORT_CPP2A != 0
+        ("c++20", "enable C++20 mode (implies --variadics and --long_long, adds __has_include and __VA_OPT__)")
+#endif
+        ("warning,W", po::value<std::vector<std::string> >()->composing(),
+            "Warning settings.")
     ;
 }
 
@@ -387,22 +441,30 @@ testwave_app::testwave_app(po::variables_map const& vm)
 bool
 testwave_app::test_a_file(std::string filename)
 {
-// read the input file into a string
+    // read the input file into a string
     std::string instr;
     if (!read_file(filename, instr))
         return false;     // error was reported already
+
+    std::string use_utf8;
+    extract_special_information(filename, instr, 'U', use_utf8);
+    fs_path_imbue_utf8 to_utf8(use_utf8.substr(0,3) == "yes");
 
     bool test_hooks = true;
     if (global_vm.count("hooks"))
         test_hooks = variables_map_as(global_vm["hooks"], (bool *)NULL);
 
-// extract expected output, preprocess the data and compare results
+    std::string expected_cfg_macro;
+    extract_special_information(filename, instr, 'D', expected_cfg_macro);
+
+    // extract expected output, preprocess the data and compare results
     std::string expected, expected_hooks;
     if (extract_expected_output(filename, instr, expected, expected_hooks)) {
         bool retval = true;   // assume success
         bool printed_result = false;
         std::string result, error, hooks;
-        bool pp_result = preprocess_file(filename, instr, result, error, hooks);
+        bool pp_result = preprocess_file(filename, instr, result, error, hooks,
+            expected_cfg_macro);
         if (pp_result || !result.empty()) {
         // did we expect an error?
             std::string expected_error;
@@ -433,7 +495,7 @@ testwave_app::test_a_file(std::string filename)
                 retval = false;
             }
             else if (!got_expected_result(filename, result, expected)) {
-            //  no preprocessing error encountered
+                //  no preprocessing error encountered
                 if (debuglevel > 2) {
                     std::cerr
                         << filename << ": failed" << std::endl
@@ -446,7 +508,7 @@ testwave_app::test_a_file(std::string filename)
                 retval = false;
             }
             else {
-            // preprocessing succeeded, check hook information, if appropriate
+                // preprocessing succeeded, check hook information, if appropriate
                 if (test_hooks && !expected_hooks.empty() &&
                     !got_expected_result(filename, hooks, expected_hooks))
                 {
@@ -485,13 +547,13 @@ testwave_app::test_a_file(std::string filename)
         }
 
         if (!pp_result) {
-        //  there was a preprocessing error, was it expected?
+            //  there was a preprocessing error, was it expected?
             std::string expected_error;
             if (!extract_special_information(filename, instr, 'E', expected_error))
                 return false;
 
             if (!got_expected_result(filename, error, expected_error)) {
-            // the error was unexpected
+                // the error was unexpected
                 if (debuglevel > 2) {
                     std::cerr
                         << filename << ": failed" << std::endl;
@@ -532,7 +594,7 @@ testwave_app::test_a_file(std::string filename)
                         << std::endl;
                 }
                 else if (debuglevel > 3) {
-                // caught the expected error message
+                    // caught the expected error message
                     std::cerr << filename << ": succeeded" << std::endl;
                 }
             }
@@ -555,12 +617,12 @@ testwave_app::test_a_file(std::string filename)
 int
 testwave_app::print_version()
 {
-// get time of last compilation of this file
-boost::wave::util::time_conversion_helper compilation_time(__DATE__ " " __TIME__);
+    // get time of last compilation of this file
+    boost::wave::util::time_conversion_helper compilation_time(__DATE__ " " __TIME__);
 
-// calculate the number of days since Feb 12 2005
-// (the day the testwave project was started)
-std::tm first_day;
+    // calculate the number of days since Feb 12 2005
+    // (the day the testwave project was started)
+    std::tm first_day;
 
     using namespace std;      // some platforms have memset in namespace std
     memset (&first_day, 0, sizeof(std::tm));
@@ -568,8 +630,8 @@ std::tm first_day;
     first_day.tm_mday = 12;         // 12
     first_day.tm_year = 105;        // 2005
 
-long seconds = long(std::difftime(compilation_time.get_time(),
-    std::mktime(&first_day)));
+    long seconds = long(std::difftime(compilation_time.get_time(),
+        std::mktime(&first_day)));
 
     std::cout
         << TESTWAVE_VERSION_MAJOR << '.'
@@ -613,7 +675,7 @@ testwave_app::print_copyright()
 bool
 testwave_app::read_file(std::string const& filename, std::string& instr)
 {
-// open the given file and report error, if appropriate
+    // open the given file and report error, if appropriate
     std::ifstream instream(filename.c_str());
     if (!instream.is_open()) {
         std::cerr << "testwave: could not open input file: "
@@ -626,10 +688,10 @@ testwave_app::read_file(std::string const& filename, std::string& instr)
     }
     instream.unsetf(std::ios::skipws);
 
-// read the input file into a string
+    // read the input file into a string
 
 #if defined(BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS)
-// this is known to be very slow for large files on some systems
+    // this is known to be very slow for large files on some systems
     std::copy (std::istream_iterator<char>(instream),
         std::istream_iterator<char>(),
         std::inserter(instr, instr.end()));
@@ -676,7 +738,7 @@ testwave_app::extract_special_information(std::string const& filename,
                   << flag << "') from input file: " << filename << std::endl;
     }
 
-// tokenize the input data into C++ tokens using the C++ lexer
+    // tokenize the input data into C++ tokens using the C++ lexer
     typedef boost::wave::cpplexer::lex_token<> token_type;
     typedef boost::wave::cpplexer::lex_iterator<token_type> lexer_type;
     typedef token_type::position_type position_type;
@@ -694,7 +756,7 @@ testwave_app::extract_special_information(std::string const& filename,
     lexer_type end = lexer_type();
 
     try {
-    // look for C or C++ comments starting with the special character
+        // look for C or C++ comments starting with the special character
         for (/**/; it != end; ++it) {
             using namespace boost::wave;
             token_id id = token_id(*it);
@@ -712,7 +774,7 @@ testwave_app::extract_special_information(std::string const& filename,
                         std::string source = value.substr(4, p-4);
                         std::string result, error, hooks;
                         bool pp_result = preprocess_file(filename, source,
-                            result, error, hooks, true);
+                            result, error, hooks, "", true);
                         if (!pp_result) {
                             std::cerr
                                 << "testwave: preprocessing error in '" << flag
@@ -758,7 +820,7 @@ testwave_app::extract_special_information(std::string const& filename,
                         std::string source = value.substr(4, p-4);
                         std::string result, error, hooks;
                         bool pp_result = preprocess_file(filename, source,
-                            result, error, hooks, true);
+                            result, error, hooks, "", true);
                         if (!pp_result) {
                             std::cerr
                                 << "testwave: preprocessing error in '" << flag
@@ -793,7 +855,7 @@ testwave_app::extract_special_information(std::string const& filename,
         }
     }
     catch (boost::wave::cpplexer::lexing_exception const &e) {
-    // some lexing error
+        // some lexing error
         std::cerr
             << e.file_name() << "(" << e.line_no() << "): "
             << e.description() << std::endl;
@@ -842,15 +904,15 @@ testwave_app::extract_options(std::string const& filename,
         std::cerr << "extract_options: extracting options" << std::endl;
     }
 
-//  extract the required information from the comments flagged by a
-//  capital 'O'
+    //  extract the required information from the comments flagged by a
+    //  capital 'O'
     std::string options;
     if (!extract_special_information(filename, instr, 'O', options))
         return false;
 
     try {
-    //  parse the configuration information into a program_options_description
-    //  object
+        //  parse the configuration information into a program_options_description
+        //  object
         cmd_line_utils::read_config_options(debuglevel, options, desc_options, vm);
         initialise_options(ctx, vm, single_line);
     }
@@ -886,7 +948,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
 
 //  initialize the given context from the parsed options
 #if BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS != 0
-// enable C99 mode, if appropriate (implies variadics)
+    // enable C99 mode, if appropriate (implies variadics)
     if (vm.count("c99")) {
         if (9 == debuglevel) {
             std::cerr << "initialise_options: option: c99" << std::endl;
@@ -905,7 +967,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
             ));
     }
     else if (vm.count("variadics")) {
-    // enable variadics and placemarkers, if appropriate
+        // enable variadics and placemarkers, if appropriate
         if (9 == debuglevel) {
             std::cerr << "initialise_options: option: variadics" << std::endl;
         }
@@ -915,12 +977,9 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
 
 #if BOOST_WAVE_SUPPORT_CPP0X
     if (vm.count("c++11")) {
-        if (9 == debuglevel) {
-            std::cerr << "initialise_options: option: c++11" << std::endl;
-        }
         ctx.set_language(
             boost::wave::language_support(
-                boost::wave::support_cpp0x
+                 boost::wave::support_cpp0x
               |  boost::wave::support_option_convert_trigraphs
               |  boost::wave::support_option_long_long
               |  boost::wave::support_option_emit_line_directives
@@ -932,10 +991,70 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
 #endif
               |  boost::wave::support_option_insert_whitespace
             ));
+    } else {
+        if (9 == debuglevel) {
+            std::cerr << "initialise_options: option: c++11" << std::endl;
+        }
     }
 #endif
 
-// enable long_long mode, if appropriate
+#if BOOST_WAVE_SUPPORT_CPP1Z
+    if (vm.count("c++17")) {
+        ctx.set_language(
+            boost::wave::language_support(
+                 boost::wave::support_cpp1z
+#if BOOST_WAVE_SUPPORT_HAS_INCLUDE != 0
+              |  boost::wave::support_option_has_include
+#endif
+              |  boost::wave::support_option_convert_trigraphs
+              |  boost::wave::support_option_long_long
+              |  boost::wave::support_option_emit_line_directives
+#if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
+              |  boost::wave::support_option_include_guard_detection
+#endif
+#if BOOST_WAVE_EMIT_PRAGMA_DIRECTIVES != 0
+              |  boost::wave::support_option_emit_pragma_directives
+#endif
+              |  boost::wave::support_option_insert_whitespace
+            ));
+    } else {
+        if (9 == debuglevel) {
+            std::cerr << "initialise_options: option: c++17" << std::endl;
+        }
+    }
+
+#endif
+
+#if BOOST_WAVE_SUPPORT_CPP2A
+    if (vm.count("c++20")) {
+        ctx.set_language(
+            boost::wave::language_support(
+                 boost::wave::support_cpp2a
+#if BOOST_WAVE_SUPPORT_HAS_INCLUDE != 0
+              |  boost::wave::support_option_has_include
+#endif
+#if BOOST_WAVE_SUPPORT_VA_OPT != 0
+              |  boost::wave::support_option_va_opt
+#endif
+              |  boost::wave::support_option_convert_trigraphs
+              |  boost::wave::support_option_long_long
+              |  boost::wave::support_option_emit_line_directives
+ #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
+              |  boost::wave::support_option_include_guard_detection
+ #endif
+ #if BOOST_WAVE_EMIT_PRAGMA_DIRECTIVES != 0
+              |  boost::wave::support_option_emit_pragma_directives
+ #endif
+              |  boost::wave::support_option_insert_whitespace
+            ));
+
+            if (9 == debuglevel) {
+                std::cerr << "initialise_options: option: c++20" << std::endl;
+            }
+    }
+#endif
+
+    // enable long_long mode, if appropriate
     if (vm.count("long_long")) {
         if (9 == debuglevel) {
             std::cerr << "initialise_options: option: long_long" << std::endl;
@@ -943,7 +1062,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         ctx.set_language(boost::wave::enable_long_long(ctx.get_language()));
     }
 
-// enable preserving comments mode, if appropriate
+    // enable preserving comments mode, if appropriate
     if (vm.count("preserve")) {
         if (9 == debuglevel) {
             std::cerr << "initialise_options: option: preserve" << std::endl;
@@ -952,7 +1071,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
             boost::wave::enable_preserve_comments(ctx.get_language()));
     }
 
-// disable automatic include guard detection
+    // disable automatic include guard detection
     if (vm.count("noguard")) {
         if (9 == debuglevel) {
             std::cerr << "initialise_options: option: guard" << std::endl;
@@ -961,13 +1080,13 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
             boost::wave::enable_include_guard_detection(ctx.get_language(), false));
     }
 
-// enable trigraph conversion
+    // enable trigraph conversion
     if (9 == debuglevel) {
         std::cerr << "initialise_options: option: convert_trigraphs" << std::endl;
     }
     ctx.set_language(boost::wave::enable_convert_trigraphs(ctx.get_language()));
 
-// enable single_line mode
+    // enable single_line mode
     if (single_line) {
         if (9 == debuglevel) {
             std::cerr << "initialise_options: option: single_line" << std::endl;
@@ -976,7 +1095,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         ctx.set_language(boost::wave::enable_emit_line_directives(ctx.get_language(), false));
     }
 
-//  add include directories to the system include search paths
+    //  add include directories to the system include search paths
     if (vm.count("sysinclude")) {
     std::vector<std::string> const& syspaths =
         variables_map_as(vm["sysinclude"], (std::vector<std::string> *)NULL);
@@ -985,15 +1104,18 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         for (std::vector<std::string>::const_iterator cit = syspaths.begin();
               cit != end; ++cit)
         {
+            std::string full(*cit);
+            got_expected_result(ctx.get_current_filename(),"",full);
+            
             if (9 == debuglevel) {
                 std::cerr << "initialise_options: option: -S" << *cit
                           << std::endl;
             }
-            ctx.add_sysinclude_path((*cit).c_str());
+            ctx.add_sysinclude_path(full.c_str());
         }
     }
 
-//  add include directories to the user include search paths
+    //  add include directories to the user include search paths
     if (vm.count("include")) {
         cmd_line_utils::include_paths const &ip =
             variables_map_as(vm["include"], (cmd_line_utils::include_paths*)NULL);
@@ -1002,14 +1124,17 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         for (std::vector<std::string>::const_iterator cit = ip.paths.begin();
               cit != end; ++cit)
         {
+            std::string full(*cit);
+            got_expected_result(ctx.get_current_filename(),"",full);
+
             if (9 == debuglevel) {
                 std::cerr << "initialise_options: option: -I" << *cit
                           << std::endl;
             }
-            ctx.add_include_path((*cit).c_str());
+            ctx.add_include_path(full.c_str());
         }
 
-    // if on the command line was given -I- , this has to be propagated
+        // if on the command line was given -I- , this has to be propagated
         if (ip.seen_separator) {
             if (9 == debuglevel) {
                 std::cerr << "initialise_options: option: -I-" << std::endl;
@@ -1017,7 +1142,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
             ctx.set_sysinclude_delimiter();
         }
 
-    // add system include directories to the include path
+        // add system include directories to the include path
         std::vector<std::string>::const_iterator sysend = ip.syspaths.end();
         for (std::vector<std::string>::const_iterator syscit = ip.syspaths.begin();
               syscit != sysend; ++syscit)
@@ -1030,7 +1155,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         }
     }
 
-//  add additional defined macros
+    //  add additional defined macros
     if (vm.count("define")) {
         std::vector<std::string> const &macros =
             variables_map_as(vm["define"], (std::vector<std::string>*)NULL);
@@ -1046,7 +1171,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         }
     }
 
-//  add additional predefined macros
+    //  add additional predefined macros
     if (vm.count("predefine")) {
         std::vector<std::string> const &predefmacros =
             variables_map_as(vm["predefine"], (std::vector<std::string>*)NULL);
@@ -1062,7 +1187,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         }
     }
 
-//  undefine specified macros
+    //  undefine specified macros
     if (vm.count("undefine")) {
         std::vector<std::string> const &undefmacros =
             variables_map_as(vm["undefine"], (std::vector<std::string>*)NULL);
@@ -1078,7 +1203,7 @@ testwave_app::initialise_options(Context& ctx, po::variables_map const& vm,
         }
     }
 
-//  maximal include nesting depth
+    //  maximal include nesting depth
     if (vm.count("nesting")) {
         int max_depth = variables_map_as(vm["nesting"], (int*)NULL);
         if (max_depth < 1 || max_depth > 100000) {
@@ -1307,10 +1432,10 @@ testwave_app::add_predefined_macros(Context& ctx)
 bool
 testwave_app::preprocess_file(std::string filename, std::string const& instr,
     std::string& result, std::string& error, std::string& hooks,
-    bool single_line)
+    std::string const& expected_cfg_macro, bool single_line)
 {
-//  create the wave::context object and initialize it from the file to
-//  preprocess (may contain options inside of special comments)
+    //  create the wave::context object and initialize it from the file to
+    //  preprocess (may contain options inside of special comments)
     typedef boost::wave::cpplexer::lex_token<> token_type;
     typedef boost::wave::cpplexer::lex_iterator<token_type> lexer_type;
     typedef boost::wave::context<
@@ -1325,33 +1450,40 @@ testwave_app::preprocess_file(std::string filename, std::string const& instr,
     }
 
     try {
-    //  create preprocessing context
+        //  create preprocessing context
         context_type ctx(instr.begin(), instr.end(), filename.c_str(),
             collect_hooks_information<token_type>(hooks));
 
-    //  initialize the context from the options given on the command line
+        //  initialize the context from the options given on the command line
         if (!initialise_options(ctx, global_vm, single_line))
             return false;
 
-    //  extract the options from the input data and initialize the context
+        //  extract the options from the input data and initialize the context
         boost::program_options::variables_map local_vm;
         if (!extract_options(filename, instr, ctx, single_line, local_vm))
             return false;
 
-    //  add special predefined macros
+        //  add special predefined macros
         if (!add_predefined_macros(ctx))
             return false;
 
-    //  preprocess the input, loop over all generated tokens collecting the
-    //  generated text
+        if (!expected_cfg_macro.empty() &&
+            !ctx.is_defined_macro(expected_cfg_macro))
+        {
+            // skip this test as it is for a disabled configuration
+            return false;
+        }
+
+        //  preprocess the input, loop over all generated tokens collecting the
+        //  generated text
         context_type::iterator_type it = ctx.begin();
         context_type::iterator_type end = ctx.end();
 
         if (local_vm.count("forceinclude")) {
-        // add the filenames to force as include files in _reverse_ order
-        // the second parameter 'is_last' of the force_include function should
-        // be set to true for the last (first given) file.
-            std::vector<std::string> const &force =
+            // add the filenames to force as include files in _reverse_ order
+            // the second parameter 'is_last' of the force_include function should
+            // be set to true for the last (first given) file.
+            std::vector<std::string> const& force =
                 local_vm["forceinclude"].as<std::vector<std::string> >();
             std::vector<std::string>::const_reverse_iterator rend = force.rend();
             for (std::vector<std::string>::const_reverse_iterator cit = force.rbegin();
@@ -1366,14 +1498,14 @@ testwave_app::preprocess_file(std::string filename, std::string const& instr,
             }
         }
 
-    // perform actual preprocessing
+        // perform actual preprocessing
         for (/**/; it != end; ++it)
         {
             using namespace boost::wave;
 
             if (T_PP_LINE == token_id(*it)) {
-            // special handling of the whole #line directive is required to
-            // allow correct file name matching
+                // special handling of the whole #line directive is required to
+                // allow correct file name matching
                 if (!handle_line_directive(it, end, result))
                     return false;   // unexpected eof
             }
@@ -1385,7 +1517,7 @@ testwave_app::preprocess_file(std::string filename, std::string const& instr,
         error.clear();
     }
     catch (boost::wave::cpplexer::lexing_exception const& e) {
-    // some lexer error
+        // some lexer error
         BOOST_WAVETEST_OSSTREAM strm;
         std::string filename = e.file_name();
         strm
@@ -1396,7 +1528,7 @@ testwave_app::preprocess_file(std::string filename, std::string const& instr,
         return false;
     }
     catch (boost::wave::cpp_exception const& e) {
-    // some preprocessing error
+        // some preprocessing error
         BOOST_WAVETEST_OSSTREAM strm;
         std::string filename = e.file_name();
         strm
@@ -1414,4 +1546,3 @@ testwave_app::preprocess_file(std::string filename, std::string const& instr,
 
     return true;
 }
-

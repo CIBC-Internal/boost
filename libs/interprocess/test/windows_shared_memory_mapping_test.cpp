@@ -8,10 +8,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/interprocess/detail/config_begin.hpp>
-#include <boost/interprocess/detail/workaround.hpp>
+#include <boost/config.hpp>
 
-#ifdef BOOST_INTERPROCESS_WINDOWS
+#ifdef BOOST_WINDOWS
 
 #include <fstream>
 #include <iostream>
@@ -32,7 +31,7 @@ int main ()
          //Create a file mapping
          windows_shared_memory mapping
             (create_only, names[i_name], read_write, FileSize);
-         if(mapping.get_size() < FileSize)
+         if(static_cast<std::size_t>(mapping.get_size()) < FileSize)
             return 1;
          {
 
@@ -135,4 +134,3 @@ int main()
 
 #endif
 
-#include <boost/interprocess/detail/config_end.hpp>

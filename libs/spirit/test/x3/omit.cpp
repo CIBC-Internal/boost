@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2013 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -27,6 +27,8 @@ main()
 
     using spirit_test::test;
     using spirit_test::test_attr;
+
+    BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(omit['x']);
 
     {
         BOOST_TEST(test("a", omit['a']));
@@ -83,7 +85,7 @@ main()
 
     {
         // if only one node in a sequence is left (all the others are omitted),
-        // then we need "naked" attributes (not wraped in a tuple)
+        // then we need "naked" attributes (not wrapped in a tuple)
         int attr;
         BOOST_TEST((test_attr("a 123 c", omit['a'] >> int_ >> omit['c'], attr, space)));
         BOOST_TEST((attr == 123));
@@ -94,28 +96,21 @@ main()
         BOOST_TEST((test_attr("abc", char_ >> 'b' >> char_, unused)));
     }
 
-    // $$$ Not yet implemented $$$
-    //~ {   // test action with omitted attribute
-        //~ char c = 0;
+    {   // test action with omitted attribute
+        char c = 0;
+        auto f = [&](auto& ctx){ c = _attr(ctx); };
 
-        //~ using boost::phoenix::ref;
+        BOOST_TEST(test("x123\"a string\"", (char_ >> omit[int_] >> "\"a string\"")[f]));
+        BOOST_TEST(c == 'x');
+    }
 
-        //~ BOOST_TEST(test("x123\"a string\"", (char_ >> omit[int_] >> "\"a string\"")
-            //~ [ref(c) = _1]));
-        //~ BOOST_TEST(c == 'x');
-    //~ }
+    {   // test action with omitted attribute
+        int n = 0;
+        auto f = [&](auto& ctx){ n = _attr(ctx); };
 
-    // $$$ Not yet implemented $$$
-    //~ {   // test action with omitted attribute
-        //~ int n = 0;
-
-        //~ using boost::phoenix::ref;
-
-        //~ BOOST_TEST(test("x 123 \"a string\"",
-            //~ (omit[char_] >> int_ >> "\"a string\"")[ref(n) = _1], space));
-        //~ BOOST_TEST(n == 123);
-    //~ }
+        BOOST_TEST(test("x 123 \"a string\"", (omit[char_] >> int_ >> "\"a string\"")[f], space));
+        BOOST_TEST(n == 123);
+    }
 
     return boost::report_errors();
 }
-

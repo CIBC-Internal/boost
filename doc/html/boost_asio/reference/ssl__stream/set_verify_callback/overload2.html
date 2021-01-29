@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ssl::stream::set_verify_callback (2 of 2 overloads)</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../set_verify_callback.html" title="ssl::stream::set_verify_callback">
 <link rel="prev" href="overload1.html" title="ssl::stream::set_verify_callback (1 of 2 overloads)">
@@ -30,11 +30,11 @@
 <p>
             Set the callback used to verify peer certificates.
           </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span>
-    <span class="keyword">typename</span> <span class="identifier">VerifyCallback</span><span class="special">&gt;</span>
-<span class="identifier">boost</span><span class="special">::</span><span class="identifier">system</span><span class="special">::</span><span class="identifier">error_code</span> <span class="identifier">set_verify_callback</span><span class="special">(</span>
-    <span class="identifier">VerifyCallback</span> <span class="identifier">callback</span><span class="special">,</span>
-    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">system</span><span class="special">::</span><span class="identifier">error_code</span> <span class="special">&amp;</span> <span class="identifier">ec</span><span class="special">);</span>
+<pre class="programlisting">template&lt;
+    typename VerifyCallback&gt;
+void set_verify_callback(
+    VerifyCallback callback,
+    boost::system::error_code &amp; ec);
 </pre>
 <p>
             This function is used to specify a callback function that will be called
@@ -53,10 +53,10 @@
                   The function object to be used for verifying a certificate. The
                   function signature of the handler must be:
 </p>
-<pre class="programlisting"><span class="keyword">bool</span> <span class="identifier">verify_callback</span><span class="special">(</span>
-  <span class="keyword">bool</span> <span class="identifier">preverified</span><span class="special">,</span> <span class="comment">// True if the certificate passed pre-verification.</span>
-  <span class="identifier">verify_context</span><span class="special">&amp;</span> <span class="identifier">ctx</span> <span class="comment">// The peer certificate and other context.</span>
-<span class="special">);</span>
+<pre class="programlisting">bool verify_callback(
+  bool preverified, // True if the certificate passed pre-verification.
+  verify_context&amp; ctx // The peer certificate and other context.
+);
 </pre>
 <p>
                   The return value of the callback is true if the certificate has
@@ -74,12 +74,12 @@
             <span class="phrase"><a name="boost_asio.reference.ssl__stream.set_verify_callback.overload2.remarks"></a></span><a class="link" href="overload2.html#boost_asio.reference.ssl__stream.set_verify_callback.overload2.remarks">Remarks</a>
           </h6>
 <p>
-            Calls <code class="computeroutput"><span class="identifier">SSL_set_verify</span></code>.
+            Calls <code class="computeroutput">SSL_set_verify</code>.
           </p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
+<td align="right"><div class="copyright-footer">Copyright © 2003-2020 Christopher M.
       Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

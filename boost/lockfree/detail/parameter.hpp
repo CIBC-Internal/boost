@@ -1,6 +1,6 @@
 // boost lockfree
 //
-// Copyright (C) 2011 Tim Blechmann
+// Copyright (C) 2011, 2016 Tim Blechmann
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -10,6 +10,13 @@
 #define BOOST_LOCKFREE_DETAIL_PARAMETER_HPP
 
 #include <boost/lockfree/policies.hpp>
+#include <boost/parameter/parameters.hpp>
+#include <boost/parameter/binding.hpp>
+#include <boost/core/allocator_access.hpp>
+
+#include <boost/mpl/void.hpp>
+
+
 
 namespace boost {
 namespace lockfree {
@@ -49,7 +56,7 @@ struct extract_allocator
                                std::allocator<T>
                               >::type allocator_arg;
 
-    typedef typename allocator_arg::template rebind<T>::other type;
+    typedef typename boost::allocator_rebind<allocator_arg, T>::type type;
 };
 
 template <typename bound_args, bool default_ = false>

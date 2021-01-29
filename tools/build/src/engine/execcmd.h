@@ -15,8 +15,9 @@
 #ifndef EXECCMD_H
 #define EXECCMD_H
 
+#include "config.h"
 #include "lists.h"
-#include "strings.h"
+#include "jam_strings.h"
 #include "timestamp.h"
 
 
@@ -38,6 +39,12 @@ typedef void (* ExecCmdCallback)
     int const cmd_exit_reason
 );
 
+/* Global initialization.  Must be called after setting
+ * globs.jobs.  May be called multiple times. */
+void exec_init( void );
+/* Global cleanup */
+void exec_done( void );
+
 /* Status codes passed to ExecCmdCallback routines. */
 #define EXEC_CMD_OK    0
 #define EXEC_CMD_FAIL  1
@@ -57,9 +64,15 @@ int exec_check
 #define EXEC_CHECK_LINE_TOO_LONG  103
 #define EXEC_CHECK_TOO_LONG       104
 
+/* Prevents action output from being written
+ * immediately to stdout/stderr.
+ */
+#define EXEC_CMD_QUIET 1
+
 void exec_cmd
 (
     string const * command,
+    int flags,
     ExecCmdCallback func,
     void * closure,
     LIST * shell
@@ -96,7 +109,7 @@ int is_raw_command_request( LIST * shell );
 /* Utility worker for exec_check() checking whether all the given command lines
  * are under the specified length limit.
  */
-int check_cmd_for_too_long_lines( char const * command, int const max,
+int check_cmd_for_too_long_lines( char const * command, size_t max,
     int * const error_length, int * const error_max_length );
 
 #endif

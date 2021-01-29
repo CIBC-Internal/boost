@@ -17,14 +17,14 @@ t.set_tree("../example/gettext")
 
 t.run_build_system(stderr=None)
 
-t.expect_addition(["bin/$toolset/debug/main.exe",
-                   "bin/$toolset/debug/russian.mo"])
+t.expect_addition(["bin/$toolset/debug*/main.exe",
+                   "bin/$toolset/debug*/russian.mo"])
 
-file = t.adjust_names(["bin/$toolset/debug/main.exe"])[0]
+file = t.adjust_names(["bin/$toolset/debug*/main.exe"])[0]
 
 input_fd = os.popen(file)
 input = input_fd.read();
 
-t.fail_test(string.find(input, "international hello") != 0)
+t.fail_test(input.find("international hello") != 0)
 
 t.cleanup()
