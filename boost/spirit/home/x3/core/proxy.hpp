@@ -7,10 +7,6 @@
 #if !defined(BOOST_SPIRIT_X3_PROXY_FEBRUARY_1_2013_0211PM)
 #define BOOST_SPIRIT_X3_PROXY_FEBRUARY_1_2013_0211PM
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #include <boost/spirit/home/x3/core/parser.hpp>
 #include <boost/spirit/home/x3/core/detail/parse_into_container.hpp>
 #include <boost/spirit/home/x3/support/traits/attribute_category.hpp>
@@ -22,7 +18,7 @@ namespace boost { namespace spirit { namespace x3
     {
         static bool const is_pass_through_unary = true;
 
-        proxy(Subject const& subject)
+        constexpr proxy(Subject const& subject)
           : unary_parser<Subject, Derived>(subject) {}
 
         // Overload this when appropriate. The proxy parser will pick up

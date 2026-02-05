@@ -1,11 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
@@ -14,44 +18,34 @@
 #include <algorithm>
 #include <iterator>
 
-#include <boost/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
+#include <boost/throw_exception.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
+#include <boost/geometry/algorithms/detail/overlay/inconsistent_turns_exception.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/turns/debug_turn.hpp>
 
+#include <boost/geometry/algorithms/detail/tupled_output.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry
 {
-
-#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
-class inconsistent_turns_exception : public geometry::exception
-{
-public:
-
-    inline inconsistent_turns_exception() {}
-
-    virtual ~inconsistent_turns_exception() throw()
-    {}
-
-    virtual char const* what() const throw()
-    {
-        return "Boost.Geometry Inconsistent Turns exception";
-    }
-};
-#endif
-
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
@@ -142,7 +136,7 @@ static inline bool is_isolated_point(Turn const& turn,
 
     if ( turn.method == method_none )
     {
-        BOOST_ASSERT( operation.operation == operation_continue );
+        BOOST_GEOMETRY_ASSERT( operation.operation == operation_continue );
         return true;
     }
 
@@ -173,31 +167,39 @@ static inline bool is_isolated_point(Turn const& turn,
 
 
 
-
-
-
-
+// GeometryOut - linestring or tuple of at least point and linestring
 template
 <
-    typename LinestringOut,
+    typename GeometryOut,
     typename Linestring,
     typename Linear,
     overlay_type OverlayType,
     bool FollowIsolatedPoints,
     bool FollowContinueTurns
 >
-class follow_linestring_linear_linestring
+class follow_linestring_linear
 {
 protected:
     // allow spikes (false indicates: do not remove spikes)
     typedef following::action_selector<OverlayType, false> action;
 
+    typedef geometry::detail::output_geometry_access
+        <
+            GeometryOut, linestring_tag, linestring_tag
+        > linear;
+    typedef geometry::detail::output_geometry_access
+        <
+            GeometryOut, point_tag, linestring_tag
+        > pointlike;
+
     template
     <
         typename TurnIterator,
         typename TurnOperationIterator,
+        typename LinestringOut,
         typename SegmentIdentifier,
-        typename OutputIterator
+        typename OutputIterator,
+        typename SideStrategy
     >
     static inline OutputIterator
     process_turn(TurnIterator it,
@@ -207,7 +209,8 @@ protected:
                  Linestring const& linestring,
                  LinestringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
-                 OutputIterator oit)
+                 OutputIterator oit,
+                 SideStrategy const& strategy)
     {
         // We don't rescale linear/linear
         detail::no_rescale_policy robust_policy;
@@ -219,10 +222,12 @@ protected:
             entered = true;
             if ( enter_count == 0 )
             {
-                action::enter(current_piece, linestring,
+                action::enter(current_piece,
+                              linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, robust_policy, oit);
+                              it->point, *op_it, strategy, robust_policy,
+                              linear::get(oit));
             }
             ++enter_count;
         }
@@ -234,23 +239,25 @@ protected:
             if ( enter_count == 0 )
             {
                 entered = false;
-                action::leave(current_piece, linestring,
+                action::leave(current_piece,
+                              linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, robust_policy, oit);
+                              it->point, *op_it, strategy, robust_policy,
+                              linear::get(oit));
             }
         }
-        else if ( FollowIsolatedPoints
+        else if ( BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
                   && is_isolated_point(*it, *op_it, entered) )
         {
             detail::turns::debug_turn(*it, *op_it, "-> Isolated point");
 
-            action::isolated_point(current_piece, linestring,
-                                   current_segment_id,
-                                   op_it->seg_id.segment_index,
-                                   it->point, *op_it, oit);
+            action::template isolated_point
+                <
+                    typename pointlike::type
+                >(it->point, pointlike::get(oit));
         }
-        else if ( FollowContinueTurns
+        else if ( BOOST_GEOMETRY_CONDITION(FollowContinueTurns)
                   && is_staying_inside(*it, *op_it, entered) )
         {
             detail::turns::debug_turn(*it, *op_it, "-> Staying inside");
@@ -263,14 +270,17 @@ protected:
     template
     <
         typename SegmentIdentifier,
-        typename OutputIterator
+        typename LinestringOut,
+        typename OutputIterator,
+        typename SideStrategy
     >
     static inline OutputIterator
     process_end(bool entered,
                 Linestring const& linestring,
                 SegmentIdentifier const& current_segment_id,
                 LinestringOut& current_piece,
-                OutputIterator oit)
+                OutputIterator oit,
+                SideStrategy const& strategy)
     {
         if ( action::is_entered(entered) )
         {
@@ -282,7 +292,8 @@ protected:
                     false, false // do not reverse; do not remove spikes
                 >::apply(linestring,
                          current_segment_id,
-                         static_cast<signed_index_type>(boost::size(linestring) - 1),
+                         static_cast<signed_size_type>(boost::size(linestring) - 1),
+                         strategy,
                          robust_policy,
                          current_piece);
         }
@@ -290,23 +301,24 @@ protected:
         // Output the last one, if applicable
         if (::boost::size(current_piece) > 1)
         {
-            *oit++ = current_piece;
+            *linear::get(oit)++ = current_piece;
         }
 
         return oit;
     }
 
 public:
-    template <typename TurnIterator, typename OutputIterator>
+    template <typename TurnIterator, typename OutputIterator, typename SideStrategy>
     static inline OutputIterator
     apply(Linestring const& linestring, Linear const&,
           TurnIterator first, TurnIterator beyond,
-          OutputIterator oit)
+          OutputIterator oit,
+          SideStrategy const& strategy)
     {
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
-        LinestringOut current_piece;
+        typename linear::type current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
 
         bool entered = false;
@@ -318,21 +330,19 @@ public:
                                entered, enter_count, 
                                linestring,
                                current_piece, current_segment_id,
-                               oit);
+                               oit,
+                               strategy);
         }
 
-#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
         if (enter_count != 0)
         {
-            throw inconsistent_turns_exception();
+           return oit;
         }
-#else
-        BOOST_ASSERT(enter_count == 0);
-#endif
 
         return process_end(entered, linestring,
                            current_segment_id, current_piece,
-                           oit);
+                           oit,
+                           strategy);
     }
 };
 
@@ -348,8 +358,8 @@ template
     bool FollowIsolatedPoints,
     bool FollowContinueTurns
 >
-class follow_multilinestring_linear_linestring
-    : follow_linestring_linear_linestring
+class follow_multilinestring_linear
+    : follow_linestring_linear
         <
             LinestringOut,
             typename boost::range_value<MultiLinestring>::type,
@@ -362,7 +372,7 @@ class follow_multilinestring_linear_linestring
 protected:
     typedef typename boost::range_value<MultiLinestring>::type Linestring;
 
-    typedef follow_linestring_linear_linestring
+    typedef follow_linestring_linear
         <
             LinestringOut, Linestring, Linear,
             OverlayType, FollowIsolatedPoints, FollowContinueTurns
@@ -404,7 +414,7 @@ protected:
     };
 
     template <typename TurnIterator>
-    static inline signed_index_type get_multi_index(TurnIterator it)
+    static inline signed_size_type get_multi_index(TurnIterator it)
     {
         return boost::begin(it->operations)->seg_id.multi_index;
     }
@@ -412,10 +422,10 @@ protected:
     class has_other_multi_id
     {
     private:
-        signed_index_type m_multi_id;
+        signed_size_type m_multi_id;
 
     public:
-        has_other_multi_id(signed_index_type multi_id)
+        has_other_multi_id(signed_size_type multi_id)
             : m_multi_id(multi_id) {}
 
         template <typename Turn>
@@ -427,13 +437,14 @@ protected:
     };
 
 public:
-    template <typename TurnIterator, typename OutputIterator>
+    template <typename TurnIterator, typename OutputIterator, typename SideStrategy>
     static inline OutputIterator
     apply(MultiLinestring const& multilinestring, Linear const& linear,
           TurnIterator first, TurnIterator beyond,
-          OutputIterator oit)
+          OutputIterator oit,
+          SideStrategy const& strategy)
     {
-        BOOST_ASSERT( first != beyond );
+        BOOST_GEOMETRY_ASSERT( first != beyond );
 
         typedef copy_linestrings_in_range
             <
@@ -446,7 +457,7 @@ public:
         // Iterate through all intersection points (they are
         // ordered along the each linestring)
 
-        signed_index_type current_multi_id = get_multi_index(first);
+        signed_size_type current_multi_id = get_multi_index(first);
 
         oit = copy_linestrings::apply(ls_first,
                                       ls_first + current_multi_id,
@@ -461,9 +472,9 @@ public:
                                        has_other_multi_id(current_multi_id));
 
             oit = Base::apply(*(ls_first + current_multi_id),
-                              linear, per_ls_current, per_ls_next, oit);
+                              linear, per_ls_current, per_ls_next, oit, strategy);
 
-            signed_index_type next_multi_id(-1);
+            signed_size_type next_multi_id = -1;
             linestring_iterator ls_next = ls_beyond;
             if ( per_ls_next != beyond )
             {
@@ -495,11 +506,10 @@ template
     overlay_type OverlayType,
     bool FollowIsolatedPoints,
     bool FollowContinueTurns,
-    typename TagOut = typename tag<LinestringOut>::type,
     typename TagIn1 = typename tag<Geometry1>::type
 >
 struct follow
-    : not_implemented<LinestringOut, Geometry1>
+    : not_implemented<Geometry1>
 {};
 
 
@@ -517,8 +527,8 @@ struct follow
     <
         LinestringOut, Linestring, Linear,
         OverlayType, FollowIsolatedPoints, FollowContinueTurns,
-        linestring_tag, linestring_tag
-    > : follow_linestring_linear_linestring
+        linestring_tag
+    > : follow_linestring_linear
         <
             LinestringOut, Linestring, Linear,
             OverlayType, FollowIsolatedPoints, FollowContinueTurns
@@ -539,8 +549,8 @@ struct follow
     <
         LinestringOut, MultiLinestring, Linear,
         OverlayType, FollowIsolatedPoints, FollowContinueTurns,
-        linestring_tag, multi_linestring_tag
-    > : follow_multilinestring_linear_linestring
+        multi_linestring_tag
+    > : follow_multilinestring_linear
         <
             LinestringOut, MultiLinestring, Linear,
             OverlayType, FollowIsolatedPoints, FollowContinueTurns

@@ -29,12 +29,16 @@
 namespace boost {
 namespace container {
 
+/// @cond
+
 template<bool Value>
 struct new_allocator_bool
 {  static const bool value = Value;  };
 
 template<class T>
 class new_allocator;
+
+/// @endcond
 
 //! Specialization of new_allocator for void types
 template<>
@@ -67,6 +71,13 @@ class new_allocator<void>
    //!Never throws
    new_allocator(const new_allocator &) BOOST_NOEXCEPT_OR_NOTHROW
    {}
+
+   //!Copy assignment operator from other new_allocator.
+   //!Never throws
+   new_allocator& operator=(const new_allocator &) BOOST_NOEXCEPT_OR_NOTHROW
+   {
+       return *this;
+   }
 
    //!Constructor from related new_allocator.
    //!Never throws
@@ -126,6 +137,13 @@ class new_allocator
    new_allocator(const new_allocator &) BOOST_NOEXCEPT_OR_NOTHROW
    {}
 
+   //!Copy assignment operator from other new_allocator.
+   //!Never throws
+   new_allocator& operator=(const new_allocator &) BOOST_NOEXCEPT_OR_NOTHROW
+   {
+       return *this;
+   }
+
    //!Constructor from related new_allocator.
    //!Never throws
    template<class T2>
@@ -133,23 +151,31 @@ class new_allocator
    {}
 
    //!Allocates memory for an array of count elements.
-   //!Throws std::bad_alloc if there is no enough memory
+   //!Throws bad_alloc if there is no enough memory
    pointer allocate(size_type count)
    {
-	   if(BOOST_UNLIKELY(count > this->max_size()))
-	      throw_bad_alloc();
-	   return static_cast<T*>(::operator new(count*sizeof(T)));
+      const std::size_t max_count = std::size_t(-1)/(2*sizeof(T));
+      if(BOOST_UNLIKELY(count > max_count))
+         throw_bad_alloc();
+      return static_cast<T*>(::operator new(count*sizeof(T)));
    }
 
    //!Deallocates previously allocated memory.
    //!Never throws
-   void deallocate(pointer ptr, size_type) BOOST_NOEXCEPT_OR_NOTHROW
-     { ::operator delete((void*)ptr); }
+   void deallocate(pointer ptr, size_type n) BOOST_NOEXCEPT_OR_NOTHROW
+   {
+      (void)n;
+      # if __cpp_sized_deallocation
+      ::operator delete((void*)ptr, n * sizeof(T));
+      #else
+      ::operator delete((void*)ptr);
+      # endif
+   }
 
    //!Returns the maximum number of elements that could be allocated.
    //!Never throws
    size_type max_size() const BOOST_NOEXCEPT_OR_NOTHROW
-   {  return size_type(-1)/sizeof(T);   }
+   {  return std::size_t(-1)/(2*sizeof(T));   }
 
    //!Swaps two allocators, does nothing
    //!because this new_allocator is stateless
@@ -172,4 +198,4 @@ class new_allocator
 
 #include <boost/container/detail/config_end.hpp>
 
-#endif   //BOOST_CONTAINER_ALLOCATOR_HPP
+#endif   //BOOST_CONTAINER_NEW_ALLOCATOR_HPP

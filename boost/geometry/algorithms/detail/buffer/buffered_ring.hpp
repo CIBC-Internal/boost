@@ -1,6 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,12 +16,18 @@
 
 #include <cstddef>
 
-#include <boost/range.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
+
+#include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
@@ -25,8 +35,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-
-#include <boost/geometry/multi/algorithms/within.hpp>
 
 
 namespace boost { namespace geometry
@@ -75,11 +83,14 @@ struct buffered_ring_collection : public std::vector<Ring>
 
 
 // Turn off concept checking (for now)
-namespace dispatch
+namespace concepts
 {
-template <typename Geometry, bool IsConst>
-struct check<Geometry, detail::buffer::buffered_ring_collection_tag, IsConst>
+
+template <typename Geometry>
+struct concept_type<Geometry, geometry::detail::buffer::buffered_ring_collection_tag>
 {
+    struct dummy {};
+    using type = dummy;
 };
 
 }
@@ -95,36 +106,36 @@ namespace traits
 
 
 template <typename Ring>
-struct tag<detail::buffer::buffered_ring<Ring> >
+struct tag<geometry::detail::buffer::buffered_ring<Ring> >
 {
     typedef ring_tag type;
 };
 
 
 template <typename Ring>
-struct point_order<detail::buffer::buffered_ring<Ring> >
+struct point_order<geometry::detail::buffer::buffered_ring<Ring> >
 {
     static const order_selector value = geometry::point_order<Ring>::value;
 };
 
 
 template <typename Ring>
-struct closure<detail::buffer::buffered_ring<Ring> >
+struct closure<geometry::detail::buffer::buffered_ring<Ring> >
 {
     static const closure_selector value = geometry::closure<Ring>::value;
 };
 
 
 template <typename Ring>
-struct point_type<detail::buffer::buffered_ring_collection<Ring> >
+struct point_type<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
     typedef typename geometry::point_type<Ring>::type type;
 };
 
 template <typename Ring>
-struct tag<detail::buffer::buffered_ring_collection<Ring> >
+struct tag<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
-    typedef detail::buffer::buffered_ring_collection_tag type;
+    typedef geometry::detail::buffer::buffered_ring_collection_tag type;
 };
 
 
@@ -146,7 +157,29 @@ struct ring_type
     typedef Ring type;
 };
 
+
+// There is a specific tag, so this specialization cannot be placed in traits
+template <typename Ring>
+struct point_order<detail::buffer::buffered_ring_collection_tag,
+        geometry::detail::buffer::buffered_ring_collection
+        <
+            geometry::detail::buffer::buffered_ring<Ring>
+        > >
+{
+    static const order_selector value
+        = core_dispatch::point_order<ring_tag, Ring>::value;
+};
+
+
 }
+
+
+template <>
+struct single_tag_of<detail::buffer::buffered_ring_collection_tag>
+{
+    typedef ring_tag type;
+};
+
 
 namespace dispatch
 {
@@ -212,6 +245,21 @@ struct within
 };
 
 
+template <typename Geometry>
+struct is_empty<Geometry, detail::buffer::buffered_ring_collection_tag>
+    : detail::is_empty::multi_is_empty<detail::is_empty::range_is_empty>
+{};
+
+
+template <typename Geometry>
+struct envelope<Geometry, detail::buffer::buffered_ring_collection_tag>
+    : detail::envelope::envelope_multi_range
+        <
+            detail::envelope::envelope_range
+        >
+{};
+
+
 } // namespace dispatch
 
 namespace detail { namespace overlay
@@ -225,7 +273,7 @@ struct get_ring<detail::buffer::buffered_ring_collection_tag>
                 ring_identifier const& id,
                 MultiGeometry const& multi_ring)
     {
-        BOOST_ASSERT
+        BOOST_GEOMETRY_ASSERT
             (
                 id.multi_index >= 0
                 && id.multi_index < int(boost::size(multi_ring))

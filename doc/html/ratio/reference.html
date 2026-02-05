@@ -1,11 +1,12 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Reference</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../ratio.html" title="Chapter&#160;25.&#160;Boost.Ratio 2.1.0">
+<link rel="up" href="../ratio.html" title="Chapter 33. Boost.Ratio 2.1.0">
 <link rel="prev" href="users_guide.html" title="User's Guide">
 <link rel="next" href="appendices.html" title="Appendices">
 </head>
@@ -100,8 +101,8 @@
 <a name="ratio.reference.config_hpp.assert"></a><a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert">Static Assert</a>
 </h4></div></div></div>
 <p>
-          When BOOST_NO_STATIC_ASSERT is defined, the user can select the way static
-          assertions are reported. Define
+          When BOOST_NO_CXX11_STATIC_ASSERT is defined, the user can select the way
+          static assertions are reported. Define
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -329,18 +330,22 @@
               Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is
               defined.
             </p>
-<h7><a name="ratio.reference.std.ratio_hpp.ratio.ca.h0"></a>
+<h6>
+<a name="ratio.reference.std.ratio_hpp.ratio.ca.h0"></a>
               <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio.ca.default_constructor"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca.default_constructor">Default
               Constructor</a>
-            </h7><pre class="programlisting"><span class="identifier">ratio</span><span class="special">()=</span><span class="keyword">default</span><span class="special">;</span>
+            </h6>
+<pre class="programlisting"><span class="identifier">ratio</span><span class="special">()=</span><span class="keyword">default</span><span class="special">;</span>
 </pre>
 <p>
               <span class="bold"><strong>Effects:</strong></span> Constructs a <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a> object.
             </p>
-<h7><a name="ratio.reference.std.ratio_hpp.ratio.ca.h1"></a>
+<h6>
+<a name="ratio.reference.std.ratio_hpp.ratio.ca.h1"></a>
               <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio.ca.copy_constructor"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca.copy_constructor">Copy
               Constructor</a>
-            </h7><pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">D2</span><span class="special">&gt;</span>
+            </h6>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">D2</span><span class="special">&gt;</span>
   <span class="identifier">ratio</span><span class="special">(</span><span class="keyword">const</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N2</span><span class="special">,</span> <span class="identifier">D2</span><span class="special">&gt;&amp;</span> <span class="identifier">r</span><span class="special">);</span>
 </pre>
 <p>
@@ -351,9 +356,11 @@
               participate in overload resolution unless <code class="computeroutput"><span class="identifier">r</span></code>
               has the same normalized form as <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>.
             </p>
-<h7><a name="ratio.reference.std.ratio_hpp.ratio.ca.h2"></a>
+<h6>
+<a name="ratio.reference.std.ratio_hpp.ratio.ca.h2"></a>
               <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio.ca.assignement"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca.assignement">Assignement</a>
-            </h7><pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">D2</span><span class="special">&gt;</span>
+            </h6>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">D2</span><span class="special">&gt;</span>
   <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N2</span><span class="special">,</span> <span class="identifier">D2</span><span class="special">&gt;&amp;</span> <span class="identifier">r</span><span class="special">);</span>
 </pre>
 <p>
@@ -972,7 +979,7 @@
             and <code class="computeroutput"><span class="identifier">symbol</span><span class="special">()</span></code>.
           </p>
 <div class="table">
-<a name="ratio.reference.io.ratio_io_hpp.spe.the_return_values_of_specializations_of_ratio_string"></a><p class="title"><b>Table&#160;25.1.&#160;The return values of specializations of ratio_string</b></p>
+<a name="ratio.reference.io.ratio_io_hpp.spe.the_return_values_of_specializations_of_ratio_string"></a><p class="title"><b>Table 33.1. The return values of specializations of ratio_string</b></p>
 <div class="table-contents"><table class="table" summary="The return values of specializations of ratio_string">
 <colgroup>
 <col>
@@ -3020,7 +3027,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2008 Howard Hinnant<br>Copyright &#169; 2006, 2008 Beman Dawes<br>Copyright &#169; 2009-2012 Vicente
+<td align="right"><div class="copyright-footer">Copyright © 2008 Howard Hinnant<br>Copyright © 2006, 2008 Beman Dawes<br>Copyright © 2009-2012 Vicente
       J. Botet Escriba<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)

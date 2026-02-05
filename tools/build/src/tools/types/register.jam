@@ -1,6 +1,6 @@
 # Copyright David Abrahams 2004. Distributed under the Boost
 # Software License, Version 1.0. (See accompanying
-# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+# file LICENSE.txt or copy at https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 # This module's job is to automatically import all the type
 # registration modules in its directory.
@@ -21,7 +21,7 @@ local rule type ( type : suffixes * : base-type ? : os * )
 }
 
 .this-module's-file = [ modules.binding $(__name__) ] ;
-.this-module's-dir = [ path.parent $(.this-module's-file) ] ;
+.this-module's-dir = [ path.parent [ path.make $(.this-module's-file) ] ] ;
 .sibling-jamfiles =  [ path.glob $(.this-module's-dir) : *.jam ] ;
 .sibling-modules = [ MATCH ^(.*)\.jam$ : $(.sibling-jamfiles) ] ;
 
@@ -30,9 +30,9 @@ for m in $(.sibling-modules)
 {
     m = [ path.basename $(m) ] ;
     m = types/$(m) ;
-    
+
     # Inject the type rule into the new module
-    IMPORT $(__name__) : type : $(m) : type ;
+    IMPORT $(__name__) : type : $(m:B) : type ;
     import $(m) ;
 }
 

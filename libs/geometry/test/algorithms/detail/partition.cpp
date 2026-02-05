@@ -1,6 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+//
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,20 +15,20 @@
 
 #include <algorithms/test_overlay.hpp>
 
+#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-
-#include <boost/geometry/algorithms/detail/partition.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #if defined(TEST_WITH_SVG)
 # include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -60,7 +66,12 @@ struct ovelaps_box
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
     {
-        return ! bg::detail::disjoint::disjoint_box_box(box, item.box);
+        typename bg::strategy::disjoint::services::default_strategy
+            <
+                Box, Box
+            >::type strategy;
+
+        return ! bg::detail::disjoint::disjoint_box_box(box, item.box, strategy);
     }
 };
 
@@ -77,7 +88,7 @@ struct box_visitor
     {}
 
     template <typename Item>
-    inline void apply(Item const& item1, Item const& item2)
+    inline bool apply(Item const& item1, Item const& item2)
     {
         if (bg::intersects(item1.box, item2.box))
         {
@@ -86,40 +97,45 @@ struct box_visitor
             area += bg::area(b);
             count++;
         }
+        return true;
     }
 };
 
 struct point_in_box_visitor
 {
     int count;
+
     point_in_box_visitor()
         : count(0)
     {}
 
     template <typename Point, typename BoxItem>
-    inline void apply(Point const& point, BoxItem const& box_item)
+    inline bool apply(Point const& point, BoxItem const& box_item)
     {
         if (bg::within(point, box_item.box))
         {
             count++;
         }
+        return true;
     }
 };
 
 struct reversed_point_in_box_visitor
 {
     int count;
+
     reversed_point_in_box_visitor()
         : count(0)
     {}
 
     template <typename BoxItem, typename Point>
-    inline void apply(BoxItem const& box_item, Point const& point)
+    inline bool apply(BoxItem const& box_item, Point const& point)
     {
         if (bg::within(point, box_item.box))
         {
             count++;
         }
+        return true;
     }
 };
 
@@ -136,7 +152,7 @@ void test_boxes(std::string const& wkt_box_list, double expected_area, int expec
     std::vector<sample> boxes;
 
     int index = 1;
-    BOOST_FOREACH(std::string const& wkt, wkt_boxes)
+    for (std::string const& wkt : wkt_boxes)
     {
         boxes.push_back(sample(index++, wkt));
     }
@@ -144,8 +160,8 @@ void test_boxes(std::string const& wkt_box_list, double expected_area, int expec
     box_visitor<Box> visitor;
     bg::partition
         <
-            Box, get_box, ovelaps_box
-        >::apply(boxes, visitor, 1);
+            Box
+        >::apply(boxes, visitor, get_box(), ovelaps_box(), 1);
 
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
@@ -195,12 +211,13 @@ struct point_visitor
     {}
 
     template <typename Item>
-    inline void apply(Item const& item1, Item const& item2)
+    inline bool apply(Item const& item1, Item const& item2)
     {
         if (bg::equals(item1, item2))
         {
             count++;
         }
+        return true;
     }
 };
 
@@ -213,17 +230,18 @@ void test_points(std::string const& wkt1, std::string const& wkt2, int expected_
     bg::read_wkt(wkt2, mp2);
 
     int id = 1;
-    BOOST_FOREACH(point_item& p, mp1)
+    for (point_item& p : mp1)
     { p.id = id++; }
     id = 1;
-    BOOST_FOREACH(point_item& p, mp2)
+    for (point_item& p : mp2)
     { p.id = id++; }
 
     point_visitor visitor;
     bg::partition
         <
-            bg::model::box<point_item>, get_point, ovelaps_point
-        >::apply(mp1, mp2, visitor, 1);
+            bg::model::box<point_item>
+        >::apply(mp1, mp2, visitor, get_point(), ovelaps_point(),
+                 get_point(), ovelaps_point(), 1);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
 }
@@ -335,9 +353,9 @@ void test_many_points(int seed, int size, int count)
 
     // Test equality in quadratic loop
     int expected_count = 0;
-    BOOST_FOREACH(point_item const& item1, mp1)
+    for (point_item const& item1 : mp1)
     {
-        BOOST_FOREACH(point_item const& item2, mp2)
+        for (point_item const& item2 : mp2)
         {
             if (bg::equals(item1, item2))
             {
@@ -370,21 +388,19 @@ void test_many_points(int seed, int size, int count)
     bg::partition
         <
             bg::model::box<point_item>,
-            get_point, ovelaps_point,
-            get_point, ovelaps_point,
             bg::detail::partition::include_all_policy,
-            bg::detail::partition::include_all_policy,
-            box_visitor_type
-        >::apply(mp1, mp2, visitor, 2, box_visitor);
+            bg::detail::partition::include_all_policy
+        >::apply(mp1, mp2, visitor, get_point(), ovelaps_point(),
+                 get_point(), ovelaps_point(), 2, box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
 
 #if defined(TEST_WITH_SVG)
-    BOOST_FOREACH(point_item const& item, mp1)
+    for (point_item const& item : mp1)
     {
         mapper.map(item, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 8);
     }
-    BOOST_FOREACH(point_item const& item, mp2)
+    for (point_item const& item : mp2)
     {
         mapper.map(item, "fill:rgb(0,128,255);stroke:rgb(0,0,100);stroke-width:1", 4);
     }
@@ -432,9 +448,9 @@ void test_many_boxes(int seed, int size, int count)
     // Test equality in quadratic loop
     int expected_count = 0;
     double expected_area = 0.0;
-    BOOST_FOREACH(box_item<box_type> const& item1, boxes)
+    for (box_item<box_type> const& item1 : boxes)
     {
-        BOOST_FOREACH(box_item<box_type> const& item2, boxes)
+        for (box_item<box_type> const& item2 : boxes)
         {
             if (item1.id < item2.id)
             {
@@ -463,7 +479,7 @@ void test_many_boxes(int seed, int size, int count)
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
 
-    BOOST_FOREACH(box_item<box_type> const& item, boxes)
+    for (box_item<box_type> const& item : boxes)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(50,50,210);stroke:rgb(0,0,0);stroke-width:1");
     }
@@ -480,12 +496,10 @@ void test_many_boxes(int seed, int size, int count)
     bg::partition
         <
             box_type,
-            get_box, ovelaps_box,
-            get_box, ovelaps_box,
             bg::detail::partition::include_all_policy,
-            bg::detail::partition::include_all_policy,
-            partition_box_visitor_type
-        >::apply(boxes, visitor, 2, partition_box_visitor);
+            bg::detail::partition::include_all_policy
+        >::apply(boxes, visitor, get_box(), ovelaps_box(),
+                 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
@@ -502,9 +516,9 @@ void test_two_collections(int seed1, int seed2, int size, int count)
     // Get expectations in quadratic loop
     int expected_count = 0;
     double expected_area = 0.0;
-    BOOST_FOREACH(box_item<box_type> const& item1, boxes1)
+    for (box_item<box_type> const& item1 : boxes1)
     {
-        BOOST_FOREACH(box_item<box_type> const& item2, boxes2)
+        for (box_item<box_type> const& item2 : boxes2)
         {
             if (bg::intersects(item1.box, item2.box))
             {
@@ -530,11 +544,11 @@ void test_two_collections(int seed1, int seed2, int size, int count)
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
 
-    BOOST_FOREACH(box_item<box_type> const& item, boxes1)
+    for (box_item<box_type> const& item : boxes1)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(50,50,210);stroke:rgb(0,0,0);stroke-width:1");
     }
-    BOOST_FOREACH(box_item<box_type> const& item, boxes2)
+    for (box_item<box_type> const& item : boxes2)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
     }
@@ -550,12 +564,10 @@ void test_two_collections(int seed1, int seed2, int size, int count)
     bg::partition
         <
             box_type,
-            get_box, ovelaps_box,
-            get_box, ovelaps_box,
             bg::detail::partition::include_all_policy,
-            bg::detail::partition::include_all_policy,
-            partition_box_visitor_type
-        >::apply(boxes1, boxes2, visitor, 2, partition_box_visitor);
+            bg::detail::partition::include_all_policy
+        >::apply(boxes1, boxes2, visitor, get_box(), ovelaps_box(),
+                 get_box(), ovelaps_box(), 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
@@ -573,9 +585,9 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
 
     // Get expectations in quadratic loop
     int expected_count = 0;
-    BOOST_FOREACH(point_item const& point, points)
+    for (point_item const& point : points)
     {
-        BOOST_FOREACH(box_item<box_type> const& box_item, boxes)
+        for (box_item<box_type> const& box_item : boxes)
         {
             if (bg::within(point, box_item.box))
             {
@@ -598,11 +610,11 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
 
-    BOOST_FOREACH(point_item const& point, points)
+    for (point_item const& point : points)
     {
         mapper.map(point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 8);
     }
-    BOOST_FOREACH(box_item<box_type> const& item, boxes)
+    for (box_item<box_type> const& item : boxes)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
     }
@@ -618,23 +630,19 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
     bg::partition
         <
             box_type,
-            get_point, ovelaps_point,
-            get_box, ovelaps_box,
             bg::detail::partition::include_all_policy,
-            bg::detail::partition::include_all_policy,
-            partition_box_visitor_type
-        >::apply(points, boxes, visitor1, 2, partition_box_visitor);
+            bg::detail::partition::include_all_policy
+        >::apply(points, boxes, visitor1, get_point(), ovelaps_point(),
+                 get_box(), ovelaps_box(), 2, partition_box_visitor);
 
     reversed_point_in_box_visitor visitor2;
     bg::partition
         <
             box_type,
-            get_box, ovelaps_box,
-            get_point, ovelaps_point,
             bg::detail::partition::include_all_policy,
-            bg::detail::partition::include_all_policy,
-            partition_box_visitor_type
-        >::apply(boxes, points, visitor2, 2, partition_box_visitor);
+            bg::detail::partition::include_all_policy
+        >::apply(boxes, points, visitor2, get_box(), ovelaps_box(),
+                 get_point(), ovelaps_point(), 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor1.count, expected_count);
     BOOST_CHECK_EQUAL(visitor2.count, expected_count);

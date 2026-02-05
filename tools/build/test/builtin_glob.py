@@ -2,7 +2,7 @@
 
 # Copyright 2014 Steven Watanabe
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 # This tests the GLOB rule.
 
@@ -41,8 +41,8 @@ test_glob([], "[ GLOB . : f*am ]", ["./file.jam"])
 test_glob([], "[ GLOB . : fi?e.?am ]", ["./file.jam"])
 test_glob([], "[ GLOB . : fi?.jam ]", [])
 # [abc-fh-j] matches a set of characters
-test_glob([], "[ GLOB . : [f][i][l][e].jam ]", ["./file.jam"])
-test_glob([], "[ GLOB . : [fghau][^usdrwe][k-o][^f-s].jam ]", ["./file.jam"])
+test_glob([], '[ GLOB . : "[f][i][l][e].jam" ]', ["./file.jam"])
+test_glob([], '[ GLOB . : "[fghau][^usdrwe][k-o][^f-s].jam" ]', ["./file.jam"])
 # \x matches x
 test_glob([], "[ GLOB . : \\f\\i\\l\\e.jam ]", ["./file.jam"])
 

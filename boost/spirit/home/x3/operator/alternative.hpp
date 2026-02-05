@@ -4,16 +4,14 @@
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-#if !defined(SPIRIT_ALTERNATIVE_JAN_07_2013_1131AM)
-#define SPIRIT_ALTERNATIVE_JAN_07_2013_1131AM
+#if !defined(BOOST_SPIRIT_X3_ALTERNATIVE_JAN_07_2013_1131AM)
+#define BOOST_SPIRIT_X3_ALTERNATIVE_JAN_07_2013_1131AM
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
-#include <boost/spirit/home/x3/support/traits/attribute_of.hpp>
+#include <boost/spirit/home/x3/support/traits/attribute_of_binary.hpp>
 #include <boost/spirit/home/x3/core/parser.hpp>
 #include <boost/spirit/home/x3/operator/detail/alternative.hpp>
+
+#include <boost/variant/variant_fwd.hpp>
 
 namespace boost { namespace spirit { namespace x3
 {
@@ -22,7 +20,7 @@ namespace boost { namespace spirit { namespace x3
     {
         typedef binary_parser<Left, Right, alternative<Left, Right>> base_type;
 
-        alternative(Left left, Right right)
+        constexpr alternative(Left const& left, Right const& right)
             : base_type(left, right) {}
 
         template <typename Iterator, typename Context, typename RContext>
@@ -40,21 +38,18 @@ namespace boost { namespace spirit { namespace x3
             Iterator& first, Iterator const& last
           , Context const& context, RContext& rcontext, Attribute& attr) const
         {
-            if (detail::parse_alternative(this->left, first, last, context, rcontext, attr))
-                return true;
-            if (detail::parse_alternative(this->right, first, last, context, rcontext, attr))
-                return true;
-            return false;
+            return detail::parse_alternative(this->left, first, last, context, rcontext, attr)
+               || detail::parse_alternative(this->right, first, last, context, rcontext, attr);
         }
     };
 
     template <typename Left, typename Right>
-    inline alternative<
+    constexpr alternative<
         typename extension::as_parser<Left>::value_type
       , typename extension::as_parser<Right>::value_type>
     operator|(Left const& left, Right const& right)
     {
-        return {as_parser(left), as_parser(right)};
+        return { as_parser(left), as_parser(right) };
     }
 }}}
 
@@ -62,7 +57,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
 {
     template <typename Left, typename Right, typename Context>
     struct attribute_of<x3::alternative<Left, Right>, Context>
-        : x3::detail::attribute_of_alternative<Left, Right, Context> {};
+        : x3::detail::attribute_of_binary<boost::variant, x3::alternative, Left, Right, Context> {};
 }}}}
 
 #endif

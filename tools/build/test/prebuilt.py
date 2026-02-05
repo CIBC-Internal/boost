@@ -2,7 +2,7 @@
 
 # Copyright 2002, 2003, 2004 Vladimir Prus
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 # Test that we can use already built sources
 
@@ -27,8 +27,8 @@ t.expand_toolset("ext/jamfile.jam")
 # is picked, depending of variant. This also checks that correct includes for
 # prebuilt libraries are used.
 t.run_build_system()
-t.expect_addition("bin/$toolset/debug/hello.exe")
-t.expect_addition("bin/$toolset/release/hello.exe")
+t.expect_addition("bin/$toolset/debug*/hello.exe")
+t.expect_addition("bin/$toolset/release*/hello.exe")
 
 t.rm("bin")
 
@@ -37,7 +37,7 @@ t.rm("bin")
 t.copy("ext/jamfile3.jam", "ext/jamfile.jam")
 t.expand_toolset("ext/jamfile.jam")
 t.run_build_system()
-t.expect_addition("bin/$toolset/debug/hello.exe")
-t.expect_addition("bin/$toolset/release/hello.exe")
+t.expect_addition("bin/$toolset/debug*/hello.exe")
+t.expect_addition("bin/$toolset/release*/hello.exe")
 
 t.cleanup()

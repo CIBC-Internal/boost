@@ -59,7 +59,7 @@ void expected_results()
       "HP-UX|Sun Solaris",                          // platform
       largest_type,                // test type(s)
       ".*(Y'[nv]|y').*Random.*",           // test data group
-      ".*", 30000, 30000);             // test function
+      ".*", 150000, 30000);             // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
@@ -151,6 +151,31 @@ void expected_results()
          largest_type,                  // test type(s)
          ".*Y'n.*",              // test data group
          ".*", 30000, 30000);         // test function
+   //
+   // Cygwin:
+   // Use the same error rates as MinGW
+   //
+      add_expected_result(
+         "GNU.*",                       // compiler
+         ".*",                          // stdlib
+         "Cygwin*",                     // platform
+         largest_type,                  // test type(s)
+         ".*Y'v.*Random.*",             // test data group
+         ".*", 400000, 300000);         // test function
+      add_expected_result(
+         "GNU.*",                       // compiler
+         ".*",                          // stdlib
+         "Cygwin*",                     // platform
+         largest_type,                  // test type(s)
+         ".*Y'[01v].*",                 // test data group
+         ".*", 2000, 1000);             // test function
+      add_expected_result(
+         "GNU.*",                       // compiler
+         ".*",                          // stdlib
+         "Cygwin*",                     // platform
+         largest_type,                  // test type(s)
+         ".*Y'n.*",                     // test data group
+         ".*", 30000, 30000);           // test function
    //
    // Solaris version of long double has it's own error rates,
    // again just a touch higher than msvc's 64-bit double:
@@ -260,7 +285,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 

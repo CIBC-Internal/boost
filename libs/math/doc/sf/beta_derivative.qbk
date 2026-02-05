@@ -24,7 +24,7 @@ beta function __ibeta.
 
 [equation derivative2]
 
-The return type of this function is computed using the __arg_pomotion_rules
+The return type of this function is computed using the __arg_promotion_rules
 when T1, T2 and T3 are different types.
 
 [optional_policy]
@@ -39,7 +39,7 @@ This function just expose some of the internals of the incomplete
 beta function __ibeta: refer to the documentation for that function
 for more information.
 
-[endsect][/section Derivatives of the Incomplete Beta and Gamma Functions]
+[endsect] [/section Derivatives of the Incomplete Beta and Gamma Functions]
 [/ 
   Copyright 2006 John Maddock and Paul A. Bristow.
   Distributed under the Boost Software License, Version 1.0.

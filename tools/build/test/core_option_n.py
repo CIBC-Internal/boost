@@ -3,11 +3,11 @@
 # Copyright 2007 Rene Rivera.
 # Copyright 2011 Steven Watanabe
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 import BoostBuild
 
-t = BoostBuild.Tester(pass_toolset=0, pass_d0=False)
+t = BoostBuild.Tester(pass_toolset=0)
 
 t.write("file.jam", """\
 actions .a.

@@ -11,7 +11,6 @@
 //        sure your compiler finds the includes and your linker finds the 
 //        proper libraries.
 
-#include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
 
 #include <Qt/qstring.h>
@@ -32,6 +31,26 @@ namespace boost { namespace spirit { namespace traits
         {
             c.append(val);
             return true;
+        }
+    };
+    
+    // Test if a QString is empty (required for debug)
+    template <>
+    struct is_empty_container<QString>
+    {
+        static bool call(QString const& c)
+        {
+            return c.isEmpty();
+        }
+    };
+
+    // Define how to stream a QString (required for debug)
+    template <typename Out, typename Enable>
+    struct print_attribute_debug<Out, QString, Enable>
+    {
+        static void call(Out& out, QString const& val)
+        {
+            out << val.toStdString();
         }
     };
 }}}

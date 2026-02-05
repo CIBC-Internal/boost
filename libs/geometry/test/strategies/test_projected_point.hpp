@@ -36,10 +36,6 @@
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <test_common/test_point.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
@@ -81,7 +77,7 @@ void test_services()
 
     typedef bgsd::projected_point<CalculationType> strategy_type;
 
-    BOOST_CONCEPT_ASSERT( (bg::concept::PointSegmentDistanceStrategy<strategy_type, P, PS>) );
+    BOOST_CONCEPT_ASSERT( (bg::concepts::PointSegmentDistanceStrategy<strategy_type, P, PS>) );
 
     typedef typename services::return_type<strategy_type, P, PS>::type return_type;
 
@@ -140,11 +136,11 @@ void test_2d(std::string const& wkt_p,
 
     BOOST_CONCEPT_ASSERT
         (
-            (bg::concept::PointSegmentDistanceStrategy<Strategy, P1, P2>)
+            (bg::concepts::PointSegmentDistanceStrategy<Strategy, P1, P2>)
         );
     BOOST_CONCEPT_ASSERT
         (
-            (bg::concept::PointSegmentDistanceStrategy<ComparableStrategy, P1, P2>)
+            (bg::concepts::PointSegmentDistanceStrategy<ComparableStrategy, P1, P2>)
         );
 
     {

@@ -24,7 +24,7 @@ namespace archive {
 // implementation of xml_text_archive
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
 basic_xml_iarchive<Archive>::load_start(const char *name){
     // if there's no name
     if(NULL == name)
@@ -37,11 +37,10 @@ basic_xml_iarchive<Archive>::load_start(const char *name){
     }
     // don't check start tag at highest level
     ++depth;
-    return;
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
 basic_xml_iarchive<Archive>::load_end(const char *name){
     // if there's no name
     if(NULL == name)
@@ -77,38 +76,39 @@ basic_xml_iarchive<Archive>::load_end(const char *name){
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
-basic_xml_iarchive<Archive>::load_override(object_id_type & t, int){
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
+basic_xml_iarchive<Archive>::load_override(object_id_type & t){
     t = object_id_type(this->This()->gimpl->rv.object_id);
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
-basic_xml_iarchive<Archive>::load_override(version_type & t, int){
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
+basic_xml_iarchive<Archive>::load_override(version_type & t){
     t = version_type(this->This()->gimpl->rv.version);
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
-basic_xml_iarchive<Archive>::load_override(class_id_type & t, int){
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
+basic_xml_iarchive<Archive>::load_override(class_id_type & t){
     t = class_id_type(this->This()->gimpl->rv.class_id);
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
-basic_xml_iarchive<Archive>::load_override(tracking_type & t, int){
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
+basic_xml_iarchive<Archive>::load_override(tracking_type & t){
     t = this->This()->gimpl->rv.tracking_level;
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(BOOST_PP_EMPTY())
+BOOST_ARCHIVE_OR_WARCHIVE_DECL
 basic_xml_iarchive<Archive>::basic_xml_iarchive(unsigned int flags) :
     detail::common_iarchive<Archive>(flags),
     depth(0)
 {}
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(BOOST_PP_EMPTY())
-basic_xml_iarchive<Archive>::~basic_xml_iarchive(){}
+BOOST_ARCHIVE_OR_WARCHIVE_DECL
+basic_xml_iarchive<Archive>::~basic_xml_iarchive(){
+}
 
 } // namespace archive
 } // namespace boost

@@ -29,11 +29,11 @@ namespace archive {
 // implementation of text_text_archive
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
-basic_text_iarchive<Archive>::load_override(class_name_type & t, int){
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
+basic_text_iarchive<Archive>::load_override(class_name_type & t){
     std::string cn;
     cn.reserve(BOOST_SERIALIZATION_MAX_KEY_SIZE);
-    load_override(cn, 0);
+    load_override(cn);
     if(cn.size() > (BOOST_SERIALIZATION_MAX_KEY_SIZE - 1))
         boost::serialization::throw_exception(
             archive_exception(archive_exception::invalid_class_name)
@@ -44,8 +44,8 @@ basic_text_iarchive<Archive>::load_override(class_name_type & t, int){
 }
 
 template<class Archive>
-BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
-basic_text_iarchive<Archive>::init(void){
+BOOST_ARCHIVE_OR_WARCHIVE_DECL void
+basic_text_iarchive<Archive>::init() {
     // read signature in an archive version independent manner
     std::string file_signature;
     * this->This() >> file_signature;
@@ -56,7 +56,7 @@ basic_text_iarchive<Archive>::init(void){
 
     // make sure the version of the reading archive library can
     // support the format of the archive being read
-    library_version_type input_library_version;
+    boost::serialization::library_version_type input_library_version;
     * this->This() >> input_library_version;
 
     #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))

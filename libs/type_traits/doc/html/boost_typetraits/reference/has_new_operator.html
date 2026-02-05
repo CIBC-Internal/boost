@@ -1,10 +1,10 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>has_new_operator</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Boost.TypeTraits">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Boost.TypeTraits">
 <link rel="up" href="../reference.html" title="Alphabetical Reference">
 <link rel="prev" href="has_negate.html" title="has_negate">
 <link rel="next" href="has_not_equal_to.html" title="has_not_equal_to">
@@ -35,10 +35,9 @@
         otherwise inherits from <a class="link" href="integral_constant.html" title="integral_constant">false_type</a>.
       </p>
 <p>
-        <span class="bold"><strong>Compiler Compatibility:</strong></span> Not usable with
-        compilers that do not support "substitution failure is not an error"
-        (in which case BOOST_NO_SFINAE will be defined), also known to be broken
-        with the Borland/Codegear compiler.
+        <span class="bold"><strong>Compiler Compatibility:</strong></span> Requires working
+        SFINAE (i.e. BOOST_NO_SFINAE is not set). Only a minority of rather old compilers
+        do not support this. Also known to be broken with the Borland/Codegear compilers.
       </p>
 <p>
         <span class="bold"><strong>C++ Standard Reference:</strong></span> 12.5.
@@ -91,11 +90,11 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2000, 2011 Adobe Systems Inc, David Abrahams,
-      Frederic Bron, Steve Cleary, Beman Dawes, Aleksey Gurtovoy, Howard Hinnant,
-      Jesse Jones, Mat Marcus, Itay Maman, John Maddock, Alexander Nasonov, Thorsten
-      Ottosen, Roman Perepelitsa, Robert Ramey, Jeremy Siek, Robert Stewart and Steven
-      Watanabe<p>
+<td align="right"><div class="copyright-footer">Copyright © 2000, 2011 Adobe Systems Inc, David Abrahams,
+      Frederic Bron, Steve Cleary, Beman Dawes, Glen Fernandes, Aleksey Gurtovoy,
+      Howard Hinnant, Jesse Jones, Mat Marcus, Itay Maman, John Maddock, Alexander
+      Nasonov, Thorsten Ottosen, Roman Perepelitsa, Robert Ramey, Jeremy Siek, Robert
+      Stewart and Steven Watanabe<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

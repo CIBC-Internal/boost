@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Daytime.3 - An asynchronous TCP daytime server</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../tutorial.html" title="Tutorial">
 <link rel="prev" href="tutdaytime2/src.html" title="Source listing for Daytime.2">
@@ -39,17 +39,17 @@
 </pre>
 <p>
         We need to create a server object to accept incoming client connections.
-        The <a class="link" href="../reference/io_service.html" title="io_service">io_service</a> object
+        The <a class="link" href="../reference/io_context.html" title="io_context">io_context</a> object
         provides I/O services, such as sockets, that the server object will use.
       </p>
-<pre class="programlisting">    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_service</span> <span class="identifier">io_service</span><span class="special">;</span>
-    <span class="identifier">tcp_server</span> <span class="identifier">server</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">);</span>
+<pre class="programlisting">    <span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_context</span> <span class="identifier">io_context</span><span class="special">;</span>
+    <span class="identifier">tcp_server</span> <span class="identifier">server</span><span class="special">(</span><span class="identifier">io_context</span><span class="special">);</span>
 </pre>
 <p>
-        Run the <a class="link" href="../reference/io_service.html" title="io_service">io_service</a>
+        Run the <a class="link" href="../reference/io_context.html" title="io_context">io_context</a>
         object so that it will perform asynchronous operations on your behalf.
       </p>
-<pre class="programlisting">    <span class="identifier">io_service</span><span class="special">.</span><span class="identifier">run</span><span class="special">();</span>
+<pre class="programlisting">    <span class="identifier">io_context</span><span class="special">.</span><span class="identifier">run</span><span class="special">();</span>
   <span class="special">}</span>
   <span class="keyword">catch</span> <span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">exception</span><span class="special">&amp;</span> <span class="identifier">e</span><span class="special">)</span>
   <span class="special">{</span>
@@ -71,8 +71,9 @@
 <p>
         The constructor initialises an acceptor to listen on TCP port 13.
       </p>
-<pre class="programlisting">  <span class="identifier">tcp_server</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_service</span><span class="special">&amp;</span> <span class="identifier">io_service</span><span class="special">)</span>
-    <span class="special">:</span> <span class="identifier">acceptor_</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">,</span> <span class="identifier">tcp</span><span class="special">::</span><span class="identifier">endpoint</span><span class="special">(</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">v4</span><span class="special">(),</span> <span class="number">13</span><span class="special">))</span>
+<pre class="programlisting">  <span class="identifier">tcp_server</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_context</span><span class="special">&amp;</span> <span class="identifier">io_context</span><span class="special">)</span>
+    <span class="special">:</span> <span class="identifier">io_context_</span><span class="special">(</span><span class="identifier">io_context</span><span class="special">),</span>
+      <span class="identifier">acceptor_</span><span class="special">(</span><span class="identifier">io_context</span><span class="special">,</span> <span class="identifier">tcp</span><span class="special">::</span><span class="identifier">endpoint</span><span class="special">(</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">v4</span><span class="special">(),</span> <span class="number">13</span><span class="special">))</span>
   <span class="special">{</span>
     <span class="identifier">start_accept</span><span class="special">();</span>
   <span class="special">}</span>
@@ -86,7 +87,7 @@
 <pre class="programlisting">  <span class="keyword">void</span> <span class="identifier">start_accept</span><span class="special">()</span>
   <span class="special">{</span>
     <span class="identifier">tcp_connection</span><span class="special">::</span><span class="identifier">pointer</span> <span class="identifier">new_connection</span> <span class="special">=</span>
-      <span class="identifier">tcp_connection</span><span class="special">::</span><span class="identifier">create</span><span class="special">(</span><span class="identifier">acceptor_</span><span class="special">.</span><span class="identifier">get_io_service</span><span class="special">());</span>
+      <span class="identifier">tcp_connection</span><span class="special">::</span><span class="identifier">create</span><span class="special">(</span><span class="identifier">io_context_</span><span class="special">);</span>
 
     <span class="identifier">acceptor_</span><span class="special">.</span><span class="identifier">async_accept</span><span class="special">(</span><span class="identifier">new_connection</span><span class="special">-&gt;</span><span class="identifier">socket</span><span class="special">(),</span>
         <span class="identifier">boost</span><span class="special">::</span><span class="identifier">bind</span><span class="special">(&amp;</span><span class="identifier">tcp_server</span><span class="special">::</span><span class="identifier">handle_accept</span><span class="special">,</span> <span class="keyword">this</span><span class="special">,</span> <span class="identifier">new_connection</span><span class="special">,</span>
@@ -126,9 +127,9 @@
 <span class="keyword">public</span><span class="special">:</span>
   <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">tcp_connection</span><span class="special">&gt;</span> <span class="identifier">pointer</span><span class="special">;</span>
 
-  <span class="keyword">static</span> <span class="identifier">pointer</span> <span class="identifier">create</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_service</span><span class="special">&amp;</span> <span class="identifier">io_service</span><span class="special">)</span>
+  <span class="keyword">static</span> <span class="identifier">pointer</span> <span class="identifier">create</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_context</span><span class="special">&amp;</span> <span class="identifier">io_context</span><span class="special">)</span>
   <span class="special">{</span>
-    <span class="keyword">return</span> <span class="identifier">pointer</span><span class="special">(</span><span class="keyword">new</span> <span class="identifier">tcp_connection</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">));</span>
+    <span class="keyword">return</span> <span class="identifier">pointer</span><span class="special">(</span><span class="keyword">new</span> <span class="identifier">tcp_connection</span><span class="special">(</span><span class="identifier">io_context</span><span class="special">));</span>
   <span class="special">}</span>
 
   <span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span><span class="special">&amp;</span> <span class="identifier">socket</span><span class="special">()</span>
@@ -170,8 +171,8 @@
 <pre class="programlisting">  <span class="special">}</span>
 
 <span class="keyword">private</span><span class="special">:</span>
-  <span class="identifier">tcp_connection</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_service</span><span class="special">&amp;</span> <span class="identifier">io_service</span><span class="special">)</span>
-    <span class="special">:</span> <span class="identifier">socket_</span><span class="special">(</span><span class="identifier">io_service</span><span class="special">)</span>
+  <span class="identifier">tcp_connection</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">io_context</span><span class="special">&amp;</span> <span class="identifier">io_context</span><span class="special">)</span>
+    <span class="special">:</span> <span class="identifier">socket_</span><span class="special">(</span><span class="identifier">io_context</span><span class="special">)</span>
   <span class="special">{</span>
   <span class="special">}</span>
 
@@ -223,8 +224,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright © 2003-2022 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

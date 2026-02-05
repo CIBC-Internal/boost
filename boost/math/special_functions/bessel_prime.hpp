@@ -51,7 +51,7 @@ inline T cyl_bessel_j_prime_imp(T v, T x, const Policy& pol)
    // Special case for large x: use asymptotic expansion:
    //
    if (boost::math::detail::asymptotic_bessel_derivative_large_x_limit(v, x))
-      return boost::math::detail::asymptotic_bessel_j_derivative_large_x_2(v, x);
+      return boost::math::detail::asymptotic_bessel_j_derivative_large_x_2(v, x, pol);
    //
    // Special case for small x: use Taylor series:
    //
@@ -93,7 +93,7 @@ inline T sph_bessel_j_prime_imp(unsigned v, T x, const Policy& pol)
    // Special case for v == 0:
    //
    if (v == 0)
-      return (x == 0) ? boost::math::policies::raise_overflow_error<T>(function, 0, pol)
+      return (x == 0) ? boost::math::policies::raise_overflow_error<T>(function, nullptr, pol)
          : static_cast<T>(-boost::math::detail::sph_bessel_j_imp<T>(1, x, pol));
    //
    // Special case for x == 0 and v > 0:
@@ -180,7 +180,7 @@ inline T cyl_neumann_prime_imp(T v, T x, const Policy& pol)
    // Special case for large x: use asymptotic expansion:
    //
    if (boost::math::detail::asymptotic_bessel_derivative_large_x_limit(v, x))
-      return boost::math::detail::asymptotic_bessel_y_derivative_large_x_2(v, x);
+      return boost::math::detail::asymptotic_bessel_y_derivative_large_x_2(v, x, pol);
    //
    // Special case for small x: use Taylor series:
    //
@@ -237,7 +237,7 @@ inline typename detail::bessel_traits<T1, T2, Policy>::result_type cyl_bessel_j_
       policies::promote_double<false>,
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
-   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_bessel_j_prime_imp<tag_type, value_type>(v, static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_bessel_j_prime<%1%,%1%>(%1%,%1%)");
+   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_bessel_j_prime_imp<tag_type, value_type>(static_cast<value_type>(v), static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_bessel_j_prime<%1%,%1%>(%1%,%1%)");
 }
 
 template <class T1, class T2>
@@ -279,7 +279,7 @@ inline typename detail::bessel_traits<T1, T2, Policy>::result_type cyl_bessel_i_
       policies::promote_double<false>,
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
-   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_bessel_i_prime_imp<value_type>(v, static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_bessel_i_prime<%1%>(%1%,%1%)");
+   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_bessel_i_prime_imp<value_type>(static_cast<value_type>(v), static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_bessel_i_prime<%1%>(%1%,%1%)");
 }
 
 template <class T1, class T2>
@@ -301,7 +301,7 @@ inline typename detail::bessel_traits<T1, T2, Policy>::result_type cyl_bessel_k_
       policies::promote_double<false>,
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
-   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_bessel_k_prime_imp<tag_type, value_type>(v, static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_bessel_k_prime<%1%,%1%>(%1%,%1%)");
+   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_bessel_k_prime_imp<tag_type, value_type>(static_cast<value_type>(v), static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_bessel_k_prime<%1%,%1%>(%1%,%1%)");
 }
 
 template <class T1, class T2>
@@ -323,7 +323,7 @@ inline typename detail::bessel_traits<T1, T2, Policy>::result_type cyl_neumann_p
       policies::promote_double<false>,
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
-   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_neumann_prime_imp<tag_type, value_type>(v, static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_neumann_prime<%1%,%1%>(%1%,%1%)");
+   return policies::checked_narrowing_cast<result_type, Policy>(detail::cyl_neumann_prime_imp<tag_type, value_type>(static_cast<value_type>(v), static_cast<value_type>(x), forwarding_policy()), "boost::math::cyl_neumann_prime<%1%,%1%>(%1%,%1%)");
 }
 
 template <class T1, class T2>

@@ -1,10 +1,10 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Polygon Concept</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Geometry">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../index.html" title="Chapter 1. Geometry">
 <link rel="up" href="../concepts.html" title="Concepts">
 <link rel="prev" href="concept_linestring.html" title="Linestring Concept">
 <link rel="next" href="concept_multi_point.html" title="MultiPoint Concept">
@@ -62,19 +62,27 @@
               as type
             </li>
 <li class="listitem">
-              there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">ring_type</span></code>
-              defining the type of its exterior ring and interior rings as type
+              there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">ring_mutable_type</span></code>
+              defining the mutable types of its exterior and interior rings as type
             </li>
 <li class="listitem">
-              this type defined by <code class="computeroutput"><span class="identifier">ring_type</span></code>
-              must fulfill the <a class="link" href="concept_ring.html" title="Ring Concept">Ring
-              Concept</a>
+              there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">ring_const_type</span></code>
+              defining the constant types of its exterior and interior rings as type
             </li>
 <li class="listitem">
-              there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">interior_type</span></code>
-              defining the type of the collection of its interior rings as type;
-              this collection itself must fulfill a Boost.Range Random Access Range
-              Concept
+              <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">ring_mutable_type</span></code> and <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">ring_const_type</span></code> must fulfill the
+              <a class="link" href="concept_ring.html" title="Ring Concept">Ring Concept</a>
+            </li>
+<li class="listitem">
+              there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">interior_mutable_type</span></code>
+              defining the mutable type of the collection of its interior rings as
+              type;
+            </li>
+<li class="listitem">
+              there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">interior_const_type</span></code>
+              defining the constant type of the collection of its interior rings
+              as type; each of these collections itself must fulfill a Boost.Range
+              Random Access Range Concept
             </li>
 <li class="listitem">
               there must be a specialization of <code class="computeroutput"><span class="identifier">traits</span><span class="special">::</span><span class="identifier">exterior_ring</span></code>
@@ -158,8 +166,8 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2009-2015 Barend Gehrels, Bruno Lalande,
-      Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates<p>
+<td align="right"><div class="copyright-footer">Copyright © 2009-2021 Barend Gehrels,
+      Bruno Lalande, Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

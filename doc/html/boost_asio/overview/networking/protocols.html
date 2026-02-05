@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>TCP, UDP and ICMP</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../networking.html" title="Networking">
 <link rel="prev" href="../networking.html" title="Networking">
@@ -39,7 +39,7 @@
           Hostname resolution is performed using a resolver, where host and service
           names are looked up and converted into one or more endpoints:
         </p>
-<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">resolver</span> <span class="identifier">resolver</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">resolver</span> <span class="identifier">resolver</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">query</span> <span class="identifier">query</span><span class="special">(</span><span class="string">"www.boost.org"</span><span class="special">,</span> <span class="string">"http"</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">iterator</span> <span class="identifier">iter</span> <span class="special">=</span> <span class="identifier">resolver</span><span class="special">.</span><span class="identifier">resolve</span><span class="special">(</span><span class="identifier">query</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">iterator</span> <span class="identifier">end</span><span class="special">;</span> <span class="comment">// End marker.</span>
@@ -61,7 +61,7 @@
           These operations try each endpoint in a list until the socket is successfully
           connected. For example, a single call:
         </p>
-<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">boost</span><span class="special">::</span><span class="identifier">asio</span><span class="special">::</span><span class="identifier">connect</span><span class="special">(</span><span class="identifier">socket</span><span class="special">,</span> <span class="identifier">resolver</span><span class="special">.</span><span class="identifier">resolve</span><span class="special">(</span><span class="identifier">query</span><span class="special">));</span>
 </pre>
 <p>
@@ -89,7 +89,7 @@
 <p>
           When a specific endpoint is available, a socket can be created and connected:
         </p>
-<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">socket</span><span class="special">.</span><span class="identifier">connect</span><span class="special">(</span><span class="identifier">endpoint</span><span class="special">);</span>
 </pre>
 <p>
@@ -109,9 +109,9 @@
 <p>
           A program uses an acceptor to accept incoming TCP connections:
         </p>
-<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">acceptor</span> <span class="identifier">acceptor</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">,</span> <span class="identifier">my_endpoint</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">acceptor</span> <span class="identifier">acceptor</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">,</span> <span class="identifier">my_endpoint</span><span class="special">);</span>
 <span class="special">...</span>
-<span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<span class="identifier">ip</span><span class="special">::</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">acceptor</span><span class="special">.</span><span class="identifier">accept</span><span class="special">(</span><span class="identifier">socket</span><span class="special">);</span>
 </pre>
 <p>
@@ -125,7 +125,7 @@
 <p>
           UDP hostname resolution is also performed using a resolver:
         </p>
-<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">resolver</span> <span class="identifier">resolver</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">resolver</span> <span class="identifier">resolver</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">query</span> <span class="identifier">query</span><span class="special">(</span><span class="string">"localhost"</span><span class="special">,</span> <span class="string">"daytime"</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">iterator</span> <span class="identifier">iter</span> <span class="special">=</span> <span class="identifier">resolver</span><span class="special">.</span><span class="identifier">resolve</span><span class="special">(</span><span class="identifier">query</span><span class="special">);</span>
 <span class="special">...</span>
@@ -136,7 +136,7 @@
           address on port <code class="computeroutput"><span class="number">12345</span></code>:
         </p>
 <pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">endpoint</span> <span class="identifier">endpoint</span><span class="special">(</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">v4</span><span class="special">(),</span> <span class="number">12345</span><span class="special">);</span>
-<span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">,</span> <span class="identifier">endpoint</span><span class="special">);</span>
+<span class="identifier">ip</span><span class="special">::</span><span class="identifier">udp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">,</span> <span class="identifier">endpoint</span><span class="special">);</span>
 </pre>
 <p>
           Data may be read from or written to an unconnected UDP socket using the
@@ -157,7 +157,7 @@
 <p>
           As with TCP and UDP, ICMP hostname resolution is performed using a resolver:
         </p>
-<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">resolver</span> <span class="identifier">resolver</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">resolver</span> <span class="identifier">resolver</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">query</span> <span class="identifier">query</span><span class="special">(</span><span class="string">"localhost"</span><span class="special">,</span> <span class="string">""</span><span class="special">);</span>
 <span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">resolver</span><span class="special">::</span><span class="identifier">iterator</span> <span class="identifier">iter</span> <span class="special">=</span> <span class="identifier">resolver</span><span class="special">.</span><span class="identifier">resolve</span><span class="special">(</span><span class="identifier">query</span><span class="special">);</span>
 <span class="special">...</span>
@@ -167,7 +167,7 @@
           create an IP version 6 ICMP socket and bind it to the "any" address:
         </p>
 <pre class="programlisting"><span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">endpoint</span> <span class="identifier">endpoint</span><span class="special">(</span><span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">v6</span><span class="special">(),</span> <span class="number">0</span><span class="special">);</span>
-<span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">,</span> <span class="identifier">endpoint</span><span class="special">);</span>
+<span class="identifier">ip</span><span class="special">::</span><span class="identifier">icmp</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">,</span> <span class="identifier">endpoint</span><span class="special">);</span>
 </pre>
 <p>
           The port number is not used for ICMP.
@@ -194,8 +194,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright © 2003-2022 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

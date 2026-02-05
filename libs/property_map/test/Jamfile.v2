@@ -1,4 +1,4 @@
-# Function library
+# PropertyMap library
 
 # Copyright (C) 2005 Trustees of Indiana University
 #
@@ -10,10 +10,18 @@
 
 # For more information, see http://www.boost.org/
 
+import os ;
+
+project
+  : requirements
+    <target-os>cygwin:<define>_POSIX_C_SOURCE=201112L
+  ;
+
 test-suite property_map
   : [ compile property_map_cc.cpp ]
     [ run     compose_property_map_test.cpp ]
     [ run     dynamic_properties_test.cpp ]
+    [ run     dynamic_properties_test.cpp : : : <define>BOOST_NO_RTTI=1 : dynamic_properties_no_rtti_test ]
     [ run     function_property_map_test.cpp ]
     [ run     transform_value_property_map_test.cpp ]
   ;

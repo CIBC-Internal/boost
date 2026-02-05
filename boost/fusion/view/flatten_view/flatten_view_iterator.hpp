@@ -1,9 +1,9 @@
-/*//////////////////////////////////////////////////////////////////////////////
+/*==============================================================================
     Copyright (c) 2013 Jamboree
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//////////////////////////////////////////////////////////////////////////////*/
+==============================================================================*/
 #ifndef BOOST_FUSION_FLATTEN_VIEW_ITERATOR_HPP_INCLUDED
 #define BOOST_FUSION_FLATTEN_VIEW_ITERATOR_HPP_INCLUDED
 
@@ -19,6 +19,10 @@
 #include <boost/fusion/iterator/deref.hpp>
 #include <boost/fusion/iterator/value_of.hpp>
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4512) // assignment operator could not be generated.
+#endif
 
 namespace boost { namespace fusion
 {
@@ -45,6 +49,10 @@ namespace boost { namespace fusion
         base_type base;
     };
 }}
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 namespace boost { namespace fusion { namespace detail
 {

@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <boost/config.hpp>
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 #if !defined(BOOST_HAS_THREADS) || defined(DONT_HAVE_BOOST) || defined(BOOST_DISABLE_THREADS)
 static void skipped()
@@ -46,9 +46,11 @@ static const unsigned long maximum_test_size = 1000000UL;
 #include <boost/spirit/home/classic/core/non_terminal/impl/object_with_id.ipp>
 #include <boost/ref.hpp>
 #include <boost/thread/xtime.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/lock_types.hpp>
 #include <vector>
 #include <algorithm>
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 using BOOST_SPIRIT_CLASSIC_NS::impl::object_with_id;
 
@@ -80,14 +82,14 @@ struct test_task
     increase_test_size(unsigned long size)
     {
         static boost::mutex  m;
-        boost::mutex::scoped_lock l(m);
+        boost::unique_lock<boost::mutex> l(m);
 
         if (size<test_size || test_size == maximum_test_size)
             return test_size;
 
         boost::xtime now;
         boost::xtime_get(&now, boost::TIME_UTC_);
-        unsigned long seconds = now.sec - start_time.sec;
+        boost::xtime::xtime_sec_t seconds = now.sec - start_time.sec;
         if (seconds < 4)
         {
             test_size *= 2;

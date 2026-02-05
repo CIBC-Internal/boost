@@ -39,7 +39,7 @@ First, we need to be able to use the binomial distribution constructor
 #include <iomanip>
   using std::setw; using std::setprecision;
 #include <exception>
-  using std::exception;
+  
 
 
 //][/binomial_quiz_example1]
@@ -157,7 +157,7 @@ Probability of getting > 10 right (to pass) is 0.000285239
 ]
 And we can check that these two, <= 10 and > 10,  add up to unity.
 */
-BOOST_ASSERT((cdf(quiz, 10) + cdf(complement(quiz, 10))) == 1.);
+BOOST_MATH_ASSERT((cdf(quiz, 10) + cdf(complement(quiz, 10))) == 1.);
 /*`
 If we want a < rather than a <= test, because the CDF is inclusive, we must subtract one from the score.
 */
@@ -179,7 +179,7 @@ outcome counted twice!
     << cdf(complement(quiz, pass_score-1))
     << ", only 1 in " << 1/cdf(complement(quiz, pass_score-1)) << endl;
 
-  BOOST_ASSERT((cdf(quiz, pass_score -1) + cdf(complement(quiz, pass_score-1))) == 1);
+  BOOST_MATH_ASSERT((cdf(quiz, pass_score -1) + cdf(complement(quiz, pass_score-1))) == 1);
 
 /*`
 [pre
@@ -407,7 +407,7 @@ If guessing then percentiles 1 to 99% will get 0 to 7.788 right.
 
 //] [/discrete_quantile_real]
   }
-  catch(const exception& e)
+  catch(const std::exception& e)
   { // Always useful to include try & catch blocks because
     // default policies are to throw exceptions on arguments that cause
     // errors like underflow, overflow.

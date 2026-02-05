@@ -130,7 +130,7 @@ public:
     result_type operator()() {
         // calculating the range every time may seem wasteful.  However, this
         // makes the information locally available for the optimizer.
-        typedef typename make_unsigned<result_type>::type base_unsigned;
+        typedef typename boost::random::traits::make_unsigned<result_type>::type base_unsigned;
         const base_unsigned brange =
             detail::subtract<result_type>()((max)(), (min)());
         const base_unsigned off =
@@ -173,10 +173,10 @@ public:
     { detail::generate_from_int(*this, first, last); }
 
     /** Returns the smallest value that the generator can produce. */
-    static result_type min BOOST_PREVENT_MACRO_SUBSTITUTION ()
+    static BOOST_CONSTEXPR result_type min BOOST_PREVENT_MACRO_SUBSTITUTION ()
     { return (base_type::min)(); }
     /** Returns the largest value that the generator can produce. */
-    static result_type max BOOST_PREVENT_MACRO_SUBSTITUTION ()
+    static BOOST_CONSTEXPR result_type max BOOST_PREVENT_MACRO_SUBSTITUTION ()
     { return (base_type::max)(); }
 
     /** Writes a @c shuffle_order_engine to a @c std::ostream. */

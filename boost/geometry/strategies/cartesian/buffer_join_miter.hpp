@@ -9,7 +9,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_MITER_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_MITER_HPP
 
-#include <boost/assert.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -89,8 +89,8 @@ public:
         // Check the distance ip-vertex (= miter distance)
         // (We calculate it manually (not using Pythagoras strategy) to reuse
         //  dx and dy)
-        coordinate_type const dx = get<0>(p) - get<0>(vertex);
-        coordinate_type const dy = get<1>(p) - get<1>(vertex);
+        promoted_type const dx = get<0>(p) - get<0>(vertex);
+        promoted_type const dy = get<1>(p) - get<1>(vertex);
 
         promoted_type const distance = geometry::math::sqrt(dx * dx + dy * dy);
 
@@ -99,7 +99,7 @@ public:
 
         if (distance > max_distance)
         {
-            BOOST_ASSERT(distance != 0.0);
+            BOOST_GEOMETRY_ASSERT(distance != 0.0);
 
             promoted_type const proportion = max_distance / distance;
             set<0>(p, get<0>(vertex) + dx * proportion);

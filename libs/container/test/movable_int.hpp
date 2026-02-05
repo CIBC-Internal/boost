@@ -54,10 +54,16 @@ class movable_int
 
    movable_int(BOOST_RV_REF(movable_int) mmi)
       :  m_int(mmi.m_int)
-   {  mmi.m_int = 0; ++count; }
+   {
+      BOOST_ASSERT(&mmi != this);
+      mmi.m_int = 0; ++count;
+   }
 
    movable_int & operator= (BOOST_RV_REF(movable_int) mmi)
-   {  this->m_int = mmi.m_int;   mmi.m_int = 0; return *this;  }
+   {
+      BOOST_ASSERT(&mmi != this);
+      this->m_int = mmi.m_int;   mmi.m_int = 0; return *this;
+   }
 
    movable_int & operator= (int i)
    {  this->m_int = i;  BOOST_ASSERT(this->m_int != INT_MIN); return *this;  }
@@ -96,6 +102,15 @@ class movable_int
 
    friend bool operator==(int l, const movable_int &r)
    {  return l == r.get_int();   }
+
+   friend bool operator<(const movable_int &l, int r)
+   {  return l.get_int() < r;   }
+
+   friend bool operator<(int l, const movable_int &r)
+   {  return l < r.get_int();   }
+
+   friend std::size_t hash_value(const movable_int &v)
+   {  return (std::size_t)v.get_int(); }
 
    private:
    int m_int;
@@ -143,11 +158,17 @@ class movable_and_copyable_int
 
    movable_and_copyable_int(const movable_and_copyable_int& mmi)
       :  m_int(mmi.m_int)
-   {  ++count; }
+   {
+      BOOST_ASSERT(&mmi != this);
+      ++count;
+   }
 
    movable_and_copyable_int(BOOST_RV_REF(movable_and_copyable_int) mmi)
       :  m_int(mmi.m_int)
-   {  mmi.m_int = 0; ++count; }
+   {
+      BOOST_ASSERT(&mmi != this);
+      mmi.m_int = 0; ++count;
+   }
 
    ~movable_and_copyable_int()
    {
@@ -161,7 +182,10 @@ class movable_and_copyable_int
    {  this->m_int = mi.m_int;    return *this;  }
 
    movable_and_copyable_int & operator= (BOOST_RV_REF(movable_and_copyable_int) mmi)
-   {  this->m_int = mmi.m_int;   mmi.m_int = 0;    return *this;  }
+   {
+      BOOST_ASSERT(&mmi != this);
+      this->m_int = mmi.m_int;   mmi.m_int = 0;    return *this;
+   }
 
    movable_and_copyable_int & operator= (int i)
    {  this->m_int = i;  BOOST_ASSERT(this->m_int != INT_MIN); return *this;  }
@@ -192,6 +216,15 @@ class movable_and_copyable_int
 
    friend bool operator==(int l, const movable_and_copyable_int &r)
    {  return l == r.get_int();   }
+
+   friend bool operator<(const movable_and_copyable_int &l, int r)
+   {  return l.get_int() < r;   }
+
+   friend bool operator<(int l, const movable_and_copyable_int &r)
+   {  return l < r.get_int();   }
+
+   friend std::size_t hash_value(const movable_and_copyable_int &v)
+   {  return (std::size_t)v.get_int(); }
 
    private:
    int m_int;
@@ -280,6 +313,15 @@ class copyable_int
    friend bool operator==(int l, const copyable_int &r)
    {  return l == r.get_int();   }
 
+   friend bool operator<(const copyable_int &l, int r)
+   {  return l.get_int() < r;   }
+
+   friend bool operator<(int l, const copyable_int &r)
+   {  return l < r.get_int();   }
+
+   friend std::size_t hash_value(const copyable_int &v)
+   {  return (std::size_t)v.get_int(); }
+
    private:
    int m_int;
 };
@@ -351,6 +393,15 @@ class non_copymovable_int
    friend bool operator==(int l, const non_copymovable_int &r)
    {  return l == r.get_int();   }
 
+   friend bool operator<(const non_copymovable_int &l, int r)
+   {  return l.get_int() < r;   }
+
+   friend bool operator<(int l, const non_copymovable_int &r)
+   {  return l < r.get_int();   }
+
+   friend std::size_t hash_value(const non_copymovable_int &v)
+   {  return (std::size_t)v.get_int(); }
+
    private:
    int m_int;
 };
@@ -360,37 +411,36 @@ unsigned int non_copymovable_int::count = 0;
 template<class T>
 struct life_count
 {
-   static unsigned check(unsigned) {  return true;   }
+   static bool check(unsigned) {  return true;   }
 };
 
 template<>
 struct life_count< movable_int >
 {
-   static unsigned check(unsigned c)
+   static bool check(unsigned c)
    {  return c == movable_int::count;   }
 };
 
 template<>
 struct life_count< copyable_int >
 {
-   static unsigned check(unsigned c)
+   static bool check(unsigned c)
    {  return c == copyable_int::count;   }
 };
 
 template<>
 struct life_count< movable_and_copyable_int >
 {
-   static unsigned check(unsigned c)
+   static bool check(unsigned c)
    {  return c == movable_and_copyable_int::count;   }
 };
 
 template<>
 struct life_count< non_copymovable_int >
 {
-   static unsigned check(unsigned c)
+   static bool check(unsigned c)
    {  return c == non_copymovable_int::count;   }
 };
-
 
 }  //namespace test {
 }  //namespace container {

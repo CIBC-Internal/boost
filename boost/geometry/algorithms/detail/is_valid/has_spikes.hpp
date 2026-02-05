@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -12,23 +13,29 @@
 
 #include <algorithm>
 
-#include <boost/range.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/core/ignore_unused.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/rbegin.hpp>
+#include <boost/range/rend.hpp>
 
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/validity_failure_type.hpp>
+#include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
+
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/io/dsv/write.hpp>
+
 #include <boost/geometry/policies/is_valid/default_policy.hpp>
 
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
-
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/validity_failure_type.hpp>
-#include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
-#include <boost/geometry/io/dsv/write.hpp>
 
 
 namespace boost { namespace geometry
@@ -39,108 +46,103 @@ namespace boost { namespace geometry
 namespace detail { namespace is_valid
 {
 
-template <typename Point>
-struct equal_to
-{
-    Point const& m_point;
 
-    equal_to(Point const& point)
-        : m_point(point)
-    {}
-
-    template <typename OtherPoint>
-    inline bool operator()(OtherPoint const& other) const
-    {
-        return geometry::equals(m_point, other);
-    }
-};
-
-template <typename Point>
-struct not_equal_to
-{
-    Point const& m_point;
-
-    not_equal_to(Point const& point)
-        : m_point(point)
-    {}
-
-    template <typename OtherPoint>
-    inline bool operator()(OtherPoint const& other) const
-    {
-        return ! geometry::equals(other, m_point);
-    }
-};
-
-
-
-template <typename Range, closure_selector Closure>
+template <typename Range>
 struct has_spikes
 {
-    template <typename VisitPolicy>
-    static inline bool apply(Range const& range, VisitPolicy& visitor)
+    template <typename Iterator, typename Strategy>
+    static inline Iterator find_different_from_first(Iterator first,
+                                                     Iterator last,
+                                                     Strategy const& strategy)
     {
-        typedef not_equal_to<typename point_type<Range>::type> not_equal;
+        if (first == last)
+            return last;
+        auto const& front = *first;
+        ++first;
+        return std::find_if(first, last, [&](auto const& pt) {
+            return ! equals::equals_point_point(pt, front, strategy);
+        });
+    }
 
-        typedef typename closeable_view<Range const, Closure>::type view_type;
-        typedef typename boost::range_iterator<view_type const>::type iterator; 
+    template <typename View, typename VisitPolicy, typename Strategy>
+    static inline bool apply_at_closure(View const& view, VisitPolicy& visitor,
+                                        Strategy const& strategy,
+                                        bool is_linear)
+    {
+        boost::ignore_unused(visitor);
 
-        bool const is_linear
-            = boost::is_same<typename tag<Range>::type, linestring_tag>::value;
+        typedef typename boost::range_iterator<View const>::type iterator;
 
-        view_type const view(range);
+        iterator cur = boost::begin(view);
+        typename boost::range_reverse_iterator
+            <
+                View const
+            >::type prev = find_different_from_first(boost::rbegin(view),
+                                                     boost::rend(view),
+                                                     strategy);
 
-        iterator prev = boost::begin(view);
+        iterator next = find_different_from_first(cur, boost::end(view),
+                                                  strategy);
+        if (detail::is_spike_or_equal(*next, *cur, *prev, strategy.side()))
+        {
+            return ! visitor.template apply<failure_spikes>(is_linear, *cur);
+        }
+        else
+        {
+            return ! visitor.template apply<no_failure>();
+        }
+    }
 
-        iterator cur = std::find_if(prev, boost::end(view), not_equal(*prev));
-        if ( cur == boost::end(view) )
+
+    template <typename VisitPolicy, typename Strategy>
+    static inline bool apply(Range const& range, VisitPolicy& visitor,
+                             Strategy const& strategy)
+    {
+        boost::ignore_unused(visitor);
+
+        bool const is_linestring = util::is_linestring<Range>::value;
+
+        detail::closed_view<Range const> const view(range);
+
+        auto prev = boost::begin(view);
+        auto const end = boost::end(view);
+
+        auto cur = find_different_from_first(prev, boost::end(view), strategy);
+        if (cur == end)
         {
             // the range has only one distinct point, so it
             // cannot have a spike
             return ! visitor.template apply<no_failure>();
         }
 
-        iterator next = std::find_if(cur, boost::end(view), not_equal(*cur));
-        if ( next == boost::end(view) )
+        auto next = find_different_from_first(cur, boost::end(view), strategy);
+        if (next == end)
         {
             // the range has only two distinct points, so it
             // cannot have a spike
             return ! visitor.template apply<no_failure>();
         }
 
-        while ( next != boost::end(view) )
+        while (next != end)
         {
-            if ( geometry::detail::point_is_spike_or_equal(*prev,
-                                                           *next,
-                                                           *cur) )
+            // Verify spike. TODO: this is a reverse order from expected
+            // in is_spike_or_equal, but this order calls the side
+            // strategy in the way to correctly detect the spikes,
+            // also in geographic cases going over the pole
+            if (detail::is_spike_or_equal(*next, *cur, *prev, strategy.side()))
             {
                 return
-                    ! visitor.template apply<failure_spikes>(is_linear, *cur);
+                    ! visitor.template apply<failure_spikes>(is_linestring, *cur);
             }
             prev = cur;
             cur = next;
-            next = std::find_if(cur, boost::end(view), not_equal(*cur));
+            next = find_different_from_first(cur, boost::end(view), strategy);
         }
 
-        if ( geometry::equals(range::front(view), range::back(view)) )
+        if (equals::equals_point_point(range::front(view), range::back(view),
+                                       strategy))
         {
-            iterator cur = boost::begin(view);
-            typename boost::range_reverse_iterator
-                <
-                    view_type const
-                >::type prev = std::find_if(boost::rbegin(view),
-                                            boost::rend(view),
-                                            not_equal(range::back(view)));
-            iterator next =
-                std::find_if(cur, boost::end(view), not_equal(*cur));
-            if (detail::point_is_spike_or_equal(*prev, *next, *cur))
-            {
-                return
-                    ! visitor.template apply<failure_spikes>(is_linear, *cur);
-            }
-            else
-            {
-                return ! visitor.template apply<no_failure>();
-            }
+            return apply_at_closure(view, visitor, strategy, is_linestring);
         }
 
         return ! visitor.template apply<no_failure>();

@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( test_main )
 #ifdef TEST_LDOUBLE
    test_spots(0.0L);
 #endif
-#ifdef TEST_REAL_CONCEPT
+#if defined(TEST_REAL_CONCEPT) && !defined(BOOST_MATH_NO_REAL_CONCEPT_TESTS)
    test_spots(boost::math::concepts::real_concept(0.1));
 #endif
 #endif
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
    
 }

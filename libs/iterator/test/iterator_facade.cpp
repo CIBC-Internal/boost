@@ -8,8 +8,9 @@
 #include <boost/iterator/new_iterator_tests.hpp>
 
 #include <boost/call_traits.hpp>
+#include <boost/polymorphic_cast.hpp>
 #include <boost/type_traits/is_convertible.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/core/enable_if.hpp>
 
 // This is a really, really limited test so far.  All we're doing
 // right now is checking that the postfix++ proxy for single-pass
@@ -49,20 +50,36 @@ class counter_iterator
 struct proxy
 {
     proxy(int& x) : state(x) {}
-        
+
     operator int const&() const
     {
         return state;
     }
 
     int& operator=(int x) { state = x; return state; }
-        
+
     int& state;
 };
 
 struct value
 {
-    void mutator() {} // non-const member function
+    int increment_count;
+    int private_mutator_count;
+    int& shared_mutator_count;
+
+    explicit value(int& shared_mutator_count) :
+        increment_count(0),
+        private_mutator_count(0),
+        shared_mutator_count(shared_mutator_count)
+    {
+    }
+
+    // non-const member function
+    void mutator()
+    {
+        ++private_mutator_count;
+        ++shared_mutator_count;
+    }
 };
 
 struct input_iter
@@ -74,21 +91,25 @@ struct input_iter
     >
 {
  public:
-    input_iter() {}
+    explicit input_iter(value& val) : state(&val) {}
 
     void increment()
     {
+        ++(state->increment_count);
     }
     value
     dereference() const
     {
-        return value();
+        return *state;
     }
 
-    bool equal(input_iter const& y) const
+    bool equal(input_iter const&) const
     {
         return false;
     }
+
+ private:
+    value* state;
 };
 
 template <class T>
@@ -128,6 +149,61 @@ template <class T, class U>
 void same_type(U const&)
 { BOOST_MPL_ASSERT((boost::is_same<T,U>)); }
 
+template <class I, class A>
+struct abstract_iterator
+    : boost::iterator_facade<
+          abstract_iterator<I, A>
+        , A &
+        // In order to be value type as a reference, traversal category has
+        // to satisfy least forward traversal.
+        , boost::forward_traversal_tag
+        , A &
+      >
+{
+    abstract_iterator(I iter) : iter(iter) {}
+
+    void increment()
+    { ++iter; }
+
+    A & dereference() const
+    { return *iter; }
+
+    bool equal(abstract_iterator const& y) const
+    { return iter == y.iter; }
+
+    I iter;
+};
+
+struct base
+{
+    virtual void assign(const base &) = 0;
+    virtual bool equal(const base &) const = 0;
+};
+
+struct derived : base
+{
+    derived(int state) : state(state) { }
+    derived(const derived &d) : state(d.state) { }
+    derived(const base &b) { derived::assign(b); }
+
+    virtual void assign(const base &b)
+    {
+        state = boost::polymorphic_cast<const derived *>(&b)->state;
+    }
+
+    virtual bool equal(const base &b) const
+    {
+        return state == boost::polymorphic_cast<const derived *>(&b)->state;
+    }
+
+    int state;
+};
+
+inline bool operator==(const base &lhs, const base &rhs)
+{
+    return lhs.equal(rhs);
+}
+
 int main()
 {
     {
@@ -142,11 +218,28 @@ int main()
     {
         // test for a fix to http://tinyurl.com/zuohe
         // These two lines should be equivalent (and both compile)
-        input_iter p;
+        int shared_mutator_count = 0;
+        value val(shared_mutator_count);
+        input_iter p(val);
         (*p).mutator();
         p->mutator();
+        BOOST_TEST_EQ(val.increment_count, 0);
+        BOOST_TEST_EQ(val.private_mutator_count, 0); // mutator() should be invoked on an object returned by value
+        BOOST_TEST_EQ(shared_mutator_count, 2);
 
         same_type<input_iter::pointer>(p.operator->());
+    }
+
+    {
+        // Test that accessing dereferenced value of a post-incremented iterator works
+        int shared_mutator_count = 0;
+        value val(shared_mutator_count);
+        input_iter p(val);
+        (*p++).mutator();
+        (p++)->mutator();
+        BOOST_TEST_EQ(val.increment_count, 2);
+        BOOST_TEST_EQ(val.private_mutator_count, 0); // mutator() should be invoked on an object returned by value
+        BOOST_TEST_EQ(shared_mutator_count, 2);
     }
 
     {
@@ -160,6 +253,11 @@ int main()
         ++i->m_x;
         BOOST_TEST(x == 2);
         BOOST_TEST(i.m_x == 2);
+    }
+
+    {
+        derived d(1);
+        boost::readable_iterator_test(abstract_iterator<derived *, base>(&d), derived(1));
     }
 
     return boost::report_errors();

@@ -77,8 +77,7 @@ void apply_syntax(options_description& desc,
             v = value<string>();
             s.resize(s.size()-1);
         } else if (*(s.end()-1) == '?') {
-            //v = value<string>()->implicit();
-            v = value<string>();
+            v = value<string>()->implicit_value("default");
             s.resize(s.size()-1);
         } else if (*(s.end()-1) == '*') {
             v = value<vector<string> >()->multitoken();
@@ -126,9 +125,9 @@ void test_cmdline(const char* syntax,
         try {
             vector<option> options = cmd.run();
 
-            for(unsigned i = 0; i < options.size(); ++i)
+            for(unsigned j = 0; j < options.size(); ++j)
             {
-                option opt = options[i];
+                option opt = options[j];
 
                 if (opt.position_key != -1) {
                     if (!result.empty())
@@ -138,18 +137,18 @@ void test_cmdline(const char* syntax,
                     if (!result.empty())
                         result += " ";
                     result += opt.string_key + ":";
-                    for (size_t j = 0; j < opt.value.size(); ++j) {
-                        if (j != 0)
+                    for (size_t k = 0; k < opt.value.size(); ++k) {
+                        if (k != 0)
                             result += "-";
-                        result += opt.value[j];
+                        result += opt.value[k];
                     }                    
                 }
             }
         }
-        catch(unknown_option& e) {
+        catch(unknown_option&) {
             status = s_unknown_option;
         }
-        catch(ambiguous_option& e) {
+        catch(ambiguous_option&) {
             status = s_ambiguous_option;
         }
         catch(invalid_command_line_syntax& e) {
@@ -464,11 +463,13 @@ void test_additional_parser()
     desc.add_options()
         ("response-file", value<string>(), "response file")
         ("foo", value<int>(), "foo")
+        ("bar,baz", value<int>(), "bar")
         ;
 
     vector<string> input;
     input.push_back("@config");
     input.push_back("--foo=1");
+    input.push_back("--baz=11");
 
     cmdline cmd(input);
     cmd.set_options_description(desc);
@@ -476,11 +477,13 @@ void test_additional_parser()
 
     vector<option> result = cmd.run();
 
-    BOOST_REQUIRE(result.size() == 2);
+    BOOST_REQUIRE(result.size() == 3);
     BOOST_CHECK_EQUAL(result[0].string_key, "response-file");
     BOOST_CHECK_EQUAL(result[0].value[0], "config");
     BOOST_CHECK_EQUAL(result[1].string_key, "foo");
     BOOST_CHECK_EQUAL(result[1].value[0], "1");    
+    BOOST_CHECK_EQUAL(result[2].string_key, "bar");
+    BOOST_CHECK_EQUAL(result[2].value[0], "11");
 
     // Test that invalid options returned by additional style
     // parser are detected.
@@ -607,6 +610,34 @@ void test_unregistered()
     // It's not clear yet, so I'm leaving the decision till later.
 }
 
+void test_implicit_value()
+{
+    using namespace command_line_style;
+    cmdline::style_t style;
+
+    style = cmdline::style_t(
+        allow_long | long_allow_adjacent
+        );
+
+    test_case test_cases1[] = {
+        // 'bar' does not even look like option, so is consumed
+        {"--foo bar", s_success, "foo:bar"},
+        // '--bar' looks like option, and such option exists, so we don't consume this token
+        {"--foo --bar", s_success, "foo: bar:"},
+        // '--biz' looks like option, but does not match any existing one.
+        // Presently this results in parse error, since
+        // (1) in cmdline.cpp:finish_option, we only consume following tokens if they are
+        // requires
+        // (2) in cmdline.cpp:run, we let options consume following positional options
+        // For --biz, an exception is thrown between 1 and 2.
+        // We might want to fix that in future.
+        {"--foo --biz", s_unknown_option, ""},
+        {0, 0, 0}
+    };
+
+    test_cmdline("foo? bar?", style, test_cases1);
+}
+
 int main(int /*ac*/, char** /*av*/)
 {
     test_long_options();
@@ -619,6 +650,7 @@ int main(int /*ac*/, char** /*av*/)
     test_additional_parser();
     test_style_parser();
     test_unregistered();
+    test_implicit_value();
 
     return 0;
 }

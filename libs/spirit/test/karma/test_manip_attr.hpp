@@ -16,6 +16,7 @@
 
 #include <boost/spirit/include/karma_stream.hpp>
 
+#include <boost/core/lightweight_test.hpp>
 #include <boost/preprocessor/iterate.hpp>
 #include <boost/preprocessor/repetition/enum.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
@@ -37,7 +38,7 @@ namespace spirit_test
     }
 }
 
-#define BOOST_PP_FILENAME_1 "karma/test_manip_attr.hpp"
+#define BOOST_PP_FILENAME_1 "test_manip_attr.hpp"
 #define BOOST_PP_ITERATION_LIMITS (1, SPIRIT_ARGUMENTS_LIMIT)
 #include BOOST_PP_ITERATE()
 

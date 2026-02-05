@@ -71,33 +71,35 @@ main()
         BOOST_TEST(test("2", udouble));
         BOOST_TEST(test_attr("2", udouble, d) && compare(d, 2));
 
-        using boost::math::fpclassify;
+        using boost::core::isinf;
+        using boost::core::isnan;
+
         BOOST_TEST(test("inf", udouble));
         BOOST_TEST(test("infinity", udouble));
         BOOST_TEST(test("INF", udouble));
         BOOST_TEST(test("INFINITY", udouble));
 
         BOOST_TEST(test_attr("inf", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && isinf(d));
         BOOST_TEST(test_attr("INF", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && isinf(d));
         BOOST_TEST(test_attr("infinity", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && isinf(d));
         BOOST_TEST(test_attr("INFINITY", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && isinf(d));
 
         BOOST_TEST(test("nan", udouble));
         BOOST_TEST(test_attr("nan", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && isnan(d));
         BOOST_TEST(test("NAN", udouble));
         BOOST_TEST(test_attr("NAN", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && isnan(d));
         BOOST_TEST(test("nan(...)", udouble));
         BOOST_TEST(test_attr("nan(...)", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && isnan(d));
         BOOST_TEST(test("NAN(...)", udouble));
         BOOST_TEST(test_attr("NAN(...)", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && isnan(d));
 
         BOOST_TEST(!test("e3", udouble));
         BOOST_TEST(!test_attr("e3", udouble, d));
@@ -113,6 +115,9 @@ main()
 
         BOOST_TEST(!test("-.3", udouble));
         BOOST_TEST(!test_attr("-.3", udouble, d));
+        
+        BOOST_TEST(test("4em", udouble, false));
+        BOOST_TEST(test_attr("4em", udouble, d, false) && compare(d, 4.0));
     }
 
     return boost::report_errors();

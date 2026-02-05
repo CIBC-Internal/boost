@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Movable Handlers</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../cpp2011.html" title="C++ 2011 Support">
 <link rel="prev" href="move_objects.html" title="Movable I/O Objects">
@@ -28,11 +28,8 @@
         Handlers</a>
 </h4></div></div></div>
 <p>
-          As an optimisation, user-defined completion handlers may provide move constructors,
-          and Boost.Asio's implementation will use a handler's move constructor in
-          preference to its copy constructor. In certain circumstances, Boost.Asio
-          may be able to eliminate all calls to a handler's copy constructor. However,
-          handler types are still required to be copy constructible.
+          With C++11 and later, user-defined completion handlers are only required
+          to be move constructible, and are not required to be copy constructible.
         </p>
 <p>
           When move support is enabled, asynchronous that are documented as follows:
@@ -54,8 +51,8 @@
         </p>
 <pre class="programlisting"><span class="keyword">struct</span> <span class="identifier">my_operation</span>
 <span class="special">{</span>
-  <span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span><span class="special">&gt;</span> <span class="identifier">socket</span><span class="special">;</span>
-  <span class="identifier">shared_ptr</span><span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">&gt;&gt;</span> <span class="identifier">buffer</span><span class="special">;</span>
+  <span class="identifier">unique_ptr</span><span class="special">&lt;</span><span class="identifier">tcp</span><span class="special">::</span><span class="identifier">socket</span><span class="special">&gt;</span> <span class="identifier">socket</span><span class="special">;</span>
+  <span class="identifier">unique_ptr</span><span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">&gt;&gt;</span> <span class="identifier">buffer</span><span class="special">;</span>
   <span class="special">...</span>
   <span class="keyword">void</span> <span class="keyword">operator</span><span class="special">(</span><span class="identifier">error_code</span> <span class="identifier">ec</span><span class="special">,</span> <span class="identifier">size_t</span> <span class="identifier">length</span><span class="special">)</span>
   <span class="special">{</span>
@@ -76,8 +73,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright © 2003-2022 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

@@ -1,9 +1,9 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>UNIX Domain Sockets</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../posix.html" title="POSIX-Specific Functionality">
 <link rel="prev" href="../posix.html" title="POSIX-Specific Functionality">
@@ -27,20 +27,20 @@
 <a name="boost_asio.overview.posix.local"></a><a class="link" href="local.html" title="UNIX Domain Sockets">UNIX Domain Sockets</a>
 </h4></div></div></div>
 <p>
-          Boost.Asio provides basic support UNIX domain sockets (also known as local
-          sockets). The simplest use involves creating a pair of connected sockets.
-          The following code:
+          Boost.Asio provides basic support for UNIX domain sockets (also known as
+          local sockets). The simplest use involves creating a pair of connected
+          sockets. The following code:
         </p>
-<pre class="programlisting"><span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket1</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
-<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket2</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket1</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
+<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket2</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">local</span><span class="special">::</span><span class="identifier">connect_pair</span><span class="special">(</span><span class="identifier">socket1</span><span class="special">,</span> <span class="identifier">socket2</span><span class="special">);</span>
 </pre>
 <p>
           will create a pair of stream-oriented sockets. To do the same for datagram-oriented
           sockets, use:
         </p>
-<pre class="programlisting"><span class="identifier">local</span><span class="special">::</span><span class="identifier">datagram_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket1</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
-<span class="identifier">local</span><span class="special">::</span><span class="identifier">datagram_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket2</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<pre class="programlisting"><span class="identifier">local</span><span class="special">::</span><span class="identifier">datagram_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket1</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
+<span class="identifier">local</span><span class="special">::</span><span class="identifier">datagram_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket2</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">local</span><span class="special">::</span><span class="identifier">connect_pair</span><span class="special">(</span><span class="identifier">socket1</span><span class="special">,</span> <span class="identifier">socket2</span><span class="special">);</span>
 </pre>
 <p>
@@ -49,15 +49,15 @@
         </p>
 <pre class="programlisting"><span class="special">::</span><span class="identifier">unlink</span><span class="special">(</span><span class="string">"/tmp/foobar"</span><span class="special">);</span> <span class="comment">// Remove previous binding.</span>
 <span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">endpoint</span> <span class="identifier">ep</span><span class="special">(</span><span class="string">"/tmp/foobar"</span><span class="special">);</span>
-<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">acceptor</span> <span class="identifier">acceptor</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">,</span> <span class="identifier">ep</span><span class="special">);</span>
-<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">acceptor</span> <span class="identifier">acceptor</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">,</span> <span class="identifier">ep</span><span class="special">);</span>
+<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">acceptor</span><span class="special">.</span><span class="identifier">accept</span><span class="special">(</span><span class="identifier">socket</span><span class="special">);</span>
 </pre>
 <p>
           A client that connects to this server might look like:
         </p>
 <pre class="programlisting"><span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">endpoint</span> <span class="identifier">ep</span><span class="special">(</span><span class="string">"/tmp/foobar"</span><span class="special">);</span>
-<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_service</span><span class="special">);</span>
+<span class="identifier">local</span><span class="special">::</span><span class="identifier">stream_protocol</span><span class="special">::</span><span class="identifier">socket</span> <span class="identifier">socket</span><span class="special">(</span><span class="identifier">my_io_context</span><span class="special">);</span>
 <span class="identifier">socket</span><span class="special">.</span><span class="identifier">connect</span><span class="special">(</span><span class="identifier">ep</span><span class="special">);</span>
 </pre>
 <p>
@@ -96,8 +96,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<td align="right"><div class="copyright-footer">Copyright © 2003-2022 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>

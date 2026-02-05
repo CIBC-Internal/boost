@@ -3,14 +3,14 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/config/warning_disable.hpp>
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/spirit/include/karma_right_alignment.hpp>
 
 #include <boost/spirit/include/karma_char.hpp>
 #include <boost/spirit/include/karma_string.hpp>
 #include <boost/spirit/include/karma_numeric.hpp>
 #include <boost/spirit/include/karma_generate.hpp>
 #include <boost/spirit/include/karma_directive.hpp>
+#include <boost/spirit/include/karma_upper_lower_case.hpp>
 
 #include "test.hpp"
 
@@ -34,6 +34,8 @@ main()
         BOOST_TEST(test("*********x", right_align(10, char_('*'))[char_('x')]));
         BOOST_TEST(test("*********x", right_align(10, '*')[char_], 'x'));
         BOOST_TEST(test("*********x", right_align(10, '*')['x']));
+        BOOST_TEST(test("aaaaaaaaax", lower[right_align(10, 'A')['X']]));
+        BOOST_TEST(test("AAAAAAAAAX", upper[right_align(10, 'a')['x']]));
 
         BOOST_TEST(test("*********x", right_align(char_('*'))[char_('x')]));
         BOOST_TEST(test("*********x", right_align(char_('*'))[char_], 'x'));

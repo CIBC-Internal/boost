@@ -25,7 +25,8 @@
 #include <boost/container/detail/math_functions.hpp>
 #include <boost/container/detail/mpl.hpp>
 #include <boost/container/detail/pool_common.hpp>
-#include <boost/container/detail/to_raw_pointer.hpp>
+#include <boost/move/detail/to_raw_pointer.hpp>
+#include <boost/move/detail/force_ptr.hpp>
 #include <boost/container/detail/type_traits.hpp>
 
 #include <boost/intrusive/pointer_traits.hpp>
@@ -38,7 +39,7 @@
 
 namespace boost {
 namespace container {
-namespace container_detail {
+namespace dtl {
 
 template<class SegmentManagerBase>
 class private_node_pool_impl
@@ -92,7 +93,7 @@ class private_node_pool_impl
 
    //!Returns the segment manager. Never throws
    segment_manager_base_type* get_segment_manager_base()const
-   {  return container_detail::to_raw_pointer(mp_segment_mngr_base);  }
+   {  return boost::movelib::to_raw_pointer(mp_segment_mngr_base);  }
 
    void *allocate_node()
    {  return this->priv_alloc_node();  }
@@ -344,7 +345,7 @@ class private_node_pool_impl
    //!Returns a reference to the block hook placed in the end of the block
    static node_t & get_block_hook (void *block, size_type blocksize)
    {
-      return *reinterpret_cast<node_t*>(reinterpret_cast<char*>(block) + blocksize);
+      return *move_detail::force_ptr<node_t*>(reinterpret_cast<char*>(block) + blocksize);
    }
 
    //!Returns the starting address of the block reference to the block hook placed in the end of the block
@@ -366,7 +367,7 @@ class private_node_pool_impl
 };
 
 
-}  //namespace container_detail {
+}  //namespace dtl {
 }  //namespace container {
 }  //namespace boost {
 

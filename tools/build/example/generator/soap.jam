@@ -1,6 +1,6 @@
 # Copyright 2006 Vladimir Prus
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 # This is example of a fictional code generator tool.
 # It accepts a single input of type '.gci' and produces
@@ -14,6 +14,7 @@ import generators ;
 import feature ;
 import common ;
 import "class" : new ;
+import os ;
 
 type.register GCI : gci ;
 
@@ -74,4 +75,12 @@ TOUCH = [ common.file-touch-command ] ;
 actions touch
 {
     $(TOUCH) $(<)
+}
+
+if [ os.name ] = VMS
+{
+    actions touch
+    {
+        $(TOUCH) $(<:W)
+    }
 }

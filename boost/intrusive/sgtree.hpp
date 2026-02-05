@@ -39,7 +39,6 @@
 #include <cstddef>
 #include <boost/intrusive/detail/minimal_less_equal_header.hpp>
 #include <boost/intrusive/detail/minimal_pair_header.hpp>   //std::pair
-#include <cmath>
 #include <cstddef>
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
@@ -156,6 +155,9 @@ struct alpha_holder
    multiply_by_alpha_t get_multiply_by_alpha_t() const
    {  return multiply_by_alpha_t(alpha_);  }
 
+   SizeType &get_max_tree_size()
+   {  return max_tree_size_;  }
+
    protected:
    float alpha_;
    float inv_minus_logalpha_;
@@ -189,19 +191,19 @@ struct alpha_holder<false, SizeType>
    multiply_by_alpha_t get_multiply_by_alpha_t() const
    {  return multiply_by_alpha_t();  }
 
+   SizeType &get_max_tree_size()
+   {  return max_tree_size_;  }
+
+   protected:
    SizeType max_tree_size_;
 };
 
 }  //namespace detail{
 
 struct sgtree_defaults
+   : bstree_defaults
 {
-   typedef default_bstree_hook_applier proto_value_traits;
-   static const bool constant_time_size = true;
-   typedef std::size_t size_type;
-   typedef void compare;
    static const bool floating_point = true;
-   typedef void header_holder_type;
 };
 
 /// @endcond
@@ -222,18 +224,18 @@ struct sgtree_defaults
 #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
 template<class T, class ...Options>
 #else
-template<class ValueTraits, class VoidOrKeyComp, class SizeType, bool FloatingPoint, typename HeaderHolder>
+template<class ValueTraits, class VoidOrKeyOfValue, class VoidOrKeyComp, class SizeType, bool FloatingPoint, typename HeaderHolder>
 #endif
 class sgtree_impl
    /// @cond
-   :  public bstree_impl<ValueTraits, VoidOrKeyComp, SizeType, true, SgTreeAlgorithms, HeaderHolder>
+   :  public bstree_impl<ValueTraits, VoidOrKeyOfValue, VoidOrKeyComp, SizeType, true, SgTreeAlgorithms, HeaderHolder>
    ,  public detail::alpha_holder<FloatingPoint, SizeType>
    /// @endcond
 {
    public:
    typedef ValueTraits                                               value_traits;
    /// @cond
-   typedef bstree_impl< ValueTraits, VoidOrKeyComp, SizeType
+   typedef bstree_impl< ValueTraits, VoidOrKeyOfValue, VoidOrKeyComp, SizeType
                       , true, SgTreeAlgorithms, HeaderHolder>        tree_type;
    typedef tree_type                                                 implementation_defined;
 
@@ -243,6 +245,7 @@ class sgtree_impl
    typedef typename implementation_defined::const_pointer            const_pointer;
    typedef typename implementation_defined::value_type               value_type;
    typedef typename implementation_defined::key_type                 key_type;
+   typedef typename implementation_defined::key_of_value             key_of_value;
    typedef typename implementation_defined::reference                reference;
    typedef typename implementation_defined::const_reference          const_reference;
    typedef typename implementation_defined::difference_type          difference_type;
@@ -284,16 +287,20 @@ class sgtree_impl
 
    typedef BOOST_INTRUSIVE_IMPDEF(typename node_algorithms::insert_commit_data) insert_commit_data;
 
-   //! @copydoc ::boost::intrusive::bstree::bstree(const value_compare &,const value_traits &)
-   explicit sgtree_impl( const value_compare &cmp = value_compare()
-                       , const value_traits &v_traits = value_traits())
+   //! @copydoc ::boost::intrusive::bstree::bstree()
+   sgtree_impl()
+      :  tree_type()
+   {}
+
+   //! @copydoc ::boost::intrusive::bstree::bstree(const key_compare &,const value_traits &)
+   explicit sgtree_impl( const key_compare &cmp, const value_traits &v_traits = value_traits())
       :  tree_type(cmp, v_traits)
    {}
 
-   //! @copydoc ::boost::intrusive::bstree::bstree(bool,Iterator,Iterator,const value_compare &,const value_traits &)
+   //! @copydoc ::boost::intrusive::bstree::bstree(bool,Iterator,Iterator,const key_compare &,const value_traits &)
    template<class Iterator>
    sgtree_impl( bool unique, Iterator b, Iterator e
-              , const value_compare &cmp     = value_compare()
+              , const key_compare &cmp     = key_compare()
               , const value_traits &v_traits = value_traits())
       : tree_type(cmp, v_traits)
    {
@@ -339,52 +346,61 @@ class sgtree_impl
    ~sgtree_impl();
 
    //! @copydoc ::boost::intrusive::bstree::begin()
-   iterator begin();
+   iterator begin() BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::begin()const
-   const_iterator begin() const;
+   const_iterator begin() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::cbegin()const
-   const_iterator cbegin() const;
+   const_iterator cbegin() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::end()
-   iterator end();
+   iterator end() BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::end()const
-   const_iterator end() const;
+   const_iterator end() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::cend()const
-   const_iterator cend() const;
+   const_iterator cend() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::rbegin()
-   reverse_iterator rbegin();
+   reverse_iterator rbegin() BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::rbegin()const
-   const_reverse_iterator rbegin() const;
+   const_reverse_iterator rbegin() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::crbegin()const
-   const_reverse_iterator crbegin() const;
+   const_reverse_iterator crbegin() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::rend()
-   reverse_iterator rend();
+   reverse_iterator rend() BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::rend()const
-   const_reverse_iterator rend() const;
+   const_reverse_iterator rend() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::crend()const
-   const_reverse_iterator crend() const;
+   const_reverse_iterator crend() const BOOST_NOEXCEPT;
+
+   //! @copydoc ::boost::intrusive::bstree::root()
+   iterator root() BOOST_NOEXCEPT;
+
+   //! @copydoc ::boost::intrusive::bstree::root()const
+   const_iterator root() const BOOST_NOEXCEPT;
+
+   //! @copydoc ::boost::intrusive::bstree::croot()const
+   const_iterator croot() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::container_from_end_iterator(iterator)
-   static sgtree_impl &container_from_end_iterator(iterator end_iterator);
+   static sgtree_impl &container_from_end_iterator(iterator end_iterator) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::container_from_end_iterator(const_iterator)
-   static const sgtree_impl &container_from_end_iterator(const_iterator end_iterator);
+   static const sgtree_impl &container_from_end_iterator(const_iterator end_iterator) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::container_from_iterator(iterator)
-   static sgtree_impl &container_from_iterator(iterator it);
+   static sgtree_impl &container_from_iterator(iterator it) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::container_from_iterator(const_iterator)
-   static const sgtree_impl &container_from_iterator(const_iterator it);
+   static const sgtree_impl &container_from_iterator(const_iterator it) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::key_comp()const
    key_compare key_comp() const;
@@ -393,10 +409,10 @@ class sgtree_impl
    value_compare value_comp() const;
 
    //! @copydoc ::boost::intrusive::bstree::empty()const
-   bool empty() const;
+   bool empty() const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::size()const
-   size_type size() const;
+   size_type size() const BOOST_NOEXCEPT;
 
    #endif   //#ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 
@@ -408,26 +424,32 @@ class sgtree_impl
       ::boost::adl_move_swap(this->get_alpha_traits(), other.get_alpha_traits());
    }
 
-   //! @copydoc ::boost::intrusive::bstree::clone_from
+   //! @copydoc ::boost::intrusive::bstree::clone_from(const bstree&,Cloner,Disposer)
    //! Additional notes: it also copies the alpha factor from the source container.
    template <class Cloner, class Disposer>
    void clone_from(const sgtree_impl &src, Cloner cloner, Disposer disposer)
    {
-      this->tree_type::clone_from(src, cloner, disposer);
+      tree_type::clone_from(src, cloner, disposer);
       this->get_alpha_traits() = src.get_alpha_traits();
+   }
+
+   //! @copydoc ::boost::intrusive::bstree::clone_from(bstree&&,Cloner,Disposer)
+   //! Additional notes: it also copies the alpha factor from the source container.
+   template <class Cloner, class Disposer>
+   void clone_from(BOOST_RV_REF(sgtree_impl) src, Cloner cloner, Disposer disposer)
+   {
+      tree_type::clone_from(BOOST_MOVE_BASE(tree_type, src), cloner, disposer);
+      this->get_alpha_traits() = ::boost::move(src.get_alpha_traits());
    }
 
    //! @copydoc ::boost::intrusive::bstree::insert_equal(reference)
    iterator insert_equal(reference value)
    {
-      detail::key_nodeptr_comp<value_compare, value_traits>
-         key_node_comp(this->value_comp(), &this->get_value_traits());
       node_ptr to_insert(this->get_value_traits().to_node_ptr(value));
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || node_algorithms::unique(to_insert));
       std::size_t max_tree_size = (std::size_t)this->max_tree_size_;
       node_ptr p = node_algorithms::insert_equal_upper_bound
-         (this->tree_type::header_ptr(), to_insert, key_node_comp
+         (this->tree_type::header_ptr(), to_insert, this->key_node_comp(this->key_comp())
          , (size_type)this->size(), this->get_h_alpha_func(), max_tree_size);
       this->tree_type::sz_traits().increment();
       this->max_tree_size_ = (size_type)max_tree_size;
@@ -437,14 +459,11 @@ class sgtree_impl
    //! @copydoc ::boost::intrusive::bstree::insert_equal(const_iterator,reference)
    iterator insert_equal(const_iterator hint, reference value)
    {
-      detail::key_nodeptr_comp<value_compare, value_traits>
-         key_node_comp(this->value_comp(), &this->get_value_traits());
       node_ptr to_insert(this->get_value_traits().to_node_ptr(value));
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || node_algorithms::unique(to_insert));
       std::size_t max_tree_size = (std::size_t)this->max_tree_size_;
       node_ptr p = node_algorithms::insert_equal
-         (this->tree_type::header_ptr(), hint.pointed_node(), to_insert, key_node_comp
+         ( this->tree_type::header_ptr(), hint.pointed_node(), to_insert, this->key_node_comp(this->key_comp())
          , (std::size_t)this->size(), this->get_h_alpha_func(), max_tree_size);
       this->tree_type::sz_traits().increment();
       this->max_tree_size_ = (size_type)max_tree_size;
@@ -464,55 +483,66 @@ class sgtree_impl
    std::pair<iterator, bool> insert_unique(reference value)
    {
       insert_commit_data commit_data;
-      std::pair<iterator, bool> ret = insert_unique_check(value, this->value_comp(), commit_data);
+      std::pair<iterator, bool> ret = this->insert_unique_check
+         (key_of_value()(value), this->key_comp(), commit_data);
       if(!ret.second)
          return ret;
-      return std::pair<iterator, bool> (insert_unique_commit(value, commit_data), true);
+      return std::pair<iterator, bool> (this->insert_unique_commit(value, commit_data), true);
    }
 
    //! @copydoc ::boost::intrusive::bstree::insert_unique(const_iterator,reference)
    iterator insert_unique(const_iterator hint, reference value)
    {
       insert_commit_data commit_data;
-      std::pair<iterator, bool> ret = insert_unique_check(hint, value, this->value_comp(), commit_data);
+      std::pair<iterator, bool> ret = this->insert_unique_check
+         (hint, key_of_value()(value), this->key_comp(), commit_data);
       if(!ret.second)
          return ret.first;
-      return insert_unique_commit(value, commit_data);
+      return this->insert_unique_commit(value, commit_data);
    }
 
-   //! @copydoc ::boost::intrusive::bstree::insert_unique_check(const KeyType&,KeyValueCompare,insert_commit_data&)
-   template<class KeyType, class KeyValueCompare>
-   std::pair<iterator, bool> insert_unique_check
-      (const KeyType &key, KeyValueCompare key_value_comp, insert_commit_data &commit_data)
+   //! @copydoc ::boost::intrusive::bstree::insert_unique_check(const KeyType&,KeyTypeKeyCompare,insert_commit_data&)
+   template<class KeyType, class KeyTypeKeyCompare>
+   BOOST_INTRUSIVE_DOC1ST(std::pair<iterator BOOST_INTRUSIVE_I bool>
+      , typename detail::disable_if_convertible
+         <KeyType BOOST_INTRUSIVE_I const_iterator BOOST_INTRUSIVE_I 
+         std::pair<iterator BOOST_INTRUSIVE_I bool> >::type)
+      insert_unique_check
+      (const KeyType &key, KeyTypeKeyCompare comp, insert_commit_data &commit_data)
    {
-      detail::key_nodeptr_comp<KeyValueCompare, value_traits>
-         comp(key_value_comp, &this->get_value_traits());
       std::pair<node_ptr, bool> ret =
-         (node_algorithms::insert_unique_check
-            (this->tree_type::header_ptr(), key, comp, commit_data));
+         node_algorithms::insert_unique_check
+            (this->tree_type::header_ptr(), key, this->key_node_comp(comp), commit_data);
       return std::pair<iterator, bool>(iterator(ret.first, this->priv_value_traits_ptr()), ret.second);
    }
 
-   //! @copydoc ::boost::intrusive::bstree::insert_unique_check(const_iterator,const KeyType&,KeyValueCompare,insert_commit_data&)
-   template<class KeyType, class KeyValueCompare>
+   //! @copydoc ::boost::intrusive::bstree::insert_unique_check(const_iterator,const KeyType&,KeyTypeKeyCompare,insert_commit_data&)
+   template<class KeyType, class KeyTypeKeyCompare>
    std::pair<iterator, bool> insert_unique_check
       (const_iterator hint, const KeyType &key
-      ,KeyValueCompare key_value_comp, insert_commit_data &commit_data)
+      ,KeyTypeKeyCompare comp, insert_commit_data &commit_data)
    {
-      detail::key_nodeptr_comp<KeyValueCompare, value_traits>
-         comp(key_value_comp, &this->get_value_traits());
       std::pair<node_ptr, bool> ret =
-         (node_algorithms::insert_unique_check
-            (this->tree_type::header_ptr(), hint.pointed_node(), key, comp, commit_data));
+         node_algorithms::insert_unique_check
+            (this->tree_type::header_ptr(), hint.pointed_node(), key, this->key_node_comp(comp), commit_data);
       return std::pair<iterator, bool>(iterator(ret.first, this->priv_value_traits_ptr()), ret.second);
    }
 
+   //! @copydoc ::boost::intrusive::bstree::insert_unique_check(const key_type&,insert_commit_data&)
+   std::pair<iterator, bool> insert_unique_check
+      (const key_type &key, insert_commit_data &commit_data)
+   {  return this->insert_unique_check(key, this->key_comp(), commit_data);   }
+
+   //! @copydoc ::boost::intrusive::bstree::insert_unique_check(const_iterator,const key_type&,insert_commit_data&)
+   std::pair<iterator, bool> insert_unique_check
+      (const_iterator hint, const key_type &key, insert_commit_data &commit_data)
+   {  return this->insert_unique_check(hint, key, this->key_comp(), commit_data);   }
+
    //! @copydoc ::boost::intrusive::bstree::insert_unique_commit
-   iterator insert_unique_commit(reference value, const insert_commit_data &commit_data)
+   iterator insert_unique_commit(reference value, const insert_commit_data &commit_data) BOOST_NOEXCEPT
    {
       node_ptr to_insert(this->get_value_traits().to_node_ptr(value));
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || node_algorithms::unique(to_insert));
       std::size_t max_tree_size = (std::size_t)this->max_tree_size_;
       node_algorithms::insert_unique_commit
          ( this->tree_type::header_ptr(), to_insert, commit_data
@@ -538,11 +568,10 @@ class sgtree_impl
    }
 
    //! @copydoc ::boost::intrusive::bstree::insert_before
-   iterator insert_before(const_iterator pos, reference value)
+   iterator insert_before(const_iterator pos, reference value) BOOST_NOEXCEPT
    {
       node_ptr to_insert(this->get_value_traits().to_node_ptr(value));
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || node_algorithms::unique(to_insert));
       std::size_t max_tree_size = (std::size_t)this->max_tree_size_;
       node_ptr p = node_algorithms::insert_before
          ( this->tree_type::header_ptr(), pos.pointed_node(), to_insert
@@ -553,11 +582,10 @@ class sgtree_impl
    }
 
    //! @copydoc ::boost::intrusive::bstree::push_back
-   void push_back(reference value)
+   void push_back(reference value) BOOST_NOEXCEPT
    {
       node_ptr to_insert(this->get_value_traits().to_node_ptr(value));
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || node_algorithms::unique(to_insert));
       std::size_t max_tree_size = (std::size_t)this->max_tree_size_;
       node_algorithms::push_back
          ( this->tree_type::header_ptr(), to_insert
@@ -567,11 +595,10 @@ class sgtree_impl
    }
 
    //! @copydoc ::boost::intrusive::bstree::push_front
-   void push_front(reference value)
+   void push_front(reference value) BOOST_NOEXCEPT
    {
       node_ptr to_insert(this->get_value_traits().to_node_ptr(value));
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || node_algorithms::unique(to_insert));
       std::size_t max_tree_size = (std::size_t)this->max_tree_size_;
       node_algorithms::push_front
          ( this->tree_type::header_ptr(), to_insert
@@ -582,39 +609,36 @@ class sgtree_impl
 
 
    //! @copydoc ::boost::intrusive::bstree::erase(const_iterator)
-   iterator erase(const_iterator i)
+   iterator erase(const_iterator i) BOOST_NOEXCEPT
    {
       const_iterator ret(i);
       ++ret;
       node_ptr to_erase(i.pointed_node());
-      if(safemode_or_autounlink)
-         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!node_algorithms::unique(to_erase));
+      BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || !node_algorithms::unique(to_erase));
       std::size_t max_tree_size = this->max_tree_size_;
       node_algorithms::erase
          ( this->tree_type::header_ptr(), to_erase, (std::size_t)this->size()
          , max_tree_size, this->get_alpha_by_max_size_func());
       this->max_tree_size_ = (size_type)max_tree_size;
       this->tree_type::sz_traits().decrement();
-      if(safemode_or_autounlink)
+      BOOST_IF_CONSTEXPR(safemode_or_autounlink)
          node_algorithms::init(to_erase);
       return ret.unconst();
    }
 
    //! @copydoc ::boost::intrusive::bstree::erase(const_iterator,const_iterator)
-   iterator erase(const_iterator b, const_iterator e)
+   iterator erase(const_iterator b, const_iterator e) BOOST_NOEXCEPT
    {  size_type n;   return private_erase(b, e, n);   }
 
-   //! @copydoc ::boost::intrusive::bstree::erase(const_reference)
-   size_type erase(const_reference value)
-   {  return this->erase(value, this->value_comp());   }
+   //! @copydoc ::boost::intrusive::bstree::erase(const key_type &)
+   size_type erase(const key_type &key)
+   {  return this->erase(key, this->key_comp());   }
 
-   //! @copydoc ::boost::intrusive::bstree::erase(const KeyType&,KeyValueCompare)
-   template<class KeyType, class KeyValueCompare>
-   size_type erase(const KeyType& key, KeyValueCompare comp
-                  /// @cond
-                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
-                  /// @endcond
-                  )
+   //! @copydoc ::boost::intrusive::bstree::erase(const KeyType&,KeyTypeKeyCompare)
+   template<class KeyType, class KeyTypeKeyCompare>
+   BOOST_INTRUSIVE_DOC1ST(size_type
+      , typename detail::disable_if_convertible<KeyTypeKeyCompare BOOST_INTRUSIVE_I const_iterator BOOST_INTRUSIVE_I size_type>::type)
+      erase(const KeyType& key, KeyTypeKeyCompare comp)
    {
       std::pair<iterator,iterator> p = this->equal_range(key, comp);
       size_type n;
@@ -624,7 +648,7 @@ class sgtree_impl
 
    //! @copydoc ::boost::intrusive::bstree::erase_and_dispose(const_iterator,Disposer)
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator i, Disposer disposer)
+   iterator erase_and_dispose(const_iterator i, Disposer disposer) BOOST_NOEXCEPT
    {
       node_ptr to_erase(i.pointed_node());
       iterator ret(this->erase(i));
@@ -634,32 +658,30 @@ class sgtree_impl
 
    #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
    template<class Disposer>
-   iterator erase_and_dispose(iterator i, Disposer disposer)
+   iterator erase_and_dispose(iterator i, Disposer disposer) BOOST_NOEXCEPT
    {  return this->erase_and_dispose(const_iterator(i), disposer);   }
    #endif
 
    //! @copydoc ::boost::intrusive::bstree::erase_and_dispose(const_iterator,const_iterator,Disposer)
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
+   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer) BOOST_NOEXCEPT
    {  size_type n;   return private_erase(b, e, n, disposer);   }
 
-   //! @copydoc ::boost::intrusive::bstree::erase_and_dispose(const_reference, Disposer)
+   //! @copydoc ::boost::intrusive::bstree::erase_and_dispose(const key_type &, Disposer)
    template<class Disposer>
-   size_type erase_and_dispose(const_reference value, Disposer disposer)
+   size_type erase_and_dispose(const key_type &key, Disposer disposer)
    {
-      std::pair<iterator,iterator> p = this->equal_range(value);
+      std::pair<iterator,iterator> p = this->equal_range(key);
       size_type n;
       private_erase(p.first, p.second, n, disposer);
       return n;
    }
 
-   //! @copydoc ::boost::intrusive::bstree::erase_and_dispose(const KeyType&,KeyValueCompare,Disposer)
-   template<class KeyType, class KeyValueCompare, class Disposer>
-   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer
-                  /// @cond
-                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
-                  /// @endcond
-                  )
+   //! @copydoc ::boost::intrusive::bstree::erase_and_dispose(const KeyType&,KeyTypeKeyCompare,Disposer)
+   template<class KeyType, class KeyTypeKeyCompare, class Disposer>
+   BOOST_INTRUSIVE_DOC1ST(size_type
+      , typename detail::disable_if_convertible<KeyTypeKeyCompare BOOST_INTRUSIVE_I const_iterator BOOST_INTRUSIVE_I size_type>::type)
+      erase_and_dispose(const KeyType& key, KeyTypeKeyCompare comp, Disposer disposer)
    {
       std::pair<iterator,iterator> p = this->equal_range(key, comp);
       size_type n;
@@ -668,7 +690,7 @@ class sgtree_impl
    }
 
    //! @copydoc ::boost::intrusive::bstree::clear
-   void clear()
+   void clear() BOOST_NOEXCEPT
    {
       tree_type::clear();
       this->max_tree_size_ = 0;
@@ -676,125 +698,199 @@ class sgtree_impl
 
    //! @copydoc ::boost::intrusive::bstree::clear_and_dispose
    template<class Disposer>
-   void clear_and_dispose(Disposer disposer)
+   void clear_and_dispose(Disposer disposer) BOOST_NOEXCEPT
    {
       tree_type::clear_and_dispose(disposer);
       this->max_tree_size_ = 0;
    }
 
+   #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   //! @copydoc ::boost::intrusive::bstree::merge_unique
+   template<class T, class ...Options2> void merge_unique(sgtree<T, Options2...> &);
+   #else
+   template<class Compare2>
+   void merge_unique(sgtree_impl
+      <ValueTraits, VoidOrKeyOfValue, Compare2, SizeType, FloatingPoint, HeaderHolder> &source)
+   #endif
+   {
+      node_ptr it   (node_algorithms::begin_node(source.header_ptr()))
+             , itend(node_algorithms::end_node  (source.header_ptr()));
+
+      while(it != itend){
+         node_ptr const p(it);
+         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || !node_algorithms::unique(p));
+         it = node_algorithms::next_node(it);
+
+         std::size_t max_tree1_size = this->max_tree_size_;
+         std::size_t max_tree2_size = source.get_max_tree_size();
+         if( node_algorithms::transfer_unique
+               ( this->header_ptr(), this->key_node_comp(this->key_comp()), this->size(), max_tree1_size
+               , source.header_ptr(), p, source.size(), max_tree2_size
+               , this->get_h_alpha_func(), this->get_alpha_by_max_size_func()) ){
+            this->max_tree_size_  = (size_type)max_tree1_size;
+            this->sz_traits().increment();
+            source.get_max_tree_size() = (size_type)max_tree2_size;
+            source.sz_traits().decrement();
+         }
+      }
+   }
+
+   #if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   //! @copydoc ::boost::intrusive::bstree::merge_equal
+   template<class T, class ...Options2> void merge_equal(sgtree<T, Options2...> &);
+   #else
+   template<class Compare2>
+   void merge_equal(sgtree_impl
+      <ValueTraits, VoidOrKeyOfValue, Compare2, SizeType, FloatingPoint, HeaderHolder> &source)
+   #endif
+   {
+      node_ptr it   (node_algorithms::begin_node(source.header_ptr()))
+             , itend(node_algorithms::end_node  (source.header_ptr()));
+
+      while(it != itend){
+         node_ptr const p(it);
+         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!safemode_or_autounlink || !node_algorithms::unique(p));
+         it = node_algorithms::next_node(it);
+         std::size_t max_tree1_size = this->max_tree_size_;
+         std::size_t max_tree2_size = source.get_max_tree_size();
+         node_algorithms::transfer_equal
+            ( this->header_ptr(), this->key_node_comp(this->key_comp()), this->size(), max_tree1_size
+            , source.header_ptr(), p, source.size(), max_tree2_size
+            , this->get_h_alpha_func(), this->get_alpha_by_max_size_func());
+         this->max_tree_size_  = (size_type)max_tree1_size;
+         this->sz_traits().increment();
+         source.get_max_tree_size() = (size_type)max_tree2_size;
+         source.sz_traits().decrement();
+      }
+   }
+
    #ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
-   //! @copydoc ::boost::intrusive::bstree::count(const_reference)const
-   size_type count(const_reference value) const;
+   //! @copydoc ::boost::intrusive::bstree::count(const key_type &)const
+   size_type count(const key_type &key) const;
 
-   //! @copydoc ::boost::intrusive::bstree::count(const KeyType&,KeyValueCompare)const
-   template<class KeyType, class KeyValueCompare>
-   size_type count(const KeyType& key, KeyValueCompare comp) const;
+   //! @copydoc ::boost::intrusive::bstree::count(const KeyType&,KeyTypeKeyCompare)const
+   template<class KeyType, class KeyTypeKeyCompare>
+   size_type count(const KeyType& key, KeyTypeKeyCompare comp) const;
 
-   //! @copydoc ::boost::intrusive::bstree::lower_bound(const_reference)
-   iterator lower_bound(const_reference value);
+   //! @copydoc ::boost::intrusive::bstree::lower_bound(const key_type &)
+   iterator lower_bound(const key_type &key);
 
-   //! @copydoc ::boost::intrusive::bstree::lower_bound(const KeyType&,KeyValueCompare)
-   template<class KeyType, class KeyValueCompare>
-   iterator lower_bound(const KeyType& key, KeyValueCompare comp);
+   //! @copydoc ::boost::intrusive::bstree::lower_bound(const KeyType&,KeyTypeKeyCompare)
+   template<class KeyType, class KeyTypeKeyCompare>
+   iterator lower_bound(const KeyType& key, KeyTypeKeyCompare comp);
 
-   //! @copydoc ::boost::intrusive::bstree::lower_bound(const_reference)const
-   const_iterator lower_bound(const_reference value) const;
+   //! @copydoc ::boost::intrusive::bstree::lower_bound(const key_type &)const
+   const_iterator lower_bound(const key_type &key) const;
 
-   //! @copydoc ::boost::intrusive::bstree::lower_bound(const KeyType&,KeyValueCompare)const
-   template<class KeyType, class KeyValueCompare>
-   const_iterator lower_bound(const KeyType& key, KeyValueCompare comp) const;
+   //! @copydoc ::boost::intrusive::bstree::lower_bound(const KeyType&,KeyTypeKeyCompare)const
+   template<class KeyType, class KeyTypeKeyCompare>
+   const_iterator lower_bound(const KeyType& key, KeyTypeKeyCompare comp) const;
 
-   //! @copydoc ::boost::intrusive::bstree::upper_bound(const_reference)
-   iterator upper_bound(const_reference value);
+   //! @copydoc ::boost::intrusive::bstree::upper_bound(const key_type &)
+   iterator upper_bound(const key_type &key);
 
-   //! @copydoc ::boost::intrusive::bstree::upper_bound(const KeyType&,KeyValueCompare)
-   template<class KeyType, class KeyValueCompare>
-   iterator upper_bound(const KeyType& key, KeyValueCompare comp);
+   //! @copydoc ::boost::intrusive::bstree::upper_bound(const KeyType&,KeyTypeKeyCompare)
+   template<class KeyType, class KeyTypeKeyCompare>
+   iterator upper_bound(const KeyType& key, KeyTypeKeyCompare comp);
 
-   //! @copydoc ::boost::intrusive::bstree::upper_bound(const_reference)const
-   const_iterator upper_bound(const_reference value) const;
+   //! @copydoc ::boost::intrusive::bstree::upper_bound(const key_type &)const
+   const_iterator upper_bound(const key_type &key) const;
 
-   //! @copydoc ::boost::intrusive::bstree::upper_bound(const KeyType&,KeyValueCompare)const
-   template<class KeyType, class KeyValueCompare>
-   const_iterator upper_bound(const KeyType& key, KeyValueCompare comp) const;
+   //! @copydoc ::boost::intrusive::bstree::upper_bound(const KeyType&,KeyTypeKeyCompare)const
+   template<class KeyType, class KeyTypeKeyCompare>
+   const_iterator upper_bound(const KeyType& key, KeyTypeKeyCompare comp) const;
 
-   //! @copydoc ::boost::intrusive::bstree::find(const_reference)
-   iterator find(const_reference value);
+   //! @copydoc ::boost::intrusive::bstree::find(const key_type &)
+   iterator find(const key_type &key);
 
-   //! @copydoc ::boost::intrusive::bstree::find(const KeyType&,KeyValueCompare)
-   template<class KeyType, class KeyValueCompare>
-   iterator find(const KeyType& key, KeyValueCompare comp);
+   //! @copydoc ::boost::intrusive::bstree::find(const KeyType&,KeyTypeKeyCompare)
+   template<class KeyType, class KeyTypeKeyCompare>
+   iterator find(const KeyType& key, KeyTypeKeyCompare comp);
 
-   //! @copydoc ::boost::intrusive::bstree::find(const_reference)const
-   const_iterator find(const_reference value) const;
+   //! @copydoc ::boost::intrusive::bstree::find(const key_type &)const
+   const_iterator find(const key_type &key) const;
 
-   //! @copydoc ::boost::intrusive::bstree::find(const KeyType&,KeyValueCompare)const
-   template<class KeyType, class KeyValueCompare>
-   const_iterator find(const KeyType& key, KeyValueCompare comp) const;
+   //! @copydoc ::boost::intrusive::bstree::find(const KeyType&,KeyTypeKeyCompare)const
+   template<class KeyType, class KeyTypeKeyCompare>
+   const_iterator find(const KeyType& key, KeyTypeKeyCompare comp) const;
 
-   //! @copydoc ::boost::intrusive::bstree::equal_range(const_reference)
-   std::pair<iterator,iterator> equal_range(const_reference value);
+   //! @copydoc ::boost::intrusive::bstree::equal_range(const key_type &)
+   std::pair<iterator,iterator> equal_range(const key_type &key);
 
-   //! @copydoc ::boost::intrusive::bstree::equal_range(const KeyType&,KeyValueCompare)
-   template<class KeyType, class KeyValueCompare>
-   std::pair<iterator,iterator> equal_range(const KeyType& key, KeyValueCompare comp);
+   //! @copydoc ::boost::intrusive::bstree::equal_range(const KeyType&,KeyTypeKeyCompare)
+   template<class KeyType, class KeyTypeKeyCompare>
+   std::pair<iterator,iterator> equal_range(const KeyType& key, KeyTypeKeyCompare comp);
 
-   //! @copydoc ::boost::intrusive::bstree::equal_range(const_reference)const
+   //! @copydoc ::boost::intrusive::bstree::equal_range(const key_type &)const
    std::pair<const_iterator, const_iterator>
-      equal_range(const_reference value) const;
+      equal_range(const key_type &key) const;
 
-   //! @copydoc ::boost::intrusive::bstree::equal_range(const KeyType&,KeyValueCompare)const
-   template<class KeyType, class KeyValueCompare>
+   //! @copydoc ::boost::intrusive::bstree::equal_range(const KeyType&,KeyTypeKeyCompare)const
+   template<class KeyType, class KeyTypeKeyCompare>
    std::pair<const_iterator, const_iterator>
-      equal_range(const KeyType& key, KeyValueCompare comp) const;
+      equal_range(const KeyType& key, KeyTypeKeyCompare comp) const;
 
-   //! @copydoc ::boost::intrusive::bstree::bounded_range(const_reference,const_reference,bool,bool)
+   //! @copydoc ::boost::intrusive::bstree::bounded_range(const key_type &,const key_type &,bool,bool)
    std::pair<iterator,iterator> bounded_range
-      (const_reference lower_value, const_reference upper_value, bool left_closed, bool right_closed);
+      (const key_type &lower_key, const key_type &upper_key, bool left_closed, bool right_closed);
 
-   //! @copydoc ::boost::intrusive::bstree::bounded_range(const KeyType&,const KeyType&,KeyValueCompare,bool,bool)
-   template<class KeyType, class KeyValueCompare>
+   //! @copydoc ::boost::intrusive::bstree::bounded_range(const KeyType&,const KeyType&,KeyTypeKeyCompare,bool,bool)
+   template<class KeyType, class KeyTypeKeyCompare>
    std::pair<iterator,iterator> bounded_range
-      (const KeyType& lower_key, const KeyType& upper_key, KeyValueCompare comp, bool left_closed, bool right_closed);
+      (const KeyType& lower_key, const KeyType& upper_key, KeyTypeKeyCompare comp, bool left_closed, bool right_closed);
 
-   //! @copydoc ::boost::intrusive::bstree::bounded_range(const_reference,const_reference,bool,bool)const
+   //! @copydoc ::boost::intrusive::bstree::bounded_range(const key_type &,const key_type &,bool,bool)const
    std::pair<const_iterator, const_iterator>
-      bounded_range(const_reference lower_value, const_reference upper_value, bool left_closed, bool right_closed) const;
+      bounded_range(const key_type &lower_key, const key_type &upper_key, bool left_closed, bool right_closed) const;
 
-   //! @copydoc ::boost::intrusive::bstree::bounded_range(const KeyType&,const KeyType&,KeyValueCompare,bool,bool)const
-   template<class KeyType, class KeyValueCompare>
+   //! @copydoc ::boost::intrusive::bstree::bounded_range(const KeyType&,const KeyType&,KeyTypeKeyCompare,bool,bool)const
+   template<class KeyType, class KeyTypeKeyCompare>
    std::pair<const_iterator, const_iterator> bounded_range
-         (const KeyType& lower_key, const KeyType& upper_key, KeyValueCompare comp, bool left_closed, bool right_closed) const;
+         (const KeyType& lower_key, const KeyType& upper_key, KeyTypeKeyCompare comp, bool left_closed, bool right_closed) const;
 
    //! @copydoc ::boost::intrusive::bstree::s_iterator_to(reference)
-   static iterator s_iterator_to(reference value);
+   static iterator s_iterator_to(reference value) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::s_iterator_to(const_reference)
-   static const_iterator s_iterator_to(const_reference value);
+   static const_iterator s_iterator_to(const_reference value) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::iterator_to(reference)
-   iterator iterator_to(reference value);
+   iterator iterator_to(reference value) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::iterator_to(const_reference)const
-   const_iterator iterator_to(const_reference value) const;
+   const_iterator iterator_to(const_reference value) const BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::init_node(reference)
-   static void init_node(reference value);
+   static void init_node(reference value) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::unlink_leftmost_without_rebalance
-   pointer unlink_leftmost_without_rebalance();
+   pointer unlink_leftmost_without_rebalance() BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::replace_node
-   void replace_node(iterator replace_this, reference with_this);
+   void replace_node(iterator replace_this, reference with_this) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::remove_node
-   void remove_node(reference value);
+   void remove_node(reference value) BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::rebalance
-   void rebalance();
+   void rebalance() BOOST_NOEXCEPT;
 
    //! @copydoc ::boost::intrusive::bstree::rebalance_subtree
-   iterator rebalance_subtree(iterator root);
+   iterator rebalance_subtree(iterator root) BOOST_NOEXCEPT;
+
+   friend bool operator< (const sgtree_impl &x, const sgtree_impl &y);
+
+   friend bool operator==(const sgtree_impl &x, const sgtree_impl &y);
+
+   friend bool operator!= (const sgtree_impl &x, const sgtree_impl &y);
+
+   friend bool operator>(const sgtree_impl &x, const sgtree_impl &y);
+
+   friend bool operator<=(const sgtree_impl &x, const sgtree_impl &y);
+
+   friend bool operator>=(const sgtree_impl &x, const sgtree_impl &y);
+
+   friend void swap(sgtree_impl &x, sgtree_impl &y);
 
    #endif   //#ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 
@@ -803,7 +899,7 @@ class sgtree_impl
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Constant.
-   float balance_factor() const
+   float balance_factor() const BOOST_NOEXCEPT
    {  return this->get_alpha_traits().get_alpha(); }
 
    //! <b>Requires</b>: new_alpha must be a value between 0.5 and 1.0
@@ -814,34 +910,33 @@ class sgtree_impl
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Linear to the elements in the subtree.
-   void balance_factor(float new_alpha)
+   void balance_factor(float new_alpha) BOOST_NOEXCEPT
    {
-      BOOST_INTRUSIVE_INVARIANT_ASSERT((new_alpha > 0.5f && new_alpha < 1.0f));
-      if(new_alpha < 0.5f && new_alpha >= 1.0f)  return;
-
       //The alpha factor CAN't be changed if the fixed, floating operation-less
       //1/sqrt(2) alpha factor option is activated
       BOOST_STATIC_ASSERT((floating_point));
-      float old_alpha = this->get_alpha_traits().get_alpha();
-      this->get_alpha_traits().set_alpha(new_alpha);
-
-      if(new_alpha < old_alpha){
-         this->max_tree_size_ = this->size();
-         this->rebalance();
+      BOOST_INTRUSIVE_INVARIANT_ASSERT((new_alpha > 0.5f && new_alpha < 1.0f));
+      if(new_alpha >= 0.5f && new_alpha < 1.0f){
+         float old_alpha = this->get_alpha_traits().get_alpha();
+         this->get_alpha_traits().set_alpha(new_alpha);
+         if(new_alpha < old_alpha){
+            this->max_tree_size_ = this->size();
+            this->rebalance();
+         }
       }
    }
 
    /// @cond
    private:
    template<class Disposer>
-   iterator private_erase(const_iterator b, const_iterator e, size_type &n, Disposer disposer)
+   iterator private_erase(const_iterator b, const_iterator e, size_type &n, Disposer disposer) BOOST_NOEXCEPT
    {
       for(n = 0; b != e; ++n)
         this->erase_and_dispose(b++, disposer);
       return b.unconst();
    }
 
-   iterator private_erase(const_iterator b, const_iterator e, size_type &n)
+   iterator private_erase(const_iterator b, const_iterator e, size_type &n) BOOST_NOEXCEPT
    {
       for(n = 0; b != e; ++n)
         this->erase(b++);
@@ -850,30 +945,6 @@ class sgtree_impl
    /// @endcond
 };
 
-#if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
-
-template<class T, class ...Options>
-bool operator< (const sgtree_impl<T, Options...> &x, const sgtree_impl<T, Options...> &y);
-
-template<class T, class ...Options>
-bool operator==(const sgtree_impl<T, Options...> &x, const sgtree_impl<T, Options...> &y);
-
-template<class T, class ...Options>
-bool operator!= (const sgtree_impl<T, Options...> &x, const sgtree_impl<T, Options...> &y);
-
-template<class T, class ...Options>
-bool operator>(const sgtree_impl<T, Options...> &x, const sgtree_impl<T, Options...> &y);
-
-template<class T, class ...Options>
-bool operator<=(const sgtree_impl<T, Options...> &x, const sgtree_impl<T, Options...> &y);
-
-template<class T, class ...Options>
-bool operator>=(const sgtree_impl<T, Options...> &x, const sgtree_impl<T, Options...> &y);
-
-template<class T, class ...Options>
-void swap(sgtree_impl<T, Options...> &x, sgtree_impl<T, Options...> &y);
-
-#endif   //#if defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
 
 //! Helper metafunction to define a \c sgtree that yields to the same type when the
 //! same options (either explicitly or implicitly) are used.
@@ -882,7 +953,7 @@ template<class T, class ...Options>
 #else
 template<class T, class O1 = void, class O2 = void
                 , class O3 = void, class O4 = void
-                , class O5 = void>
+                , class O5 = void, class O6 = void>
 #endif
 struct make_sgtree
 {
@@ -890,7 +961,7 @@ struct make_sgtree
    typedef typename pack_options
       < sgtree_defaults,
       #if !defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
-      O1, O2, O3, O4, O5
+      O1, O2, O3, O4, O5, O6
       #else
       Options...
       #endif
@@ -901,6 +972,7 @@ struct make_sgtree
 
    typedef sgtree_impl
          < value_traits
+         , typename packed_options::key_of_value
          , typename packed_options::compare
          , typename packed_options::size_type
          , packed_options::floating_point
@@ -914,14 +986,14 @@ struct make_sgtree
 #ifndef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 
 #if !defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
-template<class T, class O1, class O2, class O3, class O4, class O5>
+template<class T, class O1, class O2, class O3, class O4, class O5, class O6>
 #else
 template<class T, class ...Options>
 #endif
 class sgtree
    :  public make_sgtree<T,
       #if !defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
-      O1, O2, O3, O4, O5
+      O1, O2, O3, O4, O5, O6
       #else
       Options...
       #endif
@@ -930,7 +1002,7 @@ class sgtree
    typedef typename make_sgtree
       <T,
       #if !defined(BOOST_INTRUSIVE_VARIADIC_TEMPLATES)
-      O1, O2, O3, O4, O5
+      O1, O2, O3, O4, O5, O6
       #else
       Options...
       #endif
@@ -938,7 +1010,7 @@ class sgtree
    BOOST_MOVABLE_BUT_NOT_COPYABLE(sgtree)
 
    public:
-   typedef typename Base::value_compare      value_compare;
+   typedef typename Base::key_compare        key_compare;
    typedef typename Base::value_traits       value_traits;
    typedef typename Base::iterator           iterator;
    typedef typename Base::const_iterator     const_iterator;
@@ -948,35 +1020,46 @@ class sgtree
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
 
-   explicit sgtree( const value_compare &cmp = value_compare()
-                  , const value_traits &v_traits = value_traits())
+   BOOST_INTRUSIVE_FORCEINLINE sgtree()
+      :  Base()
+   {}
+
+   BOOST_INTRUSIVE_FORCEINLINE explicit sgtree(const key_compare &cmp, const value_traits &v_traits = value_traits())
       :  Base(cmp, v_traits)
    {}
 
    template<class Iterator>
-   sgtree( bool unique, Iterator b, Iterator e
-         , const value_compare &cmp = value_compare()
+   BOOST_INTRUSIVE_FORCEINLINE sgtree( bool unique, Iterator b, Iterator e
+         , const key_compare &cmp = key_compare()
          , const value_traits &v_traits = value_traits())
       :  Base(unique, b, e, cmp, v_traits)
    {}
 
-   sgtree(BOOST_RV_REF(sgtree) x)
+   BOOST_INTRUSIVE_FORCEINLINE sgtree(BOOST_RV_REF(sgtree) x)
       :  Base(BOOST_MOVE_BASE(Base, x))
    {}
 
-   sgtree& operator=(BOOST_RV_REF(sgtree) x)
+   BOOST_INTRUSIVE_FORCEINLINE sgtree& operator=(BOOST_RV_REF(sgtree) x)
    {  return static_cast<sgtree &>(this->Base::operator=(BOOST_MOVE_BASE(Base, x)));  }
 
-   static sgtree &container_from_end_iterator(iterator end_iterator)
+   template <class Cloner, class Disposer>
+   BOOST_INTRUSIVE_FORCEINLINE void clone_from(const sgtree &src, Cloner cloner, Disposer disposer)
+   {  Base::clone_from(src, cloner, disposer);  }
+
+   template <class Cloner, class Disposer>
+   BOOST_INTRUSIVE_FORCEINLINE void clone_from(BOOST_RV_REF(sgtree) src, Cloner cloner, Disposer disposer)
+   {  Base::clone_from(BOOST_MOVE_BASE(Base, src), cloner, disposer);  }
+
+   BOOST_INTRUSIVE_FORCEINLINE static sgtree &container_from_end_iterator(iterator end_iterator) BOOST_NOEXCEPT
    {  return static_cast<sgtree &>(Base::container_from_end_iterator(end_iterator));   }
 
-   static const sgtree &container_from_end_iterator(const_iterator end_iterator)
+   BOOST_INTRUSIVE_FORCEINLINE static const sgtree &container_from_end_iterator(const_iterator end_iterator) BOOST_NOEXCEPT
    {  return static_cast<const sgtree &>(Base::container_from_end_iterator(end_iterator));   }
 
-   static sgtree &container_from_iterator(iterator it)
+   BOOST_INTRUSIVE_FORCEINLINE static sgtree &container_from_iterator(iterator it) BOOST_NOEXCEPT
    {  return static_cast<sgtree &>(Base::container_from_iterator(it));   }
 
-   static const sgtree &container_from_iterator(const_iterator it)
+   BOOST_INTRUSIVE_FORCEINLINE static const sgtree &container_from_iterator(const_iterator it) BOOST_NOEXCEPT
    {  return static_cast<const sgtree &>(Base::container_from_iterator(it));   }
 };
 

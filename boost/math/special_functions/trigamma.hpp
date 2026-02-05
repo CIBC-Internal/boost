@@ -16,9 +16,18 @@
 #include <boost/math/tools/promotion.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/mpl/comparison.hpp>
 #include <boost/math/tools/big_constant.hpp>
 #include <boost/math/special_functions/polygamma.hpp>
+
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma diagnostic ignored work :(
+//
+#pragma GCC system_header
+#endif
 
 namespace boost{
 namespace math{
@@ -28,7 +37,7 @@ template<class T, class Policy>
 T polygamma_imp(const int n, T x, const Policy &pol);
 
 template <class T, class Policy>
-T trigamma_prec(T x, const mpl::int_<53>*, const Policy&)
+T trigamma_prec(T x, const std::integral_constant<int, 53>*, const Policy&)
 {
    // Max error in interpolated form: 3.736e-017
    static const T offset = BOOST_MATH_BIG_CONSTANT(T, 53, 2.1093254089355469);
@@ -69,22 +78,22 @@ T trigamma_prec(T x, const mpl::int_<53>*, const Policy&)
    // Expected Error Term :                       -6.895e-018
    // Maximum Relative Change in Control Points :  8.497e-004
    static const T P_4_inf[] = {
-      0.68947581948701249e-17L,
-      0.49999999999998975L,
-      1.0177274392923795L,
-      2.498208511343429L,
-      2.1921221359427595L,
-      1.5897035272532764L,
-      0.40154388356961734L,
+      static_cast<T>(0.68947581948701249e-17L),
+      static_cast<T>(0.49999999999998975L),
+      static_cast<T>(1.0177274392923795L),
+      static_cast<T>(2.498208511343429L),
+      static_cast<T>(2.1921221359427595L),
+      static_cast<T>(1.5897035272532764L),
+      static_cast<T>(0.40154388356961734L),
    };
    static const T Q_4_inf[] = {
-      1.0L,
-      1.7021215452463932L,
-      4.4290431747556469L,
-      2.9745631894384922L,
-      2.3013614809773616L,
-      0.28360399799075752L,
-      0.022892987908906897L,
+      static_cast<T>(1.0L),
+      static_cast<T>(1.7021215452463932L),
+      static_cast<T>(4.4290431747556469L),
+      static_cast<T>(2.9745631894384922L),
+      static_cast<T>(2.3013614809773616L),
+      static_cast<T>(0.28360399799075752L),
+      static_cast<T>(0.022892987908906897L),
    };
 
    if(x <= 2)
@@ -99,9 +108,9 @@ T trigamma_prec(T x, const mpl::int_<53>*, const Policy&)
    T y = 1 / x;
    return (1 + tools::evaluate_polynomial(P_4_inf, y) / tools::evaluate_polynomial(Q_4_inf, y)) / x;
 }
-   
+
 template <class T, class Policy>
-T trigamma_prec(T x, const mpl::int_<64>*, const Policy&)
+T trigamma_prec(T x, const std::integral_constant<int, 64>*, const Policy&)
 {
    // Max error in interpolated form: 1.178e-020
    static const T offset_1_2 = BOOST_MATH_BIG_CONSTANT(T, 64, 2.109325408935546875);
@@ -179,7 +188,7 @@ T trigamma_prec(T x, const mpl::int_<64>*, const Policy&)
 }
 
 template <class T, class Policy>
-T trigamma_prec(T x, const mpl::int_<113>*, const Policy&)
+T trigamma_prec(T x, const std::integral_constant<int, 113>*, const Policy&)
 {
    // Max error in interpolated form: 1.916e-035
 
@@ -367,7 +376,7 @@ T trigamma_imp(T x, const Tag* t, const Policy& pol)
       // Argument reduction for tan:
       if(floor(x) == x)
       {
-         return policies::raise_pole_error<T>("boost::math::trigamma<%1%>(%1%)", 0, (1-x), pol);
+         return policies::raise_pole_error<T>("boost::math::trigamma<%1%>(%1%)", nullptr, (1-x), pol);
       }
       T s = fabs(x) < fabs(z) ? boost::math::sin_pi(x, pol) : boost::math::sin_pi(z, pol);
       return -trigamma_imp(z, t, pol) + boost::math::pow<2>(constants::pi<T>()) / (s * s);
@@ -381,7 +390,7 @@ T trigamma_imp(T x, const Tag* t, const Policy& pol)
 }
 
 template <class T, class Policy>
-T trigamma_imp(T x, const mpl::int_<0>*, const Policy& pol)
+T trigamma_imp(T x, const std::integral_constant<int, 0>*, const Policy& pol)
 {
    return polygamma_imp(1, x, pol);
 }
@@ -396,13 +405,13 @@ struct trigamma_initializer
       init()
       {
          typedef typename policies::precision<T, Policy>::type precision_type;
-         do_init(mpl::bool_<precision_type::value && (precision_type::value <= 113)>());
+         do_init(std::integral_constant<bool, precision_type::value && (precision_type::value <= 113)>());
       }
-      void do_init(const mpl::true_&)
+      void do_init(const std::true_type&)
       {
          boost::math::trigamma(T(2.5), Policy());
       }
-      void do_init(const mpl::false_&){}
+      void do_init(const std::false_type&){}
       void force_instantiate()const{}
    };
    static const init initializer;
@@ -418,29 +427,18 @@ const typename trigamma_initializer<T, Policy>::init trigamma_initializer<T, Pol
 } // namespace detail
 
 template <class T, class Policy>
-inline typename tools::promote_args<T>::type 
+inline typename tools::promote_args<T>::type
    trigamma(T x, const Policy&)
 {
    typedef typename tools::promote_args<T>::type result_type;
    typedef typename policies::evaluation<result_type, Policy>::type value_type;
    typedef typename policies::precision<T, Policy>::type precision_type;
-   typedef typename mpl::if_<
-      mpl::or_<
-         mpl::less_equal<precision_type, mpl::int_<0> >,
-         mpl::greater<precision_type, mpl::int_<114> >
-      >,
-      mpl::int_<0>,
-      typename mpl::if_<
-         mpl::less<precision_type, mpl::int_<54> >,
-         mpl::int_<53>,
-         typename mpl::if_<
-            mpl::less<precision_type, mpl::int_<65> >,
-            mpl::int_<64>,
-            mpl::int_<113>
-         >::type
-      >::type
-   >::type tag_type;
-
+   typedef std::integral_constant<int,
+      precision_type::value <= 0 ? 0 :
+      precision_type::value <= 53 ? 53 :
+      precision_type::value <= 64 ? 64 :
+      precision_type::value <= 113 ? 113 : 0
+   > tag_type;
    typedef typename policies::normalise<
       Policy,
       policies::promote_float<false>,
@@ -453,11 +451,11 @@ inline typename tools::promote_args<T>::type
 
    return policies::checked_narrowing_cast<result_type, Policy>(detail::trigamma_imp(
       static_cast<value_type>(x),
-      static_cast<const tag_type*>(0), forwarding_policy()), "boost::math::trigamma<%1%>(%1%)");
+      static_cast<const tag_type*>(nullptr), forwarding_policy()), "boost::math::trigamma<%1%>(%1%)");
 }
 
 template <class T>
-inline typename tools::promote_args<T>::type 
+inline typename tools::promote_args<T>::type
    trigamma(T x)
 {
    return trigamma(x, policies::policy<>());

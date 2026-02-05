@@ -10,12 +10,16 @@
 
 // For more information, see http://www.boost.org
 
+#include <boost/bind/bind.hpp>
 #include <boost/optional.hpp>
-#include <boost/test/minimal.hpp>
 #include <boost/signals2.hpp>
+#define BOOST_TEST_MODULE signal_test
+#include <boost/test/included/unit_test.hpp>
 #include <functional>
 #include <iostream>
 #include <typeinfo>
+
+using namespace boost::placeholders;
 
 template<typename T>
 struct max_or_default {
@@ -133,7 +137,7 @@ test_one_arg()
   boost::signals2::signal<int (int value), max_or_default<int> > s1;
 
   s1.connect(std::negate<int>());
-  s1.connect(std::bind1st(std::multiplies<int>(), 2));
+  s1.connect(boost::bind(std::multiplies<int>(), 2, _1));
 
   BOOST_CHECK(s1(1) == 2);
   BOOST_CHECK(s1(-1) == 1);
@@ -152,8 +156,8 @@ test_signal_signal_connect()
   {
     signal_type s2;
     s1.connect(s2);
-    s2.connect(std::bind1st(std::multiplies<int>(), 2));
-    s2.connect(std::bind1st(std::multiplies<int>(), -3));
+    s2.connect(boost::bind(std::multiplies<int>(), 2, _1));
+    s2.connect(boost::bind(std::multiplies<int>(), -3, _1));
 
     BOOST_CHECK(s2(-3) == 9);
     BOOST_CHECK(s1(3) == 6);
@@ -329,8 +333,7 @@ void test_move()
 #endif // !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
 }
 
-int
-test_main(int, char* [])
+BOOST_AUTO_TEST_CASE(test_main)
 {
   test_zero_args();
   test_one_arg();
@@ -342,5 +345,4 @@ test_main(int, char* [])
   test_set_combiner();
   test_swap();
   test_move();
-  return 0;
 }

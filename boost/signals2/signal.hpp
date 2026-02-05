@@ -15,9 +15,9 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/config.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <boost/function.hpp>
 #include <boost/mpl/identity.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
@@ -30,7 +30,6 @@
 #include <boost/signals2/optional_last_value.hpp>
 #include <boost/signals2/mutex.hpp>
 #include <boost/signals2/slot.hpp>
-#include <boost/throw_exception.hpp>
 #include <functional>
 
 #ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
@@ -53,7 +52,7 @@ namespace boost
       typename Mutex>
       void swap(
         signal<Signature, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex> &sig1,
-        signal<Signature, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex> &sig2)
+        signal<Signature, Combiner, Group, GroupCompare, SlotFunction, ExtendedSlotFunction, Mutex> &sig2) BOOST_NOEXCEPT
     {
       sig1.swap(sig2);
     }

@@ -20,8 +20,6 @@
 #include "test_get_turns.hpp"
 #include <boost/geometry/geometries/geometries.hpp>
 
-//TEST
-//#include <to_svg.hpp>
 
 template <typename T>
 void test_all()
@@ -227,8 +225,5 @@ int test_main(int, char* [])
     test_all<long double>();
 #endif
 
-#if defined(HAVE_TTMATH)
-    test_all<ttmath_big>();
-#endif
     return 0;
 }

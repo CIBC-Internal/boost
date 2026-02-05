@@ -1,13 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -56,6 +55,15 @@ void test_polygon()
     // should (1.5 1) be returned?
     // if yes, then all other Polygons degenerated to Linestrings should be handled
     test_centroid<Polygon>("POLYGON((1 1,2 1,1 1,1 1))", 1.0, 1.0);
+
+    // reported 2015.04.24
+    // input INT, result FP
+    test_centroid
+        <
+            bg::model::polygon<bg::model::d2::point_xy<int> >,
+            typename bg::point_type<Polygon>::type,
+            typename bg::coordinate_type<Polygon>::type
+        >("POLYGON((1 1, 1 2, 2 2, 2 1, 1 1))", 1.5, 1.5);
 }
 
 
@@ -72,6 +80,31 @@ void test_2d()
     // degenerated linestring (length = 0)
     test_centroid<bg::model::linestring<P> >("LINESTRING(1 1, 1 1)", 1.0, 1.0);
     test_centroid<bg::model::linestring<P> >("LINESTRING(1 1)", 1.0, 1.0);
+
+    {
+        bg::model::linestring<P> ls;
+        // LINESTRING(1 -1,1e308 -1e308,0.0001 0.000)
+        bg::append(ls, P(1, -1));
+        typedef typename bg::coordinate_type<P>::type coord_type;
+        //double m = 1.0e308;
+        coord_type m = (std::numeric_limits<coord_type>::max)();
+        bg::append(ls, P(coord_type(m), coord_type(-m)));
+        bg::append(ls, P(coord_type(0.0001), coord_type(0.000)));
+        if (BOOST_GEOMETRY_CONDITION((std::is_same<typename bg::coordinate_type<P>::type, double>::value)))
+        {
+            // for doubles the INF is detected and the calculation stopped
+            // currently for Geometries for which the centroid can't be calculated
+            // the first Point is returned
+            test_centroid<bg::model::linestring<P> >(ls, 1.0, -1.0);
+        }
+        else
+        {
+            // for floats internally the double is used to store intermediate results
+            // this type is capable to store MAX_FLT and "correctly" calculate the centroid
+            // test_centroid<bg::model::linestring<P> >(ls, m/3, -m/3);
+            // the result is around (1.7e38 -1.7e38)
+        }
+    }
 
     test_centroid<bg::model::segment<P> >("LINESTRING(1 1, 3 3)", 2.0, 2.0);
 
@@ -97,6 +130,23 @@ void test_2d()
 
     test_centroid<bg::model::box<P> >("POLYGON((1 2,3 4))", 2, 3);
     test_centroid<P>("POINT(3 3)", 3, 3);
+
+    // INT -> FP
+    test_centroid
+        <
+            bg::model::ring<bg::model::d2::point_xy<int> >,
+            P, typename bg::coordinate_type<P>::type
+        >("POLYGON((1 1, 1 2, 2 2, 2 1, 1 1))", 1.5, 1.5);
+    test_centroid
+        <
+            bg::model::linestring<bg::model::d2::point_xy<int> >,
+            P, typename bg::coordinate_type<P>::type
+        >("LINESTRING(1 1, 2 2)", 1.5, 1.5);
+    test_centroid
+        <
+            bg::model::box<bg::model::d2::point_xy<int> >,
+            P, typename bg::coordinate_type<P>::type
+        >("BOX(1 1, 2 2)", 1.5, 1.5);
 }
 
 
@@ -124,6 +174,21 @@ void test_exceptions()
     test_centroid_exception<bg::model::linestring<P> >();
     test_centroid_exception<bg::model::polygon<P> >();
     test_centroid_exception<bg::model::ring<P> >();
+
+    // Empty exterior ring
+    test_centroid_exception<bg::model::polygon<P> >(
+        "POLYGON((), ())");
+    test_centroid_exception<bg::model::polygon<P> >(
+        "POLYGON((), (0 0, 1 0, 1 1, 0 1, 0 0))");
+}
+
+template <typename P>
+void test_empty()
+{
+    // Empty interior ring
+    test_centroid<bg::model::polygon<P> >(
+        "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0), ())",
+        0.5, 0.5);
 }
 
 void test_large_integers()
@@ -145,13 +210,12 @@ void test_large_integers()
     bg::centroid(double_poly, double_centroid);
 
     int_point_type double_centroid_as_int;
+    bg::assign_zero(double_centroid_as_int);
     bg::assign(int_centroid, double_centroid_as_int);
 
     BOOST_CHECK_EQUAL(bg::get<0>(int_centroid), bg::get<0>(double_centroid_as_int));
     BOOST_CHECK_EQUAL(bg::get<1>(int_centroid), bg::get<1>(double_centroid_as_int));
 }
-
-//#include <to_svg.hpp>
 
 void test_large_doubles()
 {
@@ -173,9 +237,6 @@ void test_large_doubles()
     bg::set<0>(pt_near_moved, bg::get<0>(pt_near) + 1074000.0);
     bg::set<1>(pt_near_moved, bg::get<1>(pt_near) + 703000.0);
 
-    //geom_to_svg(poly_far, pt_far, "far.svg");
-    //geom_to_svg(poly_near, pt_near, "near.svg");
-
     double d = bg::distance(pt_far, pt_near_moved);
     BOOST_CHECK(d < 0.1);
 }
@@ -190,11 +251,6 @@ int test_main(int, char* [])
 
     test_5d<boost::tuple<double, double, double, double, double> >();
 
-#if defined(HAVE_TTMATH)
-    test_2d<bg::model::d2::point_xy<ttmath_big> >();
-    test_3d<boost::tuple<ttmath_big, ttmath_big, ttmath_big> >();
-#endif
-
 #ifndef NDEBUG
     // The test currently fails in release mode. TODO: fix this
     test_large_integers();
@@ -203,6 +259,7 @@ int test_main(int, char* [])
     test_large_doubles();
 
     test_exceptions<bg::model::d2::point_xy<double> >();
+    test_empty<bg::model::d2::point_xy<double> >();
 
     return 0;
 }
