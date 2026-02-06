@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2013 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2001-2011 Hartmut Kaiser
     Copyright (c) 2011      Bryce Lelbach
 
@@ -7,6 +7,7 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #include "int.hpp"
+#include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/at.hpp>
 
@@ -22,6 +23,8 @@ main()
     {
         using boost::spirit::x3::int_;
         int i;
+
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(int_);
 
         BOOST_TEST(test("123456", int_));
         BOOST_TEST(test_attr("123456", int_, i));
@@ -70,6 +73,8 @@ main()
         using boost::spirit::x3::long_long;
         boost::long_long_type ll;
 
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(long_long);
+
         BOOST_TEST(test("1234567890123456789", long_long));
         BOOST_TEST(test_attr("1234567890123456789", long_long, ll));
         BOOST_TEST(ll == 1234567890123456789LL);
@@ -100,6 +105,9 @@ main()
         using boost::spirit::x3::long_;
         int i;
 
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(short_);
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(long_);
+
         BOOST_TEST(test("12345", short_));
         BOOST_TEST(test_attr("12345", short_, i));
         BOOST_TEST(i == 12345);
@@ -113,8 +121,10 @@ main()
     // Check overflow is parse error
     ///////////////////////////////////////////////////////////////////////////
     {
-        boost::spirit::x3::int_parser<boost::int8_t> int8_;
+        constexpr boost::spirit::x3::int_parser<boost::int8_t> int8_{};
         char c;
+
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(int8_);
 
         BOOST_TEST(!test_attr("999", int8_, c));
 
@@ -130,31 +140,33 @@ main()
     {
         using boost::spirit::x3::int_parser;
         using boost::spirit::x3::unused_type;
-        int_parser<unused_type> any_int;
+        constexpr int_parser<unused_type> any_int{};
+
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(any_int);
 
         BOOST_TEST(test("123456", any_int));
         BOOST_TEST(test("-123456", any_int));
         BOOST_TEST(test("-1234567890123456789", any_int));
     }
 
-    // $$$ Not yet implemented $$$
-    //~ ///////////////////////////////////////////////////////////////////////////
-    //~ //  action tests
-    //~ ///////////////////////////////////////////////////////////////////////////
-    //~ {
-        //~ using boost::phoenix::ref;
-        //~ using boost::spirit::x3::_1;
-        //~ using boost::spirit::x3::ascii::space;
-        //~ using boost::spirit::x3::int_;
-        //~ int n, m;
+    ///////////////////////////////////////////////////////////////////////////
+    //  action tests
+    ///////////////////////////////////////////////////////////////////////////
+    {
+        using boost::spirit::x3::_attr;
+        using boost::spirit::x3::ascii::space;
+        using boost::spirit::x3::int_;
+        int n = 0, m = 0;
 
-        //~ BOOST_TEST(test("123", int_[ref(n) = _1]));
-        //~ BOOST_TEST(n == 123);
-        //~ BOOST_TEST(test_attr("789", int_[ref(n) = _1], m));
-        //~ BOOST_TEST(n == 789 && m == 789);
-        //~ BOOST_TEST(test("   456", int_[ref(n) = _1], space));
-        //~ BOOST_TEST(n == 456);
-    //~ }
+        auto f = [&](auto& ctx){ n = _attr(ctx); };
+
+        BOOST_TEST(test("123", int_[f]));
+        BOOST_TEST(n == 123);
+        BOOST_TEST(test_attr("789", int_[f], m));
+        BOOST_TEST(n == 789 && m == 789);
+        BOOST_TEST(test("   456", int_[f], space));
+        BOOST_TEST(n == 456);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     //  custom int tests

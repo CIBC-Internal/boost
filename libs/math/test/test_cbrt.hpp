@@ -7,7 +7,7 @@
 #include <boost/math/concepts/real_concept.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/tools/stats.hpp>
 #include <boost/math/tools/test.hpp>
 #include <boost/type_traits/is_floating_point.hpp>
@@ -38,10 +38,13 @@ struct negative_cbrt
 template <class Real, class T>
 void do_test_cbrt(const T& data, const char* type_name, const char* test_name)
 {
+#if !(defined(ERROR_REPORTING_MODE) && !defined(CBRT_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef CBRT_FUNCTION_TO_TEST
+   pg funcp = boost::math::cbrt<value_type>;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::cbrt<value_type>;
 #else
    pg funcp = boost::math::cbrt;
@@ -63,8 +66,9 @@ void do_test_cbrt(const T& data, const char* type_name, const char* test_name)
       data, 
       negative_cbrt<Real>(), 
       negate<Real>(extract_result<Real>(0)));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::cbrt", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "cbrt", test_name);
    std::cout << std::endl;
+#endif
 }
 template <class T>
 void test_cbrt(T, const char* name)

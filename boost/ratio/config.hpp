@@ -9,6 +9,7 @@
 #ifndef BOOST_RATIO_CONFIG_HPP
 #define BOOST_RATIO_CONFIG_HPP
 
+#include <boost/ratio/detail/requires_cxx11.hpp>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 
@@ -45,14 +46,18 @@
 
 #ifdef INTMAX_C
 #define BOOST_RATIO_INTMAX_C(a) INTMAX_C(a)
-#else
+#elif __cplusplus >= 201103L
 #define BOOST_RATIO_INTMAX_C(a) a##LL
+#else
+#define BOOST_RATIO_INTMAX_C(a) a##L
 #endif
 
 #ifdef UINTMAX_C
 #define BOOST_RATIO_UINTMAX_C(a) UINTMAX_C(a)
-#else
+#elif __cplusplus >= 201103L
 #define BOOST_RATIO_UINTMAX_C(a) a##ULL
+#else
+#define BOOST_RATIO_UINTMAX_C(a) a##UL
 #endif
 
 #define BOOST_RATIO_INTMAX_T_MAX (0x7FFFFFFFFFFFFFFELL)

@@ -28,15 +28,19 @@
 
 namespace boost {
 namespace container {
-namespace container_detail {
+namespace dtl {
 
+using ::boost::move_detail::enable_if;
+using ::boost::move_detail::enable_if_and;
 using ::boost::move_detail::is_same;
+using ::boost::move_detail::is_different;
 using ::boost::move_detail::is_pointer;
 using ::boost::move_detail::add_reference;
 using ::boost::move_detail::add_const;
 using ::boost::move_detail::add_const_reference;
 using ::boost::move_detail::remove_const;
 using ::boost::move_detail::remove_reference;
+using ::boost::move_detail::remove_cvref;
 using ::boost::move_detail::make_unsigned;
 using ::boost::move_detail::is_floating_point;
 using ::boost::move_detail::is_integral;
@@ -58,9 +62,13 @@ using ::boost::move_detail::is_nothrow_swappable;
 using ::boost::move_detail::alignment_of;
 using ::boost::move_detail::aligned_storage;
 using ::boost::move_detail::nat;
+using ::boost::move_detail::nat2;
+using ::boost::move_detail::nat3;
+using ::boost::move_detail::natN;
 using ::boost::move_detail::max_align_t;
+using ::boost::move_detail::is_convertible;
 
-}  //namespace container_detail {
+}  //namespace dtl {
 }  //namespace container {
 }  //namespace boost {
 

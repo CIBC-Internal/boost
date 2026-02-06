@@ -2,6 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2016, 2022.
+// Modifications copyright (c) 2016-2022 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -13,16 +18,10 @@
 #include <algorithm>
 #include <string>
 
-#include <boost/concept_check.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-#include <boost/geometry/util/promote_integral.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
-#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -44,46 +43,6 @@ struct segments_intersection_points
 
     template
     <
-        typename Point,
-        typename Segment,
-        typename SegmentRatio,
-        typename T
-    >
-    static inline void assign(Point& point,
-                Segment const& segment,
-                SegmentRatio const& ratio,
-                T const& dx, T const& dy)
-    {
-        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-        // Calculate the intersection point based on segment_ratio
-        // Up to now, division was postponed. Here we divide using numerator/
-        // denominator. In case of integer this results in an integer
-        // division.
-        BOOST_ASSERT(ratio.denominator() != 0);
-
-        typedef typename promote_integral<coordinate_type>::type promoted_type;
-
-        promoted_type const numerator
-            = boost::numeric_cast<promoted_type>(ratio.numerator());
-        promoted_type const denominator
-            = boost::numeric_cast<promoted_type>(ratio.denominator());
-        promoted_type const dx_promoted = boost::numeric_cast<promoted_type>(dx);
-        promoted_type const dy_promoted = boost::numeric_cast<promoted_type>(dy);
-
-        set<0>(point, get<0, 0>(segment) + boost::numeric_cast
-            <
-                coordinate_type
-            >(numerator * dx_promoted / denominator));
-        set<1>(point, get<0, 1>(segment) + boost::numeric_cast
-            <
-                coordinate_type
-            >(numerator * dy_promoted / denominator));
-    }
-
-
-    template
-    <
         typename Segment1,
         typename Segment2,
         typename SegmentIntersectionInfo
@@ -94,18 +53,9 @@ struct segments_intersection_points
     {
         return_type result;
         result.count = 1;
+        sinfo.calculate(result.intersections[0], s1, s2);
 
-        if (sinfo.robust_ra < sinfo.robust_rb)
-        {
-            assign(result.intersections[0], s1, sinfo.robust_ra,
-                sinfo.dx_a, sinfo.dy_a);
-        }
-        else
-        {
-            assign(result.intersections[0], s2, sinfo.robust_rb,
-                sinfo.dx_b, sinfo.dy_b);
-        }
-
+        // Temporary - this should go later
         result.fractions[0].assign(sinfo);
 
         return result;
@@ -119,7 +69,7 @@ struct segments_intersection_points
         Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a)
     {
         return_type result;
-        unsigned int index = 0, count_a = 0, count_b = 0;
+        unsigned int index = 0;
         Ratio on_a[2];
 
         // The conditions "index < 2" are necessary for non-robust handling,
@@ -138,7 +88,6 @@ struct segments_intersection_points
             result.fractions[index].assign(Ratio::zero(), ra_from_wrt_b);
             on_a[index] = Ratio::zero();
             index++;
-            count_a++;
         }
         if (b1_wrt_a == 2 //rb_from_wrt_a.in_segment()
             && index < 2)
@@ -154,7 +103,6 @@ struct segments_intersection_points
             result.fractions[index].assign(rb_from_wrt_a, Ratio::zero());
             on_a[index] = rb_from_wrt_a;
             index++;
-            count_b++;
         }
 
         if (a2_wrt_b >= 1 && a2_wrt_b <= 3 //ra_to_wrt_b.on_segment()
@@ -167,7 +115,6 @@ struct segments_intersection_points
             result.fractions[index].assign(Ratio::one(), ra_to_wrt_b);
             on_a[index] = Ratio::one();
             index++;
-            count_a++;
         }
         if (b2_wrt_a == 2 // rb_to_wrt_a.in_segment()
             && index < 2)
@@ -176,7 +123,6 @@ struct segments_intersection_points
             result.fractions[index].assign(rb_to_wrt_a, Ratio::one());
             on_a[index] = rb_to_wrt_a;
             index++;
-            count_b++;
         }
 
         // TEMPORARY

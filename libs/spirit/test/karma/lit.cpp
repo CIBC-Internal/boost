@@ -1,18 +1,15 @@
 //  Copyright (c) 2001-2011 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-
-#include <boost/config/warning_disable.hpp>
-#include <boost/detail/lightweight_test.hpp>
 
 #include <boost/spirit/include/karma_char.hpp>
 #include <boost/spirit/include/karma_string.hpp>
 #include <boost/spirit/include/karma_generate.hpp>
 #include <boost/spirit/include/karma_action.hpp>
 #include <boost/spirit/include/support_argument.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/operator.hpp>
 
 #include "test.hpp"
 
@@ -100,6 +97,25 @@ main()
 
         BOOST_TEST(test(L"abc", string, "abc"));
         BOOST_TEST(!test(L"abcd", string, "abc"));
+    }
+
+    {
+        using namespace boost::spirit::karma;
+
+        const char test_data[] = "abc\x00s";
+        const std::string str(test_data, sizeof(test_data) - 1);
+
+        BOOST_TEST(test(str, lit(str)));
+        BOOST_TEST(!test("abc", lit(str)));
+
+        BOOST_TEST(test(str, string(str)));
+        BOOST_TEST(!test("abc", string(str)));
+
+        BOOST_TEST(test(str, string, str));
+        BOOST_TEST(!test("abc", string, str));
+
+        BOOST_TEST(test(str, str));
+        BOOST_TEST(!test("abc", str));
     }
 
     {

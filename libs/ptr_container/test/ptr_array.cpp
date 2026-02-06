@@ -12,6 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include "test_data.hpp"
 #include <boost/ptr_container/ptr_array.hpp>
+#include <boost/ptr_container/detail/ptr_container_disable_deprecated.hpp>
 #include <boost/utility.hpp>
 #include <boost/array.hpp>
 #include <algorithm>
@@ -65,6 +66,11 @@ void n_ary_tree<Node,N>::print( std::ostream& out, std::string indent )
 template< class C, class B, class T >
 void test_array_interface();
 
+#if defined(BOOST_PTR_CONTAINER_DISABLE_DEPRECATED)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 void test_array()
 {
     typedef n_ary_tree<std::string,2> binary_tree;
@@ -89,7 +95,12 @@ void test_array()
     ptr_array<int,10> vec;
     BOOST_CHECK_THROW( vec.at(10), bad_ptr_container_operation );
     BOOST_CHECK_THROW( (vec.replace(10u, new int(0))), bad_ptr_container_operation );
+#ifndef BOOST_NO_AUTO_PTR
     BOOST_CHECK_THROW( (vec.replace(10u, std::auto_ptr<int>(new int(0)))), bad_ptr_container_operation ); 
+#endif
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    BOOST_CHECK_THROW( (vec.replace(10u, std::unique_ptr<int>(new int(0)))), bad_ptr_container_operation ); 
+#endif
     BOOST_CHECK_THROW( (vec.replace(0u, 0)), bad_ptr_container_operation ); 
 
     ptr_array<Derived_class,2> derived;
@@ -97,7 +108,7 @@ void test_array()
     derived.replace( 1, new Derived_class );
     ptr_array<Base,2> base( derived );
     
-    BOOST_MESSAGE( "finished derived to base test" ); 
+    BOOST_TEST_MESSAGE( "finished derived to base test" ); 
 
     base = derived;   
     ptr_array<Base,2> base2( base );
@@ -112,24 +123,37 @@ void test_array_interface()
     c.replace( 0, new T );
     c.replace( 1, new B );
     c.replace( 9, new T );
+#ifndef BOOST_NO_AUTO_PTR
     c.replace( 0, std::auto_ptr<T>( new T ) );
+#endif
+#ifndef BOOST_NO_CXX11_SMART_PTR
+    c.replace( 0, std::unique_ptr<T>( new T ) );
+#endif
     const C c2( c.clone() );
     
     BOOST_DEDUCED_TYPENAME C::iterator i                  = c.begin();
+    hide_warning(i);
     BOOST_DEDUCED_TYPENAME C::const_iterator ci           = c2.begin();
+    hide_warning(ci);
     BOOST_DEDUCED_TYPENAME C::iterator i2                 = c.end();
+    hide_warning(i2);
     BOOST_DEDUCED_TYPENAME C::const_iterator ci2          = c2.begin();
+    hide_warning(ci2);
     BOOST_DEDUCED_TYPENAME C::reverse_iterator ri         = c.rbegin();
+    hide_warning(ri);
     BOOST_DEDUCED_TYPENAME C::const_reverse_iterator cri  = c2.rbegin();
+    hide_warning(cri);
     BOOST_DEDUCED_TYPENAME C::reverse_iterator rv2        = c.rend();
+    hide_warning(rv2);
     BOOST_DEDUCED_TYPENAME C::const_reverse_iterator cvr2 = c2.rend();
+    hide_warning(cvr2);
 
-    BOOST_MESSAGE( "finished iterator test" ); 
+    BOOST_TEST_MESSAGE( "finished iterator test" ); 
 
     BOOST_CHECK_EQUAL( c.empty(), false );
     BOOST_CHECK_EQUAL( c.size(), c.max_size() );
     
-    BOOST_MESSAGE( "finished capacity test" ); 
+    BOOST_TEST_MESSAGE( "finished capacity test" ); 
 
     BOOST_CHECK_EQUAL( c.is_null(0), false );
     BOOST_CHECK_EQUAL( c.is_null(1), false );
@@ -154,8 +178,12 @@ void test_array_interface()
     for( size_t i = 0; i < c3.size(); ++i )
         BOOST_CHECK_EQUAL( c3.is_null(i), true );
 
-    BOOST_MESSAGE( "finished element access test" ); 
+    BOOST_TEST_MESSAGE( "finished element access test" ); 
 }
+
+#if defined(BOOST_PTR_CONTAINER_DISABLE_DEPRECATED)
+#pragma GCC diagnostic pop
+#endif
 
 using boost::unit_test::test_suite;
 
@@ -167,5 +195,3 @@ test_suite* init_unit_test_suite( int argc, char* argv[] )
 
     return test;
 }
-
-

@@ -9,7 +9,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // xml_wiarchive.hpp
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -30,15 +30,6 @@
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/serialization/item_version_type.hpp>
 
-#ifdef BOOST_NO_CXX11_HDR_CODECVT
-    #include <boost/archive/detail/utf8_codecvt_facet.hpp>
-#else
-    #include <codecvt>
-    namespace boost { namespace archive { namespace detail {
-        typedef std::codecvt_utf8<wchar_t> utf8_codecvt_facet;
-    } } }
-#endif
-
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
 #ifdef BOOST_MSVC
@@ -58,7 +49,7 @@ class basic_xml_grammar;
 typedef basic_xml_grammar<wchar_t> xml_wgrammar;
 
 template<class Archive>
-class xml_wiarchive_impl : 
+class BOOST_SYMBOL_VISIBLE xml_wiarchive_impl :
     public basic_text_iprimitive<std::wistream>,
     public basic_xml_iarchive<Archive>
 {
@@ -66,70 +57,63 @@ class xml_wiarchive_impl :
 public:
 #else
 protected:
-    #if BOOST_WORKAROUND(BOOST_MSVC, < 1500)
-        // for some inexplicable reason insertion of "class" generates compile erro
-        // on msvc 7.1
-        friend detail::interface_iarchive<Archive>;
-        friend basic_xml_iarchive<Archive>;
-        friend load_access;
-    #else
-        friend class detail::interface_iarchive<Archive>;
-        friend class basic_xml_iarchive<Archive>;
-        friend class load_access;
-    #endif
+    friend class detail::interface_iarchive<Archive>;
+    friend class basic_xml_iarchive<Archive>;
+    friend class load_access;
 #endif
+    std::locale archive_locale;
     boost::scoped_ptr<xml_wgrammar> gimpl;
     std::wistream & get_is(){
         return is;
     }
     template<class T>
-    void 
+    void
     load(T & t){
         basic_text_iprimitive<std::wistream>::load(t);
     }
-    void 
+    void
     load(version_type & t){
         unsigned int v;
         load(v);
         t = version_type(v);
     }
-    void 
+    void
     load(boost::serialization::item_version_type & t){
         unsigned int v;
         load(v);
         t = boost::serialization::item_version_type(v);
     }
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(char * t);
     #ifndef BOOST_NO_INTRINSIC_WCHAR_T
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(wchar_t * t);
     #endif
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(std::string &s);
     #ifndef BOOST_NO_STD_WSTRING
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(std::wstring &ws);
     #endif
     template<class T>
-    void load_override(T & t, BOOST_PFTO int){
-        basic_xml_iarchive<Archive>::load_override(t, 0);
+    void load_override(T & t){
+        basic_xml_iarchive<Archive>::load_override(t);
     }
-    BOOST_WARCHIVE_DECL(void)
-    load_override(class_name_type & t, int);
-    BOOST_WARCHIVE_DECL(void) 
+    BOOST_WARCHIVE_DECL void
+    load_override(class_name_type & t);
+    BOOST_WARCHIVE_DECL void
     init();
-    BOOST_WARCHIVE_DECL(BOOST_PP_EMPTY()) 
-    xml_wiarchive_impl(std::wistream & is, unsigned int flags) ;
-    BOOST_WARCHIVE_DECL(BOOST_PP_EMPTY()) 
-    ~xml_wiarchive_impl();
+    BOOST_WARCHIVE_DECL
+    xml_wiarchive_impl(std::wistream & is, unsigned int flags);
+    BOOST_WARCHIVE_DECL
+    ~xml_wiarchive_impl() BOOST_OVERRIDE;
 };
 
 } // namespace archive
 } // namespace boost
 
 #ifdef BOOST_MSVC
-#  pragma warning(pop) 
+#  pragma warning(pop)
 #endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
@@ -139,16 +123,19 @@ protected:
 #  pragma warning(disable : 4511 4512)
 #endif
 
-namespace boost { 
+namespace boost {
 namespace archive {
 
-class xml_wiarchive : 
+class BOOST_SYMBOL_VISIBLE xml_wiarchive :
     public xml_wiarchive_impl<xml_wiarchive>{
 public:
     xml_wiarchive(std::wistream & is, unsigned int flags = 0) :
         xml_wiarchive_impl<xml_wiarchive>(is, flags)
-    {}
-    ~xml_wiarchive(){}
+    {
+    if(0 == (flags & no_header))
+        init();
+    }
+    ~xml_wiarchive() BOOST_OVERRIDE {}
 };
 
 } // namespace archive

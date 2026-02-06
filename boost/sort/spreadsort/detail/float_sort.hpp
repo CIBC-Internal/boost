@@ -21,7 +21,6 @@ Scott McMurray
 #include <limits>
 #include <functional>
 #include <boost/static_assert.hpp>
-#include <boost/serialization/static_warning.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/sort/spreadsort/detail/constants.hpp>
 #include <boost/sort/spreadsort/detail/integer_sort.hpp>
@@ -56,12 +55,36 @@ namespace spreadsort {
                   Div_type & max, Div_type & min, Right_shift rshift)
     {
       min = max = rshift(*current, 0);
-      Div_type prev = min;
+      RandomAccessIter prev = current;
       bool sorted = true;
       while (++current < last) {
         Div_type value = rshift(*current, 0);
-        sorted &= value >= prev;
-        prev = value;
+        sorted &= *current >= *prev;
+        prev = current;
+        if (max < value)
+          max = value;
+        else if (value < min)
+          min = value;
+      }
+      return sorted;
+    }
+
+    // Return true if the list is sorted.  Otherwise, find the minimum and
+    // maximum.  Uses comp to check if the data is already sorted.
+    template <class RandomAccessIter, class Div_type, class Right_shift,
+              class Compare>
+    inline bool
+    is_sorted_or_find_extremes(RandomAccessIter current, RandomAccessIter last,
+                               Div_type & max, Div_type & min, 
+                               Right_shift rshift, Compare comp)
+    {
+      min = max = rshift(*current, 0);
+      RandomAccessIter prev = current;
+      bool sorted = true;
+      while (++current < last) {
+        Div_type value = rshift(*current, 0);
+        sorted &= !comp(*current, *prev);
+        prev = current;
         if (max < value)
           max = value;
         else if (value < min)
@@ -123,12 +146,12 @@ namespace spreadsort {
                   Cast_type & max, Cast_type & min)
     {
       min = max = cast_float_iter<Cast_type, RandomAccessIter>(current);
-      Cast_type prev = min;
+      RandomAccessIter prev = current;
       bool sorted = true;
       while (++current < last) {
         Cast_type value = cast_float_iter<Cast_type, RandomAccessIter>(current);
-        sorted &= value >= prev;
-        prev = value;
+        sorted &= *current >= *prev;
+        prev = current;
         if (max < value)
           max = value;
         else if (value < min)
@@ -188,7 +211,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[u]);
+          boost::sort::pdqsort(lastPos, bin_cache[u]);
         else
           positive_float_sort_rec<RandomAccessIter, Div_type, Size_type>
             (lastPos, bin_cache[u], bin_cache, cache_end, bin_sizes);
@@ -205,8 +228,9 @@ namespace spreadsort {
     {
       Div_type max, min;
       if (is_sorted_or_find_extremes<RandomAccessIter, Div_type>(first, last, 
-                                                                max, min))
+                                                                 max, min))
         return;
+
       unsigned log_divisor = get_log_divisor<float_log_mean_bin_size>(
           last - first, rough_log_2_size(Size_type(max - min)));
       Div_type div_min = min >> log_divisor;
@@ -248,7 +272,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[ii]);
+          boost::sort::pdqsort(lastPos, bin_cache[ii]);
         else
           negative_float_sort_rec<RandomAccessIter, Div_type, Size_type>
             (lastPos, bin_cache[ii], bin_cache, cache_end, bin_sizes);
@@ -307,7 +331,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[ii]);
+          boost::sort::pdqsort(lastPos, bin_cache[ii]);
         else
           negative_float_sort_rec<RandomAccessIter, Div_type, Right_shift,
                                   Size_type>
@@ -323,7 +347,7 @@ namespace spreadsort {
             size_t *bin_sizes, Right_shift rshift, Compare comp)
     {
       Div_type max, min;
-      if (is_sorted_or_find_extremes(first, last, max, min, rshift))
+      if (is_sorted_or_find_extremes(first, last, max, min, rshift, comp))
         return;
       unsigned log_divisor = get_log_divisor<float_log_mean_bin_size>(
           last - first, rough_log_2_size(Size_type(max - min)));
@@ -365,7 +389,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[ii], comp);
+          boost::sort::pdqsort(lastPos, bin_cache[ii], comp);
         else
           negative_float_sort_rec<RandomAccessIter, Div_type, Right_shift,
                                   Compare, Size_type>(lastPos, bin_cache[ii],
@@ -450,7 +474,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[ii]);
+          boost::sort::pdqsort(lastPos, bin_cache[ii]);
         //sort negative values using reversed-bin spreadsort
         else
           negative_float_sort_rec<RandomAccessIter, Div_type, Size_type>
@@ -463,7 +487,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[u]);
+          boost::sort::pdqsort(lastPos, bin_cache[u]);
         //sort positive values using normal spreadsort
         else
           positive_float_sort_rec<RandomAccessIter, Div_type, Size_type>
@@ -546,7 +570,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[ii]);
+          boost::sort::pdqsort(lastPos, bin_cache[ii]);
         //sort negative values using reversed-bin spreadsort
         else
           negative_float_sort_rec<RandomAccessIter, Div_type,
@@ -560,7 +584,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[u]);
+          boost::sort::pdqsort(lastPos, bin_cache[u]);
         //sort positive values using normal spreadsort
         else
           spreadsort_rec<RandomAccessIter, Div_type, Right_shift, Size_type,
@@ -578,7 +602,7 @@ namespace spreadsort {
             size_t *bin_sizes, Right_shift rshift, Compare comp)
     {
       Div_type max, min;
-      if (is_sorted_or_find_extremes(first, last, max, min, rshift))
+      if (is_sorted_or_find_extremes(first, last, max, min, rshift, comp))
         return;
       unsigned log_divisor = get_log_divisor<float_log_mean_bin_size>(
           last - first, rough_log_2_size(Size_type(max - min)));
@@ -645,7 +669,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[ii], comp);
+          boost::sort::pdqsort(lastPos, bin_cache[ii], comp);
         //sort negative values using reversed-bin spreadsort
         else
           negative_float_sort_rec<RandomAccessIter, Div_type, Right_shift,
@@ -660,7 +684,7 @@ namespace spreadsort {
         if (count < 2)
           continue;
         if (count < max_count)
-          std::sort(lastPos, bin_cache[u], comp);
+          boost::sort::pdqsort(lastPos, bin_cache[u], comp);
         //sort positive values using normal spreadsort
         else
           spreadsort_rec<RandomAccessIter, Div_type, Right_shift, Compare,
@@ -679,7 +703,7 @@ namespace spreadsort {
       void >::type
     float_sort(RandomAccessIter first, RandomAccessIter last)
     {
-      size_t bin_sizes[1 << max_splits];
+      size_t bin_sizes[1 << max_finishing_splits];
       std::vector<RandomAccessIter> bin_cache;
       float_sort_rec<RandomAccessIter, boost::int32_t, boost::uint32_t>
         (first, last, bin_cache, 0, bin_sizes);
@@ -694,7 +718,7 @@ namespace spreadsort {
       void >::type
     float_sort(RandomAccessIter first, RandomAccessIter last)
     {
-      size_t bin_sizes[1 << max_splits];
+      size_t bin_sizes[1 << max_finishing_splits];
       std::vector<RandomAccessIter> bin_cache;
       float_sort_rec<RandomAccessIter, boost::int64_t, boost::uint64_t>
         (first, last, bin_cache, 0, bin_sizes);
@@ -710,13 +734,13 @@ namespace spreadsort {
       void >::type
     float_sort(RandomAccessIter first, RandomAccessIter last)
     {
-      BOOST_STATIC_WARNING(!(sizeof(boost::uint64_t) ==
+      BOOST_STATIC_ASSERT(!(sizeof(boost::uint64_t) ==
       sizeof(typename std::iterator_traits<RandomAccessIter>::value_type)
       || sizeof(boost::uint32_t) ==
       sizeof(typename std::iterator_traits<RandomAccessIter>::value_type))
       || !std::numeric_limits<typename
       std::iterator_traits<RandomAccessIter>::value_type>::is_iec559);
-      std::sort(first, last);
+      boost::sort::pdqsort(first, last);
     }
 
     //These approaches require the user to do the typecast
@@ -727,7 +751,7 @@ namespace spreadsort {
     float_sort(RandomAccessIter first, RandomAccessIter last, Div_type,
                Right_shift rshift)
     {
-      size_t bin_sizes[1 << max_splits];
+      size_t bin_sizes[1 << max_finishing_splits];
       std::vector<RandomAccessIter> bin_cache;
       float_sort_rec<RandomAccessIter, Div_type, Right_shift, size_t>
         (first, last, bin_cache, 0, bin_sizes, rshift);
@@ -740,21 +764,20 @@ namespace spreadsort {
     float_sort(RandomAccessIter first, RandomAccessIter last, Div_type,
                Right_shift rshift)
     {
-      size_t bin_sizes[1 << max_splits];
+      size_t bin_sizes[1 << max_finishing_splits];
       std::vector<RandomAccessIter> bin_cache;
       float_sort_rec<RandomAccessIter, Div_type, Right_shift, boost::uintmax_t>
         (first, last, bin_cache, 0, bin_sizes, rshift);
     }
 
-    //sizeof(Div_type) doesn't match, so use std::sort
+    //sizeof(Div_type) doesn't match, so use boost::sort::pdqsort
     template <class RandomAccessIter, class Div_type, class Right_shift>
     inline typename boost::disable_if_c< sizeof(boost::uintmax_t) >=
       sizeof(Div_type), void >::type
     float_sort(RandomAccessIter first, RandomAccessIter last, Div_type,
                Right_shift rshift)
     {
-      BOOST_STATIC_WARNING(sizeof(boost::uintmax_t) >= sizeof(Div_type));
-      std::sort(first, last);
+      boost::sort::pdqsort(first, last);
     }
 
     //specialized comparison
@@ -765,7 +788,7 @@ namespace spreadsort {
     float_sort(RandomAccessIter first, RandomAccessIter last, Div_type,
                Right_shift rshift, Compare comp)
     {
-      size_t bin_sizes[1 << max_splits];
+      size_t bin_sizes[1 << max_finishing_splits];
       std::vector<RandomAccessIter> bin_cache;
       float_sort_rec<RandomAccessIter, Div_type, Right_shift, Compare,
         size_t>
@@ -780,14 +803,14 @@ namespace spreadsort {
     float_sort(RandomAccessIter first, RandomAccessIter last, Div_type,
                Right_shift rshift, Compare comp)
     {
-      size_t bin_sizes[1 << max_splits];
+      size_t bin_sizes[1 << max_finishing_splits];
       std::vector<RandomAccessIter> bin_cache;
       float_sort_rec<RandomAccessIter, Div_type, Right_shift, Compare,
         boost::uintmax_t>
         (first, last, bin_cache, 0, bin_sizes, rshift, comp);
     }
 
-    //sizeof(Div_type) doesn't match, so use std::sort
+    //sizeof(Div_type) doesn't match, so use boost::sort::pdqsort
     template <class RandomAccessIter, class Div_type, class Right_shift,
               class Compare>
     inline typename boost::disable_if_c< sizeof(boost::uintmax_t) >=
@@ -795,8 +818,7 @@ namespace spreadsort {
     float_sort(RandomAccessIter first, RandomAccessIter last, Div_type,
                Right_shift rshift, Compare comp)
     {
-      BOOST_STATIC_WARNING(sizeof(boost::uintmax_t) >= sizeof(Div_type));
-      std::sort(first, last, comp);
+      boost::sort::pdqsort(first, last, comp);
     }
   }
 }

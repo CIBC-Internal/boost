@@ -4,6 +4,8 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
+#include <boost/coroutine/asymmetric_coroutine.hpp>
+
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -22,8 +24,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/utility.hpp>
-
-#include <boost/coroutine/asymmetric_coroutine.hpp>
 
 namespace coro = boost::coroutines;
 
@@ -576,6 +576,27 @@ void test_move_coro()
     BOOST_CHECK_EQUAL( ( int)4, value1);
 }
 
+void foo( coro::asymmetric_coroutine< int >::push_type & yield)
+{
+    yield( 1);
+}
+
+coro::asymmetric_coroutine< int >::pull_type make_range()
+{
+    return coro::asymmetric_coroutine< int >::pull_type( foo);
+}
+
+template< typename Range >
+void const_func( Range const& r)
+{
+    begin( r);
+}
+
+void test_range()
+{
+    const_func( make_range() );    
+}
+
 boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
 {
     boost::unit_test::test_suite * test =
@@ -600,6 +621,7 @@ boost::unit_test::test_suite * init_unit_test_suite( int, char* [])
     test->add( BOOST_TEST_CASE( & test_exceptions) );
     test->add( BOOST_TEST_CASE( & test_input_iterator) );
     test->add( BOOST_TEST_CASE( & test_output_iterator) );
+    test->add( BOOST_TEST_CASE( & test_range) );
 
     return test;
 }

@@ -2,8 +2,8 @@
 
 # Copyright (C) 2012. Jurko Gospodnetic
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or copy at
+# https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 # Tests Boost Build's project-id handling.
 
@@ -98,7 +98,7 @@ project /project-a3 ;
 """)
 
     t.run_build_system()
-    t.expect_addition("bin/$toolset/b%d._b" % x for x in range(1, 8))
+    t.expect_addition("bin/b%d._b" % x for x in range(1, 8))
     t.expect_nothing_more()
 
     t.cleanup()
@@ -280,7 +280,7 @@ bbb b-invalid-target : /foo//invalid ;
 """)
 
     t.run_build_system(["b1", "b2"])
-    t.expect_addition("bin/$toolset/debug/b%d._b" % x for x in range(1, 3))
+    t.expect_addition("bin/b%d._b" % x for x in range(1, 3))
     t.expect_nothing_more()
 
     t.run_build_system(["b-invalid"], status=1)
@@ -323,8 +323,8 @@ def __write_appender(t, name):
     t.write(name,
 r"""# Copyright 2012 Jurko Gospodnetic
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or copy at
+# https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 #   Support for registering test generators that construct their targets by
 # simply appending their given input data, e.g. list of sources & targets.

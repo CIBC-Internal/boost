@@ -15,8 +15,6 @@
 #include <cstddef> // NULL
 
 #include <boost/limits.hpp>
-#include <boost/serialization/state_saver.hpp>
-#include <boost/serialization/throw_exception.hpp>
 
 // including this here to work around an ICC in intel 7.0
 // normally this would be part of basic_oarchive.hpp below.
@@ -24,6 +22,10 @@
 // include this to prevent linker errors when the
 // same modules are marked export and import.
 #define BOOST_SERIALIZATION_SOURCE
+#include <boost/serialization/config.hpp>
+#include <boost/serialization/state_saver.hpp>
+#include <boost/serialization/throw_exception.hpp>
+#include <boost/serialization/extended_type_info.hpp>
 
 #include <boost/archive/detail/decl.hpp>
 #include <boost/archive/basic_archive.hpp>
@@ -31,7 +33,6 @@
 #include <boost/archive/detail/basic_pointer_oserializer.hpp>
 #include <boost/archive/detail/basic_oarchive.hpp>
 #include <boost/archive/archive_exception.hpp>
-#include <boost/serialization/extended_type_info.hpp>
 
 #ifdef BOOST_MSVC
 #  pragma warning(push)
@@ -105,8 +106,9 @@ class basic_oarchive_impl {
             m_class_id(class_id),
             m_initialized(false)
         {}
-        cobject_type(const basic_oserializer & bos)
-            : m_bos_ptr(& bos)
+        cobject_type(const basic_oserializer & bos) :
+            m_bos_ptr(& bos),
+            m_initialized(false)
         {}
         cobject_type(
             const cobject_type & rhs
@@ -132,7 +134,7 @@ class basic_oarchive_impl {
     // keyed on object id
     std::set<object_id_type> stored_pointers;
 
-    // address of the most recent object serialized as a poiner
+    // address of the most recent object serialized as a pointer
     // whose data itself is now pending serialization
     const void * pending_object;
     const basic_oserializer * pending_bos;
@@ -177,28 +179,28 @@ basic_oarchive_impl::find(const serialization::extended_type_info & ti) const {
     class bosarg : 
         public basic_oserializer
     {
-        bool class_info() const {
+        bool class_info() const BOOST_OVERRIDE {
             BOOST_ASSERT(false); 
             return false;
         }
         // returns true if objects should be tracked
-        bool tracking(const unsigned int) const {
+        bool tracking(const unsigned int) const BOOST_OVERRIDE {
             BOOST_ASSERT(false);
             return false;
         }
         // returns class version
-        version_type version() const {
+        version_type version() const BOOST_OVERRIDE {
             BOOST_ASSERT(false);
             return version_type(0);
         }
         // returns true if this class is polymorphic
-        bool is_polymorphic() const{
+        bool is_polymorphic() const BOOST_OVERRIDE {
             BOOST_ASSERT(false);
             return false;
         }
         void save_object_data(      
             basic_oarchive & /*ar*/, const void * /*x*/
-        ) const {
+        ) const BOOST_OVERRIDE {
             BOOST_ASSERT(false);
         }
     public:
@@ -304,10 +306,9 @@ basic_oarchive_impl::save_object(
     // just save the object id
     ar.vsave(object_reference_type(oid));
     ar.end_preamble();
-    return;
 }
 
-// save a pointer to an object instance
+// colle
 inline void
 basic_oarchive_impl::save_pointer(
     basic_oarchive & ar,
@@ -410,16 +411,16 @@ namespace boost {
 namespace archive {
 namespace detail {
 
-BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) 
+BOOST_ARCHIVE_DECL 
 basic_oarchive::basic_oarchive(unsigned int flags)
     : pimpl(new basic_oarchive_impl(flags))
 {}
 
-BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) 
+BOOST_ARCHIVE_DECL 
 basic_oarchive::~basic_oarchive()
 {}
 
-BOOST_ARCHIVE_DECL(void) 
+BOOST_ARCHIVE_DECL void 
 basic_oarchive::save_object(
     const void *x, 
     const basic_oserializer & bos
@@ -427,7 +428,7 @@ basic_oarchive::save_object(
     pimpl->save_object(*this, x, bos);
 }
 
-BOOST_ARCHIVE_DECL(void) 
+BOOST_ARCHIVE_DECL void 
 basic_oarchive::save_pointer(
     const void * t, 
     const basic_pointer_oserializer * bpos_ptr
@@ -435,23 +436,28 @@ basic_oarchive::save_pointer(
     pimpl->save_pointer(*this, t, bpos_ptr);
 }
 
-BOOST_ARCHIVE_DECL(void) 
+BOOST_ARCHIVE_DECL void 
 basic_oarchive::register_basic_serializer(const basic_oserializer & bos){
     pimpl->register_type(bos);
 }
 
-BOOST_ARCHIVE_DECL(library_version_type)
+BOOST_ARCHIVE_DECL library_version_type
 basic_oarchive::get_library_version() const{
     return BOOST_ARCHIVE_VERSION();
 }
 
-BOOST_ARCHIVE_DECL(unsigned int)
+BOOST_ARCHIVE_DECL unsigned int
 basic_oarchive::get_flags() const{
     return pimpl->m_flags;
 }
 
-BOOST_ARCHIVE_DECL(void) 
+BOOST_ARCHIVE_DECL void 
 basic_oarchive::end_preamble(){
+}
+
+BOOST_ARCHIVE_DECL helper_collection &
+basic_oarchive::get_helper_collection(){
+	return *this;
 }
 
 } // namespace detail

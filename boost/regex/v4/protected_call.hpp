@@ -20,6 +20,8 @@
 #ifndef BOOST_REGEX_V4_PROTECTED_CALL_HPP
 #define BOOST_REGEX_V4_PROTECTED_CALL_HPP
 
+#include <boost/config.hpp>
+
 #ifdef BOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable: 4103)
@@ -32,7 +34,7 @@
 #endif
 
 namespace boost{
-namespace re_detail{
+namespace BOOST_REGEX_DETAIL_NS{
 
 class BOOST_REGEX_DECL abstract_protected_call
 {
@@ -53,7 +55,7 @@ public:
    concrete_protected_call(T* o, proc_type p)
       : obj(o), proc(p) {}
 private:
-   virtual bool call()const;
+   bool call()const BOOST_OVERRIDE;
    T* obj;
    proc_type proc;
 };

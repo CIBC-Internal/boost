@@ -5,14 +5,15 @@
         "authors": [
             "various"
         ],
-        "description": "Boost.Math includes several contributions in the domain of mathematics: The Greatest Common Divisor and Least Common Multiple library provides run-time and compile-time evaluation of the greatest common divisor (GCD) or least common multiple (LCM) of two integers. The Special Functions library currently provides eight templated special functions, in namespace boost. The Complex Number Inverse Trigonometric Functions are the inverses of trigonometric functions currently present in the C++ standard. Quaternions are a relative of complex numbers often used to parameterise rotations in three dimentional space. Octonions, like quaternions, are a relative of complex numbers.",
+        "description": "Boost.Math includes several contributions in the domain of mathematics: The Greatest Common Divisor and Least Common Multiple library provides run-time and compile-time evaluation of the greatest common divisor (GCD) or least common multiple (LCM) of two integers. The Special Functions library currently provides eight templated special functions, in namespace boost. The Complex Number Inverse Trigonometric Functions are the inverses of trigonometric functions currently present in the C++ standard. Quaternions are a relative of complex numbers often used to parameterise rotations in three dimensional space. Octonions, like quaternions, are a relative of complex numbers.",
         "category": [
             "Math"
         ],
         "maintainers": [
             "Hubert Holin <Hubert.Holin -at- meteo.fr>",
             "John Maddock <john -at- johnmaddock.co.uk>"
-        ]
+        ],
+        "cxxstd": "14"
     },
     {
         "key": "math/common_factor",
@@ -24,7 +25,8 @@
         "documentation": "doc/html/gcd_lcm.html",
         "category": [
             "Math"
-        ]
+        ],
+        "cxxstd": "14"
     },
     {
         "key": "math/octonion",
@@ -36,7 +38,8 @@
         "documentation": "doc/html/octonions.html",
         "category": [
             "Math"
-        ]
+        ],
+        "cxxstd": "14"
     },
     {
         "key": "math/quaternion",
@@ -48,7 +51,8 @@
         "documentation": "doc/html/quaternions.html",
         "category": [
             "Math"
-        ]
+        ],
+        "cxxstd": "14"
     },
     {
         "key": "math/special_functions",
@@ -63,7 +67,8 @@
         "documentation": "doc/html/special.html",
         "category": [
             "Math"
-        ]
+        ],
+        "cxxstd": "14"
     },
     {
         "key": "math/statistical_distributions",
@@ -76,6 +81,7 @@
         "documentation": "doc/html/dist.html",
         "category": [
             "Math"
-        ]
+        ],
+        "cxxstd": "14"
     }
 ]

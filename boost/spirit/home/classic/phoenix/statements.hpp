@@ -5,8 +5,8 @@
   Distributed under the Boost Software License, Version 1.0. (See accompanying
   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#ifndef PHOENIX_STATEMENTS_HPP
-#define PHOENIX_STATEMENTS_HPP
+#ifndef BOOST_SPIRIT_CLASSIC_PHOENIX_STATEMENTS_HPP
+#define BOOST_SPIRIT_CLASSIC_PHOENIX_STATEMENTS_HPP
 
 ///////////////////////////////////////////////////////////////////////////////
 #include <boost/spirit/home/classic/phoenix/composite.hpp>
@@ -285,7 +285,7 @@ while_(CondT const& cond)
 //      While the condition (an actor) evaluates to true, statement
 //      (another actor) is executed. The statement is executed at least
 //      once. The result type of this is void. Note the trailing
-//      underscore after do_ and the the leading dot and the trailing
+//      underscore after do_ and the leading dot and the trailing
 //      underscore before and after .while_.
 //
 ///////////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@
 //  See http://www.boost.org for updates, documentation, and revision history.
 
 #include <cstddef> // std::size_t
-#include <climits> // ULONG_MAX 
+#include <climits> // ULONG_MAX
 #include <string>
 
 #include <boost/config.hpp>
@@ -29,9 +29,9 @@ namespace std{
 
 #include <boost/cstdint.hpp>
 
-#include <boost/serialization/pfto.hpp>
 #include <boost/archive/detail/iserializer.hpp>
 #include <boost/archive/detail/interface_iarchive.hpp>
+#include <boost/serialization/library_version_type.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/archive/detail/register_archive.hpp>
 
@@ -44,13 +44,13 @@ namespace serialization {
 } // namespace serialization
 namespace archive {
 namespace detail {
-    class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iarchive;
-    class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iarchive;
+    class basic_iarchive;
+    class basic_iserializer;
 }
 
 class polymorphic_iarchive;
 
-class polymorphic_iarchive_impl :
+class BOOST_SYMBOL_VISIBLE polymorphic_iarchive_impl :
     public detail::interface_iarchive<polymorphic_iarchive>
 {
 #ifdef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
@@ -98,33 +98,32 @@ public:
     virtual void load_start(const char * name) = 0;
     virtual void load_end(const char * name) = 0;
     virtual void register_basic_serializer(const detail::basic_iserializer & bis) = 0;
+    virtual detail::helper_collection & get_helper_collection() = 0;
 
     // msvc and borland won't automatically pass these to the base class so
     // make it explicit here
     template<class T>
-    void load_override(T & t, BOOST_PFTO int)
+    void load_override(T & t)
     {
         archive::load(* this->This(), t);
     }
     // special treatment for name-value pairs.
     template<class T>
     void load_override(
-        #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
-        const
-        #endif
-        boost::serialization::nvp< T > & t,
-        int
+        const boost::serialization::nvp< T > & t
     ){
         load_start(t.name());
         archive::load(* this->This(), t.value());
         load_end(t.name());
     }
 protected:
-    virtual ~polymorphic_iarchive_impl(){};
+    virtual ~polymorphic_iarchive_impl() {}
 public:
     // utility function implemented by all legal archives
-    virtual void set_library_version(library_version_type archive_library_version) = 0;
-    virtual library_version_type get_library_version() const = 0;
+    virtual void set_library_version(
+        boost::serialization::library_version_type archive_library_version
+    ) = 0;
+    virtual boost::serialization::library_version_type get_library_version() const = 0;
     virtual unsigned int get_flags() const = 0;
     virtual void delete_created_pointers() = 0;
     virtual void reset_object_address(
@@ -156,11 +155,11 @@ public:
 namespace boost {
 namespace archive {
 
-class polymorphic_iarchive : 
+class BOOST_SYMBOL_VISIBLE polymorphic_iarchive :
     public polymorphic_iarchive_impl
 {
 public:
-    virtual ~polymorphic_iarchive(){};
+    ~polymorphic_iarchive() BOOST_OVERRIDE {}
 };
 
 } // namespace archive

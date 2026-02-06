@@ -3,7 +3,7 @@
 # Copyright 2002, 2003 Dave Abrahams
 # Copyright 2002, 2003, 2005 Vladimir Prus
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 import BoostBuild
 
@@ -19,19 +19,17 @@ def reset():
     t.rm("lib/bin")
 
 t.run_build_system(subdir='lib')
-t.expect_addition("lib/bin/$toolset/debug/" * BoostBuild.List("c.obj "
+t.expect_addition("lib/bin/$toolset/debug*/" * BoostBuild.List("c.obj "
     "auxilliary1.lib auxilliary2.dll"))
-t.expect_nothing_more()
 
 reset()
 t.run_build_system(["link=shared"], subdir="lib")
-t.expect_addition("lib/bin/$toolset/debug/" * BoostBuild.List("c.obj "
+t.expect_addition("lib/bin/$toolset/debug*/" * BoostBuild.List("c.obj "
     "auxilliary1.lib auxilliary2.dll"))
-t.expect_nothing_more()
 
 reset()
 t.run_build_system(["link=static"], subdir="lib")
-t.expect_addition("lib/bin/$toolset/debug/link-static/" * BoostBuild.List(
+t.expect_addition("lib/bin/$toolset/debug*/" * BoostBuild.List(
     "c.obj auxilliary1.lib auxilliary2.lib"))
 t.expect_nothing_more()
 

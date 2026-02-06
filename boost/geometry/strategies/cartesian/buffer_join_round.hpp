@@ -2,6 +2,11 @@
 
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,7 +16,6 @@
 
 #include <algorithm>
 
-#include <boost/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
@@ -19,6 +23,7 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+#include <iostream>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
@@ -53,9 +58,9 @@ class join_round
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle points which would be used for a full circle
-    explicit inline join_round(std::size_t points_per_circle = 90)
-        : m_points_per_circle(points_per_circle)
+    //! \param points_per_circle Number of points (minimum 4) that would be used for a full circle
+    explicit inline join_round(std::size_t points_per_circle = default_points_per_circle)
+        : m_points_per_circle(get_point_count_for_join(points_per_circle))
     {}
 
 private :
@@ -76,8 +81,7 @@ private :
         PromotedType const dx2 = get<0>(perp2) - get<0>(vertex);
         PromotedType const dy2 = get<1>(perp2) - get<1>(vertex);
 
-        PromotedType const two = 2.0;
-        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
+        PromotedType const two_pi = geometry::math::two_pi<PromotedType>();
 
         PromotedType const angle1 = atan2(dy1, dx1);
         PromotedType angle2 = atan2(dy2, dx2);
@@ -96,14 +100,14 @@ private :
         // - generates 1 point  in between for an angle of 125 based on 3 points
         // - generates 0 points in between for an angle of 90  based on 4 points
 
-        int const n = (std::max)(static_cast<int>(
-            ceil(m_points_per_circle * angle_diff / two_pi)), 1);
+        std::size_t const n = (std::max)(static_cast<std::size_t>(
+            ceil(m_points_per_circle * angle_diff / two_pi)), std::size_t(1));
 
         PromotedType const diff = angle_diff / static_cast<PromotedType>(n);
         PromotedType a = angle1 - diff;
 
         // Walk to n - 1 to avoid generating the last point
-        for (int i = 0; i < n - 1; i++, a -= diff)
+        for (std::size_t i = 0; i < n - 1; i++, a -= diff)
         {
             Point p;
             set<0>(p, get<0>(vertex) + buffer_distance * cos(a));
@@ -145,20 +149,8 @@ public :
             return false;
         }
 
-        // Generate 'vectors'
-        coordinate_type vix = (get<0>(ip) - get<0>(vertex));
-        coordinate_type viy = (get<1>(ip) - get<1>(vertex));
-
-        promoted_type length_i = geometry::math::sqrt(vix * vix + viy * viy);
-        DistanceType const bd = geometry::math::abs(buffer_distance);
-        promoted_type prop = bd / length_i;
-
-        Point bp;
-        set<0>(bp, get<0>(vertex) + vix * prop);
-        set<1>(bp, get<1>(vertex) + viy * prop);
-
         range_out.push_back(perp1);
-        generate_points<promoted_type>(vertex, perp1, perp2, bd, range_out);
+        generate_points<promoted_type>(vertex, perp1, perp2, geometry::math::abs(buffer_distance), range_out);
         range_out.push_back(perp2);
         return true;
     }

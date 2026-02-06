@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Real Number Generators (float_, double_, etc.)</title>
 <link rel="stylesheet" href="../../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../../index.html" title="Spirit 2.5.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../../index.html" title="Spirit 2.59">
 <link rel="up" href="../numeric.html" title="Numeric Generators">
 <link rel="prev" href="signed_int.html" title="Signed Integer Number Generators (int_, etc.)">
 <link rel="next" href="boolean.html" title="Boolean Generators (bool_)">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -254,7 +255,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">float_</span>
+<pre class="table-programlisting"><span class="identifier">float_</span>
 <span class="identifier">double_</span>
 <span class="identifier">long_double</span></pre>
 <p>
@@ -278,7 +279,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">float_</span><span class="special">(</span><span class="identifier">num</span><span class="special">)</span>
+<pre class="table-programlisting"><span class="identifier">float_</span><span class="special">(</span><span class="identifier">num</span><span class="special">)</span>
 <span class="identifier">double_</span><span class="special">(</span><span class="identifier">num</span><span class="special">)</span>
 <span class="identifier">long_double</span><span class="special">(</span><span class="identifier">num</span><span class="special">)</span></pre>
 <p>
@@ -333,7 +334,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
+<pre class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
     <span class="identifier">Num</span><span class="special">,</span> <span class="identifier">RealPolicies</span>
 <span class="special">&gt;()</span></pre>
 <p>
@@ -352,7 +353,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
+<pre class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
     <span class="identifier">Num</span><span class="special">,</span> <span class="identifier">RealPolicies</span>
 <span class="special">&gt;()(</span><span class="identifier">num</span><span class="special">)</span></pre>
 <p>
@@ -533,7 +534,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
+<pre class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
     <span class="identifier">Num</span><span class="special">,</span> <span class="identifier">Policies</span>
 <span class="special">&gt;()</span></pre>
 <p>
@@ -550,7 +551,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
+<pre class="table-programlisting"><span class="identifier">real_generator</span><span class="special">&lt;</span>
     <span class="identifier">Num</span><span class="special">,</span> <span class="identifier">Policies</span>
 <span class="special">&gt;()(</span><span class="identifier">num</span><span class="special">)</span></pre>
 <p>
@@ -643,7 +644,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Inserter</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Inserter</span>
   <span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutputIterator</span>
   <span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Policies</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">call</span> <span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span>
@@ -661,7 +662,7 @@
                       provided by the type specified by the template parameter <code class="computeroutput"><span class="identifier">Inserter</span></code>. The default implementation
                       of this functions is:
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Inserter</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutputIterator</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Inserter</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutputIterator</span>
   <span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Policies</span><span class="special">&gt;</span>
 <span class="keyword">static</span> <span class="keyword">bool</span>
 <span class="identifier">call</span> <span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span><span class="special">,</span> <span class="identifier">Policies</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">p</span><span class="special">)</span>
@@ -687,7 +688,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">bool</span> <span class="identifier">force_sign</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
+<pre class="table-programlisting"><span class="keyword">bool</span> <span class="identifier">force_sign</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
 </pre>
 <p>
                     </p>
@@ -711,7 +712,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">bool</span> <span class="identifier">trailing_zeros</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
+<pre class="table-programlisting"><span class="keyword">bool</span> <span class="identifier">trailing_zeros</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
 </pre>
 <p>
                     </p>
@@ -735,7 +736,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">int</span> <span class="identifier">floatfield</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
+<pre class="table-programlisting"><span class="keyword">int</span> <span class="identifier">floatfield</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
 </pre>
 <p>
                     </p>
@@ -773,7 +774,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">unsigned</span> <span class="identifier">precision</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
+<pre class="table-programlisting"><span class="keyword">unsigned</span> <span class="identifier">precision</span><span class="special">(</span><span class="identifier">Num</span> <span class="identifier">n</span><span class="special">);</span>
 </pre>
 <p>
                     </p>
@@ -803,7 +804,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">integer_part</span><span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span>
   <span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span><span class="special">,</span> <span class="keyword">bool</span> <span class="identifier">sign</span><span class="special">,</span> <span class="keyword">bool</span> <span class="identifier">force_sign</span><span class="special">);</span>
 </pre>
@@ -847,7 +848,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">dot</span><span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span><span class="special">,</span>
   <span class="keyword">unsigned</span> <span class="identifier">precision</span><span class="special">);</span>
 </pre>
@@ -898,7 +899,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">fraction_part</span><span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span>
   <span class="special">,</span> <span class="keyword">unsigned</span> <span class="identifier">adjprec</span><span class="special">,</span> <span class="keyword">unsigned</span> <span class="identifier">precision</span><span class="special">);</span>
 </pre>
@@ -969,7 +970,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">CharEncoding</span><span class="special">,</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">CharEncoding</span><span class="special">,</span>
     <span class="keyword">typename</span> <span class="identifier">Tag</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">exponent</span><span class="special">(</span>
     <span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="keyword">long</span> <span class="identifier">n</span><span class="special">);</span>
@@ -1012,7 +1013,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">CharEncoding</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">CharEncoding</span>
   <span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Tag</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">nan</span> <span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span>
   <span class="special">,</span> <span class="keyword">bool</span> <span class="identifier">force_sign</span><span class="special">);</span>
@@ -1061,7 +1062,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">CharEncoding</span>
+<pre class="table-programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">CharEncoding</span>
   <span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Tag</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">OutputIterator</span><span class="special">&gt;</span>
 <span class="keyword">bool</span> <span class="identifier">inf</span> <span class="special">(</span><span class="identifier">OutputIterator</span><span class="special">&amp;</span> <span class="identifier">sink</span><span class="special">,</span> <span class="identifier">Num</span> <span class="identifier">n</span>
   <span class="special">,</span> <span class="keyword">bool</span> <span class="identifier">force_sign</span><span class="special">);</span>
@@ -1148,9 +1149,10 @@
 </p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">spirit</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">karma</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">spirit</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">support_utree</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">spirit</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">phoenix_core</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">spirit</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">phoenix_operator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">phoenix</span><span class="special">/</span><span class="identifier">core</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">phoenix</span><span class="special">/</span><span class="keyword">operator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">fusion</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">std_pair</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">proto</span><span class="special">/</span><span class="identifier">deep_copy</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">iostream</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">string</span><span class="special">&gt;</span>
 </pre>
@@ -1184,14 +1186,11 @@
 <p>
           </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2001-2011 Joel de Guzman, Hartmut Kaiser<p>
+<div class="copyright-footer">Copyright © 2001-2011 Joel de Guzman, Hartmut Kaiser<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="signed_int.html"><img src="../../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../numeric.html"><img src="../../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../../index.html"><img src="../../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="boolean.html"><img src="../../../../../../../../doc/src/images/next.png" alt="Next"></a>

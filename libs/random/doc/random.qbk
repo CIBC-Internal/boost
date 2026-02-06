@@ -13,6 +13,7 @@
 [template sup[text]'''<superscript>'''[text]'''</superscript>''']
 
 [template prng[text] [link boost_random.reference.concepts.pseudo_random_number_generator [text]]]
+[template qrng[text] [link boost_random.reference.concepts.quasi_random_number_generator [text]]]
 [template concepts[text] [link boost_random.reference.concepts [text]]]
 [template generators[text] [link boost_random.reference.generators [text]]]
 [template distributions[text] [link boost_random.reference.distributions [text]]]
@@ -20,6 +21,7 @@
 [def __NumberGenerator [link boost_random.reference.concepts.number_generator NumberGenerator]]
 [def __UniformRandomNumberGenerator [link boost_random.reference.concepts.uniform_random_number_generator UniformRandomNumberGenerator]]
 [def __PseudoRandomNumberGenerator [link boost_random.reference.concepts.pseudo_random_number_generator PseudoRandomNumberGenerator]]
+[def __QuasiRandomNumberGenerator [link boost_random.reference.concepts.quasi_random_number_generator QuasiRandomNumberGenerator]]
 [def __SeedSeq [link boost_random.reference.concepts.seed_sequence SeedSeq]]
 
 [def __CopyConstructible [@boost:/doc/html/CopyConstructible.html CopyConstructible]]
@@ -32,6 +34,7 @@
 [def __random_number_generator [classref boost::random::random_number_generator random_number_generator]]
 [def __variate_generator [classref boost::random::variate_generator variate_generator]]
 [def __seed_seq [classref boost::random::seed_seq seed_seq]]
+[def __generate_canonical [funcref boost::random::generate_canonical generate_canonical]]
 
 [def __minstd_rand0 [classref boost::random::minstd_rand0 minstd_rand0]]
 [def __minstd_rand [classref boost::random::minstd_rand minstd_rand]]
@@ -63,6 +66,9 @@
 [def __ranlux64_4_01 [classref boost::random::ranlux64_4_01 ranlux64_4_01]]
 [def __ranlux24 [classref boost::random::ranlux24 ranlux24]]
 [def __ranlux48 [classref boost::random::ranlux48 ranlux48]]
+[def __niederreiter_base2 [classref boost::random::niederreiter_base2 niederreiter_base2]]
+[def __sobol [classref boost::random::sobol sobol]]
+[def __faure [classref boost::random::faure faure]]
 
 [def __uniform_smallint [classref boost::random::uniform_smallint uniform_smallint]]
 [def __uniform_int_distribution [classref boost::random::uniform_int_distribution uniform_int_distribution]]
@@ -74,6 +80,7 @@
 [def __cauchy_distribution [classref boost::random::cauchy_distribution cauchy_distribution]]
 [def __discrete_distribution [classref boost::random::discrete_distribution discrete_distribution]]
 [def __gamma_distribution [classref boost::random::gamma_distribution gamma_distribution]]
+[def __hyperexponential_distribution [classref boost::random::hyperexponential_distribution hyperexponential_distribution]]
 [def __laplace_distribution [classref boost::random::laplace_distribution laplace_distribution]]
 [def __poisson_distribution [classref boost::random::poisson_distribution poisson_distribution]]
 [def __geometric_distribution [classref boost::random::geometric_distribution geometric_distribution]]
@@ -132,6 +139,10 @@ For a very quick start, here's an example:
 
 [section Distributions]
 [include distributions.qbk]
+[endsect]
+
+[section Utilities]
+[include utilities.qbk]
 [endsect]
 
 [xinclude reference.xml]

@@ -1,7 +1,7 @@
 // (c) Copyright Juergen Hunold 2012
 // Use, modification and distribution is subject to the Boost Software
-// License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
+// License, Version 1.0. (See accompanying file LICENSE.txt or copy at
+// https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 #define BOOST_TEST_MODULE QtXmlPatterns
 
@@ -33,7 +33,7 @@ struct Fixture
     QCoreApplication application;
 };
 
-BOOST_GLOBAL_FIXTURE( Fixture )
+BOOST_GLOBAL_FIXTURE( Fixture );
 
 QByteArray doc("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                "<html xmlns=\"http://www.w3.org/1999/xhtml/\" xml:lang=\"en\" lang=\"en\">"

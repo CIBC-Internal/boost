@@ -1,7 +1,7 @@
 # Copyright 2002 Dave Abrahams
 # Copyright 2002, 2003 Rene Rivera
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 import regex ;
 
@@ -93,7 +93,7 @@ rule abbreviate ( string )
         s2 = $(r:J="") ;
 
         # Chop all vowels out of the remainder.
-        s2 = [ regex.replace $(s2) [AEIOUaeiou] "" ] ;
+        s2 = [ regex.replace $(s2) "[AEIOUaeiou]" "" ] ;
 
         # Shorten remaining consonants to 4 characters.
         s2 = [ MATCH ^(.?.?.?.?) : $(s2) ] ;

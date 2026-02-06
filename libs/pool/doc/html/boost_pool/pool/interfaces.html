@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Boost Pool Interfaces - What interfaces are provided and when to use each one.</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../index.html" title="Boost.Pool">
 <link rel="up" href="../pool.html" title="Introduction and Overview">
 <link rel="prev" href="testing.html" title="Building the Test Programs">
 <link rel="next" href="pooling.html" title="Pool in More Depth">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,7 +28,7 @@
 <a name="boost_pool.pool.interfaces"></a><a class="link" href="interfaces.html" title="Boost Pool Interfaces - What interfaces are provided and when to use each one.">Boost Pool Interfaces - What
       interfaces are provided and when to use each one.</a>
 </h3></div></div></div>
-<div class="toc"><dl>
+<div class="toc"><dl class="toc">
 <dt><span class="section"><a href="interfaces.html#boost_pool.pool.interfaces.interfaces">Pool Interfaces</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="interfaces.html#boost_pool.pool.interfaces.interfaces.pool">pool</a></span></dt>
@@ -38,7 +39,7 @@
 </dl></div>
 <h5>
 <a name="boost_pool.pool.interfaces.h0"></a>
-        <span><a name="boost_pool.pool.interfaces.introduction"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.introduction">Introduction</a>
+        <span class="phrase"><a name="boost_pool.pool.interfaces.introduction"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.introduction">Introduction</a>
       </h5>
 <p>
         There are several interfaces provided which allow users great flexibility
@@ -47,12 +48,12 @@
       </p>
 <h4>
 <a name="boost_pool.pool.interfaces.h1"></a>
-        <span><a name="boost_pool.pool.interfaces.terminology_and_tradeoffs"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.terminology_and_tradeoffs">Terminology
+        <span class="phrase"><a name="boost_pool.pool.interfaces.terminology_and_tradeoffs"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.terminology_and_tradeoffs">Terminology
         and Tradeoffs</a>
       </h4>
 <h6>
 <a name="boost_pool.pool.interfaces.h2"></a>
-        <span><a name="boost_pool.pool.interfaces.object_usage_vs__singleton_usage"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.object_usage_vs__singleton_usage">Object
+        <span class="phrase"><a name="boost_pool.pool.interfaces.object_usage_vs__singleton_usage"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.object_usage_vs__singleton_usage">Object
         Usage vs. Singleton Usage</a>
       </h6>
 <p>
@@ -69,7 +70,7 @@
       </p>
 <h6>
 <a name="boost_pool.pool.interfaces.h3"></a>
-        <span><a name="boost_pool.pool.interfaces.out_of_memory_conditions__exceptions_vs__null_return"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.out_of_memory_conditions__exceptions_vs__null_return">Out-of-Memory
+        <span class="phrase"><a name="boost_pool.pool.interfaces.out_of_memory_conditions__exceptions_vs__null_return"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.out_of_memory_conditions__exceptions_vs__null_return">Out-of-Memory
         Conditions: Exceptions vs. Null Return</a>
       </h6>
 <p>
@@ -80,18 +81,18 @@
       </p>
 <h6>
 <a name="boost_pool.pool.interfaces.h4"></a>
-        <span><a name="boost_pool.pool.interfaces.ordered_versus_unordered"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.ordered_versus_unordered">Ordered
+        <span class="phrase"><a name="boost_pool.pool.interfaces.ordered_versus_unordered"></a></span><a class="link" href="interfaces.html#boost_pool.pool.interfaces.ordered_versus_unordered">Ordered
         versus unordered</a>
       </h6>
 <p>
-        An ordered pool maintains it's free list in order of the address of each
-        free block - this is the most efficient way if you're likely to allocate
-        arrays of objects. However, freeing an object can be O(N) in the number of
-        currently free blocks which can be prohibitively expensive in some situations.
+        An ordered pool maintains its free list in order of the address of each free
+        block - this is the most efficient way if you're likely to allocate arrays
+        of objects. However, freeing an object can be O(N) in the number of currently
+        free blocks which can be prohibitively expensive in some situations.
       </p>
 <p>
-        An unordered pool does not maintain it's free list in any particular order,
-        as a result allocation and freeing single objects is very fast, but allocating
+        An unordered pool does not maintain its free list in any particular order,
+        as a result allocating and freeing single objects is very fast, but allocating
         arrays may be slow (and in particular the pool may not be aware that it contains
         enough free memory for the allocation request, and unnecessarily allocate
         more memory).
@@ -100,7 +101,7 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="boost_pool.pool.interfaces.interfaces"></a><a class="link" href="interfaces.html#boost_pool.pool.interfaces.interfaces" title="Pool Interfaces">Pool Interfaces</a>
 </h4></div></div></div>
-<div class="toc"><dl>
+<div class="toc"><dl class="toc">
 <dt><span class="section"><a href="interfaces.html#boost_pool.pool.interfaces.interfaces.pool">pool</a></span></dt>
 <dt><span class="section"><a href="interfaces.html#boost_pool.pool.interfaces.interfaces.object_pool">Object_pool</a></span></dt>
 <dt><span class="section"><a href="interfaces.html#boost_pool.pool.interfaces.interfaces.singleton_pool">Singleton_pool</a></span></dt>
@@ -281,10 +282,11 @@
             for details.
           </p>
 <p>
-            <span class="bold"><strong>Example:</strong></span> struct X { ... }; // has destructor
-            with side-effects.
+            <span class="bold"><strong>Example:</strong></span>
           </p>
-<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">func</span><span class="special">()</span>
+<pre class="programlisting"><span class="keyword">struct</span> <span class="identifier">X</span> <span class="special">{</span> <span class="special">...</span> <span class="special">};</span> <span class="comment">// has destructor with side-effects.</span>
+
+<span class="keyword">void</span> <span class="identifier">func</span><span class="special">()</span>
 <span class="special">{</span>
   <span class="identifier">boost</span><span class="special">::</span><span class="identifier">object_pool</span><span class="special">&lt;</span><span class="identifier">X</span><span class="special">&gt;</span> <span class="identifier">p</span><span class="special">;</span>
   <span class="keyword">for</span> <span class="special">(</span><span class="keyword">int</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="number">10000</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span>
@@ -351,7 +353,7 @@
             referenced by the static functions in <code class="computeroutput"><span class="identifier">singleton_pool</span></code>
             is actually declared in a way so that it is:
           </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
                 Thread-safe if there is only one thread running before <code class="computeroutput"><span class="identifier">main</span><span class="special">()</span></code>
                 begins and after <code class="computeroutput"><span class="identifier">main</span><span class="special">()</span></code> ends. All of the static functions
@@ -397,9 +399,11 @@
             from the system. See User Allocators for details.
           </p>
 <p>
-            <span class="bold"><strong>Example:</strong></span> struct MyPoolTag { };
+            <span class="bold"><strong>Example:</strong></span>
           </p>
-<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">singleton_pool</span><span class="special">&lt;</span><span class="identifier">MyPoolTag</span><span class="special">,</span> <span class="keyword">sizeof</span><span class="special">(</span><span class="keyword">int</span><span class="special">)&gt;</span> <span class="identifier">my_pool</span><span class="special">;</span>
+<pre class="programlisting"><span class="keyword">struct</span> <span class="identifier">MyPoolTag</span> <span class="special">{</span> <span class="special">};</span>
+
+<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">singleton_pool</span><span class="special">&lt;</span><span class="identifier">MyPoolTag</span><span class="special">,</span> <span class="keyword">sizeof</span><span class="special">(</span><span class="keyword">int</span><span class="special">)&gt;</span> <span class="identifier">my_pool</span><span class="special">;</span>
 <span class="keyword">void</span> <span class="identifier">func</span><span class="special">()</span>
 <span class="special">{</span>
   <span class="keyword">for</span> <span class="special">(</span><span class="keyword">int</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="number">10000</span><span class="special">;</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span>
@@ -560,14 +564,11 @@
 </div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2000-2006 Stephen Cleary<br>Copyright &#169; 2011 Paul A. Bristow<p>
+<div class="copyright-footer">Copyright © 2000-2006 Stephen Cleary<br>Copyright © 2011 Paul A. Bristow<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="testing.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../pool.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="pooling.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>

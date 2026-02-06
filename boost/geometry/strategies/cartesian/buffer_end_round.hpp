@@ -1,6 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -9,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -16,8 +23,6 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 
-
-#include <boost/geometry/io/wkt/wkt.hpp>
 
 namespace boost { namespace geometry
 {
@@ -62,8 +67,7 @@ private :
                 DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        PromotedType const two = 2.0;
-        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
+        PromotedType const two_pi = geometry::math::two_pi<PromotedType>();
 
         std::size_t point_buffer_count = m_points_per_circle;
 
@@ -94,16 +98,15 @@ private :
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle points which would be used for a full circle
-    //! (if points_per_circle is smaller than 4, it is internally set to 4)
-    explicit inline end_round(std::size_t points_per_circle = 90)
-        : m_points_per_circle((points_per_circle < 4u) ? 4u : points_per_circle)
+    //! \param points_per_circle Number of points (minimum 4) that would be used for a full circle
+    explicit inline end_round(std::size_t points_per_circle = default_points_per_circle)
+        : m_points_per_circle(get_point_count_for_end(points_per_circle))
     {}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-    //! Fills output_range with a flat end
-    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    //! Fills output_range with a round end
+    template <typename Point, typename DistanceStrategy, typename RangeOut>
     inline void apply(Point const& penultimate_point,
                 Point const& perp_left_point,
                 Point const& ultimate_point,
@@ -112,6 +115,7 @@ public :
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
     {
+        boost::ignore_unused(perp_left_point);
         typedef typename coordinate_type<Point>::type coordinate_type;
 
         typedef typename geometry::select_most_precise
@@ -120,28 +124,29 @@ public :
             double
         >::type promoted_type;
 
-        promoted_type const alpha = calculate_angle<promoted_type>(perp_left_point, ultimate_point);
-
         promoted_type const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         promoted_type const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);
+        promoted_type const alpha
+                = calculate_angle<promoted_type>(penultimate_point, ultimate_point)
+                    - geometry::math::half_pi<promoted_type>();
+
         if (geometry::math::equals(dist_left, dist_right))
         {
             generate_points(ultimate_point, alpha, dist_left, range_out);
         }
         else
         {
-            promoted_type const two = 2.0;
-            promoted_type dist_half_diff = (dist_left - dist_right) / two;
-
-            if (side == buffer_side_right)
-            {
-                dist_half_diff = -dist_half_diff;
-            }
+            static promoted_type const two = 2.0;
+            promoted_type const dist_average = (dist_left + dist_right) / two;
+            promoted_type const dist_half
+                    = (side == buffer_side_right
+                    ? (dist_right - dist_left)
+                    : (dist_left - dist_right)) / two;
 
             Point shifted_point;
-            set<0>(shifted_point, get<0>(ultimate_point) + dist_half_diff * cos(alpha));
-            set<1>(shifted_point, get<1>(ultimate_point) + dist_half_diff * sin(alpha));
-            generate_points(shifted_point, alpha, (dist_left + dist_right) / two, range_out);
+            set<0>(shifted_point, get<0>(ultimate_point) + dist_half * cos(alpha));
+            set<1>(shifted_point, get<1>(ultimate_point) + dist_half * sin(alpha));
+            generate_points(shifted_point, alpha, dist_average, range_out);
         }
 
         if (m_points_per_circle % 2 == 1)

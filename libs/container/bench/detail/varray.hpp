@@ -33,6 +33,8 @@
 #include <boost/container/detail/type_traits.hpp>
 #include <boost/move/adl_move_swap.hpp> //adl_move_swap
 
+#include <boost/move/detail/force_ptr.hpp> //adl_move_swap
+
 
 #include "varray_util.hpp"
 
@@ -50,7 +52,7 @@
  * @defgroup varray_non_member varray non-member functions
  */
 
-namespace boost { namespace container { namespace container_detail {
+namespace boost { namespace container { namespace dtl {
 
 // Forward declaration
 template <typename Value, std::size_t Capacity, typename Strategy>
@@ -220,14 +222,14 @@ struct varray_traits
 template <typename Value, std::size_t Capacity, typename Strategy = strategy::def<Value> >
 class varray
 {
-    typedef container_detail::varray_traits<
+    typedef dtl::varray_traits<
         Value, Capacity, Strategy
     > vt;
 
     typedef typename vt::error_handler errh;
     typedef typename aligned_storage<
         sizeof(Value[Capacity]),
-        boost::container::container_detail::alignment_of<Value[Capacity]>::value
+        boost::container::dtl::alignment_of<Value[Capacity]>::value
     >::type aligned_storage_type;
 
     template <typename V, std::size_t C, typename S>
@@ -235,7 +237,7 @@ class varray
 
     BOOST_COPYABLE_AND_MOVABLE(varray)
 
-#ifdef BOOST_NO_RVALUE_REFERENCES
+#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
 public:
     template <std::size_t C, typename S>
     varray & operator=(varray<Value, C, S> & sv)
@@ -422,7 +424,7 @@ public:
     //!   Linear O(N).
     template <std::size_t C, typename S>
 // TEMPORARY WORKAROUND
-#if defined(BOOST_NO_RVALUE_REFERENCES)
+#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
     varray & operator=(::boost::rv< varray<value_type, C, S> > const& other)
 #else
     varray & operator=(varray<value_type, C, S> const& other)
@@ -1617,7 +1619,7 @@ private:
     //   Linear O(N).
     void swap_dispatch_impl(iterator first_sm, iterator last_sm, iterator first_la, iterator last_la, true_type const& /*use_memop*/)
     {
-        //BOOST_ASSERT_MSG(boost::container::iterator_distance(first_sm, last_sm) <= boost::container::iterator_distance(first_la, last_la));
+        //BOOST_ASSERT_MSG(boost::container::iterator_udistance(first_sm, last_sm) <= boost::container::iterator_udistance(first_la, last_la));
 
         namespace sv = varray_detail;
         for (; first_sm != last_sm ; ++first_sm, ++first_la)
@@ -1632,7 +1634,7 @@ private:
             ::memcpy((addressof)(*first_la), temp_ptr, sizeof(value_type));
         }
 
-        ::memcpy(first_sm, first_la, sizeof(value_type) * boost::container::iterator_distance(first_la, last_la));
+        ::memcpy(first_sm, first_la, sizeof(value_type) * boost::container::iterator_udistance(first_la, last_la));
     }
 
     // @par Throws
@@ -1641,7 +1643,7 @@ private:
     //   Linear O(N).
     void swap_dispatch_impl(iterator first_sm, iterator last_sm, iterator first_la, iterator last_la, false_type const& /*use_memop*/)
     {
-        //BOOST_ASSERT_MSG(boost::container::iterator_distance(first_sm, last_sm) <= boost::container::iterator_distance(first_la, last_la));
+        //BOOST_ASSERT_MSG(boost::container::iterator_udistance(first_sm, last_sm) <= boost::container::iterator_udistance(first_la, last_la));
 
         namespace sv = varray_detail;
         for (; first_sm != last_sm ; ++first_sm, ++first_la)
@@ -1704,7 +1706,7 @@ private:
     {
         errh::check_iterator_end_eq(*this, position);
 
-        size_type count = boost::container::iterator_distance(first, last);
+        size_type count = boost::container::iterator_udistance(first, last);
 
         errh::check_capacity(*this, m_size + count);                                             // may throw
 
@@ -1736,16 +1738,16 @@ private:
         {
             namespace sv = varray_detail;
 
-            std::ptrdiff_t d = boost::container::iterator_distance(position, this->begin() + Capacity);
+            std::size_t d = boost::container::iterator_udistance(position, this->begin() + Capacity);
             std::size_t count = sv::uninitialized_copy_s(first, last, position, d);                     // may throw
 
-            errh::check_capacity(*this, count <= static_cast<std::size_t>(d) ? m_size + count : Capacity + 1);  // may throw
+            errh::check_capacity(*this, count <= d ? m_size + count : Capacity + 1);  // may throw
 
             m_size += count;
         }
         else
         {
-            size_type count = boost::container::iterator_distance(first, last);
+            size_type count = boost::container::iterator_udistance(first, last);
 
             errh::check_capacity(*this, m_size + count);                                                // may throw
 
@@ -1799,7 +1801,7 @@ private:
     {
         namespace sv = varray_detail;
 
-        size_type s = boost::container::iterator_distance(first, last);
+        size_type s = boost::container::iterator_udistance(first, last);
 
         errh::check_capacity(*this, s);                                     // may throw
 
@@ -1835,11 +1837,11 @@ private:
 
         sv::destroy(it, this->end());
 
-        std::ptrdiff_t d = boost::container::iterator_distance(it, this->begin() + Capacity);
+        std::size_t d = boost::container::iterator_udistance(it, this->begin() + Capacity);
         std::size_t count = sv::uninitialized_copy_s(first, last, it, d);                                   // may throw
         s += count;
 
-        errh::check_capacity(*this, count <= static_cast<std::size_t>(d) ? s : Capacity + 1);               // may throw
+        errh::check_capacity(*this, count <= d ? s : Capacity + 1);               // may throw
 
         m_size = s; // update end
     }
@@ -1902,7 +1904,7 @@ public:
     // strong
     varray(varray const& other)
     {
-        //errh::check_capacity(*this, count);
+        errh::check_capacity(*this, other.size());
     }
 
     // strong
@@ -1922,7 +1924,7 @@ public:
     // basic
     varray & operator=(varray const& other)
     {
-        //errh::check_capacity(*this, other.size());
+        errh::check_capacity(*this, other.size());
         return *this;
     }
 
@@ -2105,12 +2107,12 @@ private:
 
     pointer ptr()
     {
-        return pointer(reinterpret_cast<Value*>(this));
+        return pointer(move_detail::force_ptr<Value*>(this));
     }
 
     const_pointer ptr() const
     {
-        return const_pointer(reinterpret_cast<const Value*>(this));
+        return const_pointer(move_detail::force_ptr<const Value*>(this));
     }
 };
 
@@ -2235,7 +2237,7 @@ inline void swap(varray<V, C1, S1> & x, varray<V, C2, S2> & y)
     x.swap(y);
 }
 
-}}} // namespace boost::container::container_detail
+}}} // namespace boost::container::dtl
 
 #include <boost/container/detail/config_end.hpp>
 

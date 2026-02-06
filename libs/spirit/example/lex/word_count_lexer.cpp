@@ -32,13 +32,12 @@
 
 // #define BOOST_SPIRIT_LEXERTL_DEBUG
 
-#include <boost/config/warning_disable.hpp>
 //[wcl_includes
 #include <boost/spirit/include/lex_lexertl.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_statement.hpp>
-#include <boost/spirit/include/phoenix_algorithm.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/phoenix/operator.hpp>
+#include <boost/phoenix/statement.hpp>
+#include <boost/phoenix/stl/algorithm.hpp>
+#include <boost/phoenix/core.hpp>
 //]
 
 #include <iostream>
@@ -64,7 +63,7 @@ struct distance_func
 
     template <typename Iterator1, typename Iterator2>
     typename result<Iterator1, Iterator2>::type 
-    operator()(Iterator1& begin, Iterator2& end) const
+    operator()(Iterator1 const& begin, Iterator2 const& end) const
     {
         return std::distance(begin, end);
     }

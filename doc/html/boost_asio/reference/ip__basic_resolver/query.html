@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ip::basic_resolver::query</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../boost_asio.html" title="Boost.Asio">
 <link rel="up" href="../ip__basic_resolver.html" title="ip::basic_resolver">
 <link rel="prev" href="protocol_type.html" title="ip::basic_resolver::protocol_type">
 <link rel="next" href="resolve.html" title="ip::basic_resolver::resolve">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,8 +28,9 @@
 <a name="boost_asio.reference.ip__basic_resolver.query"></a><a class="link" href="query.html" title="ip::basic_resolver::query">ip::basic_resolver::query</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp146273408"></a> 
-The query type.
+          <a class="indexterm" name="boost_asio.indexterm.ip__basic_resolver.query"></a> 
+(Deprecated.)
+          The query type.
         </p>
 <pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">basic_resolver_query</span><span class="special">&lt;</span> <span class="identifier">InternetProtocol</span> <span class="special">&gt;</span> <span class="identifier">query</span><span class="special">;</span>
 </pre>
@@ -106,22 +108,16 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/basic_resolver_query.html" title="ip::basic_resolver_query::basic_resolver_query"><span class="bold"><strong>basic_resolver_query</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/basic_resolver_query.html" title="ip::basic_resolver_query::basic_resolver_query"><span class="bold"><strong>basic_resolver_query</strong></span></a> <span class="silver">[constructor]</span>
                   </p>
                 </td>
 <td>
                   <p>
-                    Construct with specified service name for any protocol.
-                  </p>
-                  <p>
-                    Construct with specified service name for a given protocol.
-                  </p>
-                  <p>
-                    Construct with specified host name and service name for any protocol.
-                  </p>
-                  <p>
-                    Construct with specified host name and service name for a given
-                    protocol.
+                    Construct with specified service name for any protocol. <br>
+                    <span class="silver"> —</span><br> Construct with specified service name for a given protocol.
+                    <br> <span class="silver"> —</span><br> Construct with specified host name and service
+                    name for any protocol. <br> <span class="silver"> —</span><br> Construct with specified
+                    host name and service name for a given protocol.
                   </p>
                 </td>
 </tr>
@@ -189,7 +185,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/address_configured.html" title="ip::basic_resolver_query::address_configured"><span class="bold"><strong>address_configured</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/address_configured.html" title="ip::basic_resolver_query::address_configured"><span class="bold"><strong>address_configured</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -203,7 +199,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/all_matching.html" title="ip::basic_resolver_query::all_matching"><span class="bold"><strong>all_matching</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/all_matching.html" title="ip::basic_resolver_query::all_matching"><span class="bold"><strong>all_matching</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -215,7 +211,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/canonical_name.html" title="ip::basic_resolver_query::canonical_name"><span class="bold"><strong>canonical_name</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/canonical_name.html" title="ip::basic_resolver_query::canonical_name"><span class="bold"><strong>canonical_name</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -227,7 +223,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/numeric_host.html" title="ip::basic_resolver_query::numeric_host"><span class="bold"><strong>numeric_host</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/numeric_host.html" title="ip::basic_resolver_query::numeric_host"><span class="bold"><strong>numeric_host</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -240,7 +236,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/numeric_service.html" title="ip::basic_resolver_query::numeric_service"><span class="bold"><strong>numeric_service</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/numeric_service.html" title="ip::basic_resolver_query::numeric_service"><span class="bold"><strong>numeric_service</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -253,7 +249,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/passive.html" title="ip::basic_resolver_query::passive"><span class="bold"><strong>passive</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/passive.html" title="ip::basic_resolver_query::passive"><span class="bold"><strong>passive</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -266,7 +262,7 @@ The query type.
 <tr>
 <td>
                   <p>
-                    <a class="link" href="../ip__basic_resolver_query/v4_mapped.html" title="ip::basic_resolver_query::v4_mapped"><span class="bold"><strong>v4_mapped</strong></span></a>
+                    <a class="link" href="../ip__basic_resolver_query/v4_mapped.html" title="ip::basic_resolver_query::v4_mapped"><span class="bold"><strong>v4_mapped</strong></span></a> <span class="silver">[static]</span>
                   </p>
                 </td>
 <td>
@@ -304,15 +300,11 @@ The query type.
           <span class="emphasis"><em>Convenience header: </em></span><code class="literal">boost/asio.hpp</code>
         </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2015 Christopher M.
-      Kohlhoff<p>
+<div class="copyright-footer">Copyright © 2003-2023 Christopher M. Kohlhoff<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="protocol_type.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../ip__basic_resolver.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../boost_asio.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="resolve.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>

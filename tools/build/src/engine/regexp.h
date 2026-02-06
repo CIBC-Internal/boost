@@ -7,6 +7,8 @@
 #ifndef REGEXP_DWA20011023_H
 #define REGEXP_DWA20011023_H
 
+#include "config.h"
+
 #define NSUBEXP  10
 typedef struct regexp {
     char const * startp[ NSUBEXP ];
@@ -14,13 +16,13 @@ typedef struct regexp {
     char regstart;      /* Internal use only. */
     char reganch;       /* Internal use only. */
     char * regmust;     /* Internal use only. */
-    int regmlen;        /* Internal use only. */
+    int32_t regmlen;   /* Internal use only. */
     char program[ 1 ];  /* Unwarranted chumminess with compiler. */
 } regexp;
 
 
 regexp * regcomp( char const * exp );
-int regexec( regexp * prog, char const * string );
+int32_t regexec( regexp * prog, char const * string );
 void regerror( char const * s );
 
 

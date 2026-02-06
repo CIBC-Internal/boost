@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>The Interface</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../../../index.html" title="Boost.Optional">
 <link rel="up" href="../design_overview.html" title="Design Overview">
 <link rel="prev" href="the_semantics.html" title="The semantics">
 <link rel="next" href="../when_to_use_optional.html" title="When to use Optional">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -79,7 +80,7 @@
           facto</em></span> standard for handling optional objects because all you
           have to do to refer to a value which you don't really have is to use a
           null pointer value of the appropriate type. Pointers have been used for
-          decades&#8212;from the days of C APIs to modern C++ libraries&#8212;to <span class="emphasis"><em>refer</em></span>
+          decades—from the days of C APIs to modern C++ libraries—to <span class="emphasis"><em>refer</em></span>
           to optional (that is, possibly nonexistent) objects; particularly as optional
           arguments to a function, but also quite often as optional data members.
         </p>
@@ -93,7 +94,7 @@
           and this information is tied to the <span class="emphasis"><em>syntax</em></span> of the
           expressions. That is, the presence of operators <code class="computeroutput"><span class="special">*</span></code>
           and <code class="computeroutput"><span class="special">-&gt;</span></code> tell by themselves
-          &#8212;without any additional context&#8212; that the expression will be undefined
+          —without any additional context— that the expression will be undefined
           unless the implied pointee actually exist.
         </p>
 <p>
@@ -142,10 +143,10 @@
           about the possibly uninitialized state appealing to the familiar pointer
           semantics w.r.t. to null pointers.
         </p>
-<div class="warning"><table border="0" summary="Warning">
+<div class="caution"><table border="0" summary="Caution">
 <tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../../doc/src/images/warning.png"></td>
-<th align="left">Warning</th>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Caution]" src="../../../../../../../doc/src/images/caution.png"></td>
+<th align="left">Caution</th>
 </tr>
 <tr><td align="left" valign="top"><p>
             However, it is particularly important to note that <code class="computeroutput"><span class="identifier">optional</span><span class="special">&lt;&gt;</span></code> objects are not pointers. <span class="underline"><code class="computeroutput"><span class="identifier">optional</span><span class="special">&lt;&gt;</span></code> is not, and does not model, a
@@ -171,14 +172,12 @@
           instead.
         </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2007 Fernando Luis Cacciola Carballal<br>Copyright &#169; 2014, 2015 Andrzej Krzemie&#324;ski<p>
+<div class="copyright-footer">Copyright © 2003-2007 Fernando Luis Cacciola Carballal<br>Copyright © 2014-2022 Andrzej
+      Krzemieński<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="the_semantics.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design_overview.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../when_to_use_optional.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>

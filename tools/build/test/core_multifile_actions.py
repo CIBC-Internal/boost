@@ -2,7 +2,7 @@
 
 # Copyright 2013 Steven Watanabe
 # Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE.txt or https://www.bfgroup.xyz/b2/LICENSE.txt)
 
 #   Tests that actions that produce multiple targets are handled
 # correctly.  The rules are as follows:
@@ -20,7 +20,7 @@
 
 import BoostBuild
 
-t = BoostBuild.Tester(pass_toolset=0, pass_d0=False)
+t = BoostBuild.Tester(["-d1"], pass_toolset=0)
 
 t.write("file.jam", """
 actions update

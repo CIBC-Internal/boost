@@ -19,8 +19,7 @@ extern "C" {
 #include <stdexcept>
 
 #include <boost/assert.hpp>
-#include <boost/context/detail/config.hpp>
-#include <boost/thread.hpp>
+#include <boost/coroutine/detail/config.hpp>
 
 #include <boost/coroutine/stack_context.hpp>
 
@@ -42,29 +41,19 @@ extern "C" {
 #  include BOOST_ABI_PREFIX
 #endif
 
-namespace boost {
-namespace coroutines {
-
-void system_info_( SYSTEM_INFO * si)
-{ ::GetSystemInfo( si); }
-
-SYSTEM_INFO system_info()
-{
-    static SYSTEM_INFO si;
-    static boost::once_flag flag;
-    boost::call_once( flag, static_cast< void(*)( SYSTEM_INFO *) >( system_info_), & si);
-    return si;
-}
+namespace {
 
 std::size_t pagesize()
-{ return static_cast< std::size_t >( system_info().dwPageSize); }
-
-std::size_t page_count( std::size_t stacksize)
 {
-    return static_cast< std::size_t >(
-        std::floor(
-            static_cast< float >( stacksize) / pagesize() ) );
+    SYSTEM_INFO si;
+    ::GetSystemInfo(&si);
+    return static_cast< std::size_t >( si.dwPageSize );
 }
+
+}
+
+namespace boost {
+namespace coroutines {
 
 // Windows seams not to provide a limit for the stacksize
 // libcoco uses 32k+4k bytes as minimum
@@ -74,7 +63,10 @@ stack_traits::is_unbounded() BOOST_NOEXCEPT
 
 std::size_t
 stack_traits::page_size() BOOST_NOEXCEPT
-{ return pagesize(); }
+{
+    static std::size_t size = pagesize();
+    return size;
+}
 
 std::size_t
 stack_traits::default_size() BOOST_NOEXCEPT

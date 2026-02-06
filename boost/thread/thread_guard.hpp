@@ -12,6 +12,7 @@
 #include <boost/thread/detail/delete.hpp>
 #include <boost/thread/detail/move.hpp>
 #include <boost/thread/thread_functors.hpp>
+#include <boost/thread/detail/thread_interruption.hpp>
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -21,19 +22,23 @@ namespace boost
   /**
    * Non-copyable RAII scoped thread guard joiner which join the thread if joinable when destroyed.
    */
-  template <class CallableThread = join_if_joinable>
+  template <class CallableThread = join_if_joinable, class Thread=::boost::thread>
   class thread_guard
   {
-    thread& t_;
+    Thread& t_;
   public:
     BOOST_THREAD_NO_COPYABLE( thread_guard)
 
-    explicit thread_guard(thread& t) :
+    explicit thread_guard(Thread& t) :
     t_(t)
     {
     }
     ~thread_guard()
     {
+#if defined BOOST_THREAD_PROVIDES_INTERRUPTIONS
+      // exceptions from a destructor call std::terminate
+      boost::this_thread::disable_interruption do_not_disturb;
+#endif
       CallableThread on_destructor;
 
       on_destructor(t_);

@@ -11,7 +11,6 @@
 //
 #define BOOST_MATH_ASSERT_UNDEFINED_POLICY false
 #define TEST_GROUP_4
-
 #ifdef _MSC_VER
 #  pragma warning(disable:4800)
 #  pragma warning(disable:4512)
@@ -21,17 +20,20 @@
 #endif
 
 #include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/math/concepts/real_type_concept.hpp>
 #include "compile_test/instantiate.hpp"
 
 using namespace boost::multiprecision;
 
 typedef number<cpp_dec_float<50>, et_on> test_type;
 
+#if !(defined(CI_SUPPRESS_KNOWN_ISSUES) && defined(BOOST_GCC))
+
 void foo()
 {
    instantiate(test_type());
 }
+
+#endif
 
 int main()
 {

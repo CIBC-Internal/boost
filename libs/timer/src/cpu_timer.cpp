@@ -18,6 +18,7 @@
 #include <boost/io/ios_state.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/cerrno.hpp>
+#include <boost/predef.h>
 #include <cstring>
 #include <sstream>
 #include <cassert>
@@ -33,7 +34,6 @@
 
 using boost::timer::nanosecond_type;
 using boost::timer::cpu_times;
-using boost::system::error_code;
 
 namespace
 {
@@ -55,8 +55,8 @@ namespace
 
     const double sec = 1000000000.0L;
     nanosecond_type total = times.system + times.user;
-    double wall_sec = times.wall / sec;
-    double total_sec = total / sec;
+    double wall_sec = static_cast<double>(times.wall) / sec;
+    double total_sec = static_cast<double>(total) / sec;
 
     for (const char* format = fmt.c_str(); *format; ++format)
     {
@@ -72,10 +72,10 @@ namespace
           os << wall_sec;
           break;
         case 'u':
-          os << times.user / sec;
+          os << static_cast<double>(times.user) / sec;
           break;
         case 's':
-          os << times.system / sec;
+          os << static_cast<double>(times.system) / sec;
           break;
         case 't':
           os << total_sec;
@@ -94,24 +94,25 @@ namespace
   }
 
 # if defined(BOOST_POSIX_API)
+
+  boost::int_least64_t tick_factor_()
+  {
+    boost::int_least64_t tf = ::sysconf( _SC_CLK_TCK );
+    if( tf <= 0 ) return -1;
+
+    tf = INT64_C(1000000000) / tf;  // compute factor
+    if( tf == 0 ) tf = -1;
+
+    return tf;
+  }
+
   boost::int_least64_t tick_factor() // multiplier to convert ticks
                                      //  to nanoseconds; -1 if unknown
   {
-    static boost::int_least64_t tick_factor = 0;
-    if (!tick_factor)
-    {
-      if ((tick_factor = ::sysconf(_SC_CLK_TCK)) <= 0)
-        tick_factor = -1;
-      else
-      {
-        assert(tick_factor <= 1000000000LL); // logic doesn't handle large ticks
-        tick_factor = 1000000000LL / tick_factor;  // compute factor
-        if (!tick_factor)
-          tick_factor = -1;
-      }
-    }
-    return tick_factor;
+    static boost::int_least64_t tf = tick_factor_();
+    return tf;
   }
+
 # endif
 
   void get_cpu_times(boost::timer::cpu_times& current)
@@ -122,6 +123,7 @@ namespace
 
 # if defined(BOOST_WINDOWS_API)
 
+#  if BOOST_PLAT_WINDOWS_DESKTOP || defined(__CYGWIN__)
     FILETIME creation, exit;
     if (::GetProcessTimes(::GetCurrentProcess(), &creation, &exit,
             (LPFILETIME)&current.system, (LPFILETIME)&current.user))
@@ -130,6 +132,7 @@ namespace
       current.system *= 100;
     }
     else
+#  endif
     {
       current.system = current.user = boost::timer::nanosecond_type(-1);
     }
@@ -247,13 +250,17 @@ namespace boost
       if (!is_stopped())
       {
         stop();  // the sooner we stop(), the better
+#ifndef BOOST_NO_EXCEPTIONS
         try
         {
+#endif
           report();
+#ifndef BOOST_NO_EXCEPTIONS
         }
         catch (...) // eat any exceptions
         {
         }
+#endif
       }
     }
 

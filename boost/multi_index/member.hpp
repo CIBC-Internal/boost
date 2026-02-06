@@ -1,4 +1,4 @@
-/* Copyright 2003-2013 Joaquin M Lopez Munoz.
+/* Copyright 2003-2022 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -14,9 +14,9 @@
 #endif
 
 #include <boost/config.hpp> /* keep it first to prevent nasty warns in MSVC */
+#include <boost/core/enable_if.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <cstddef>
 
 #if !defined(BOOST_NO_SFINAE)
@@ -38,7 +38,7 @@ namespace detail{
  * a type P  such that, given a p of Type P
  *   *...n...*x is convertible to T&, for some n>=1.
  * Examples of chained pointers are raw and smart pointers, iterators and
- * arbitrary combinations of these (vg. T** or auto_ptr<T*>.)
+ * arbitrary combinations of these (vg. T** or unique_ptr<T*>.)
  */
 
 template<class Class,typename Type,Type Class::*PtrToMember>

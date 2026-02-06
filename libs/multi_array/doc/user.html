@@ -612,7 +612,7 @@ cases can be found <a href="./test_cases.html">here</a>.
 <h2>Related Work</h2>
 
 <a href="../../array/index.html">boost::array</a>
- and <a href="http://www.sgi.com/tech/stl/Vector.html">std::vector</a> are
+ and <a href="https://www.boost.org/sgi/stl/Vector.html">std::vector</a> are
     one-dimensional containers of user data.  Both manage their own
     memory. <tt>std::valarray</tt> is a low-level 
     C++ Standard Library component
@@ -661,6 +661,11 @@ arrays, as <tt>boost::array</tt> does for C one-dimensional arrays.
       <li><a href="mailto:bdawes@acm.org">Beman Dawes</a>
       helped immensely with porting the library to Microsoft Windows
       compilers.
+
+      <li><a href="mailto:glenjofe@gmail.com">Glen Fernandes</a>
+      implemented support for the C++11 allocator model, including
+      support for stateful allocators, minimal allocators, and
+      optimized storage for stateless allocators.
 </ul>
 
 <hr>

@@ -3,9 +3,8 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -25,7 +24,7 @@ void test_cartesian()
     std::string const triangle = "POLYGON((0 0,0 4,6 0,0 0))";
     std::string const with_hole = "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,2 1,2 2,1 2,1 1))";
 
-    bg::strategy::within::winding<Point> s;
+    bg::strategy::within::cartesian_winding<> s;
 
 
     test_geometry<Point, polygon>("b1", "POINT(1 1)", box, s, true);
@@ -79,7 +78,7 @@ void test_spherical()
     typedef bg::model::point<T, 2, bg::cs::spherical_equatorial<bg::degree> > point;
     typedef bg::model::polygon<point> polygon;
 
-    bg::strategy::within::winding<point> s;
+    bg::strategy::within::spherical_winding<> s;
 
 
     // Ticket #9354
@@ -89,8 +88,6 @@ void test_spherical()
         "POLYGON((-97.08466667 25.95683333, -97.13683333 25.954, -97.1 26, -97.08466667 25.95683333))",
         s,
         false);
-
-#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
 
     test_geometry<point, polygon>(
         "sph1N",
@@ -145,8 +142,6 @@ void test_spherical()
               point(0, (T)-10.001)) == -1 // right side
       /*true*/);
 
-#endif // BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
-
     test_geometry<point, polygon>(
         "sphEq1",
         "POINT(179 10)",
@@ -159,7 +154,7 @@ void test_spherical()
         "POINT(179 10)",
         "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         s,
-        true,
+        false,
         false);
     test_geometry<point, polygon>(
         "sphEq3",
@@ -173,10 +168,8 @@ void test_spherical()
         "POINT(-179 10)",
         "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         s,
-        true,
+        false,
         false);
-
-#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
 
     test_geometry<point, polygon>(
         "sphEq5",
@@ -206,8 +199,6 @@ void test_spherical()
         s,
         false,
         false);
-
-#endif // BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
 }
 
 int test_main(int, char* [])
@@ -217,11 +208,6 @@ int test_main(int, char* [])
 
     test_spherical<float>();
     test_spherical<double>();
-
-#if defined(HAVE_TTMATH)
-    test_cartesian<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
-    test_spherical<ttmath_big>();
-#endif
 
     return 0;
 }

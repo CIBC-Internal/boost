@@ -1,4 +1,4 @@
-/* Copyright 2003-2013 Joaquin M Lopez Munoz.
+/* Copyright 2003-2023 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -18,8 +18,8 @@
 #include <boost/type_traits/alignment_of.hpp> 
 
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
-#include <boost/archive/archive_exception.hpp>
-#include <boost/serialization/access.hpp>
+#include <boost/core/serialization.hpp>
+#include <boost/multi_index/detail/bad_archive_exception.hpp>
 #include <boost/throw_exception.hpp> 
 #endif
 
@@ -49,17 +49,19 @@ struct index_node_base:private pod_value_holder<Value>
   typedef Value           value_type;
   typedef Allocator       allocator_type;
 
+#include <boost/multi_index/detail/ignore_wstrict_aliasing.hpp>
+
   value_type& value()
   {
-    return *static_cast<value_type*>(
-      static_cast<void*>(&this->space));
+    return *reinterpret_cast<value_type*>(&this->space);
   }
 
   const value_type& value()const
   {
-    return *static_cast<const value_type*>(
-      static_cast<const void*>(&this->space));
+    return *reinterpret_cast<const value_type*>(&this->space);
   }
+
+#include <boost/multi_index/detail/restore_wstrict_aliasing.hpp>
 
   static index_node_base* from_value(const value_type* p)
   {
@@ -115,8 +117,7 @@ inline void load_construct_data(
   Archive&,boost::multi_index::detail::index_node_base<Value,Allocator>*,
   const unsigned int)
 {
-  throw_exception(
-    archive::archive_exception(archive::archive_exception::other_exception));
+  throw_exception(bad_archive_exception());
 }
 
 #if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)

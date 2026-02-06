@@ -49,7 +49,7 @@ namespace boost { namespace fusion
 
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
         template <typename Second2>
-        BOOST_CXX14_CONSTEXPR BOOST_FUSION_GPU_ENABLED
+        BOOST_FUSION_GPU_ENABLED
         pair(Second2&& val
           , typename boost::disable_if<is_lvalue_reference<Second2> >::type* /* dummy */ = 0
           , typename boost::enable_if<is_convertible<Second2, Second> >::type* /*dummy*/ = 0
@@ -119,6 +119,17 @@ namespace boost { namespace fusion
     {
         return pair<First, typename detail::as_fusion_element<Second>::type>(val);
     }
+
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+    template <typename First, typename Second>
+    BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED
+    inline typename result_of::make_pair<First,Second>::type
+    make_pair(Second&& val)
+    {
+        return pair<First, typename detail::as_fusion_element<Second>::type>(
+            BOOST_FUSION_FWD_ELEM(Second, val));
+    }
+#endif
 
     template <typename First, typename Second>
     inline std::ostream&

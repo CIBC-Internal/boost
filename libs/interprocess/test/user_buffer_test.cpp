@@ -8,7 +8,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/interprocess/detail/config_begin.hpp>
 #include <algorithm>
 #include <vector>
 #include <list>
@@ -53,9 +52,9 @@ bool CheckEqual(MyUserList *userlist, MyStdList *stdlist, MyHeapList *heaplist)
 int main ()
 {
    //Create the user memory who will store all objects
-   const int size_aligner  = sizeof(::boost::container::container_detail::max_align_t);
+   const int size_aligner  = sizeof(::boost::container::dtl::max_align_t);
    const int memsize       = 65536/size_aligner*size_aligner;
-   static ::boost::container::container_detail::max_align_t static_buffer[memsize/size_aligner];
+   static ::boost::container::dtl::max_align_t static_buffer[memsize/size_aligner];
 
    {
       //Now test move semantics
@@ -205,12 +204,12 @@ int main ()
    delete stdlist;
 
    //Fill heap buffer until is full
-   try{
+   BOOST_TRY{
       while(1){
          heaplist->insert(heaplist->end(), 0);
       }
    }
-   catch(boost::interprocess::bad_alloc &){}
+   BOOST_CATCH(boost::interprocess::bad_alloc &){} BOOST_CATCH_END
 
    MyHeapList::size_type heap_list_size = heaplist->size();
 
@@ -238,12 +237,12 @@ int main ()
    }
 
    //Fill user buffer until is full
-   try{
+   BOOST_TRY{
       while(1){
          userlist->insert(userlist->end(), 0);
       }
    }
-   catch(boost::interprocess::bad_alloc &){}
+   BOOST_CATCH(boost::interprocess::bad_alloc &){} BOOST_CATCH_END
 
    MyUserList::size_type user_list_size = userlist->size();
 
@@ -255,5 +254,3 @@ int main ()
 
    return 0;
 }
-
-#include <boost/interprocess/detail/config_end.hpp>

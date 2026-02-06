@@ -12,7 +12,7 @@
 #include <boost/math/concepts/real_concept.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/array.hpp>
 #include "functor.hpp"
@@ -29,11 +29,14 @@
 template <class Real, typename T>
 void do_test_sn(T& data, const char* type_name, const char* test)
 {
+#if !(defined(ERROR_REPORTING_MODE) && !defined(SN_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    std::cout << "Testing: " << test << std::endl;
 
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef SN_FUNCTION_TO_TEST
+   value_type(*fp2)(value_type, value_type) = SN_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
     value_type (*fp2)(value_type, value_type) = boost::math::jacobi_sn<value_type, value_type>;
 #else
     value_type (*fp2)(value_type, value_type) = boost::math::jacobi_sn;
@@ -45,9 +48,11 @@ void do_test_sn(T& data, const char* type_name, const char* test)
       bind_func<Real>(fp2, 1, 0),
       extract_result<Real>(2));
     handle_test_result(result, data[result.worst()], result.worst(),
-      type_name, "boost::math::jacobi_sn", test);
+      type_name, "jacobi_sn", test);
 
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef CN_FUNCTION_TO_TEST
+    fp2 = CN_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
     fp2 = boost::math::jacobi_cn<value_type, value_type>;
 #else
     fp2 = boost::math::jacobi_cn;
@@ -57,9 +62,11 @@ void do_test_sn(T& data, const char* type_name, const char* test)
       bind_func<Real>(fp2, 1, 0),
       extract_result<Real>(3));
     handle_test_result(result, data[result.worst()], result.worst(),
-      type_name, "boost::math::jacobi_cn", test);
+      type_name, "jacobi_cn", test);
 
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef SN_FUNCTION_TO_TEST
+    fp2 = DN_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
     fp2 = boost::math::jacobi_dn<value_type, value_type>;
 #else
     fp2 = boost::math::jacobi_dn;
@@ -69,10 +76,10 @@ void do_test_sn(T& data, const char* type_name, const char* test)
       bind_func<Real>(fp2, 1, 0),
       extract_result<Real>(4));
     handle_test_result(result, data[result.worst()], result.worst(),
-      type_name, "boost::math::jacobi_dn", test);
+      type_name, "jacobi_dn", test);
 
    std::cout << std::endl;
-
+#endif
 }
 
 template <typename T>
@@ -82,7 +89,7 @@ void test_spots(T, const char* type_name)
     // Function values calculated on http://functions.wolfram.com/
     // Note that Mathematica's Sn/Cn/Dn accepts k^2 as the second parameter.
     // Arguments here are theta, k, sn, cn, dn
-    static const boost::array<boost::array<T, 5>, 36> data1 = {{
+    static const std::array<std::array<T, 5>, 36> data1 = {{
         {{ SC_(0.0), SC_(0.0), SC_(0.0), SC_(1.0), SC_(1.0) }},
         {{ ldexp(T(1), -25), ldexp(T(1), -25), SC_(2.98023223876953080883700663838486782870427050521881839342311e-8), SC_(0.99999999999999955591079014993741669975171697261290223678373), SC_(0.99999999999999999999999999999960556954738949421406900774443) }},
         {{ -ldexp(T(1), -25), ldexp(T(1), -25), SC_(-2.98023223876953080883700663838486782870427050521881839342311e-8), SC_(0.99999999999999955591079014993741669975171697261290223678373), SC_(0.99999999999999999999999999999960556954738949421406900774443) }},
@@ -92,8 +99,8 @@ void test_spots(T, const char* type_name)
         {{ SC_(-1.25), ldexp(T(1), -25), SC_(-0.948984619355586147780156037971989352776684194861616269831136), SC_(0.315322362395268865789580233344649598639316847638615703458263), SC_(0.99999999999999960006577747263860127231780811081154547949983) }},
         {{ SC_(25.0), ldexp(T(1), -25), SC_(-0.132351750097778560056127137329035522219365438979106560464704), SC_(0.991202811863472859528158119981178957382802975691690722810123), SC_(0.99999999999999999222089563757583834413059580275315226870704) }},
         {{ SC_(-25.0), ldexp(T(1), -25), SC_(0.132351750097778560056127137329035522219365438979106560464704), SC_(0.991202811863472859528158119981178957382802975691690722810123), SC_(0.99999999999999999222089563757583834413059580275315226870704) }},
-        {{ ldexp(T(1), -25), SC_(0.5), SC_(2.98023223876953058825550995757802173334628440851964836958219e-8), SC_(0.99999999999999955591079014993744956895610118130967536624417), SC_(0.99999999999999988897769753748438088116649141278818704012037) }},
-        {{ -ldexp(T(1), -25), SC_(0.5), SC_(-2.98023223876953058825550995757802173334628440851964836958219e-8), SC_(0.99999999999999955591079014993744956895610118130967536624417), SC_(0.99999999999999988897769753748438088116649141278818704012037) }},
+        {{ ldexp(T(1), -25), SC_(0.5), SC_(2.9802322387695306985462582979816394722771323981194501394601e-8), SC_(0.99999999999999955591079014993744956895610118130967536624417), SC_(0.99999999999999988897769753748438088116649141278818704012037) }},
+        {{ -ldexp(T(1), -25), SC_(0.5), SC_(-2.9802322387695306985462582979816394722771323981194501394601e-8), SC_(0.99999999999999955591079014993744956895610118130967536624417), SC_(0.99999999999999988897769753748438088116649141278818704012037) }},
         {{ SC_(0.25), SC_(0.5), SC_(0.246781405136141600483623741101255389743847413013817188632739), SC_(0.969071172865559727608777289021929824625726812182428398055476), SC_(0.992358168465276394946615469032829292963938826683866720698130) }},
         {{ SC_(-0.25), SC_(0.5), SC_(-0.246781405136141600483623741101255389743847413013817188632739), SC_(0.969071172865559727608777289021929824625726812182428398055476), SC_(0.992358168465276394946615469032829292963938826683866720698130) }},
         {{ SC_(1.25), SC_(0.5), SC_(0.928561236426319775700204388269999130782711902203415239399579), SC_(0.371179242693370810357222594552131893184749696381729988511999), SC_(0.885688154799196841458565445994481097477880319663264816077719) }},

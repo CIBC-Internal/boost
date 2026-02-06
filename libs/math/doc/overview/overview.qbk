@@ -1,6 +1,22 @@
 [section:main_intro About the Math Toolkit]
 
-This library is divided into three interconnected parts:
+This library is divided into several interconnected parts:
+
+[h4 Floating Point Utilities]
+
+Utility functions for dealing with floating-point arithmetic, includes functions
+for floating point classification (`fpclassify`, `isnan`, `isinf` etc), sign manipulation,
+rounding, comparison, and computing the distance between floating point numbers.
+
+[h4 Specific Width Floating-Point Types]
+
+A set of `typedef`s similar to those provided by `<cstdint>` but for floating-point types.
+
+[h4 Mathematical Constants]
+
+A wide range of high-precision constants ranging from various multiples of [pi], fractions, through to Euler's constant etc.
+
+These are of course usable from template code, or as non-templates with a simplified interface if that is more appropriate.
 
 [h4 Statistical Distributions]
 
@@ -36,7 +52,7 @@ along with the incomplete gamma and beta functions (four variants
 of each) and all the possible inverses of these, plus digamma,
 various factorial functions,
 Bessel functions, elliptic integrals, sinus cardinals (along with their
-hyperbolic variants), inverse hyperbolic functions, Legrendre/Laguerre/Hermite
+hyperbolic variants), inverse hyperbolic functions, Legendre/Laguerre/Hermite
 polynomials and various
 special power and logarithmic functions.
 
@@ -47,44 +63,43 @@ although they are optimised for use with types with known-about
 [@http://en.wikipedia.org/wiki/Significand significand (or mantissa)]
 sizes: typically `float`, `double` or `long double`.
 
-[h4 Implementation Toolkit]
+These functions also provide the basis of support for the TR1 special functions.
 
-Provides [link toolkit many of the tools] required to implement
-mathematical special functions: hopefully the presence of
-these will encourage other authors to contribute more special
-function implementations in the future.  These tools are currently
-considered experimental: they are "exposed implementation details"
-whose interfaces and\/or implementations may change.
+[h4 Root Finding and Function Minimisation]
 
-There are helpers for the
-[link math_toolkit.internals1.series_evaluation
-evaluation of infinite series],
-[link math_toolkit.internals1.cf continued
-fractions] and [link math_toolkit.internals1.rational
-rational approximations].
+A comprehensive set of root finding algorithms over the real-line, both with and without derivative support.
 
-There is a fairly comprehensive set of root finding and
-[link math_toolkit.internals1.minima function minimisation
-algorithms]: the root finding algorithms are both
-[link math_toolkit.internals1.roots with] and
-[link math_toolkit.internals1.roots2 without] derivative support.
+Also function minimisation via Brent's Method.
 
-A [link math_toolkit.internals2.minimax
-Remez algorithm implementation] allows for the locating of minimax rational
-approximations.
+[h4 Polynomials and Rational Functions]
 
-There are also (experimental) classes for the
-[link math_toolkit.internals2.polynomials manipulation of polynomials], for
-[link math_toolkit.internals2.error_test
-testing a special function against tabulated test data], and for
-the [link math_toolkit.internals2.test_data
-rapid generation of test data] and/or data for output to an
-external graphing application.
+Tools for manipulating polynomials and for efficient evaluation of rationals or polynomials.
 
-[endsect] [/section:intro Introduction]
+[h4 Interpolation]
+
+Function interpolation via Barycentric or cubic B_spline approximations. Smoothing.
+
+[h4 Numerical Integration (Quadrature) and Differentiation]
+
+A reasonably comprehensive set of routines for integration (trapezoidal, Gauss-Legendre, Gauss-Kronrod and double-exponential) 
+and differentiation. (See also automatic differentiation).
+
+The integration routines are all usable for functions returning complex results - and as a result for contour integrals as well.
+
+[h4 Quaternions and Octonions]
+
+Quaternions and Octonians as class templates similar to `std::complex`.
+
+[h4 Automatic Differentiation]
+
+Autodiff is a header-only C++ library that facilitates the automaticdifferentiation (forward mode) 
+of mathematical functions of single and multiple variables.
+
+[endsect] [/section:main_intro About the Math Toolkit]
+
 
 [/
-  Copyright 2006, 2012 John Maddock and Paul A. Bristow.
+  Copyright 2006, 2012, 2015 John Maddock and Paul A. Bristow.
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
   http://www.boost.org/LICENSE_1_0.txt).

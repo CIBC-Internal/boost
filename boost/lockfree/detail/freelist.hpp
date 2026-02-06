@@ -1,6 +1,6 @@
 //  lock-free freelist
 //
-//  Copyright (C) 2008-2013 Tim Blechmann
+//  Copyright (C) 2008-2016 Tim Blechmann
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -9,6 +9,7 @@
 #ifndef BOOST_LOCKFREE_FREELIST_HPP_INCLUDED
 #define BOOST_LOCKFREE_FREELIST_HPP_INCLUDED
 
+#include <cstring>
 #include <limits>
 #include <memory>
 
@@ -17,6 +18,9 @@
 #include <boost/cstdint.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
+
+#include <boost/align/align_up.hpp>
+#include <boost/align/aligned_allocator_adaptor.hpp>
 
 #include <boost/lockfree/detail/atomic.hpp>
 #include <boost/lockfree/detail/parameter.hpp>
@@ -46,6 +50,7 @@ class freelist_stack:
     typedef tagged_ptr<freelist_node> tagged_node_ptr;
 
 public:
+    typedef T *           index_t;
     typedef tagged_ptr<T> tagged_node_handle;
 
     template <typename Allocator>
@@ -55,6 +60,7 @@ public:
     {
         for (std::size_t i = 0; i != n; ++i) {
             T * node = Alloc::allocate(1);
+            std::memset((void*)node, 0, sizeof(T));
 #ifdef BOOST_LOCKFREE_FREELIST_INIT_RUNS_DTOR
             destruct<false>(node);
 #else
@@ -68,6 +74,7 @@ public:
     {
         for (std::size_t i = 0; i != count; ++i) {
             T * node = Alloc::allocate(1);
+            std::memset((void*)node, 0, sizeof(T));
             deallocate<ThreadSafe>(node);
         }
     }
@@ -100,7 +107,7 @@ public:
     }
 
     template <bool ThreadSafe>
-    void destruct (tagged_node_handle tagged_ptr)
+    void destruct (tagged_node_handle const & tagged_ptr)
     {
         T * n = tagged_ptr.get_ptr();
         n->~T();
@@ -174,8 +181,11 @@ private:
 
         for(;;) {
             if (!old_pool.get_ptr()) {
-                if (!Bounded)
-                    return Alloc::allocate(1);
+                if (!Bounded) {
+                    T *ptr = Alloc::allocate(1);
+                    std::memset((void*)ptr, 0, sizeof(T));
+                    return ptr;
+                }
                 else
                     return 0;
             }
@@ -196,8 +206,11 @@ private:
         tagged_node_ptr old_pool = pool_.load(memory_order_relaxed);
 
         if (!old_pool.get_ptr()) {
-            if (!Bounded)
-                return Alloc::allocate(1);
+            if (!Bounded) {
+                T *ptr = Alloc::allocate(1);
+                std::memset((void*)ptr, 0, sizeof(T));
+                return ptr;
+            }
             else
                 return 0;
         }
@@ -251,7 +264,9 @@ private:
     atomic<tagged_node_ptr> pool_;
 };
 
-class tagged_index
+class
+BOOST_ALIGNMENT( 4 ) // workaround for bugs in MSVC
+tagged_index
 {
 public:
     typedef boost::uint16_t tag_t;
@@ -296,7 +311,7 @@ public:
 
     tag_t get_next_tag() const
     {
-        tag_t next = (get_tag() + 1) & (std::numeric_limits<tag_t>::max)();
+        tag_t next = (get_tag() + 1u) & (std::numeric_limits<tag_t>::max)();
         return next;
     }
 
@@ -323,21 +338,24 @@ protected:
 
 template <typename T,
           std::size_t size>
-struct compiletime_sized_freelist_storage
+struct BOOST_ALIGNMENT(BOOST_LOCKFREE_CACHELINE_BYTES) compiletime_sized_freelist_storage
 {
     // array-based freelists only support a 16bit address space.
     BOOST_STATIC_ASSERT(size < 65536);
 
-    boost::array<char, size * sizeof(T)> data;
+    boost::array<char, size * sizeof(T) + 64> data;
 
     // unused ... only for API purposes
     template <typename Allocator>
     compiletime_sized_freelist_storage(Allocator const & /* alloc */, std::size_t /* count */)
-    {}
+    {
+        data.fill(0);
+    }
 
     T * nodes(void) const
     {
-        return reinterpret_cast<T*>(const_cast<char*>(data.data()));
+        char * data_pointer = const_cast<char*>(data.data());
+        return reinterpret_cast<T*>( boost::alignment::align_up( data_pointer, BOOST_LOCKFREE_CACHELINE_BYTES ) );
     }
 
     std::size_t node_count(void) const
@@ -349,23 +367,25 @@ struct compiletime_sized_freelist_storage
 template <typename T,
           typename Alloc = std::allocator<T> >
 struct runtime_sized_freelist_storage:
-    Alloc
+    boost::alignment::aligned_allocator_adaptor<Alloc, BOOST_LOCKFREE_CACHELINE_BYTES >
 {
+    typedef boost::alignment::aligned_allocator_adaptor<Alloc, BOOST_LOCKFREE_CACHELINE_BYTES > allocator_type;
     T * nodes_;
     std::size_t node_count_;
 
     template <typename Allocator>
     runtime_sized_freelist_storage(Allocator const & alloc, std::size_t count):
-        Alloc(alloc), node_count_(count)
+        allocator_type(alloc), node_count_(count)
     {
         if (count > 65535)
             boost::throw_exception(std::runtime_error("boost.lockfree: freelist size is limited to a maximum of 65535 objects"));
-        nodes_ = Alloc::allocate(count);
+        nodes_ = allocator_type::allocate(count);
+        std::memset((void*)nodes_, 0, sizeof(T) * count);
     }
 
     ~runtime_sized_freelist_storage(void)
     {
-        Alloc::deallocate(nodes_, node_count_);
+        allocator_type::deallocate(nodes_, node_count_);
     }
 
     T * nodes(void) const
@@ -391,8 +411,6 @@ class fixed_size_freelist:
         tagged_index next;
     };
 
-    typedef tagged_index::index_t index_t;
-
     void initialize(void)
     {
         T * nodes = NodeStorage::nodes();
@@ -410,6 +428,7 @@ class fixed_size_freelist:
 
 public:
     typedef tagged_index tagged_node_handle;
+    typedef tagged_index::index_t index_t;
 
     template <typename Allocator>
     fixed_size_freelist (Allocator const & alloc, std::size_t count):
@@ -466,6 +485,7 @@ public:
     {
         index_t index = tagged_index.get_index();
         T * n = NodeStorage::nodes() + index;
+        (void)n; // silence msvc warning
         n->~T();
         deallocate<ThreadSafe>(index);
     }
@@ -474,7 +494,7 @@ public:
     void destruct (T * n)
     {
         n->~T();
-        deallocate<ThreadSafe>(n - NodeStorage::nodes());
+        deallocate<ThreadSafe>(static_cast<index_t>(n - NodeStorage::nodes()));
     }
 
     bool is_lock_free(void) const

@@ -22,18 +22,43 @@
 #  pragma once
 #endif
 
-#include <cstddef>
+#if (BOOST_CXX_VERSION > 201703L) && defined(__cpp_lib_concepts)
 
-#if defined(__clang__) && defined(_LIBCPP_VERSION)
-   #define BOOST_MOVE_CLANG_INLINE_STD_NS
-   #pragma GCC diagnostic push
-   #pragma GCC diagnostic ignored "-Wc++11-extensions"
-   #define BOOST_MOVE_STD_NS_BEG _LIBCPP_BEGIN_NAMESPACE_STD
-   #define BOOST_MOVE_STD_NS_END _LIBCPP_END_NAMESPACE_STD
+#include <iterator>
+
+#define BOOST_MOVE_CONTIGUOUS_ITERATOR_TAG
+
+namespace boost {
+namespace movelib {
+
+   using std::iterator_traits;
+
+   template<class T>
+   struct iter_difference
+   {
+      typedef typename std::iterator_traits<T>::difference_type type;
+   };
+
+   template<class T>
+   struct iter_value
+   {
+      typedef typename std::iterator_traits<T>::value_type type;
+   };
+
+   template<class T>
+   struct iter_category
+   {
+      typedef typename std::iterator_traits<T>::iterator_category type;
+   };
+
+}} //namespace boost::movelib
+
 #else
-   #define BOOST_MOVE_STD_NS_BEG namespace std{
-   #define BOOST_MOVE_STD_NS_END }
-#endif
+
+#include <cstddef>
+#include <boost/move/detail/type_traits.hpp>
+
+#include <boost/move/detail/std_ns_begin.hpp>
 
 BOOST_MOVE_STD_NS_BEG
 
@@ -43,23 +68,73 @@ struct bidirectional_iterator_tag;
 struct random_access_iterator_tag;
 struct output_iterator_tag;
 
+#if (  (defined(BOOST_GNU_STDLIB) && (__cplusplus > 201703L))\
+    || (defined(_LIBCPP_VERSION) && (_LIBCPP_STD_VER > 17))\
+    || (defined(_YVALS) && defined(_CPPLIB_VER) && defined(__cpp_lib_concepts))\
+    || (__cplusplus >= 202002L)\
+    )
+#  define BOOST_MOVE_CONTIGUOUS_ITERATOR_TAG
+struct contiguous_iterator_tag;
+
+#endif
+
 BOOST_MOVE_STD_NS_END
 
-#ifdef BOOST_MOVE_CLANG_INLINE_STD_NS
-   #pragma GCC diagnostic pop
-   #undef BOOST_MOVE_CLANG_INLINE_STD_NS
-#endif   //BOOST_MOVE_CLANG_INLINE_STD_NS
+#include <boost/move/detail/std_ns_end.hpp>
 
 namespace boost{  namespace movelib{
+
+template<class T>
+struct iter_difference
+{
+   typedef typename T::difference_type type;
+};
+
+template<class T>
+struct iter_difference<T*>
+{
+   typedef std::ptrdiff_t type;
+};
+
+template<class T>
+struct iter_value
+{
+   typedef typename T::value_type type;
+};
+
+template<class T>
+struct iter_value<T*>
+{
+   typedef T type;
+};
+
+template<class T>
+struct iter_value<const T*>
+{
+   typedef T type;
+};
+
+template<class T>
+struct iter_category
+{
+   typedef typename T::iterator_category type;
+};
+
+
+template<class T>
+struct iter_category<T*>
+{
+   typedef std::random_access_iterator_tag type;
+};
 
 template<class Iterator>
 struct iterator_traits
 {
-   typedef typename Iterator::difference_type   difference_type;
-   typedef typename Iterator::value_type        value_type;
-   typedef typename Iterator::pointer           pointer;
-   typedef typename Iterator::reference         reference;
-   typedef typename Iterator::iterator_category iterator_category;
+   typedef typename iter_difference<Iterator>::type   difference_type;
+   typedef typename iter_value<Iterator>::type        value_type;
+   typedef typename Iterator::pointer                 pointer;
+   typedef typename Iterator::reference               reference;
+   typedef typename iter_category<Iterator>::type     iterator_category;
 };
 
 template<class T>
@@ -82,6 +157,21 @@ struct iterator_traits<const T*>
    typedef std::random_access_iterator_tag   iterator_category;
 };
 
-}} //namespace boost {  namespace movelib{
+}} //namespace boost::movelib
+
+#endif   //
+
+#include <boost/move/detail/type_traits.hpp>
+
+namespace boost {
+namespace movelib {
+
+template<class T>
+struct iter_size
+   : boost::move_detail::
+      make_unsigned<typename iter_difference<T>::type >
+{};
+
+}}  //namespace boost move_detail {
 
 #endif //#ifndef BOOST_MOVE_DETAIL_ITERATOR_TRAITS_HPP

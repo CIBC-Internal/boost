@@ -2,7 +2,7 @@
 // server.cpp
 // ~~~~~~~~~~
 //
-// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2023 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -12,7 +12,7 @@
 #include <iostream>
 #include <boost/aligned_storage.hpp>
 #include <boost/array.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
@@ -24,11 +24,11 @@ using boost::asio::ip::tcp;
 // It contains a single block of memory which may be returned for allocation
 // requests. If the memory is in use when an allocation request is made, the
 // allocator delegates allocation to the global heap.
-class handler_allocator
+class handler_memory
   : private boost::noncopyable
 {
 public:
-  handler_allocator()
+  handler_memory()
     : in_use_(false)
   {
   }
@@ -66,62 +66,63 @@ private:
   bool in_use_;
 };
 
-// Wrapper class template for handler objects to allow handler memory
-// allocation to be customised. Calls to operator() are forwarded to the
-// encapsulated handler.
-template <typename Handler>
-class custom_alloc_handler
+// The allocator to be associated with the handler objects. This allocator only
+// needs to satisfy the C++11 minimal allocator requirements, plus rebind when
+// targeting C++03.
+template <typename T>
+class handler_allocator
 {
 public:
-  custom_alloc_handler(handler_allocator& a, Handler h)
-    : allocator_(a),
-      handler_(h)
+  typedef T value_type;
+
+  explicit handler_allocator(handler_memory& mem)
+    : memory_(mem)
   {
   }
 
-  template <typename Arg1>
-  void operator()(Arg1 arg1)
+  template <typename U>
+  handler_allocator(const handler_allocator<U>& other)
+    : memory_(other.memory_)
   {
-    handler_(arg1);
   }
 
-  template <typename Arg1, typename Arg2>
-  void operator()(Arg1 arg1, Arg2 arg2)
+  template <typename U>
+  struct rebind
   {
-    handler_(arg1, arg2);
+    typedef handler_allocator<U> other;
+  };
+
+  bool operator==(const handler_allocator& other) const
+  {
+    return &memory_ == &other.memory_;
   }
 
-  friend void* asio_handler_allocate(std::size_t size,
-      custom_alloc_handler<Handler>* this_handler)
+  bool operator!=(const handler_allocator& other) const
   {
-    return this_handler->allocator_.allocate(size);
+    return &memory_ != &other.memory_;
   }
 
-  friend void asio_handler_deallocate(void* pointer, std::size_t /*size*/,
-      custom_alloc_handler<Handler>* this_handler)
+  T* allocate(std::size_t n) const
   {
-    this_handler->allocator_.deallocate(pointer);
+    return static_cast<T*>(memory_.allocate(sizeof(T) * n));
   }
 
-private:
-  handler_allocator& allocator_;
-  Handler handler_;
+  void deallocate(T* p, std::size_t /*n*/) const
+  {
+    return memory_.deallocate(p);
+  }
+
+//private:
+  // The underlying memory.
+  handler_memory& memory_;
 };
-
-// Helper function to wrap a handler object to add custom allocation.
-template <typename Handler>
-inline custom_alloc_handler<Handler> make_custom_alloc_handler(
-    handler_allocator& a, Handler h)
-{
-  return custom_alloc_handler<Handler>(a, h);
-}
 
 class session
   : public boost::enable_shared_from_this<session>
 {
 public:
-  session(boost::asio::io_service& io_service)
-    : socket_(io_service)
+  session(boost::asio::io_context& io_context)
+    : socket_(io_context)
   {
   }
 
@@ -133,7 +134,8 @@ public:
   void start()
   {
     socket_.async_read_some(boost::asio::buffer(data_),
-        make_custom_alloc_handler(allocator_,
+        boost::asio::bind_allocator(
+          handler_allocator<int>(handler_memory_),
           boost::bind(&session::handle_read,
             shared_from_this(),
             boost::asio::placeholders::error,
@@ -147,7 +149,8 @@ public:
     {
       boost::asio::async_write(socket_,
           boost::asio::buffer(data_, bytes_transferred),
-          make_custom_alloc_handler(allocator_,
+          boost::asio::bind_allocator(
+            handler_allocator<int>(handler_memory_),
             boost::bind(&session::handle_write,
               shared_from_this(),
               boost::asio::placeholders::error)));
@@ -159,7 +162,8 @@ public:
     if (!error)
     {
       socket_.async_read_some(boost::asio::buffer(data_),
-          make_custom_alloc_handler(allocator_,
+          boost::asio::bind_allocator(
+            handler_allocator<int>(handler_memory_),
             boost::bind(&session::handle_read,
               shared_from_this(),
               boost::asio::placeholders::error,
@@ -174,8 +178,8 @@ private:
   // Buffer used to store data received from the client.
   boost::array<char, 1024> data_;
 
-  // The allocator to use for handler-based custom memory allocation.
-  handler_allocator allocator_;
+  // The memory to use for handler-based custom memory allocation.
+  handler_memory handler_memory_;
 };
 
 typedef boost::shared_ptr<session> session_ptr;
@@ -183,11 +187,11 @@ typedef boost::shared_ptr<session> session_ptr;
 class server
 {
 public:
-  server(boost::asio::io_service& io_service, short port)
-    : io_service_(io_service),
-      acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
+  server(boost::asio::io_context& io_context, short port)
+    : io_context_(io_context),
+      acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
   {
-    session_ptr new_session(new session(io_service_));
+    session_ptr new_session(new session(io_context_));
     acceptor_.async_accept(new_session->socket(),
         boost::bind(&server::handle_accept, this, new_session,
           boost::asio::placeholders::error));
@@ -201,14 +205,14 @@ public:
       new_session->start();
     }
 
-    new_session.reset(new session(io_service_));
+    new_session.reset(new session(io_context_));
     acceptor_.async_accept(new_session->socket(),
         boost::bind(&server::handle_accept, this, new_session,
           boost::asio::placeholders::error));
   }
 
 private:
-  boost::asio::io_service& io_service_;
+  boost::asio::io_context& io_context_;
   tcp::acceptor acceptor_;
 };
 
@@ -222,12 +226,12 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    boost::asio::io_service io_service;
+    boost::asio::io_context io_context;
 
     using namespace std; // For atoi.
-    server s(io_service, atoi(argv[1]));
+    server s(io_context, atoi(argv[1]));
 
-    io_service.run();
+    io_context.run();
   }
   catch (std::exception& e)
   {

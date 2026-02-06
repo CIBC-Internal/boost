@@ -1,11 +1,10 @@
 /*=============================================================================
-    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2013 Agustin Berge
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-#include <boost/detail/lightweight_test.hpp>
 #include <boost/spirit/home/x3.hpp>
 
 #include <iostream>
@@ -23,6 +22,8 @@ main()
     using boost::spirit::x3::lexeme;
     using boost::spirit::x3::skip;
     using boost::spirit::x3::lit;
+
+    BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(skip('x')['y']);
 
     {
         BOOST_TEST((test("a b c d", skip(space)[*char_])));
@@ -43,12 +44,6 @@ main()
         BOOST_TEST((test("abcd", lexeme[lexeme[lit('a') >> 'b' >> skip[lit('c') >> 'd']]], space)));
         BOOST_TEST(!(test("a bcd", lexeme[lexeme[lit('a') >> 'b' >> skip[lit('c') >> 'd']]], space)));
     }
-
-    //~ { // lazy skip
-        //~ using boost::phoenix::val;
-
-        //~ BOOST_TEST((test("a b c d", skip(val(space))[*char_])));
-    //~ }
 
     return boost::report_errors();
 }

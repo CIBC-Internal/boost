@@ -242,7 +242,7 @@ pending __forced_unwind__ exception.]
             // possibly not re-throw pending exception
         }
 
-[important Do not jump from inside a catch block and than re-throw the
+[important Do not jump from inside a catch block and then re-throw the
 exception in another execution context.]
 
 
@@ -276,7 +276,7 @@ After unwinding, a __coro__ is complete.
             boost::coroutines::asymmetric_coroutine<void>::push_type sink(
                 [&](boost::coroutines::asymmetric_coroutine<void>::pull_type& source){
                     X x;
-                    for(int=0;;++i){
+                    for(int i=0;;++i){
                         std::cout<<"fn(): "<<i<<std::endl;
                         // transfer execution control back to main()
                         source();
@@ -299,7 +299,6 @@ After unwinding, a __coro__ is complete.
             fn(): 2
             fn(): 3
             fn(): 4
-            fn(): 5
             sink is complete: false
             ~X()
 
@@ -423,8 +422,7 @@ resumed with __push_coro_op__, __pull_coro_op__).]
 [[Preconditions:] [`size` >= minimum_stacksize(), `size` <= maximum_stacksize()
 when ! is_stack_unbounded().]]
 [[Effects:] [Creates a coroutine which will execute `fn`, and enters it.
-Argument `attr` determines stack clean-up and preserving floating-point
-registers.]]
+Argument `attr` determines stack clean-up.]]
 [[Throws:] [Exceptions thrown inside __coro_fn__.]]
 ]
 
@@ -434,7 +432,7 @@ registers.]]
 [[Preconditions:] [`size` >= minimum_stacksize(), `size` <= maximum_stacksize()
 when ! is_stack_unbounded().]]
 [[Effects:] [Creates a coroutine which will execute `fn`. Argument `attr`
-determines stack clean-up and preserving floating-point registers.
+determines stack clean-up.
 For allocating/deallocating the stack `stack_alloc` is used.]]
 [[Throws:] [Exceptions thrown inside __coro_fn__.]]
 ]
@@ -590,7 +588,7 @@ would return `false`.]]
 [[Preconditions:] [`size` >= minimum_stacksize(), `size` <= maximum_stacksize()
 when ! is_stack_unbounded().]]
 [[Effects:] [Creates a coroutine which will execute `fn`. Argument `attr`
-determines stack clean-up and preserving floating-point registers.]]
+determines stack clean-up.]]
 ]
 
 [heading `template< typename Fn, typename StackAllocator >
@@ -599,7 +597,7 @@ determines stack clean-up and preserving floating-point registers.]]
 [[Preconditions:] [`size` >= minimum_stacksize(), `size` <= maximum_stacksize()
 when ! is_stack_unbounded().]]
 [[Effects:] [Creates a coroutine which will execute `fn`. Argument `attr`
-determines stack clean-up and preserving floating-point registers.
+determines stack clean-up.
 For allocating/deallocating the stack `stack_alloc` is used.]]
 ]
 
