@@ -13,16 +13,14 @@
  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
  */
 
-#include <boost/config.hpp>
+#include <boost/log/detail/config.hpp>
 #include <boost/log/attributes/timer.hpp>
 #include <boost/log/attributes/attribute_value_impl.hpp>
 
 #if defined(BOOST_WINDOWS) && !defined(BOOST_LOG_NO_QUERY_PERFORMANCE_COUNTER)
 
-#include "windows_version.hpp"
 #include <boost/assert.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/log/detail/config.hpp>
 #if !defined(BOOST_LOG_NO_THREADS)
 #include <boost/log/detail/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -133,7 +131,7 @@ public:
      */
     impl() : m_BaseTimePoint(utc_time_traits::get_clock()) {}
 
-    attribute_value get_value()
+    attribute_value get_value() BOOST_OVERRIDE
     {
         return attribute_value(new attribute_value_impl< value_type >(
             utc_time_traits::get_clock() - m_BaseTimePoint));

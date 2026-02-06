@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Changes</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../boost_lexical_cast.html" title="Chapter&#160;17.&#160;Boost.Lexical_Cast 1.0">
+<link rel="up" href="../boost_lexical_cast.html" title="Chapter 19. Boost.Lexical_Cast 1.0">
 <link rel="prev" href="frequently_asked_questions.html" title="Frequently Asked Questions">
 <link rel="next" href="performance.html" title="Performance">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,6 +29,59 @@
 <a name="boost_lexical_cast.changes"></a><a class="link" href="changes.html" title="Changes">Changes</a>
 </h2></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          <span class="bold"><strong>boost 1.86.0 :</strong></span>
+          <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
+                Fixed conversion of <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">basic_string_view</span></code>
+                and <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">basic_string_view</span></code> containing one
+                or more <code class="computeroutput"><span class="special">\</span><span class="number">0</span></code>
+                characters. Issue was introduced in 1.85.0.
+              </li></ul></div>
+        </li>
+<li class="listitem">
+          <span class="bold"><strong>boost 1.85.0 :</strong></span>
+          <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+                Significant rewrite of the internal logic to separate optimized and
+                C++ Standard Library IO-based streams:
+                <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: square; ">
+<li class="listitem">
+                      C++ Standard Library based streams now constructed in less
+                      cases leading to <span class="bold"><strong>better performance</strong></span>;
+                    </li>
+<li class="listitem">
+                      less template instantiations and simpler code;
+                    </li>
+<li class="listitem">
+                      always use <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">char_traits</span></code>
+                      (do not use custom traits from input/output types as it leads
+                      to linktime or runtime errors);
+                    </li>
+<li class="listitem">
+                      support for <code class="computeroutput"><span class="keyword">volatile</span></code>
+                      input types was dropped, following the C++ Standard Library
+                      trend.
+                    </li>
+</ul></div>
+              </li>
+<li class="listitem">
+                Optimized conversions from std::basic_string_view and boost::basic_string_view
+              </li>
+<li class="listitem">
+                Dropped dependency on Boost.NumericConversion and Boost.MPL. Fixed
+                some cases of converting floting point types to arithmetics.
+              </li>
+<li class="listitem">
+                The library now works fine with <code class="computeroutput"><span class="special">-</span><span class="identifier">fno</span><span class="special">-</span><span class="identifier">sanitize</span><span class="special">-</span><span class="identifier">recover</span><span class="special">=</span><span class="identifier">integer</span></code>.
+              </li>
+</ul></div>
+        </li>
+<li class="listitem">
+          <span class="bold"><strong>boost 1.84.0 :</strong></span>
+          <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
+                Dropped support of C++98 and C++03.
+              </li></ul></div>
+        </li>
 <li class="listitem">
           <span class="bold"><strong>boost 1.56.0 :</strong></span>
           <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
@@ -218,15 +273,12 @@
         </li>
 </ul></div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2000-2005 Kevlin Henney<br>Copyright &#169; 2006-2010 Alexander Nasonov<br>Copyright &#169; 2011-2014 Antony
+<div class="copyright-footer">Copyright © 2000-2005 Kevlin Henney<br>Copyright © 2006-2010 Alexander Nasonov<br>Copyright © 2011-2024 Antony
       Polukhin<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="frequently_asked_questions.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../boost_lexical_cast.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="performance.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

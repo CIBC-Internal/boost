@@ -48,16 +48,16 @@ int map_test ()
    typedef typename MyShmMap::key_type    IntType;
    typedef boost::interprocess::pair<IntType, IntType>         IntPairType;
    typedef typename MyStdMap::value_type  StdPairType;
-   const int memsize = 65536;
+   const int Memsize = 128u * 1024u;
    const char *const shMemName = test::get_process_id_name();
    const int max = 100;
 
-   try{
+   BOOST_TRY{
       //Create shared memory
       shared_memory_object::remove(shMemName);
-      ManagedSharedMemory segment(create_only, shMemName, memsize);
+      ManagedSharedMemory segment(create_only, shMemName, Memsize);
 
-      segment.reserve_named_objects(100);
+      segment.reserve_named_objects(10);
 
       //Shared memory allocator must be always be initialized
       //since it has no default constructor
@@ -172,13 +172,13 @@ int map_test ()
       }
       {
          //This is really nasty, but we have no other simple choice
-         IntPairType aux_vect[max];
+         IntPairType aux_vect[std::size_t(max)];
          for(int i = 0; i < max; ++i){
             IntType i1(i);
             IntType i2(i);
             new(&aux_vect[i])IntPairType(boost::move(i1), boost::move(i2));
          }
-         IntPairType aux_vect3[max];
+         IntPairType aux_vect3[std::size_t(max)];
          for(int i = 0; i < max; ++i){
             IntType i1(i);
             IntType i2(i);
@@ -320,13 +320,13 @@ int map_test ()
 
       {
          //This is really nasty, but we have no other simple choice
-         IntPairType aux_vect[max];
+         IntPairType aux_vect[std::size_t(max)];
          for(int i = 0; i < max; ++i){
             IntType i1(i);
             IntType i2(i);
             new(&aux_vect[i])IntPairType(boost::move(i1), boost::move(i2));
          }
-         IntPairType aux_vect3[max];
+         IntPairType aux_vect3[std::size_t(max)];
          for(int i = 0; i < max; ++i){
             IntType i1(i);
             IntType i2(i);
@@ -452,6 +452,8 @@ int map_test ()
          shmmap->clear();
          shmmultimap->clear();
 
+         typedef typename MyShmMultiMap::size_type map_size_type;
+
          for(int j = 0; j < 3; ++j)
          for(int i = 0; i < 100; ++i){
             IntPairType intpair;
@@ -465,9 +467,9 @@ int map_test ()
                new(&intpair)IntPairType(boost::move(i1), boost::move(i2));
             }
             shmmultimap->insert(boost::move(intpair));
-            if(shmmap->count(IntType(i)) != typename MyShmMultiMap::size_type(1))
+            if(shmmap->count(IntType(i)) != map_size_type(1u))
                return 1;
-            if(shmmultimap->count(IntType(i)) != typename MyShmMultiMap::size_type(j+1))
+            if(shmmultimap->count(IntType(i)) != map_size_type(j)+1u)
                return 1;
          }
       }
@@ -482,10 +484,10 @@ int map_test ()
       if(!segment.all_memory_deallocated())
          return 1;
    }
-   catch(...){
+   BOOST_CATCH(...){
       shared_memory_object::remove(shMemName);
-      throw;
-   }
+      BOOST_RETHROW
+   } BOOST_CATCH_END
    shared_memory_object::remove(shMemName);
    return 0;
 }
@@ -501,16 +503,16 @@ int map_test_copyable ()
    typedef boost::interprocess::pair<IntType, IntType>         IntPairType;
    typedef typename MyStdMap::value_type  StdPairType;
 
-   const int memsize = 65536;
+   const int Memsize = 128u * 1024u;
    const char *const shMemName = test::get_process_id_name();
    const int max = 100;
 
-   try{
+   BOOST_TRY{
    //Create shared memory
    shared_memory_object::remove(shMemName);
-   ManagedSharedMemory segment(create_only, shMemName, memsize);
+   ManagedSharedMemory segment(create_only, shMemName, Memsize);
 
-   segment.reserve_named_objects(100);
+   segment.reserve_named_objects(10);
 
    //Shared memory allocator must be always be initialized
    //since it has no default constructor
@@ -566,6 +568,8 @@ int map_test_copyable ()
             return 1;
          if(!CheckEqualContainers(&shmmmapcopy, &stdmmapcopy))
             return 1;
+         delete stdmap;
+         delete stdmultimap;
          segment.destroy_ptr(shmmap);
          segment.destroy_ptr(shmmultimap);
       }
@@ -574,10 +578,10 @@ int map_test_copyable ()
       if(!segment.all_memory_deallocated())
          return 1;
    }
-   catch(...){
+   BOOST_CATCH(...){
       shared_memory_object::remove(shMemName);
-      throw;
-   }
+      BOOST_RETHROW
+   } BOOST_CATCH_END
    shared_memory_object::remove(shMemName);
    return 0;
 }

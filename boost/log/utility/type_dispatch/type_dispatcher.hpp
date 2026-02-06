@@ -15,11 +15,9 @@
 #ifndef BOOST_LOG_TYPE_DISPATCHER_HPP_INCLUDED_
 #define BOOST_LOG_TYPE_DISPATCHER_HPP_INCLUDED_
 
-#include <typeinfo>
-#include <boost/static_assert.hpp>
+#include <boost/type_index.hpp>
+#include <boost/core/explicit_operator_bool.hpp>
 #include <boost/log/detail/config.hpp>
-#include <boost/log/detail/visible_type.hpp>
-#include <boost/utility/explicit_operator_bool.hpp>
 #include <boost/log/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -60,7 +58,7 @@ public:
             m_pVisitor(visitor)
         {
             typedef void (*trampoline_t)(void*, ValueT const&);
-            BOOST_STATIC_ASSERT_MSG(sizeof(trampoline_t) == sizeof(void*), "Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer");
+            static_assert(sizeof(trampoline_t) == sizeof(void*), "Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer");
             union
             {
                 void* as_pvoid;
@@ -101,7 +99,7 @@ public:
 
         void operator() (T const& value) const
         {
-            BOOST_STATIC_ASSERT_MSG(sizeof(trampoline_t) == sizeof(void*), "Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer");
+            static_assert(sizeof(trampoline_t) == sizeof(void*), "Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer");
             union
             {
                 void* as_pvoid;
@@ -148,7 +146,7 @@ public:
 
 protected:
     //! Pointer to the callback acquisition method
-    typedef callback_base (*get_callback_impl_type)(type_dispatcher*, std::type_info const&);
+    typedef callback_base (*get_callback_impl_type)(type_dispatcher*, typeindex::type_index);
 
 private:
     //! Pointer to the callback acquisition method
@@ -176,7 +174,7 @@ public:
     template< typename T >
     callback< T > get_callback()
     {
-        return callback< T >((this->m_get_callback_impl)(this, typeid(boost::log::aux::visible_type< T >)));
+        return callback< T >((this->m_get_callback_impl)(this, typeindex::type_id< T >()));
     }
 };
 

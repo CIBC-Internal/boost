@@ -8,7 +8,7 @@
  [end_description]
 
  Copyright 2011-2013 Karsten Ahnert
- Copyright 2011-2012 Mario Mulansky
+ Copyright 2011-2015 Mario Mulansky
  Copyright 2012 Christoph Koke
 
  Distributed under the Boost Software License, Version 1.0.
@@ -36,6 +36,8 @@
 
 #include <boost/numeric/odeint/stepper/controlled_step_result.hpp>
 #include <boost/numeric/odeint/stepper/stepper_categories.hpp>
+
+#include <boost/numeric/odeint/integrate/max_step_checker.hpp>
 
 namespace boost {
 namespace numeric {
@@ -103,7 +105,7 @@ public:
     template< class StateType >
     void initialize( const StateType &x0 , time_type t0 , time_type dt0 )
     {
-        m_resizer.adjust_size( x0 , detail::bind( &dense_output_stepper_type::template resize_impl< StateType > , detail::ref( *this ) , detail::_1 ) );
+        m_resizer.adjust_size(x0, [this](auto&& arg) { return this->resize_impl<StateType>(std::forward<decltype(arg)>(arg)); });
         boost::numeric::odeint::copy( x0 , get_current_state() );
         m_t = t0;
         m_dt = dt0;
@@ -124,7 +126,7 @@ public:
         m_t_old = m_t;
         m_t += m_dt;
         toggle_current_state();
-        return std::make_pair( m_t_old , m_dt );
+        return std::make_pair( m_t_old , m_t );
     }
 
     /*
@@ -204,6 +206,15 @@ public:
     time_type previous_time( void ) const
     {
         return m_t_old;
+    }
+
+    /**
+     * \brief Returns the current time step.
+     * \return dt.
+     */
+    time_type current_time_step( void ) const
+    {
+        return m_dt;
     }
 
 
@@ -302,7 +313,7 @@ public:
     template< class StateType >
     void initialize( const StateType &x0 , time_type t0 , time_type dt0 )
     {
-        m_resizer.adjust_size( x0 , detail::bind( &dense_output_stepper_type::template resize< StateType > , detail::ref( *this ) , detail::_1 ) );
+        m_resizer.adjust_size(x0, [this](auto&& arg) { return this->resize<StateType>(std::forward<decltype(arg)>(arg)); });
         boost::numeric::odeint::copy( x0 , get_current_state() );
         m_t = t0;
         m_dt = dt0;
@@ -312,8 +323,6 @@ public:
     template< class System >
     std::pair< time_type , time_type > do_step( System system )
     {
-        const size_t max_count = 1000;
-
         if( !m_is_deriv_initialized )
         {
             typename odeint::unwrap_reference< System >::type &sys = system;
@@ -321,15 +330,14 @@ public:
             m_is_deriv_initialized = true;
         }
 
+        failed_step_checker fail_checker;  // to throw a runtime_error if step size adjustment fails
         controlled_step_result res = fail;
         m_t_old = m_t;
-        size_t count = 0;
         do
         {
             res = m_stepper.try_step( system , get_current_state() , get_current_deriv() , m_t ,
                                       get_old_state() , get_old_deriv() , m_dt );
-            if( count++ == max_count )
-                BOOST_THROW_EXCEPTION( std::overflow_error( "dense_output_controlled_explicit : too much iterations!") );
+            fail_checker();  // check for overflow of failed steps
         }
         while( res == fail );
         toggle_current_state();

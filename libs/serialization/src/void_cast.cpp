@@ -13,20 +13,24 @@
 # pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
-#include <boost/assert.hpp>
+// STL
+#include <set>
+#include <functional>
+#include <algorithm>
 #include <cstddef> // NULL
 #ifdef BOOST_SERIALIZATION_LOG
 #include <iostream>
 #endif
 
-// STL
-#include <set>
-#include <functional>
-#include <algorithm>
+// BOOST
+#include <boost/config.hpp>
 #include <boost/assert.hpp>
 
-// BOOST
 #define BOOST_SERIALIZATION_SOURCE
+#include <boost/serialization/config.hpp>
+// it marks our code with proper attributes as being exported when
+// we're compiling it while marking it import when just the headers
+// is being included.
 #include <boost/serialization/singleton.hpp>
 #include <boost/serialization/extended_type_info.hpp>
 #include <boost/serialization/void_cast.hpp>
@@ -39,7 +43,7 @@ namespace void_cast_detail {
 // member extended type info records - NOT their
 // addresses.  This is necessary in order for the
 // void cast operations to work across dll and exe
-// module boundries.
+// module boundaries.
 bool void_caster::operator<(const void_caster & rhs) const {
     // include short cut to save time and eliminate
     // problems when when base class aren't virtual
@@ -83,14 +87,14 @@ class void_caster_shortcut : public void_caster
     vbc_downcast(
         void const * const t
     ) const;
-    virtual void const *
-    upcast(void const * const t) const{
+    void const *
+    upcast(void const * const t) const BOOST_OVERRIDE {
         if(m_includes_virtual_base)
             return vbc_upcast(t);
         return static_cast<const char *> ( t ) - m_difference;
     }
-    virtual void const *
-    downcast(void const * const t) const{
+    void const *
+    downcast(void const * const t) const BOOST_OVERRIDE {
         if(m_includes_virtual_base)
             return vbc_downcast(t);
         return static_cast<const char *> ( t ) + m_difference;
@@ -98,7 +102,7 @@ class void_caster_shortcut : public void_caster
     virtual bool is_shortcut() const {
         return true;
     }
-    virtual bool has_virtual_base() const {
+    bool has_virtual_base() const BOOST_OVERRIDE {
         return m_includes_virtual_base;
     }
 public:
@@ -114,7 +118,7 @@ public:
     {
         recursive_register(includes_virtual_base);
     }
-    virtual ~void_caster_shortcut(){
+    ~void_caster_shortcut() BOOST_OVERRIDE {
         recursive_unregister();
     }
 };
@@ -183,17 +187,17 @@ void_caster_shortcut::vbc_upcast(
 // just used as a search key
 class void_caster_argument : public void_caster
 {
-    virtual void const *
-    upcast(void const * const /*t*/) const {
+    void const *
+    upcast(void const * const /*t*/) const BOOST_OVERRIDE {
         BOOST_ASSERT(false);
         return NULL;
     }
-    virtual void const *
-    downcast( void const * const /*t*/) const {
+    void const *
+    downcast( void const * const /*t*/) const BOOST_OVERRIDE {
         BOOST_ASSERT(false);
         return NULL;
     }
-    virtual bool has_virtual_base() const {
+    bool has_virtual_base() const BOOST_OVERRIDE {
         BOOST_ASSERT(false);
         return false;
     }
@@ -204,7 +208,7 @@ public:
     ) :
         void_caster(derived, base)
     {}
-    virtual ~void_caster_argument(){};
+    ~void_caster_argument() BOOST_OVERRIDE {}
 };
 
 #ifdef BOOST_MSVC
@@ -212,7 +216,7 @@ public:
 #endif
 
 // implementation of void caster base class
-BOOST_SERIALIZATION_DECL(void)
+BOOST_SERIALIZATION_DECL void
 void_caster::recursive_register(bool includes_virtual_base) const {
     void_cast_detail::set_type & s
         = void_cast_detail::void_caster_registry::get_mutable_instance();
@@ -270,8 +274,12 @@ void_caster::recursive_register(bool includes_virtual_base) const {
     }
 }
 
-BOOST_SERIALIZATION_DECL(void)
+BOOST_SERIALIZATION_DECL void
 void_caster::recursive_unregister() const {
+    // note: it's been discovered that at least one platform is not guaranteed
+    // to destroy singletons reverse order of construction.  So we can't
+    // use a runtime assert here.  Leave this in a reminder not to do this!
+    // BOOST_ASSERT(! void_caster_registry::is_destroyed());
     if(void_caster_registry::is_destroyed())
         return;
 
@@ -306,11 +314,18 @@ void_caster::recursive_unregister() const {
 
 } // namespace void_cast_detail
 
+BOOST_SYMBOL_VISIBLE void const *
+void_upcast(
+    extended_type_info const & derived,
+    extended_type_info const & base,
+    void const * const t
+);
+
 // Given a void *, assume that it really points to an instance of one type
 // and alter it so that it would point to an instance of a related type.
 // Return the altered pointer. If there exists no sequence of casts that
 // can transform from_type to to_type, return a NULL.  
-BOOST_SERIALIZATION_DECL(void const *)  
+BOOST_SERIALIZATION_DECL void const *
 void_upcast(
     extended_type_info const & derived,
     extended_type_info const & base,
@@ -333,7 +348,14 @@ void_upcast(
     return NULL;
 }
 
-BOOST_SERIALIZATION_DECL(void const *)  
+BOOST_SYMBOL_VISIBLE void const *
+void_downcast(
+    extended_type_info const & derived,
+    extended_type_info const & base,
+    void const * const t
+);
+
+BOOST_SERIALIZATION_DECL void const *
 void_downcast(
     extended_type_info const & derived,
     extended_type_info const & base,

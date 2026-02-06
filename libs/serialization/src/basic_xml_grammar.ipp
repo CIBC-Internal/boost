@@ -14,12 +14,15 @@
 
 #include <istream>
 #include <algorithm>
-#include <boost/config.hpp> // BOOST_DEDUCED_TYPENAME
+#include <boost/config.hpp> // typename
 
 #ifdef BOOST_MSVC
 #  pragma warning(push)
-#  pragma warning(disable : 4511 4512)
+#  pragma warning(disable : 4244 4511 4512)
 #endif
+
+#include <cerrno>   // errno
+#include <cstring>  // strerror(errno)
 
 // spirit stuff
 #include <boost/spirit/include/classic_operators.hpp>
@@ -31,9 +34,7 @@
 #endif
 
 // for head_iterator test
-//#include <boost/bind.hpp> 
 #include <boost/function.hpp>
-#include <boost/serialization/pfto.hpp>
 
 #include <boost/io/ios_state.hpp>
 #include <boost/serialization/throw_exception.hpp>
@@ -59,52 +60,53 @@ namespace xml { // anonymous
 
 template<class T>
 struct assign_impl {
-    T & t;
-    void operator()(const T t_) const {
-        t = t_;
+    T & m_t;
+    void operator()(const T & rhs) const {
+        m_t = rhs;
     }
-    assign_impl(T &  t_)
-        : t(t_)
+    assign_impl(T &  rhs)
+        : m_t(rhs)
     {}
 };
 
 template<>
 struct assign_impl<std::string> {
-    std::string & t;
+    std::string & m_t;
     void operator()(
         std::string::const_iterator b, 
         std::string::const_iterator e
     ) const {
-        t.resize(0);
+        m_t.resize(0);
         while(b != e){
-            t += * b;
+            m_t += * b;
             ++b;
         }
     }
-    assign_impl<std::string> & operator=(
-        assign_impl<std::string> & rhs
-    );
-    assign_impl(std::string & t_)
-        : t(t_)
+    assign_impl(const assign_impl & rhs)
+        : m_t(rhs.m_t)
+    {}
+    assign_impl & operator=(assign_impl & rhs);
+    assign_impl(std::string & rhs)
+        : m_t(rhs)
     {}
 };
 
 #ifndef BOOST_NO_STD_WSTRING
 template<>
 struct assign_impl<std::wstring> {
-    std::wstring & t;
+    std::wstring & m_t;
     void operator()(
         std::wstring::const_iterator b, 
         std::wstring::const_iterator e
     ) const {
-        t.resize(0);
+        m_t.resize(0);
         while(b != e){
-            t += * b;
+            m_t += * b;
             ++b;
         }
     }
-    assign_impl(std::wstring & t_)
-        : t(t_)
+    assign_impl(std::wstring & rhs)
+        : m_t(rhs)
     {}
 };
 #endif
@@ -146,8 +148,7 @@ template<class String>
 struct append_char {
     String & contents;
     void operator()(const unsigned int char_value) const {
-        const BOOST_DEDUCED_TYPENAME String::value_type z = char_value;
-        contents += z;
+        contents += static_cast<typename String::value_type>(char_value);
     }
     append_char(String & contents_)
         : contents(contents_)
@@ -159,7 +160,7 @@ struct append_lit {
     String & contents;
     template<class X, class Y>
     void operator()(const X & /*x*/, const Y & /*y*/) const {
-        const BOOST_DEDUCED_TYPENAME String::value_type z = c;
+        const typename String::value_type z = c;
         contents += z;
     }
     append_lit(String & contents_)
@@ -175,45 +176,49 @@ struct append_lit {
 
 template<class CharType>
 bool basic_xml_grammar<CharType>::my_parse(
-    BOOST_DEDUCED_TYPENAME basic_xml_grammar<CharType>::IStream & is,
+    typename basic_xml_grammar<CharType>::IStream & is,
     const rule_t & rule_,
     CharType delimiter
 ) const {
     if(is.fail()){
-        boost::serialization::throw_exception(
-            archive_exception(archive_exception::input_stream_error)
-        );
+        return false;
     }
     
-    boost::io::ios_flags_saver ifs(is);
     is >> std::noskipws;
 
     std::basic_string<CharType> arg;
     
-    CharType val;
-    do{
-        BOOST_DEDUCED_TYPENAME basic_xml_grammar<CharType>::IStream::int_type
-            result = is.get();
-        if(is.fail())
+    for(;;){
+        CharType result;
+        is.get(result);
+        if(is.fail()){
+            boost::serialization::throw_exception(
+                boost::archive::archive_exception(
+                    archive_exception::input_stream_error,
+                    std::strerror(errno)
+                )
+            );
+        }
+        if(is.eof())
             return false;
-        val = static_cast<CharType>(result);
-        arg += val;
+        arg += result;
+        if(result == delimiter)
+            break;
     }
-    while(val != delimiter);
-    
+
     // read just one more character.  This will be the newline after the tag
     // this is so that the next operation will return fail if the archive
     // is terminated.  This will permit the archive to be used for debug
     // and transaction data logging in the standard way.
     
-    parse_info<BOOST_DEDUCED_TYPENAME std::basic_string<CharType>::iterator> 
+    parse_info<typename std::basic_string<CharType>::iterator> 
         result = boost::spirit::classic::parse(arg.begin(), arg.end(), rule_);
     return result.hit;
 }
 
 template<class CharType>
 bool basic_xml_grammar<CharType>::parse_start_tag(
-    BOOST_DEDUCED_TYPENAME basic_xml_grammar<CharType>::IStream & is
+    typename basic_xml_grammar<CharType>::IStream & is
 ){
     rv.class_name.resize(0);
     return my_parse(is, STag);
@@ -230,7 +235,7 @@ bool basic_xml_grammar<CharType>::parse_string(IStream & is, StringType & s){
     bool result = my_parse(is, content, '<');
     // note: unget caused a problem with dinkumware.  replace with
  // is.unget();
-    // putback another dilimiter instead
+    // putback another delimiter instead
     is.putback('<');
     if(result)
         s = rv.contents;
@@ -283,7 +288,7 @@ basic_xml_grammar<CharType>::basic_xml_grammar(){
         CharDataChars [
             xml::append_string<
                 StringType, 
-                BOOST_DEDUCED_TYPENAME std::basic_string<CharType>::const_iterator
+                typename std::basic_string<CharType>::const_iterator
             >(rv.contents)
         ]
     ;
@@ -456,12 +461,8 @@ void basic_xml_grammar<CharType>::init(IStream & is){
 }
 
 template<class CharType>
-void basic_xml_grammar<CharType>::windup(IStream & is){
-    if(is.fail() || is.eof())
-        return;
-    // uh-oh - don't throw exception from code called by a destructor !
-    // so just ignore any failure.
-    my_parse(is, ETag);
+bool basic_xml_grammar<CharType>::windup(IStream & is) {
+    return my_parse(is, ETag);
 }
 
 } // namespace archive

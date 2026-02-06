@@ -38,23 +38,19 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
 
    if(x < 0)
    {
-      return policies::raise_domain_error<T>(function,
-         "Argument x must be >= 0, but got %1%", x, pol);
+      return policies::raise_domain_error<T>(function, "Argument x must be >= 0, but got %1%", x, pol);
    }
    if(y < 0)
    {
-      return policies::raise_domain_error<T>(function,
-         "Argument y must be >= 0, but got %1%", y, pol);
+      return policies::raise_domain_error<T>(function, "Argument y must be >= 0, but got %1%", y, pol);
    }
    if(z <= 0)
    {
-      return policies::raise_domain_error<T>(function,
-         "Argument z must be > 0, but got %1%", z, pol);
+      return policies::raise_domain_error<T>(function, "Argument z must be > 0, but got %1%", z, pol);
    }
    if(x + y == 0)
    {
-      return policies::raise_domain_error<T>(function,
-         "At most one argument can be zero, but got, x + y = %1%", x + y, pol);
+      return policies::raise_domain_error<T>(function, "At most one argument can be zero, but got, x + y = %1%", x + y, pol);
    }
    //
    // Special cases from http://dlmf.nist.gov/19.20#iv
@@ -74,14 +70,14 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
       }
       else
       {
-         if((std::min)(x, y) / (std::max)(x, y) > 1.3)
+         if((std::max)(x, y) / (std::min)(x, y) > T(1.3))
             return 3 * (ellint_rc_imp(x, y, pol) - sqrt(x) / y) / (2 * (y - x));
          // Otherwise fall through to avoid cancellation in the above (RC(x,y) -> 1/x^0.5 as x -> y)
       }
    }
    if(x == y)
    {
-      if((std::min)(x, z) / (std::max)(x, z) > 1.3)
+      if((std::max)(x, z) / (std::min)(x, z) > T(1.3))
          return 3 * (ellint_rc_imp(z, x, pol) - 1 / sqrt(z)) / (z - x);
       // Otherwise fall through to avoid cancellation in the above (RC(x,y) -> 1/x^0.5 as x -> y)
    }
@@ -100,7 +96,7 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
       T sum = 0;
       T sum_pow = 0.25f;
 
-      while(fabs(xn - yn) >= 2.7 * tools::root_epsilon<T>() * fabs(xn))
+      while(fabs(xn - yn) >= T(2.7) * tools::root_epsilon<T>() * fabs(xn))
       {
          T t = sqrt(xn * yn);
          xn = (xn + yn) / 2;
@@ -119,7 +115,7 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
       //
       T pt = (x0 + 3 * y0) / (4 * z * (x0 + y0));
       //
-      // Since we've moved the demoninator from eq.47 inside the expression, we
+      // Since we've moved the denominator from eq.47 inside the expression, we
       // need to also scale "sum" by the same value:
       //
       pt -= sum / (z * (y - z));
@@ -133,6 +129,7 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
    T A0 = An;
    // This has an extra 1.2 fudge factor which is really only needed when x, y and z are close in magnitude:
    T Q = pow(tools::epsilon<T>() / 4, -T(1) / 8) * (std::max)((std::max)(An - x, An - y), An - z) * 1.2f;
+   BOOST_MATH_INSTRUMENT_VARIABLE(Q);
    T lambda, rx, ry, rz;
    unsigned k = 0;
    T fn = 1;
@@ -151,6 +148,9 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
       zn = (zn + lambda) / 4;
       fn /= 4;
       Q /= 4;
+      BOOST_MATH_INSTRUMENT_VARIABLE(k);
+      BOOST_MATH_INSTRUMENT_VARIABLE(RD_sum);
+      BOOST_MATH_INSTRUMENT_VARIABLE(Q);
       if(Q < An)
          break;
    }
@@ -168,6 +168,7 @@ T ellint_rd_imp(T x, T y, T z, const Policy& pol)
    T result = fn * pow(An, T(-3) / 2) *
       (1 - 3 * E2 / 14 + E3 / 6 + 9 * E2 * E2 / 88 - 3 * E4 / 22 - 9 * E2 * E3 / 52 + 3 * E5 / 26 - E2 * E2 * E2 / 16
       + 3 * E3 * E3 / 40 + 3 * E2 * E4 / 20 + 45 * E2 * E2 * E3 / 272 - 9 * (E3 * E4 + E2 * E5) / 68);
+   BOOST_MATH_INSTRUMENT_VARIABLE(result);
    result += 3 * RD_sum;
 
    return result;

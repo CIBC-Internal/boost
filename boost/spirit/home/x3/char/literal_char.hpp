@@ -7,10 +7,6 @@
 #if !defined(BOOST_SPIRIT_X3_LITERAL_CHAR_APRIL_16_2006_1051AM)
 #define BOOST_SPIRIT_X3_LITERAL_CHAR_APRIL_16_2006_1051AM
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #include <boost/spirit/home/x3/char/char_parser.hpp>
 #include <boost/spirit/home/x3/support/utility/utf8.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -27,14 +23,13 @@ namespace boost { namespace spirit { namespace x3
             !is_same<unused_type, attribute_type>::value;
 
         template <typename Char>
-        literal_char(Char ch)
+        constexpr literal_char(Char ch)
           : ch(static_cast<char_type>(ch)) {}
 
         template <typename Char, typename Context>
-        bool test(Char ch_, Context const&) const
+        bool test(Char ch_, Context const& context) const
         {
-            return ((sizeof(Char) <= sizeof(char_type)) || encoding::ischar(ch_))
-                && ch == char_type(ch_);
+            return get_case_compare<encoding>(context)(ch, char_type(ch_)) == 0;
         }
 
         char_type ch;

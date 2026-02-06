@@ -31,16 +31,16 @@ template<class ManagedSharedMemory
 int set_test ()
 {
    typedef typename MyShmSet::value_type IntType;
-   const int memsize = 65536;
+   const int Memsize = 128u * 1024u;
    const char *const shMemName = test::get_process_id_name();
    const int max = 100;
 
-   try{
+   BOOST_TRY{
       //Create shared memory
       shared_memory_object::remove(shMemName);
-      ManagedSharedMemory segment(create_only, shMemName, memsize);
+      ManagedSharedMemory segment(create_only, shMemName, Memsize);
 
-      segment.reserve_named_objects(100);
+      segment.reserve_named_objects(10);
 
       //Shared memory allocator must be always be initialized
       //since it has no default constructor
@@ -462,6 +462,8 @@ int set_test ()
       shmset->clear();
       shmmultiset->clear();
 
+      typedef typename MyShmMultiSet::size_type set_size_type;
+
       for(int j = 0; j < 3; ++j)
       for(int i = 0; i < 100; ++i){
          IntType move_me(i);
@@ -469,11 +471,11 @@ int set_test ()
          IntType move_me2(i);
          shmmultiset->insert(boost::move(move_me2));
          IntType count_me(i);
-         if(shmset->count(count_me) != typename MyShmMultiSet::size_type(1)){
+         if(shmset->count(count_me) != set_size_type(1u)){
             std::cout << "Error in shmset->count(count_me)" << std::endl;
             return 1;
          }
-         if(shmmultiset->count(count_me) != typename MyShmMultiSet::size_type(j+1)){
+         if(shmmultiset->count(count_me) != set_size_type(j)+1u){
             std::cout << "Error in shmmultiset->count(count_me)" << std::endl;
             return 1;
          }
@@ -490,10 +492,10 @@ int set_test ()
          return 1;
       }
    }
-   catch(...){
+   BOOST_CATCH(...){
       shared_memory_object::remove(shMemName);
-      throw;
-   }
+      BOOST_RETHROW
+   } BOOST_CATCH_END
    shared_memory_object::remove(shMemName);
    return 0;
 }
@@ -506,16 +508,16 @@ template<class ManagedSharedMemory
 int set_test_copyable ()
 {
    typedef typename MyShmSet::value_type IntType;
-   const int memsize = 65536;
+   const int Memsize = 128u * 1024u;
    const char *const shMemName = test::get_process_id_name();
    const int max = 100;
 
-   try{
+   BOOST_TRY{
       //Create shared memory
       shared_memory_object::remove(shMemName);
-      ManagedSharedMemory segment(create_only, shMemName, memsize);
+      ManagedSharedMemory segment(create_only, shMemName, Memsize);
 
-      segment.reserve_named_objects(100);
+      segment.reserve_named_objects(10);
 
       //Shared memory allocator must be always be initialized
       //since it has no default constructor
@@ -571,14 +573,16 @@ int set_test_copyable ()
       }
       segment.destroy_ptr(shmset);
       segment.destroy_ptr(shmmultiset);
+      delete stdset;
+      delete stdmultiset;
       segment.shrink_to_fit_indexes();
       if(!segment.all_memory_deallocated())
          return 1;
    }
-   catch(...){
+   BOOST_CATCH(...){
       shared_memory_object::remove(shMemName);
-      throw;
-   }
+      BOOST_RETHROW
+   } BOOST_CATCH_END
    shared_memory_object::remove(shMemName);
    return 0;
 }

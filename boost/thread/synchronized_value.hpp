@@ -17,8 +17,8 @@
 #include <boost/thread/lock_algorithms.hpp>
 #include <boost/thread/lock_factories.hpp>
 #include <boost/thread/strict_lock.hpp>
-#include <boost/core/swap.hpp>
-#include <boost/utility/declval.hpp>
+#include <boost/core/invoke_swap.hpp>
+#include <boost/type_traits/declval.hpp>
 //#include <boost/type_traits.hpp>
 //#include <boost/thread/detail/is_nothrow_default_constructible.hpp>
 //#if ! defined BOOST_NO_CXX11_HDR_TYPE_TRAITS
@@ -582,7 +582,7 @@ namespace boost
       unique_lock<mutex_type> lk1(mtx_, defer_lock);
       unique_lock<mutex_type> lk2(rhs.mtx_, defer_lock);
       lock(lk1,lk2);
-      boost::swap(value_, rhs.value_);
+      boost::core::invoke_swap(value_, rhs.value_);
     }
     /**
      * Swap with the underlying value type
@@ -592,7 +592,7 @@ namespace boost
     void swap(value_type & rhs)
     {
       strict_lock<mutex_type> lk(mtx_);
-      boost::swap(value_, rhs);
+      boost::core::invoke_swap(value_, rhs);
     }
 
     /**
@@ -827,7 +827,7 @@ namespace boost
      * @effects loads the value type from the input stream @c is.
      */
     template <typename IStream>
-    void load(IStream& is) const
+    void load(IStream& is)
     {
       strict_lock<mutex_type> lk(mtx_);
       is >> value_;
@@ -971,22 +971,22 @@ namespace boost
   template <typename T, typename L>
   bool operator<(T const& lhs, synchronized_value<T,L> const&rhs)
   {
-    return rhs>=lhs;
+    return rhs>lhs;
   }
   template <typename T, typename L>
   bool operator<=(T const& lhs, synchronized_value<T,L> const&rhs)
   {
-    return rhs>lhs;
+    return rhs>=lhs;
   }
   template <typename T, typename L>
   bool operator>(T const& lhs, synchronized_value<T,L> const&rhs)
   {
-    return rhs<=lhs;
+    return rhs<lhs;
   }
   template <typename T, typename L>
   bool operator>=(T const& lhs, synchronized_value<T,L> const&rhs)
   {
-    return rhs<lhs;
+    return rhs<=lhs;
   }
 
   /**
@@ -999,7 +999,7 @@ namespace boost
     return os;
   }
   template <typename IStream, typename T, typename L>
-  inline IStream& operator>>(IStream& is, synchronized_value<T,L> const& rhs)
+  inline IStream& operator>>(IStream& is, synchronized_value<T,L>& rhs)
   {
     rhs.load(is);
     return is;

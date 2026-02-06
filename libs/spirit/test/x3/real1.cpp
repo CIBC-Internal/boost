@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
     Copyright (c) 2001-2011 Hartmut Kaiser
     Copyright (c) 2011      Bryce Lelbach
 
@@ -44,8 +44,10 @@ main()
         using boost::spirit::x3::parse;
         using boost::spirit::x3::ureal_policies;
 
-        real_parser<double, ureal_policies<double> > udouble;
+        constexpr real_parser<double, ureal_policies<double> > udouble;
         double d;
+
+        BOOST_SPIRIT_ASSERT_CONSTEXPR_CTORS(udouble);
 
         BOOST_TEST(test("1234", udouble));
         BOOST_TEST(test_attr("1234", udouble, d) && compare(d, 1234));
@@ -71,33 +73,32 @@ main()
         BOOST_TEST(test("2", udouble));
         BOOST_TEST(test_attr("2", udouble, d) && compare(d, 2));
 
-        using boost::math::fpclassify;
         BOOST_TEST(test("inf", udouble));
         BOOST_TEST(test("infinity", udouble));
         BOOST_TEST(test("INF", udouble));
         BOOST_TEST(test("INFINITY", udouble));
 
         BOOST_TEST(test_attr("inf", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && std::isinf(d));
         BOOST_TEST(test_attr("INF", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && std::isinf(d));
         BOOST_TEST(test_attr("infinity", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && std::isinf(d));
         BOOST_TEST(test_attr("INFINITY", udouble, d)
-                && FP_INFINITE == fpclassify(d));
+                && std::isinf(d));
 
         BOOST_TEST(test("nan", udouble));
         BOOST_TEST(test_attr("nan", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && std::isnan(d));
         BOOST_TEST(test("NAN", udouble));
         BOOST_TEST(test_attr("NAN", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && std::isnan(d));
         BOOST_TEST(test("nan(...)", udouble));
         BOOST_TEST(test_attr("nan(...)", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && std::isnan(d));
         BOOST_TEST(test("NAN(...)", udouble));
         BOOST_TEST(test_attr("NAN(...)", udouble, d)
-                && FP_NAN == fpclassify(d));
+                && std::isnan(d));
 
         BOOST_TEST(!test("e3", udouble));
         BOOST_TEST(!test_attr("e3", udouble, d));

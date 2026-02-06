@@ -18,9 +18,11 @@
 #include <cstddef>
 #include <utility>
 #include <iterator>
-#include <boost/mpl/if.hpp>
 #include <boost/move/core.hpp>
+#include <boost/core/enable_if.hpp>
+#include <boost/type_traits/conditional.hpp>
 #include <boost/log/detail/config.hpp>
+#include <boost/log/detail/sfinae_tools.hpp>
 #include <boost/log/attributes/attribute_name.hpp>
 #include <boost/log/attributes/attribute.hpp>
 #include <boost/log/detail/header.hpp>
@@ -60,9 +62,16 @@ public:
     }
 
     //! Conversion operator (would be invoked in case of reading from the container)
-    operator mapped_type() const BOOST_NOEXCEPT;
+    BOOST_FORCEINLINE operator mapped_type() const BOOST_NOEXCEPT
+    {
+        return read_mapped_value();
+    }
     //! Assignment operator (would be invoked in case of writing to the container)
     mapped_type& operator= (mapped_type const& val) const;
+
+private:
+    //! Reads the referenced mapped value from the container
+    mapped_type read_mapped_value() const BOOST_NOEXCEPT;
 };
 
 } // namespace aux
@@ -150,12 +159,12 @@ private:
         //  Standard typedefs
         typedef attribute_set::difference_type difference_type;
         typedef attribute_set::value_type value_type;
-        typedef typename mpl::if_c<
+        typedef typename boost::conditional<
             fConstV,
             attribute_set::const_reference,
             attribute_set::reference
         >::type reference;
-        typedef typename mpl::if_c<
+        typedef typename boost::conditional<
             fConstV,
             attribute_set::const_pointer,
             attribute_set::pointer
@@ -164,23 +173,32 @@ private:
 
     public:
         //  Constructors
-        BOOST_CONSTEXPR iter() : m_pNode(NULL) {}
+        BOOST_CONSTEXPR iter() BOOST_NOEXCEPT : m_pNode(NULL) {}
         explicit iter(node_base* pNode) BOOST_NOEXCEPT : m_pNode(pNode) {}
-        iter(iter< false > const& that) BOOST_NOEXCEPT : m_pNode(that.m_pNode) {}
+#if !defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS)
+        template< bool fOtherConstV, typename = typename boost::enable_if_c< !fOtherConstV && fOtherConstV != fConstV >::type >
+        iter(iter< fOtherConstV > const& that) BOOST_NOEXCEPT : m_pNode(that.m_pNode) {}
+#else
+        template< bool fOtherConstV >
+        iter(iter< fOtherConstV > const& that, typename boost::enable_if_c< !fOtherConstV && fOtherConstV != fConstV, boost::log::aux::sfinae_dummy >::type = boost::log::aux::sfinae_dummy()) BOOST_NOEXCEPT :
+            m_pNode(that.m_pNode)
+        {
+        }
+#endif
 
         //! Assignment
-        template< bool f >
-        iter& operator= (iter< f > const& that) BOOST_NOEXCEPT
+        template< bool fOtherConstV >
+        typename boost::enable_if_c< !fOtherConstV && fOtherConstV != fConstV, iter& >::type operator= (iter< fOtherConstV > const& that) BOOST_NOEXCEPT
         {
             m_pNode = that.m_pNode;
             return *this;
         }
 
         //  Comparison
-        template< bool f >
-        bool operator== (iter< f > const& that) const BOOST_NOEXCEPT { return (m_pNode == that.m_pNode); }
-        template< bool f >
-        bool operator!= (iter< f > const& that) const BOOST_NOEXCEPT { return (m_pNode != that.m_pNode); }
+        template< bool fOtherConstV >
+        typename boost::enable_if_c< !fOtherConstV || fOtherConstV == fConstV, bool >::type operator== (iter< fOtherConstV > const& that) const BOOST_NOEXCEPT { return (m_pNode == that.m_pNode); }
+        template< bool fOtherConstV >
+        typename boost::enable_if_c< !fOtherConstV || fOtherConstV == fConstV, bool >::type operator!= (iter< fOtherConstV > const& that) const BOOST_NOEXCEPT { return (m_pNode != that.m_pNode); }
 
         //  Modification
         iter& operator++ () BOOST_NOEXCEPT
@@ -468,8 +486,8 @@ inline void swap(attribute_set& left, attribute_set& right) BOOST_NOEXCEPT
 
 namespace aux {
 
-//! Conversion operator (would be invoked in case of reading from the container)
-inline attribute_set_reference_proxy::operator mapped_type() const BOOST_NOEXCEPT
+//! Reads the referenced mapped value from the container
+inline attribute_set_reference_proxy::mapped_type attribute_set_reference_proxy::read_mapped_value() const BOOST_NOEXCEPT
 {
     attribute_set::iterator it = m_pContainer->find(m_key);
     if (it != m_pContainer->end())

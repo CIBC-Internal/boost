@@ -22,7 +22,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/preprocessor/comma_if.hpp>
-#include <boost/preprocessor/facilities/is_empty.hpp>
+#include <boost/preprocessor/facilities/empty.hpp>
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
 #include <boost/preprocessor/seq/size.hpp>
@@ -62,11 +62,10 @@
               ~,                                                                \
               ATTRIBUTES_SEQ)                                                   \
 
-#define BOOST_FUSION_IGNORE_1(ARG1)
 #define BOOST_FUSION_IGNORE_2(ARG1, ARG2)
 
 #define BOOST_FUSION_MAKE_COPY_CONSTRUCTOR(NAME, ATTRIBUTES_SEQ)                \
-    BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED                                    \
+    BOOST_FUSION_GPU_ENABLED                                                    \
     NAME(BOOST_PP_SEQ_FOR_EACH_I(                                               \
             BOOST_FUSION_MAKE_CONST_REF_PARAM,                                  \
             ~,                                                                  \
@@ -327,6 +326,9 @@
 #define BOOST_FUSION_DEFINE_STRUCT_INLINE_ITERATOR_IMPL_IMPL(                   \
     NAME, ATTRIBUTES_SEQ, ATTRIBUTES_SEQ_SIZE)                                  \
                                                                                 \
+    BOOST_FUSION_PUSH_WARNINGS                                                  \
+    BOOST_FUSION_DISABLE_MSVC_WARNING(4512)                                     \
+                                                                                \
     template <typename boost_fusion_detail_Seq, int N>                          \
     struct BOOST_FUSION_ITERATOR_NAME(NAME)                                     \
         : boost::fusion::iterator_facade<                                       \
@@ -337,7 +339,7 @@
         typedef boost::mpl::int_<N> index;                                      \
         typedef boost_fusion_detail_Seq sequence_type;                          \
                                                                                 \
-        BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED                                \
+        BOOST_FUSION_GPU_ENABLED                                                \
         BOOST_FUSION_ITERATOR_NAME(NAME)(boost_fusion_detail_Seq& seq)          \
             : seq_(seq)                                                         \
               BOOST_FUSION_DEFINE_ITERATOR_WKND_INIT_LIST_ENTRIES(              \
@@ -419,23 +421,19 @@
                 return type(it.seq_);                                           \
             }                                                                   \
         };                                                                      \
-    };
+    };                                                                          \
+                                                                                \
+    BOOST_FUSION_POP_WARNINGS                                                   \
+    /**/
 
 
 #define BOOST_FUSION_DEFINE_STRUCT_INLINE_MEMBERS_IMPL_IMPL(                    \
     NAME, ATTRIBUTES_SEQ, ATTRIBUTES_SEQ_SIZE)                                  \
                                                                                 \
-    /* Note: second BOOST_PP_IF is necessary to avoid MSVC warning when */      \
-    /*       calling BOOST_FUSION_IGNORE_1 with no arguments.           */      \
     NAME()                                                                      \
-        BOOST_PP_IF(                                                            \
-            ATTRIBUTES_SEQ_SIZE,                                                \
+        BOOST_PP_IF(ATTRIBUTES_SEQ_SIZE,                                        \
             BOOST_FUSION_MAKE_DEFAULT_INIT_LIST,                                \
-            BOOST_FUSION_IGNORE_1)                                              \
-                (BOOST_PP_IF(                                                   \
-                    ATTRIBUTES_SEQ_SIZE,                                        \
-                    ATTRIBUTES_SEQ,                                             \
-                    0))                                                         \
+            BOOST_PP_EMPTY)(ATTRIBUTES_SEQ)                                     \
     {                                                                           \
     }                                                                           \
                                                                                 \

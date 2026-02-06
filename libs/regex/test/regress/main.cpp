@@ -19,6 +19,8 @@
 #include "test.hpp"
 #include "test_locale.hpp"
 #include <stdarg.h>
+#include <iostream>
+#include <iomanip>
 
 #ifdef BOOST_HAS_ICU
 #include <unicode/uloc.h>
@@ -82,6 +84,7 @@ void run_tests()
    RUN_TESTS(test_pocessive_repeats);
    RUN_TESTS(test_mark_resets);
    RUN_TESTS(test_recursion);
+   RUN_TESTS(test_verbs);
 }
 
 int cpp_main(int /*argc*/, char * /*argv*/[])
@@ -136,10 +139,10 @@ int cpp_main(int /*argc*/, char * /*argv*/[])
 
 int* get_array_data()
 {
-   static boost::thread_specific_ptr<boost::array<int, 200> > tp;
+   static boost::thread_specific_ptr<boost::array<int, 800> > tp;
 
    if(tp.get() == 0)
-      tp.reset(new boost::array<int, 200>);
+      tp.reset(new boost::array<int, 800>);
 
    return tp.get()->data();
 }
@@ -157,8 +160,9 @@ const int* make_array(int first, ...)
 #ifdef TEST_THREADS
    int* data = get_array_data();
 #else
-   static int data[200];
+   static int data[800];
 #endif
+   std::fill_n(data, 800, -2);
    va_list ap;
    va_start(ap, first);
    //
@@ -197,21 +201,6 @@ void test(const char& c, const test_invalid_regex_tag& tag)
    do_test(c, tag);
 }
 
-#ifndef BOOST_NO_WREGEX
-void test(const wchar_t& c, const test_regex_replace_tag& tag)
-{
-   do_test(c, tag);
-}
-void test(const wchar_t& c, const test_regex_search_tag& tag)
-{
-   do_test(c, tag);
-}
-void test(const wchar_t& c, const test_invalid_regex_tag& tag)
-{
-   do_test(c, tag);
-}
-#endif
-
 #ifdef BOOST_NO_EXCEPTIONS
 namespace boost{
 
@@ -228,8 +217,15 @@ int main(int argc, char * argv[])
    return cpp_main(argc, argv);
 }
 
+#elif defined(BOOST_REGEX_STANDALONE)
+
+int main(int argc, char* argv[])
+{
+   return cpp_main(argc, argv);
+}
+
 #else
 
-#include <boost/test/included/prg_exec_monitor.hpp>
+#include <boost/detail/lightweight_main.hpp>
 
 #endif

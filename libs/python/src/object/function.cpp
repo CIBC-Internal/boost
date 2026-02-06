@@ -21,7 +21,7 @@
 #include <boost/python/detail/none.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <algorithm>
 #include <cstring>
@@ -107,7 +107,7 @@ function::function(
     PyObject* p = this;
     if (Py_TYPE(&function_type) == 0)
     {
-        Py_TYPE(&function_type) = &PyType_Type;
+        Py_SET_TYPE(&function_type, &PyType_Type);
         ::PyType_Ready(&function_type);
     }
     
@@ -157,11 +157,6 @@ PyObject* function::call(PyObject* args, PyObject* keywords) const
                     if (PyTuple_Size(f->m_arg_names.ptr()) == 0)
                     {
                         // no argument preprocessing
-                    }
-                    else if (n_actual > max_arity)
-                    {
-                        // too many arguments
-                        inner_args = handle<>();
                     }
                     else
                     {
@@ -449,7 +444,9 @@ void function::add_to_namespace(
         if (dict == 0)
             throw_error_already_set();
 
+        assert(!PyErr_Occurred());
         handle<> existing(allow_null(::PyObject_GetItem(dict.get(), name.ptr())));
+        PyErr_Clear();
         
         if (existing)
         {
@@ -490,16 +487,15 @@ void function::add_to_namespace(
         if (new_func->name().is_none())
             new_func->m_name = name;
 
+        assert(!PyErr_Occurred());
         handle<> name_space_name(
             allow_null(::PyObject_GetAttrString(name_space.ptr(), const_cast<char*>("__name__"))));
+        PyErr_Clear();
         
         if (name_space_name)
             new_func->m_namespace = object(name_space_name);
     }
 
-    // The PyObject_GetAttrString() or PyObject_GetItem calls above may
-    // have left an active error
-    PyErr_Clear();
     if (PyObject_SetAttr(ns, name.ptr(), attribute.ptr()) < 0)
         throw_error_already_set();
 

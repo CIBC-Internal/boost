@@ -19,10 +19,10 @@
 #ifndef BOOST_NUMERIC_ODEINT_EXTERNAL_OPENMP_OPENMP_RANGE_ALGEBRA_HPP_INCLUDED
 #define BOOST_NUMERIC_ODEINT_EXTERNAL_OPENMP_OPENMP_RANGE_ALGEBRA_HPP_INCLUDED
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/numeric/odeint/algebra/norm_result_type.hpp>
 #include <boost/numeric/odeint/util/n_ary_helper.hpp>
+#include <boost/numeric/odeint/tools/assert.hpp>
 
 namespace boost {
 namespace numeric {
@@ -38,7 +38,7 @@ struct openmp_range_algebra
 #if __cplusplus >= 201103L // C++11 supports _Pragma
 
 #define BOOST_ODEINT_GEN_LOCAL(z, n, unused) \
-    BOOST_ASSERT_MSG( len == boost::size(s ## n), "All state ranges must have the same size." ); \
+    BOOST_NUMERIC_ODEINT_ASSERT_MSG( len == boost::size(s ## n), "All state ranges must have the same size." ); \
     typename boost::range_iterator<S ## n>::type beg ## n = boost::begin(s ## n);
 #define BOOST_ODEINT_GEN_BODY(n) \
     const size_t len = boost::size(s0); \
@@ -259,7 +259,7 @@ BOOST_ODEINT_GEN_FOR_EACH(BOOST_ODEINT_GEN_BODY)
         typedef typename norm_result_type< S >::type result_type;
         result_type init = static_cast< result_type >( 0 );
         const size_t len = boost::size(s);
-        typename boost::range_iterator<S>::type beg = boost::begin(s);
+        typename boost::range_iterator<const S>::type beg = boost::begin(s);
 #       pragma omp parallel for reduction(max: init) schedule(dynamic)
         for( size_t i = 0 ; i < len ; ++i )
             init = max( init , abs( beg[i] ) );

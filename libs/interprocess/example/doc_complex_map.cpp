@@ -7,7 +7,7 @@
 // See http://www.boost.org/libs/interprocess for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <boost/interprocess/detail/config_begin.hpp>
+
 #include <boost/interprocess/detail/workaround.hpp>
 //[doc_complex_map
 #include <boost/interprocess/managed_shared_memory.hpp>
@@ -44,6 +44,11 @@ class complex_data
       : id_(id), char_string_(name, void_alloc), int_vector_vector_(void_alloc)
    {}
    //Other members...
+   //<-
+   int get_id() { return id_; };
+   char_string get_char_string() { return char_string_; };
+   int_vector_vector get_int_vector_vector() { return int_vector_vector_; };
+   //->
 };
 
 //Definition of the map holding a string as key and complex_data as mapped type
@@ -104,4 +109,4 @@ int main ()
    return 0;
 }
 //]
-#include <boost/interprocess/detail/config_end.hpp>
+

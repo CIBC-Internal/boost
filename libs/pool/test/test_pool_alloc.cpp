@@ -6,6 +6,7 @@
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#include "random_shuffle.hpp"
 #include <boost/pool/pool_alloc.hpp>
 #include <boost/pool/object_pool.hpp>
 
@@ -137,7 +138,7 @@ void test()
         {
             v.push_back(pool.construct());
         }
-        std::random_shuffle(v.begin(), v.end());
+        pool_test_random_shuffle(v.begin(), v.end());
         for(int j=0; j < 5; ++j)
         {
             pool.destroy(v[j]);
@@ -260,6 +261,34 @@ void test_mem_usage()
 
         // pool's destructor should purge the memory
         //  This will clean up the memory leak from (*B*)
+    }
+
+    {
+        pool_type pool(sizeof(int), 2);
+        void * ptr_0 = pool.malloc();
+        void * ptr_1 = pool.malloc();
+        void * ptr_2 = pool.malloc();
+        void * ptr_3 = pool.malloc();
+        pool.ordered_free(ptr_2);
+        pool.ordered_free(ptr_3);
+        BOOST_TEST(pool.release_memory());
+        pool.ordered_free(ptr_0);
+        pool.ordered_free(ptr_1);
+        BOOST_TEST(pool.release_memory());
+    }
+
+    {
+        pool_type pool(sizeof(int), 2);
+        void * ptr_0 = pool.malloc();
+        void * ptr_1 = pool.malloc();
+        void * ptr_2 = pool.malloc();
+        void * ptr_3 = pool.malloc();
+        pool.ordered_free(ptr_0);
+        pool.ordered_free(ptr_1);
+        BOOST_TEST(pool.release_memory());
+        pool.ordered_free(ptr_2);
+        pool.ordered_free(ptr_3);
+        BOOST_TEST(pool.release_memory());
     }
 
     BOOST_TEST(track_alloc::ok());

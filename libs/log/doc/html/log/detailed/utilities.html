@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Utilities</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Boost.Log v2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Boost.Log v2">
 <link rel="up" href="../detailed.html" title="Detailed features description">
 <link rel="prev" href="attributes.html" title="Attributes">
 <link rel="next" href="../extension.html" title="Extending the library">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr><td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td></tr></table>
@@ -21,8 +22,6 @@
 </h3></div></div></div>
 <div class="toc"><dl class="toc">
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.string_literal">String literals</a></span></dt>
-<dt><span class="section"><a href="utilities.html#log.detailed.utilities.type_info_wrapper">Type information
-        wrapper</a></span></dt>
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.type_dispatch">Type dispatchers</a></span></dt>
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.predef_types">Predefined type
         sequences</a></span></dt>
@@ -32,6 +31,8 @@
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.exception_handlers">Exception
         handlers</a></span></dt>
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators">Output manipulators</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.ipc">Interprocess communication
+        tools</a></span></dt>
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.setup">Simplified library initialization
         tools</a></span></dt>
 </dl></div>
@@ -39,7 +40,7 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="log.detailed.utilities.string_literal"></a><a class="link" href="utilities.html#log.detailed.utilities.string_literal" title="String literals">String literals</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.string_literal_hpp" title="Header &lt;boost/log/utility/string_literal.hpp&gt;">boost/log/utility/string_literal.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.string__literal_8hpp" title="Header &lt;boost/log/utility/string_literal.hpp&gt;">boost/log/utility/string_literal.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           String literals are used in several places throughout the library. However,
@@ -51,245 +52,28 @@
           safety when using string literals instead of regular strings.
         </p>
 <p>
-          The functionality is implemented in the [class_log_basic_string_literal]
+          The functionality is implemented in the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__string__literal.html" title="Class template basic_string_literal">basic_string_literal</a></code>
           class template, which is parametrized with the character and character
           traits, similar to <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">basic_string</span></code>.
           There are also two convenience typedefs provided: <code class="computeroutput"><span class="identifier">string_literal</span></code>
           and <code class="computeroutput"><span class="identifier">wstring_literal</span></code>, for
           narrow and wide character types, respectively. In order to ease string
           literal construction in generic code there is also a <code class="computeroutput"><span class="identifier">str_literal</span></code>
-          function template that accepts a string literal and returns a [class_log_basic_string_literal]
+          function template that accepts a string literal and returns a <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__string__literal.html" title="Class template basic_string_literal">basic_string_literal</a></code>
           instance for the appropriate character type.
         </p>
 <p>
-          String literals support interface similar to STL strings, except for string
-          modification functions. However, it is possible to assign to or clear string
-          literals, as long as only string literals involved. Relational and stream
-          output operators are also supported.
-        </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="log.detailed.utilities.type_info_wrapper"></a><a class="link" href="utilities.html#log.detailed.utilities.type_info_wrapper" title="Type information wrapper">Type information
-        wrapper</a>
-</h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.type_info_wrapper_hpp" title="Header &lt;boost/log/utility/type_info_wrapper.hpp&gt;">boost/log/utility/type_info_wrapper.hpp</a></code><span class="special">&gt;</span>
-</pre>
-<p>
-          The language support for run time type information is essential for the
-          library. But partially because of limitations that the C++ Standard imposes
-          on this feature, partially because of differences of implementation of
-          different compilers, there was a need for a lightweight wrapper around
-          the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">type_info</span></code> class to fill the gaps. The
-          table below briefly shows the differences between the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">type_info</span></code>
-          and <code class="computeroutput"><a class="link" href="../../boost/log/type_info_wrapper.html" title="Class type_info_wrapper">type_info_wrapper</a></code>
-          classes.
-        </p>
-<div class="table">
-<a name="log.detailed.utilities.type_info_wrapper.type_information_classes_comparison"></a><p class="title"><b>Table&#160;1.6.&#160;Type information classes comparison</b></p>
-<div class="table-contents"><table class="table" summary="Type information classes comparison">
-<colgroup>
-<col>
-<col>
-<col>
-</colgroup>
-<thead><tr>
-<th>
-                  <p>
-                    Feature
-                  </p>
-                </th>
-<th>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">type_info</span></code>
-                  </p>
-                </th>
-<th>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">type_info_wrapper</span></code>
-                  </p>
-                </th>
-</tr></thead>
-<tbody>
-<tr>
-<td>
-                  <p>
-                    Is default-constructable
-                  </p>
-                </td>
-<td>
-                  <p>
-                    No
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes. The default-constructed wrapper is in an empty state.
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Is copy-constructable
-                  </p>
-                </td>
-<td>
-                  <p>
-                    No
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Is assignable
-                  </p>
-                </td>
-<td>
-                  <p>
-                    No
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Is swappable
-                  </p>
-                </td>
-<td>
-                  <p>
-                    No
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Life time duration
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Static, until the application terminates
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Dynamic
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Has an empty state
-                  </p>
-                </td>
-<td>
-                  <p>
-                    No
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes. In empty state the type info wrapper is never equal to other
-                    non-empty type info wrappers. It is equal to other empty type
-                    info wrappers and can be ordered with them.
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Supports equality comparison
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Supports ordering
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes, partial ordering with the <code class="computeroutput"><span class="identifier">before</span></code>
-                    method.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes, partial ordering with the complete set of comparison operators.
-                    The semantics of ordering is similar to the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">type_info</span><span class="special">::</span><span class="identifier">before</span></code>
-                    method.
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    Supports printable representation of type
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes, with the <code class="computeroutput"><span class="identifier">name</span></code>
-                    function.
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Yes, with <code class="computeroutput"><span class="identifier">pretty_name</span></code>
-                    function. The function does its best to print the type name in
-                    a human-readable form. On some platforms it does better than
-                    <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">type_info</span><span class="special">::</span><span class="identifier">name</span></code>.
-                  </p>
-                </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<br class="table-break"><p>
-          Given the distinctions above, using type information objects becomes much
-          easier. For example, the ability to copy and order with regular operators
-          allows using <code class="computeroutput"><a class="link" href="../../boost/log/type_info_wrapper.html" title="Class type_info_wrapper">type_info_wrapper</a></code>
-          with containers. The ability to default-construct and assign allows using
-          type information as a regular object and not to resort to pointers which
-          may be unsafe.
+          String literals support interface similar to standard library string types,
+          except for string modification functions. However, it is possible to assign
+          to or clear string literals, as long as only string literals involved.
+          Relational and stream output operators are also supported.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="log.detailed.utilities.type_dispatch"></a><a class="link" href="utilities.html#log.detailed.utilities.type_dispatch" title="Type dispatchers">Type dispatchers</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.type_dispatch.type_dispatcher_hpp" title="Header &lt;boost/log/utility/type_dispatch/type_dispatcher.hpp&gt;">boost/log/utility/type_dispatch/type_dispatcher.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.type__dispatcher_8hpp" title="Header &lt;boost/log/utility/type_dispatch/type_dispatcher.hpp&gt;">boost/log/utility/type_dispatch/type_dispatcher.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           Type dispatchers are used throughout the library in order to work with
@@ -302,7 +86,7 @@
           wants to understand what's under the hood.
         </p>
 <p>
-          Every type dispatcher supports the <code class="computeroutput"><a class="link" href="../../boost/log/type_dispatcher.html" title="Class type_dispatcher">type_dispatcher</a></code>
+          Every type dispatcher supports the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1type__dispatcher.html" title="Class type_dispatcher">type_dispatcher</a></code>
           interface. When an attribute value needs to be extracted, this interface
           is passed to the attribute value object, which then tries to acquire the
           callback for the actual type of the value. All callbacks are objects of
@@ -315,7 +99,7 @@
         </p>
 <p>
           Happily, there is no need to write type dispatchers from scratch. The library
-          provides two kinds of type dispatchers that implement the <code class="computeroutput"><a class="link" href="../../boost/log/type_dispatcher.html" title="Class type_dispatcher">type_dispatcher</a></code>
+          provides two kinds of type dispatchers that implement the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1type__dispatcher.html" title="Class type_dispatcher">type_dispatcher</a></code>
           and [class_type_dispatcher_callback] interfaces and encapsulate the callback
           lookup.
         </p>
@@ -324,13 +108,13 @@
           <span class="phrase"><a name="log.detailed.utilities.type_dispatch.static_type_dispatcher"></a></span><a class="link" href="utilities.html#log.detailed.utilities.type_dispatch.static_type_dispatcher">Static
           type dispatcher</a>
         </h6>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.type_dispatch.static_type_dispatcher_hpp" title="Header &lt;boost/log/utility/type_dispatch/static_type_dispatcher.hpp&gt;">boost/log/utility/type_dispatch/static_type_dispatcher.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.static__type__dispatcher_8hpp" title="Header &lt;boost/log/utility/type_dispatch/static_type_dispatcher.hpp&gt;">boost/log/utility/type_dispatch/static_type_dispatcher.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           Static type dispatchers are used when the set of types that needs to be
-          supported for extraction is known at compile time. The <code class="computeroutput"><a class="link" href="../../boost/log/static_type_dispatcher.html" title="Class template static_type_dispatcher">static_type_dispatcher</a></code>
+          supported for extraction is known at compile time. The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1static__type__dispatcher.html" title="Class template static_type_dispatcher">static_type_dispatcher</a></code>
           class template is parametrized with an MPL type sequence of types that
-          need to be supported. The dispatcher inherits from the <code class="computeroutput"><a class="link" href="../../boost/log/type_dispatcher.html" title="Class type_dispatcher">type_dispatcher</a></code>
+          need to be supported. The dispatcher inherits from the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1type__dispatcher.html" title="Class type_dispatcher">type_dispatcher</a></code>
           interface which provides the <code class="computeroutput"><span class="identifier">get_callback</span></code>
           method for acquiring the function object to invoke on the stored value.
           All you need to do is provide a visitor function object to the dispatcher
@@ -411,11 +195,11 @@
           <span class="phrase"><a name="log.detailed.utilities.type_dispatch.dynamic_type_dispatcher"></a></span><a class="link" href="utilities.html#log.detailed.utilities.type_dispatch.dynamic_type_dispatcher">Dynamic
           type dispatcher</a>
         </h6>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.type_dispatch.dynamic_type_dispatcher_hpp" title="Header &lt;boost/log/utility/type_dispatch/dynamic_type_dispatcher.hpp&gt;">boost/log/utility/type_dispatch/dynamic_type_dispatcher.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.dynamic__type__dispatcher_8hpp" title="Header &lt;boost/log/utility/type_dispatch/dynamic_type_dispatcher.hpp&gt;">boost/log/utility/type_dispatch/dynamic_type_dispatcher.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           If the set of types that have to be supported is not available at compile
-          time, the <code class="computeroutput"><a class="link" href="../../boost/log/dynamic_type_dispatcher.html" title="Class dynamic_type_dispatcher">dynamic_type_dispatcher</a></code>
+          time, the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1dynamic__type__dispatcher.html" title="Class dynamic_type_dispatcher">dynamic_type_dispatcher</a></code>
           class is there to help. One can use its <code class="computeroutput"><span class="identifier">register_type</span></code>
           method to add support for a particular type. The user has to pass a function
           object along with the type, this functor will be called when a visitor
@@ -465,7 +249,7 @@
           the complete code</a>.
         </p>
 <p>
-          Of course, complex function objects, like those provided by <a href="http://www.boost.org/doc/libs/release/libs/bind/bind.html" target="_top">Boost.Bind</a>,
+          Of course, complex function objects, like those provided by <a href="https://www.boost.org/doc/libs/release/libs/bind/doc/html/bind.html" target="_top">Boost.Bind</a>,
           are also supported.
         </p>
 </div>
@@ -474,8 +258,8 @@
 <a name="log.detailed.utilities.predef_types"></a><a class="link" href="utilities.html#log.detailed.utilities.predef_types" title="Predefined type sequences">Predefined type
         sequences</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.type_dispatch.standard_types_hpp" title="Header &lt;boost/log/utility/type_dispatch/standard_types.hpp&gt;">boost/log/utility/type_dispatch/standard_types.hpp</a></code><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.type_dispatch.date_time_types_hpp" title="Header &lt;boost/log/utility/type_dispatch/date_time_types.hpp&gt;">boost/log/utility/type_dispatch/date_time_types.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.standard__types_8hpp" title="Header &lt;boost/log/utility/type_dispatch/standard_types.hpp&gt;">boost/log/utility/type_dispatch/standard_types.hpp</a></code><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.date__time__types_8hpp" title="Header &lt;boost/log/utility/type_dispatch/date_time_types.hpp&gt;">boost/log/utility/type_dispatch/date_time_types.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           One may notice that when using type dispatchers and defining filters and
@@ -484,7 +268,7 @@
           such sets.
         </p>
 <div class="table">
-<a name="log.detailed.utilities.predef_types.standard_types__standard_types_hpp_"></a><p class="title"><b>Table&#160;1.7.&#160;Standard types (standard_types.hpp)</b></p>
+<a name="log.detailed.utilities.predef_types.standard_types__standard_types_hpp_"></a><p class="title"><b>Table 1.6. Standard types (standard_types.hpp)</b></p>
 <div class="table-contents"><table class="table" summary="Standard types (standard_types.hpp)">
 <colgroup>
 <col>
@@ -549,8 +333,8 @@
                 </td>
 <td>
                   <p>
-                    Narrow and wide string types. Currently only includes STL string
-                    types and <a class="link" href="utilities.html#log.detailed.utilities.string_literal" title="String literals">string
+                    Narrow and wide string types. Currently only includes C++ standard
+                    library string types and <a class="link" href="utilities.html#log.detailed.utilities.string_literal" title="String literals">string
                     literals</a>.
                   </p>
                 </td>
@@ -562,7 +346,7 @@
           There are also a number of time-related type sequences available:
         </p>
 <div class="table">
-<a name="log.detailed.utilities.predef_types.time_related_types__date_time_types_hpp_"></a><p class="title"><b>Table&#160;1.8.&#160;Time-related types (date_time_types.hpp)</b></p>
+<a name="log.detailed.utilities.predef_types.time_related_types__date_time_types_hpp_"></a><p class="title"><b>Table 1.7. Time-related types (date_time_types.hpp)</b></p>
 <div class="table-contents"><table class="table" summary="Time-related types (date_time_types.hpp)">
 <colgroup>
 <col>
@@ -602,7 +386,7 @@
                 </td>
 <td>
                   <p>
-                    All types defined in <a href="http://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
+                    All types defined in <a href="https://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
                     that have both date and time portions
                   </p>
                 </td>
@@ -641,7 +425,7 @@
                 </td>
 <td>
                   <p>
-                    All types defined in <a href="http://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
+                    All types defined in <a href="https://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
                     that have date portion
                   </p>
                 </td>
@@ -680,7 +464,7 @@
                 </td>
 <td>
                   <p>
-                    All types defined in <a href="http://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
+                    All types defined in <a href="https://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
                     that have time portion. Currently equivalent to <code class="computeroutput"><span class="identifier">boost_date_time_types</span></code>.
                   </p>
                 </td>
@@ -721,7 +505,7 @@
                 </td>
 <td>
                   <p>
-                    All time duration types defined in <a href="http://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
+                    All time duration types defined in <a href="https://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
                   </p>
                 </td>
 </tr>
@@ -746,7 +530,7 @@
                 </td>
 <td>
                   <p>
-                    All time period types defined in <a href="http://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
+                    All time period types defined in <a href="https://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>
                   </p>
                 </td>
 </tr>
@@ -771,25 +555,25 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="log.detailed.utilities.value_ref"></a><a class="link" href="utilities.html#log.detailed.utilities.value_ref" title="Value reference wrapper">Value reference wrapper</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.value_ref_hpp" title="Header &lt;boost/log/utility/value_ref.hpp&gt;">boost/log/utility/value_ref.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.value__ref_8hpp" title="Header &lt;boost/log/utility/value_ref.hpp&gt;">boost/log/utility/value_ref.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
-          The <code class="computeroutput"><a class="link" href="../../boost/log/value_ref.html" title="Class template value_ref">value_ref</a></code> class
+          The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1value__ref.html" title="Class template value_ref">value_ref</a></code> class
           template is an optional reference wrapper which is used by the library
           to refer to the stored attribute values. To a certain degree it shares
-          features of <a href="http://www.boost.org/doc/libs/release/libs/optional/index.html" target="_top">Boost.Optional</a>
-          and <a href="http://www.boost.org/doc/libs/release/doc/html/variant.html" target="_top">Boost.Variant</a>
+          features of <a href="https://www.boost.org/doc/libs/release/libs/optional/doc/html/index.html" target="_top">Boost.Optional</a>
+          and <a href="https://www.boost.org/doc/libs/release/doc/html/variant.html" target="_top">Boost.Variant</a>
           components.
         </p>
 <p>
           The template has two type parameters. The first is the referred type. It
-          can also be specified as a <a href="http://www.boost.org/doc/libs/release/libs/mpl/doc/index.html" target="_top">Boost.MPL</a>
-          type sequence, in which case the <code class="computeroutput"><a class="link" href="../../boost/log/value_ref.html" title="Class template value_ref">value_ref</a></code>
+          can also be specified as a <a href="https://www.boost.org/doc/libs/release/libs/mpl/doc/index.html" target="_top">Boost.MPL</a>
+          type sequence, in which case the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1value__ref.html" title="Class template value_ref">value_ref</a></code>
           wrapper may refer to either type in the sequence. In this case, the <code class="computeroutput"><span class="identifier">which</span></code> method will return the index of
           the referred type within the sequence. The second template parameter is
           an optional tag type which can be used to customize formatting behavior.
           This tag is forwarded to the <a class="link" href="utilities.html#log.detailed.utilities.manipulators.to_log" title="Customized logging manipulator"><code class="computeroutput"><span class="identifier">to_log</span></code></a> manipulator when the wrapper
-          is put to a <code class="computeroutput"><a class="link" href="../../boost/log/basic_formatting_ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>
+          is put to a <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__formatting__ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>
           stream, which is used by the library for record formatting. For an example
           see how attribute value extraction is implemented:
         </p>
@@ -829,7 +613,7 @@
           the complete code</a>.
         </p>
 <p>
-          The <code class="computeroutput"><a class="link" href="../../boost/log/value_ref.html" title="Class template value_ref">value_ref</a></code> wrapper
+          The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1value__ref.html" title="Class template value_ref">value_ref</a></code> wrapper
           also supports applying a visitor function object to the referred object.
           This can be done by calling one of the following methods:
         </p>
@@ -861,9 +645,9 @@
 <tr><td align="left" valign="top"><p>
             Regardless of the method used, the visitor function object <span class="underline">must</span> define the <code class="computeroutput"><span class="identifier">result_type</span></code>
             typedef. Polymorphic visitors are not supported as this would complicate
-            the <code class="computeroutput"><a class="link" href="../../boost/log/value_ref.html" title="Class template value_ref">value_ref</a></code> interface
+            the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1value__ref.html" title="Class template value_ref">value_ref</a></code> interface
             too much. This requirement also precludes free functions and C++11 lambda
-            functions from being used as visitors. Please, use <a href="http://www.boost.org/doc/libs/release/libs/bind/bind.html" target="_top">Boost.Bind</a>
+            functions from being used as visitors. Please, use <a href="https://www.boost.org/doc/libs/release/libs/bind/doc/html/bind.html" target="_top">Boost.Bind</a>
             or similar wrappers in such cases.
           </p></td></tr>
 </table></div>
@@ -919,7 +703,7 @@
 <a name="log.detailed.utilities.record_ordering"></a><a class="link" href="utilities.html#log.detailed.utilities.record_ordering" title="Log record ordering">Log record
         ordering</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.record_ordering_hpp" title="Header &lt;boost/log/utility/record_ordering.hpp&gt;">boost/log/utility/record_ordering.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.record__ordering_8hpp" title="Header &lt;boost/log/utility/record_ordering.hpp&gt;">boost/log/utility/record_ordering.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           There are cases when log records need to be ordered. One possible use case
@@ -932,11 +716,11 @@
           record ordering</a>
         </h6>
 <p>
-          The <code class="computeroutput"><a class="link" href="../../boost/log/abstract_ordering.html" title="Class template abstract_ordering">abstract_ordering</a></code>
+          The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1abstract__ordering.html" title="Class template abstract_ordering">abstract_ordering</a></code>
           class allows application of a quick opaque ordering. The result of this
           ordering is not stable between different runs of the application and in
           general cannot be predicted before the predicate is applied, however it
-          provides the best performance. The <code class="computeroutput"><a class="link" href="../../boost/log/abstract_ordering.html" title="Class template abstract_ordering">abstract_ordering</a></code>
+          provides the best performance. The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1abstract__ordering.html" title="Class template abstract_ordering">abstract_ordering</a></code>
           class is a template that is specialized with an optional predicate function
           that will be able to compare <code class="computeroutput"><span class="keyword">const</span>
           <span class="keyword">void</span><span class="special">*</span></code>
@@ -956,7 +740,7 @@
           value based ordering</a>
         </h6>
 <p>
-          This kind of ordering is implemented with the <code class="computeroutput"><a class="link" href="../../boost/log/attribute_value_ordering.html" title="Class template attribute_value_ordering">attribute_value_ordering</a></code>
+          This kind of ordering is implemented with the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1attribute__value__ordering.html" title="Class template attribute_value_ordering">attribute_value_ordering</a></code>
           class and is based on the attribute values attached to the record. The
           predicate will seek for an attribute value with the specified name in both
           records being ordered and attempt to compare the attribute values.
@@ -974,19 +758,19 @@
 <span class="special">&gt;</span> <span class="identifier">m_Records</span><span class="special">(</span><span class="identifier">ordering</span><span class="special">(</span><span class="string">"Severity"</span><span class="special">));</span>
 </pre>
 <p>
-          Like the <code class="computeroutput"><a class="link" href="../../boost/log/abstract_ordering.html" title="Class template abstract_ordering">abstract_ordering</a></code>,
-          <code class="computeroutput"><a class="link" href="../../boost/log/attribute_value_ordering.html" title="Class template attribute_value_ordering">attribute_value_ordering</a></code>
+          Like the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1abstract__ordering.html" title="Class template abstract_ordering">abstract_ordering</a></code>,
+          <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1attribute__value__ordering.html" title="Class template attribute_value_ordering">attribute_value_ordering</a></code>
           also accepts the second optional template parameter, which should be the
           predicate to compare attribute values (<code class="computeroutput"><span class="keyword">int</span></code>s
           in the example above). By default, an <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span></code>
           equivalent is used.
         </p>
 <p>
-          You can also use the <code class="computeroutput"><a class="link" href="../../boost/log/make_attr_orde_idp46476928.html" title="Function template make_attr_ordering">make_attr_ordering</a></code> generator
-          function to automatically generate the <code class="computeroutput"><a class="link" href="../../boost/log/attribute_value_ordering.html" title="Class template attribute_value_ordering">attribute_value_ordering</a></code>
+          You can also use the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/record__ordering_8hpp_1a43e65645f0c5d48831f21de8187bf57a.html" title="Function template make_attr_ordering">make_attr_ordering</a></code> generator
+          function to automatically generate the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1attribute__value__ordering.html" title="Class template attribute_value_ordering">attribute_value_ordering</a></code>
           instance based on the attribute value name and the ordering function. This
           might be useful if the ordering function has a non-trivial type, like the
-          ones <a href="http://www.boost.org/doc/libs/release/libs/bind/bind.html" target="_top">Boost.Bind</a>
+          ones <a href="https://www.boost.org/doc/libs/release/libs/bind/doc/html/bind.html" target="_top">Boost.Bind</a>
           provides.
         </p>
 </div>
@@ -995,7 +779,7 @@
 <a name="log.detailed.utilities.exception_handlers"></a><a class="link" href="utilities.html#log.detailed.utilities.exception_handlers" title="Exception handlers">Exception
         handlers</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.exception_handler_hpp" title="Header &lt;boost/log/utility/exception_handler.hpp&gt;">boost/log/utility/exception_handler.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.exception__handler_8hpp" title="Header &lt;boost/log/utility/exception_handler.hpp&gt;">boost/log/utility/exception_handler.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           The library provides exception handling hooks in different places. Tools,
@@ -1008,9 +792,9 @@
           <code class="computeroutput"><span class="keyword">void</span></code>. Exception handlers are
           called from within <code class="computeroutput"><span class="keyword">catch</span></code> sections
           by the library, therefore in order to reacquire the exception object it
-          has to rethrow it. The header defines an <code class="computeroutput"><a class="link" href="../../boost/log/exception_handler.html" title="Class template exception_handler">exception_handler</a></code>
+          has to rethrow it. The header defines an <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1exception__handler.html" title="Class template exception_handler">exception_handler</a></code>
           template functor that does just that and then forwards the exception object
-          to a unary user-defined functional object. The <code class="computeroutput"><a class="link" href="../../boost/log/make_exception_idp40577664.html" title="Function template make_exception_handler">make_exception_handler</a></code>
+          to a unary user-defined functional object. The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/exception__handler_8hpp_1a0a4a72ade16e555a04d3b168618adceb.html" title="Function template make_exception_handler">make_exception_handler</a></code>
           function can be used to simplify the handler construction. All expected
           exception types should be specified explicitly in the call, in the order
           they would appear in the <code class="computeroutput"><span class="keyword">catch</span></code>
@@ -1052,7 +836,7 @@
           case it will propagate further. If it appears that the exception handler
           is invoked for an exception type that cannot be caught by any of the specified
           types, the exception will be propagated without any processing. In order
-          to catch such situations, there exists the <code class="computeroutput"><a class="link" href="../../boost/log/nothrow_exception_handler.html" title="Class template nothrow_exception_handler">nothrow_exception_handler</a></code>
+          to catch such situations, there exists the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1nothrow__exception__handler.html" title="Class template nothrow_exception_handler">nothrow_exception_handler</a></code>
           class. It invokes the user-defined functor with no arguments if it cannot
           determine the exception type.
         </p>
@@ -1092,7 +876,7 @@
         </p>
 <p>
           It is sometimes convenient to completely suppress all exceptions at a certain
-          library level. The <code class="computeroutput"><a class="link" href="../../boost/log/make_exception_suppressor.html" title="Function make_exception_suppressor">make_exception_suppressor</a></code>
+          library level. The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/exception__handler_8hpp_1a9b532822f3addbdfeefd22fed7abe122.html" title="Function make_exception_suppressor">make_exception_suppressor</a></code>
           function creates an exception handler that simply does nothing upon exception
           being caught. For example, this way we can disable all exceptions from
           the logging library:
@@ -1117,6 +901,16 @@
           value attaching manipulator</a></span></dt>
 <dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators.dump">Binary
           dump manipulator</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators.auto_newline">Automatic
+          newline insertion</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators.range">Range
+          manipulator</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators.tuple">Tuple
+          manipulator</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators.optional">Optional
+          manipulator</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.manipulators.invoke">Invoke
+          manipulator</a></span></dt>
 </dl></div>
 <p>
           The library provides a number of stream manipulators that may be useful
@@ -1127,10 +921,10 @@
 <a name="log.detailed.utilities.manipulators.to_log"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.to_log" title="Customized logging manipulator">Customized
           logging manipulator</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.manipulators.to_log_hpp" title="Header &lt;boost/log/utility/manipulators/to_log.hpp&gt;">boost/log/utility/manipulators/to_log.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.to__log_8hpp" title="Header &lt;boost/log/utility/manipulators/to_log.hpp&gt;">boost/log/utility/manipulators/to_log.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
-            The <code class="computeroutput"><a class="link" href="../../boost/log/to_log_idp46412272.html" title="Function template to_log">to_log</a></code>
+            The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/to__log_8hpp_1a9ec99b926575131eb7f2c9a15d9cf217.html" title="Function template to_log">to_log</a></code>
             function creates a stream manipulator that simply outputs the adopted
             value to the stream. By default its behavior is equivalent to simply
             putting the value to the stream. However, the user is able to overload
@@ -1171,7 +965,7 @@
             value contexts as well. The library uses this feature to allow different
             formatting ruled for different attribute values, even if the stored value
             type is the same. To do so one has to specify an explicit template argument
-            for <code class="computeroutput"><a class="link" href="../../boost/log/to_log_idp46412272.html" title="Function template to_log">to_log</a></code>,
+            for <code class="computeroutput"><a class="link" href="../../doxygen/utilities/to__log_8hpp_1a9ec99b926575131eb7f2c9a15d9cf217.html" title="Function template to_log">to_log</a></code>,
             a tag type, which will be embedded into the manipulator type and thus
             will allow to define different insertion operators:
           </p>
@@ -1219,9 +1013,9 @@
 <th align="left">Note</th>
 </tr>
 <tr><td align="left" valign="top"><p>
-              The library uses <code class="computeroutput"><a class="link" href="../../boost/log/basic_formatting_ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>
+              The library uses <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__formatting__ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>
               stream type for record formatting, so when customizing attribute value
-              formatting rules the <code class="computeroutput"><span class="keyword">operator</span><span class="special">&lt;&lt;</span></code> must use <code class="computeroutput"><a class="link" href="../../boost/log/basic_formatting_ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>
+              formatting rules the <code class="computeroutput"><span class="keyword">operator</span><span class="special">&lt;&lt;</span></code> must use <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__formatting__ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>
               instead of <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">ostream</span></code>.
             </p></td></tr>
 </table></div>
@@ -1231,13 +1025,13 @@
 <a name="log.detailed.utilities.manipulators.add_value"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.add_value" title="Attribute value attaching manipulator">Attribute
           value attaching manipulator</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.manipulators.add_value_hpp" title="Header &lt;boost/log/utility/manipulators/add_value.hpp&gt;">boost/log/utility/manipulators/add_value.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.add__value_8hpp" title="Header &lt;boost/log/utility/manipulators/add_value.hpp&gt;">boost/log/utility/manipulators/add_value.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
-            The <code class="computeroutput"><a class="link" href="../../boost/log/add_value.html" title="Function add_value">add_value</a></code>
+            The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/add__value_8hpp_1a871eb938cb52e5e485973671d768a327.html" title="Function template add_value">add_value</a></code>
             function creates a manipulator that attaches an attribute value to a
             log record. This manipulator can only be used in streaming expressions
-            with the <code class="computeroutput"><a class="link" href="../../boost/log/basic_record_ostream.html" title="Class template basic_record_ostream">basic_record_ostream</a></code>
+            with the <code class="computeroutput"><a class="link" href="../../doxygen/logging_sources/classboost_1_1log_1_1basic__record__ostream.html" title="Class template basic_record_ostream">basic_record_ostream</a></code>
             stream type (which is the case when log record message is formatted).
             Since the message text is only formatted after filtering, attribute values
             attached with this manipulator do not affect filtering and can only be
@@ -1256,10 +1050,10 @@
 <a name="log.detailed.utilities.manipulators.dump"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.dump" title="Binary dump manipulator">Binary
           dump manipulator</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.manipulators.dump_hpp" title="Header &lt;boost/log/utility/manipulators/dump.hpp&gt;">boost/log/utility/manipulators/dump.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.dump_8hpp" title="Header &lt;boost/log/utility/manipulators/dump.hpp&gt;">boost/log/utility/manipulators/dump.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
-            The <code class="computeroutput"><a class="link" href="../../boost/log/dump_idp46364400.html" title="Function template dump">dump</a></code>
+            The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/dump_8hpp_1a421e94ed37b696c8f37d7815e1794485.html" title="Function template dump">dump</a></code>
             function creates a manipulator that outputs binary contents of a contiguous
             memory region. This can be useful for logging some low level binary data,
             such as encoded network packets or entries of a binary file. The use
@@ -1283,12 +1077,12 @@
 <span class="special">}</span>
 </pre>
 <p>
-            There is another manipulator called <code class="computeroutput"><a class="link" href="../../boost/log/dump_elements_idp46369712.html" title="Function template dump_elements">dump_elements</a></code> for printing
+            There is another manipulator called <code class="computeroutput"><a class="link" href="../../doxygen/utilities/dump_8hpp_1ac4d58b8546fe288b29b692e2075d287d.html" title="Function template dump_elements">dump_elements</a></code> for printing
             binary representation of non-byte array elements. The special manipulator
             for this case is necessary because the units of the size argument of
-            <code class="computeroutput"><a class="link" href="../../boost/log/dump_idp46364400.html" title="Function template dump">dump</a></code>
-            can be confusing (is it in bytes or in elements?). Therefore <code class="computeroutput"><a class="link" href="../../boost/log/dump_idp46364400.html" title="Function template dump">dump</a></code>
-            will not compile when used for non-byte input data. <code class="computeroutput"><a class="link" href="../../boost/log/dump_elements_idp46369712.html" title="Function template dump_elements">dump_elements</a></code> accepts
+            <code class="computeroutput"><a class="link" href="../../doxygen/utilities/dump_8hpp_1a421e94ed37b696c8f37d7815e1794485.html" title="Function template dump">dump</a></code>
+            can be confusing (is it in bytes or in elements?). Therefore <code class="computeroutput"><a class="link" href="../../doxygen/utilities/dump_8hpp_1a421e94ed37b696c8f37d7815e1794485.html" title="Function template dump">dump</a></code>
+            will not compile when used for non-byte input data. <code class="computeroutput"><a class="link" href="../../doxygen/utilities/dump_8hpp_1ac4d58b8546fe288b29b692e2075d287d.html" title="Function template dump_elements">dump_elements</a></code> accepts
             the same arguments, and its size-related arguments always designate the
             number of elements to process.
           </p>
@@ -1308,6 +1102,600 @@
               not necessarily loggers.
             </p></td></tr>
 </table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.manipulators.auto_newline"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.auto_newline" title="Automatic newline insertion">Automatic
+          newline insertion</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.auto__newline_8hpp" title="Header &lt;boost/log/utility/manipulators/auto_newline.hpp&gt;">boost/log/utility/manipulators/auto_newline.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            Sometimes it can be useful to be able to insert a newline character in
+            the output stream, but only if it hasn't been inserted as part of the
+            previous output. For example, if a string may or may not end with a newline,
+            and we cannot easily tell which one it is each time. The <code class="computeroutput"><span class="identifier">auto_newline</span></code> manipulator can be used
+            to ensure that all such strings are reliably terminated with a newline
+            and there are no duplicate newline characters. The manipulator will insert
+            a newline unless the last character inserted into the stream before it
+            was a newline. Its use is similar to standard stream manipulators:
+          </p>
+<pre class="programlisting"><span class="identifier">BOOST_LOG</span><span class="special">(</span><span class="identifier">lg</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"Parameter: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">param</span><span class="special">.</span><span class="identifier">name</span> <span class="special">&lt;&lt;</span> <span class="string">", value: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">param</span><span class="special">.</span><span class="identifier">value</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">auto_newline</span><span class="special">;</span>
+</pre>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              This manipulator inspects previous output to the stream, and therefore
+              can only be used with Boost.Log streams based on <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__formatting__ostream.html" title="Class template basic_formatting_ostream">basic_formatting_ostream</a></code>.
+            </p></td></tr>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.manipulators.range"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.range" title="Range manipulator">Range
+          manipulator</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.range_8hpp" title="Header &lt;boost/log/utility/manipulators/range.hpp&gt;">boost/log/utility/manipulators/range.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            It can be useful to be able to output elements of a container (or, more
+            generally, a range), preferably separated with a delimiter. The <code class="computeroutput"><span class="identifier">range_manip</span></code> manipulator allows to do
+            this:
+          </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span> <span class="keyword">int</span> <span class="special">&gt;</span> <span class="identifier">ints</span><span class="special">{</span> <span class="number">1</span><span class="special">,</span> <span class="number">2</span><span class="special">,</span> <span class="number">3</span> <span class="special">};</span>
+
+<span class="identifier">BOOST_LOG</span><span class="special">(</span><span class="identifier">lg</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"Integers: { "</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">range_manip</span><span class="special">(</span><span class="identifier">ints</span><span class="special">,</span> <span class="string">", "</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">" }"</span><span class="special">;</span> <span class="comment">// Outputs: "Integers: { 1, 2, 3 }"</span>
+</pre>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              This manipulator can also be used with regular output streams, not
+              necessarily loggers.
+            </p></td></tr>
+</table></div>
+<p>
+            Here, <code class="computeroutput"><span class="identifier">range_manip</span></code> accepts
+            two arguments - the range of elements, and, optionally, a delimiter.
+            The range can be any type supported by <a href="https://www.boost.org/doc/libs/release/libs/range/doc/html/index.html" target="_top">Boost.Range</a>
+            <code class="computeroutput"><span class="identifier">begin</span><span class="special">()</span></code>
+            and <code class="computeroutput"><span class="identifier">end</span><span class="special">()</span></code>
+            free functions, which includes any standard containers and arrays. Elements
+            of the range must support stream insertion operator. The delimiter argument,
+            if specified, is inserted into stream between elements. The delimiter
+            can be any type that supports stream insertion. If delimiter is not specified,
+            the elements are output into the stream without separation.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.manipulators.tuple"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.tuple" title="Tuple manipulator">Tuple
+          manipulator</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.tuple_8hpp" title="Header &lt;boost/log/utility/manipulators/tuple.hpp&gt;">boost/log/utility/manipulators/tuple.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            Tuple manipulator allows to output elements of a heterogeneous sequence
+            (put simply, a tuple) to a stream, possibly separated with a delimiter.
+            For example:
+          </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">fusion</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">std_tuple</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">tuple</span><span class="special">&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span><span class="special">,</span> <span class="keyword">int</span><span class="special">,</span> <span class="keyword">char</span> <span class="special">&gt;</span> <span class="identifier">address</span><span class="special">{</span> <span class="string">"Baker Street"</span><span class="special">,</span> <span class="number">221</span><span class="special">,</span> <span class="char">'b'</span> <span class="special">};</span>
+
+<span class="identifier">BOOST_LOG</span><span class="special">(</span><span class="identifier">lg</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"Address: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">tuple_manip</span><span class="special">(</span><span class="identifier">address</span><span class="special">,</span> <span class="string">", "</span><span class="special">);</span> <span class="comment">// Outputs: "Address: Baker Street, 221, b"</span>
+</pre>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              In order to support different types of sequences, users may need to
+              <code class="computeroutput"><span class="preprocessor">#include</span></code> additional
+              support headers from <a href="https://www.boost.org/doc/libs/release/libs/fusion/doc/html/index.html" target="_top">Boost.Fusion</a>,
+              like <code class="computeroutput"><span class="identifier">boost</span><span class="special">/</span><span class="identifier">fusion</span><span class="special">/</span><span class="identifier">include</span><span class="special">/</span><span class="identifier">std_tuple</span><span class="special">.</span><span class="identifier">hpp</span></code> in this example. See <a href="https://www.boost.org/doc/libs/release/libs/fusion/doc/html/index.html" target="_top">Boost.Fusion</a>
+              documentation.
+            </p></td></tr>
+</table></div>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              This manipulator can also be used with regular output streams, not
+              necessarily loggers.
+            </p></td></tr>
+</table></div>
+<p>
+            Here, <code class="computeroutput"><span class="identifier">tuple_manip</span></code> accepts
+            two arguments - the sequence of elements, and, optionally, a delimiter.
+            The heterogeneous sequence can be any sequence supported by <a href="https://www.boost.org/doc/libs/release/libs/fusion/doc/html/index.html" target="_top">Boost.Fusion</a>,
+            for example <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">pair</span></code>, <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">tuple</span></code>,
+            <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tuple</span></code>, <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fusion</span><span class="special">::</span><span class="identifier">vector</span></code>
+            or any structure that has been adapted using one of the <code class="computeroutput"><span class="identifier">BOOST_FUSION_ADAPT</span><span class="special">*</span></code>
+            macros. Elements of the sequence must support stream insertion operator.
+            The delimiter argument, if specified, is inserted into stream between
+            elements. The delimiter can be any type that supports stream insertion.
+            If delimiter is not specified, the elements are output into the stream
+            without separation.
+          </p>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              You can also use tuples generated by <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">tie</span></code>
+              or <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">tie</span></code> with this manipulator, which
+              allows unified formatting of disjoint variables without having to copy
+              them into a structure.
+            </p></td></tr>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.manipulators.optional"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.optional" title="Optional manipulator">Optional
+          manipulator</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.optional_8hpp" title="Header &lt;boost/log/utility/manipulators/optional.hpp&gt;">boost/log/utility/manipulators/optional.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            Optional manipulator allows to output an optional value to the output
+            stream. If the value is not present, the manipulator allows to specify
+            a "none" marker to output instead. For example:
+          </p>
+<pre class="programlisting"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">optional</span><span class="special">&lt;</span> <span class="keyword">int</span> <span class="special">&gt;</span> <span class="identifier">param1</span><span class="special">;</span>
+<span class="identifier">boost</span><span class="special">::</span><span class="identifier">optional</span><span class="special">&lt;</span> <span class="keyword">int</span> <span class="special">&gt;</span> <span class="identifier">param2</span> <span class="special">=</span> <span class="number">10</span><span class="special">;</span>
+
+<span class="identifier">BOOST_LOG</span><span class="special">(</span><span class="identifier">lg</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"param1: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">optional_manip</span><span class="special">(</span><span class="identifier">param1</span><span class="special">,</span> <span class="string">"[none]"</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">", param2: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">optional_manip</span><span class="special">(</span><span class="identifier">param2</span><span class="special">,</span> <span class="string">"[none]"</span><span class="special">);</span> <span class="comment">// Outputs: "param1: [none], param2: 10"</span>
+</pre>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              This manipulator can also be used with regular output streams, not
+              necessarily loggers.
+            </p></td></tr>
+</table></div>
+<p>
+            Here, <code class="computeroutput"><span class="identifier">optional_manip</span></code>
+            accepts two arguments - the optional value, and, optionally, a "none"
+            marker. The optional value can be any type that supports the following:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+                Contextually convertible to <code class="computeroutput"><span class="keyword">bool</span></code>,
+                where <code class="computeroutput"><span class="keyword">true</span></code> indicates
+                that the value is present.
+              </li>
+<li class="listitem">
+                Can be dereferenced using <code class="computeroutput"><span class="keyword">operator</span><span class="special">*()</span></code>, and the result of this operator
+                is the value.
+              </li>
+<li class="listitem">
+                The result of dereferencing must support stream insertion operator.
+              </li>
+</ul></div>
+<p>
+            Examples of types that fit these requirements are <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">optional</span></code>
+            (see <a href="https://www.boost.org/doc/libs/release/libs/optional/doc/html/index.html" target="_top">Boost.Optional</a>),
+            <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">optional</span></code> and pointers to objects.
+          </p>
+<p>
+            The "none" marker argument, if specified, is inserted into
+            stream in case if the optional value is not present (i.e. the contextual
+            conversion to <code class="computeroutput"><span class="keyword">bool</span></code> yields
+            <code class="computeroutput"><span class="keyword">false</span></code>). The marker can be
+            any type that supports stream insertion. If the marker is not specified,
+            no output is produced if the value is not present.
+          </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.manipulators.invoke"></a><a class="link" href="utilities.html#log.detailed.utilities.manipulators.invoke" title="Invoke manipulator">Invoke
+          manipulator</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.invoke_8hpp" title="Header &lt;boost/log/utility/manipulators/invoke.hpp&gt;">boost/log/utility/manipulators/invoke.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            Invoke manipulator allows to inject a user-defined function call into
+            the stream output expression. The function will be called when the manipulator
+            is inserted into the stream. The manipulator will pass a reference to
+            the stream to the function as the first argument, optionally followed
+            by a number of additional arguments that were specified on the manipulator
+            construction. For example:
+          </p>
+<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">print_signal</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">ostream</span><span class="special">&amp;</span> <span class="identifier">stream</span><span class="special">,</span> <span class="keyword">int</span> <span class="identifier">sig</span><span class="special">)</span>
+<span class="special">{</span>
+    <span class="keyword">switch</span> <span class="special">(</span><span class="identifier">sig</span><span class="special">)</span>
+    <span class="special">{</span>
+    <span class="keyword">case</span> <span class="identifier">SIGINT</span><span class="special">:</span>
+        <span class="identifier">stream</span> <span class="special">&lt;&lt;</span> <span class="string">"SIGINT"</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="keyword">case</span> <span class="identifier">SIGTERM</span><span class="special">:</span>
+        <span class="identifier">stream</span> <span class="special">&lt;&lt;</span> <span class="string">"SIGTERM"</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="keyword">default</span><span class="special">:</span>
+        <span class="identifier">stream</span> <span class="special">&lt;&lt;</span> <span class="identifier">sig</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="special">}</span>
+<span class="special">}</span>
+
+<span class="keyword">int</span> <span class="identifier">sig</span> <span class="special">=</span> <span class="identifier">SIGINT</span><span class="special">;</span>
+
+<span class="comment">// Outputs: "Signal received: SIGINT"</span>
+<span class="identifier">BOOST_LOG</span><span class="special">(</span><span class="identifier">lg</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"Signal received: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">invoke_manip</span><span class="special">(&amp;</span><span class="identifier">print_signal</span><span class="special">,</span> <span class="identifier">sig</span><span class="special">);</span>
+</pre>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              This manipulator can also be used with regular output streams, not
+              necessarily loggers.
+            </p></td></tr>
+</table></div>
+<p>
+            Here, <code class="computeroutput"><span class="identifier">print_signal</span></code> will
+            be called by the manipulator when its <code class="computeroutput"><span class="keyword">operator</span><span class="special">&lt;&lt;</span></code> is called. The output stream
+            will be passed as the first argument and any additional arguments (<code class="computeroutput"><span class="identifier">sig</span></code>, in this case) following that.
+            The arguments are captured by value by default. One can use <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">ref</span></code>/<code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">ref</span></code>
+            if capturing by reference is needed.
+          </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              Passing additional arguments to the function requires a C++14 compiler.
+              Use <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">bind</span></code>, <a href="https://www.boost.org/doc/libs/release/libs/bind/doc/html/bind.html" target="_top">Boost.Bind</a>
+              or C++11 lambdas to bind arguments to the function instead of passing
+              them separately if lower C++ version is required.
+            </p></td></tr>
+</table></div>
+<p>
+            Please note that the function will be called only if the streaming expression
+            is executed. If the log record is discarded by filters, the streaming
+            expression is skipped and the user's function is not called. Do not use
+            this manipulator for injecting business-critical calls into logging expressions.
+          </p>
+<p>
+            This manipulator is especially convenient with C++11 lambdas. The above
+            example could be rewritten like this:
+          </p>
+<pre class="programlisting"><span class="keyword">int</span> <span class="identifier">sig</span> <span class="special">=</span> <span class="identifier">SIGINT</span><span class="special">;</span>
+
+<span class="comment">// Outputs: "Signal received: SIGINT"</span>
+<span class="identifier">BOOST_LOG</span><span class="special">(</span><span class="identifier">lg</span><span class="special">)</span> <span class="special">&lt;&lt;</span> <span class="string">"Signal received: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">invoke_manip</span><span class="special">([</span><span class="identifier">sig</span><span class="special">](</span><span class="keyword">auto</span><span class="special">&amp;</span> <span class="identifier">stream</span><span class="special">)</span>
+<span class="special">{</span>
+    <span class="keyword">switch</span> <span class="special">(</span><span class="identifier">sig</span><span class="special">)</span>
+    <span class="special">{</span>
+    <span class="keyword">case</span> <span class="identifier">SIGINT</span><span class="special">:</span>
+        <span class="identifier">stream</span> <span class="special">&lt;&lt;</span> <span class="string">"SIGINT"</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="keyword">case</span> <span class="identifier">SIGTERM</span><span class="special">:</span>
+        <span class="identifier">stream</span> <span class="special">&lt;&lt;</span> <span class="string">"SIGTERM"</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="keyword">default</span><span class="special">:</span>
+        <span class="identifier">stream</span> <span class="special">&lt;&lt;</span> <span class="identifier">sig</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="special">}</span>
+<span class="special">});</span>
+</pre>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="log.detailed.utilities.ipc"></a><a class="link" href="utilities.html#log.detailed.utilities.ipc" title="Interprocess communication tools">Interprocess communication
+        tools</a>
+</h4></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.ipc.object_name">Resource
+          name wrapper</a></span></dt>
+<dt><span class="section"><a href="utilities.html#log.detailed.utilities.ipc.reliable_message_queue">Reliable
+          message queue</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.ipc.object_name"></a><a class="link" href="utilities.html#log.detailed.utilities.ipc.object_name" title="Resource name wrapper">Resource
+          name wrapper</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.object__name_8hpp" title="Header &lt;boost/log/utility/ipc/object_name.hpp&gt;">boost/log/utility/ipc/object_name.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            In modern operating systems process-shared system resources are typically
+            identified with names. Unfortunately, different systems have different
+            requirements on the name syntax and allowed character set. Additionally,
+            some systems offer support for namespaces in order to avoid name clashes.
+            The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1ipc_1_1object__name.html" title="Class object_name">object_name</a></code>
+            class is intended to hide these differences.
+          </p>
+<p>
+            An object name can be constructed from a UTF-8 string identifier and
+            a scope. A portable identifier can contain the following characters:
+          </p>
+<pre class="programlisting">A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+0 1 2 3 4 5 6 7 8 9 . _ -
+</pre>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              The character set corresponds to <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html#tag_03_278" target="_top">POSIX
+              Portable Filename Character Set</a>.
+            </p></td></tr>
+</table></div>
+<p>
+            Use of other characters may result in non-portable system-specific behavior.
+          </p>
+<p>
+            The scope is identified with the <code class="computeroutput"><span class="identifier">object_name</span><span class="special">::</span><span class="identifier">scope</span></code>
+            enumeration:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">global</span></code> - The name
+                has global scope; any process in the system has the potential to
+                open the resource identified by the name. On some systems this scope
+                may not be available or require elevated privileges.
+              </li>
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">user</span></code> - The name is
+                limited to processes running under the current user.
+              </li>
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">session</span></code> - The name
+                is limited to processes running in the current login session.
+              </li>
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">process_group</span></code> - The
+                name is limited to processes running in the current process group.
+                Currently, on Windows all processes running in the current session
+                are considered members of the same process group. This may change
+                in future.
+              </li>
+</ul></div>
+<p>
+            The scopes are not overlapping. For instance, if an object is created
+            in the global scope, the object cannot be opened with the same name but
+            in user's scope. Some of the scopes may require elevated privileges to
+            create or open objects in.
+          </p>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              Object name scoping should not be considered a security measure. Objects
+              may still be accessible by processes outside of their name scopes.
+              The main purpose of the scopes is to avoid name clashes between different
+              processes using <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1ipc_1_1object__name.html" title="Class object_name">object_name</a></code>.
+              Use access permissions for security control.
+            </p></td></tr>
+</table></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="log.detailed.utilities.ipc.reliable_message_queue"></a><a class="link" href="utilities.html#log.detailed.utilities.ipc.reliable_message_queue" title="Reliable message queue">Reliable
+          message queue</a>
+</h5></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.reliable__message__queue_8hpp" title="Header &lt;boost/log/utility/ipc/reliable_message_queue.hpp&gt;">boost/log/utility/ipc/reliable_message_queue.hpp</a></code><span class="special">&gt;</span>
+</pre>
+<p>
+            The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1ipc_1_1reliable__message__queue.html" title="Class reliable_message_queue">reliable_message_queue</a></code>
+            class implements a reliable one-way channel of passing messages from
+            one or multiple writers to a single reader. The format of the messages
+            is user-defined and must be consistent across all writers and the reader.
+            The queue does not enforce any specific format of the messages, other
+            than they should be supplied as a contiguous array of bytes. The queue
+            internally uses a process-shared storage identified by an <a class="link" href="utilities.html#log.detailed.utilities.ipc.object_name" title="Resource name wrapper">object
+            name</a> (the queue name).
+          </p>
+<p>
+            The queue storage is organized as a fixed number of blocks of a fixed
+            size. The block size must be an integer power of 2 and is expressed in
+            bytes. Each written message, together with some metadata added by the
+            queue, consumes an integer number of blocks. Each read message received
+            by the reader releases the blocks allocated for that message. As such
+            the maximum size of a message is slightly less than block size times
+            capacity of the queue. For efficiency, it is recommended to choose block
+            size large enough to accommodate most of the messages to be passed through
+            the queue. The queue is considered empty when no messages are enqueued
+            (all blocks are free). The queue is considered full at the point of enqueueing
+            a message when there is not enough free blocks to accommodate the message.
+          </p>
+<p>
+            The queue is reliable in that it will not drop successfully sent messages
+            that are not received by the reader, other than the case when a non-empty
+            queue is destroyed by the last user. If a message cannot be enqueued
+            by the writer because the queue is full, the queue will act depending
+            on the overflow policy specified at the queue creation:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">block_on_overflow</span></code>
+                - Block the thread until there is enough space to enqueue the message
+                or the operation is aborted by calling <code class="computeroutput"><span class="identifier">stop_local</span></code>.
+              </li>
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">fail_on_overflow</span></code>
+                - Return an error code from the send operation. The error code is
+                <code class="computeroutput"><span class="identifier">operation_result</span><span class="special">::</span><span class="identifier">no_space</span></code>.
+              </li>
+<li class="listitem">
+                <code class="computeroutput"><span class="identifier">throw_on_overflow</span></code>
+                - Throw an exception from the send operation. The exception is <code class="computeroutput"><a class="link" href="../../doxygen/top_level_headers/classboost_1_1log_1_1capacity__limit__reached.html" title="Class capacity_limit_reached">capacity_limit_reached</a></code>.
+              </li>
+</ul></div>
+<p>
+            The policy is object local, i.e. different writers and the reader can
+            have different overflow policies. Here is an example of writing to the
+            message queue:
+          </p>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
+<span class="special">{</span>
+    <span class="keyword">typedef</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">ipc</span><span class="special">::</span><span class="identifier">reliable_message_queue</span> <span class="identifier">queue_t</span><span class="special">;</span>
+
+    <span class="comment">// Create a message_queue_type object that is associated with the interprocess</span>
+    <span class="comment">// message queue named "ipc_message_queue".</span>
+    <span class="identifier">queue_t</span> <span class="identifier">queue</span>
+    <span class="special">(</span>
+        <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">name</span> <span class="special">=</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">ipc</span><span class="special">::</span><span class="identifier">object_name</span><span class="special">(</span><span class="identifier">logging</span><span class="special">::</span><span class="identifier">ipc</span><span class="special">::</span><span class="identifier">object_name</span><span class="special">::</span><span class="identifier">user</span><span class="special">,</span> <span class="string">"ipc_message_queue"</span><span class="special">),</span>
+        <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">open_mode</span> <span class="special">=</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">open_mode</span><span class="special">::</span><span class="identifier">open_or_create</span><span class="special">,</span>  <a class="co" name="log.detailed.utilities.ipc.reliable_message_queue.c0" href="utilities.html#log.detailed.utilities.ipc.reliable_message_queue.c1"><img src="../../../../../../doc/src/images/callouts/1.png" alt="1" border="0"></a>
+        <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">capacity</span> <span class="special">=</span> <span class="number">256</span><span class="special">,</span>                                  <a class="co" name="log.detailed.utilities.ipc.reliable_message_queue.c2" href="utilities.html#log.detailed.utilities.ipc.reliable_message_queue.c3"><img src="../../../../../../doc/src/images/callouts/2.png" alt="2" border="0"></a>
+        <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">block_size</span> <span class="special">=</span> <span class="number">1024</span><span class="special">,</span>                               <a class="co" name="log.detailed.utilities.ipc.reliable_message_queue.c4" href="utilities.html#log.detailed.utilities.ipc.reliable_message_queue.c5"><img src="../../../../../../doc/src/images/callouts/3.png" alt="3" border="0"></a>
+        <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">overflow_policy</span> <span class="special">=</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">fail_on_overflow</span>      <a class="co" name="log.detailed.utilities.ipc.reliable_message_queue.c6" href="utilities.html#log.detailed.utilities.ipc.reliable_message_queue.c7"><img src="../../../../../../doc/src/images/callouts/4.png" alt="4" border="0"></a>
+    <span class="special">);</span>
+
+    <span class="comment">// Send a message through the queue</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="identifier">message</span> <span class="special">=</span> <span class="string">"Hello, Viewer!"</span><span class="special">;</span>
+    <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">operation_result</span> <span class="identifier">result</span> <span class="special">=</span> <span class="identifier">queue</span><span class="special">.</span><span class="identifier">send</span><span class="special">(</span><span class="identifier">message</span><span class="special">.</span><span class="identifier">data</span><span class="special">(),</span> <span class="keyword">static_cast</span><span class="special">&lt;</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">size_type</span> <span class="special">&gt;(</span><span class="identifier">message</span><span class="special">.</span><span class="identifier">size</span><span class="special">()));</span>
+
+    <span class="comment">// See if the message was sent</span>
+    <span class="keyword">switch</span> <span class="special">(</span><span class="identifier">result</span><span class="special">)</span>
+    <span class="special">{</span>
+    <span class="keyword">case</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">operation_result</span><span class="special">::</span><span class="identifier">succeeded</span><span class="special">:</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Message sent successfully"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+
+    <span class="keyword">case</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">operation_result</span><span class="special">::</span><span class="identifier">no_space</span><span class="special">:</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Message could not be sent because the queue is full"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+
+    <span class="keyword">case</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">operation_result</span><span class="special">::</span><span class="identifier">aborted</span><span class="special">:</span>
+        <span class="comment">// This can happen is overflow_policy is block_on_overflow</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Message sending operation has been interrupted"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+        <span class="keyword">break</span><span class="special">;</span>
+    <span class="special">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+          </p>
+<div class="calloutlist"><table border="0" summary="Callout list">
+<tr>
+<td width="5%" valign="top" align="left"><p><a name="log.detailed.utilities.ipc.reliable_message_queue.c1"></a><a href="#log.detailed.utilities.ipc.reliable_message_queue.c0"><img src="../../../../../../doc/src/images/callouts/1.png" alt="1" border="0"></a> </p></td>
+<td valign="top" align="left"><p>
+                create the queue, if not yet created
+              </p></td>
+</tr>
+<tr>
+<td width="5%" valign="top" align="left"><p><a name="log.detailed.utilities.ipc.reliable_message_queue.c3"></a><a href="#log.detailed.utilities.ipc.reliable_message_queue.c2"><img src="../../../../../../doc/src/images/callouts/2.png" alt="2" border="0"></a> </p></td>
+<td valign="top" align="left"><p>
+                if the queue has to be created, allocate 256 blocks...
+              </p></td>
+</tr>
+<tr>
+<td width="5%" valign="top" align="left"><p><a name="log.detailed.utilities.ipc.reliable_message_queue.c5"></a><a href="#log.detailed.utilities.ipc.reliable_message_queue.c4"><img src="../../../../../../doc/src/images/callouts/3.png" alt="3" border="0"></a> </p></td>
+<td valign="top" align="left"><p>
+                ... of 1 KiB each for messages
+              </p></td>
+</tr>
+<tr>
+<td width="5%" valign="top" align="left"><p><a name="log.detailed.utilities.ipc.reliable_message_queue.c7"></a><a href="#log.detailed.utilities.ipc.reliable_message_queue.c6"><img src="../../../../../../doc/src/images/callouts/4.png" alt="4" border="0"></a> </p></td>
+<td valign="top" align="left"><p>
+                if the queue is full, return error to the writer
+              </p></td>
+</tr>
+</table></div>
+<p>
+            <a href="../../../../../../libs/log/example/doc/util_ipc_reliable_mq_writer.cpp" target="_top">See
+            the complete code</a>.
+          </p>
+<p>
+            Typically, the queue would be used for sending log records to a different
+            process. As such, instead of using the queue for writing directly, one
+            would use a special sink backend for that. See <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_ipc_message_queue" title="Text IPC message queue backend"><code class="computeroutput"><span class="identifier">text_ipc_message_queue_backend</span></code></a>
+            documentation.
+          </p>
+<p>
+            Receiving messages from the queue is similar. Here is an example of a
+            log viewer that receives messages from the queue and displays them on
+            the console.
+          </p>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
+<span class="special">{</span>
+    <span class="keyword">try</span>
+    <span class="special">{</span>
+        <span class="keyword">typedef</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">ipc</span><span class="special">::</span><span class="identifier">reliable_message_queue</span> <span class="identifier">queue_t</span><span class="special">;</span>
+
+        <span class="comment">// Create a message_queue_type object that is associated with the interprocess</span>
+        <span class="comment">// message queue named "ipc_message_queue".</span>
+        <span class="identifier">queue_t</span> <span class="identifier">queue</span>
+        <span class="special">(</span>
+            <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">name</span> <span class="special">=</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">ipc</span><span class="special">::</span><span class="identifier">object_name</span><span class="special">(</span><span class="identifier">logging</span><span class="special">::</span><span class="identifier">ipc</span><span class="special">::</span><span class="identifier">object_name</span><span class="special">::</span><span class="identifier">user</span><span class="special">,</span> <span class="string">"ipc_message_queue"</span><span class="special">),</span>
+            <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">open_mode</span> <span class="special">=</span> <span class="identifier">logging</span><span class="special">::</span><span class="identifier">open_mode</span><span class="special">::</span><span class="identifier">open_or_create</span><span class="special">,</span>
+            <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">capacity</span> <span class="special">=</span> <span class="number">256</span><span class="special">,</span>
+            <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">block_size</span> <span class="special">=</span> <span class="number">1024</span><span class="special">,</span>
+            <span class="identifier">keywords</span><span class="special">::</span><span class="identifier">overflow_policy</span> <span class="special">=</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">block_on_overflow</span>
+        <span class="special">);</span>
+
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Viewer process running..."</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+        <span class="comment">// Keep reading log messages from the associated message queue and print them on the console.</span>
+        <span class="comment">// queue.receive() will block if the queue is empty.</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="identifier">message</span><span class="special">;</span>
+        <span class="keyword">while</span> <span class="special">(</span><span class="identifier">queue</span><span class="special">.</span><span class="identifier">receive</span><span class="special">(</span><span class="identifier">message</span><span class="special">)</span> <span class="special">==</span> <span class="identifier">queue_t</span><span class="special">::</span><span class="identifier">succeeded</span><span class="special">)</span>
+        <span class="special">{</span>
+            <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">message</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+            <span class="comment">// Clear the buffer for the next message</span>
+            <span class="identifier">message</span><span class="special">.</span><span class="identifier">clear</span><span class="special">();</span>
+        <span class="special">}</span>
+    <span class="special">}</span>
+    <span class="keyword">catch</span> <span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">exception</span><span class="special">&amp;</span> <span class="identifier">e</span><span class="special">)</span>
+    <span class="special">{</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Failure: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">e</span><span class="special">.</span><span class="identifier">what</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+    <span class="special">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+          </p>
+<p>
+            <a href="../../../../../../libs/log/example/doc/sinks_ipc_receiver.cpp" target="_top">See the
+            complete code</a>.
+          </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              The queue does not guarantee any particular order of received messages
+              from different writer threads. Messages sent by a particular writer
+              thread will be received in the order of sending.
+            </p></td></tr>
+</table></div>
+<p>
+            A blocked reader or writer can be unblocked by calling <code class="computeroutput"><span class="identifier">stop_local</span></code>. After this method is called,
+            all threads blocked on this particular object are released and return
+            <code class="computeroutput"><span class="identifier">operation_result</span><span class="special">::</span><span class="identifier">aborted</span></code>. The other instances of the
+            queue (in the current or other processes) are unaffected. In order to
+            restore the normal functioning of the queue instance after the <code class="computeroutput"><span class="identifier">stop_local</span></code> call the user has to invoke
+            <code class="computeroutput"><span class="identifier">reset_local</span></code>.
+          </p>
 </div>
 </div>
 <div class="section">
@@ -1344,9 +1732,9 @@
 <a name="log.detailed.utilities.setup.convenience"></a><a class="link" href="utilities.html#log.detailed.utilities.setup.convenience" title="Convenience functions">Convenience
           functions</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.console_hpp" title="Header &lt;boost/log/utility/setup/console.hpp&gt;">boost/log/utility/setup/console.hpp</a></code><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.file_hpp" title="Header &lt;boost/log/utility/setup/file.hpp&gt;">boost/log/utility/setup/file.hpp</a></code><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.common_attributes_hpp" title="Header &lt;boost/log/utility/setup/common_attributes.hpp&gt;">boost/log/utility/setup/common_attributes.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.console_8hpp" title="Header &lt;boost/log/utility/setup/console.hpp&gt;">boost/log/utility/setup/console.hpp</a></code><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.file_8hpp" title="Header &lt;boost/log/utility/setup/file.hpp&gt;">boost/log/utility/setup/file.hpp</a></code><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.common__attributes_8hpp" title="Header &lt;boost/log/utility/setup/common_attributes.hpp&gt;">boost/log/utility/setup/common_attributes.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
             The library provides a number of functions that simplify some common
@@ -1374,7 +1762,7 @@
 <p>
             Pretty easy, isn't it? There is also the <code class="computeroutput"><span class="identifier">wadd_console_log</span></code>
             function for wide-character console. If you want to put logs to some
-            other standard stream, you can pass the stream to the <code class="computeroutput"><a class="link" href="../../boost/log/add_console_lo_idp46500160.html" title="Function template add_console_log">add_console_log</a></code> function
+            other standard stream, you can pass the stream to the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/console_8hpp_1afdca648e6eaf2357182095fdf2aec4da.html" title="Function template add_console_log">add_console_log</a></code> function
             as an argument. E.g. enabling logging to <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span></code>
             instead of <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">clog</span></code> would look like this:
           </p>
@@ -1420,18 +1808,18 @@
 <span class="special">}</span>
 </pre>
 <p>
-            The <code class="computeroutput"><a class="link" href="../../boost/log/add_console_lo_idp46500160.html" title="Function template add_console_log">add_console_log</a></code>
-            and <code class="computeroutput"><a class="link" href="../../boost/log/add_file_log.html" title="Function template add_file_log">add_file_log</a></code>
+            The <code class="computeroutput"><a class="link" href="../../doxygen/utilities/console_8hpp_1afdca648e6eaf2357182095fdf2aec4da.html" title="Function template add_console_log">add_console_log</a></code>
+            and <code class="computeroutput"><a class="link" href="../../doxygen/utilities/file_8hpp_1afc3eb3a7e41f72d4ac64647d393756bf.html" title="Function template add_file_log">add_file_log</a></code>
             functions do not conflict and may be combined freely, so it is possible
             to set up logging to the console and a couple of files, including filtering
             and formatting, in about 10 lines of code.
           </p>
 <p>
-            Lastly, there is an <code class="computeroutput"><a class="link" href="../../boost/log/add_common_attributes.html" title="Function add_common_attributes">add_common_attributes</a></code>
+            Lastly, there is an <code class="computeroutput"><a class="link" href="../../doxygen/utilities/common__attributes_8hpp_1af92a587e54f1b77d1fceb21fb829dae0.html" title="Function add_common_attributes">add_common_attributes</a></code>
             function that registers two frequently used attributes: "LineID"
             and "TimeStamp". The former counts log record being made and
             has attribute value <code class="computeroutput"><span class="keyword">unsigned</span> <span class="keyword">int</span></code>. The latter, as its name implies,
-            provides the current time for each log record, in the form of <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">posix_time</span><span class="special">::</span><span class="identifier">ptime</span></code> (see <a href="http://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>).
+            provides the current time for each log record, in the form of <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">posix_time</span><span class="special">::</span><span class="identifier">ptime</span></code> (see <a href="https://www.boost.org/doc/libs/release/doc/html/date_time.html" target="_top">Boost.DateTime</a>).
             These two attributes are registered globally, so they will remain available
             in all threads and loggers. This makes the final version of our code
             sample look something like this:
@@ -1472,8 +1860,8 @@
 <a name="log.detailed.utilities.setup.filter_formatter"></a><a class="link" href="utilities.html#log.detailed.utilities.setup.filter_formatter" title="Filter and formatter parsers">Filter
           and formatter parsers</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.filter_parser_hpp" title="Header &lt;boost/log/utility/setup/filter_parser.hpp&gt;">boost/log/utility/setup/filter_parser.hpp</a></code><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.formatter_parser_hpp" title="Header &lt;boost/log/utility/setup/formatter_parser.hpp&gt;">boost/log/utility/setup/formatter_parser.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.filter__parser_8hpp" title="Header &lt;boost/log/utility/setup/filter_parser.hpp&gt;">boost/log/utility/setup/filter_parser.hpp</a></code><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.formatter__parser_8hpp" title="Header &lt;boost/log/utility/setup/formatter_parser.hpp&gt;">boost/log/utility/setup/formatter_parser.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
             Filter and formatter parsers allow constructing filters and formatters
@@ -1526,7 +1914,7 @@ relation:
             Below are some examples of filters:
           </p>
 <div class="table">
-<a name="log.detailed.utilities.setup.filter_formatter.examples_of_filters"></a><p class="title"><b>Table&#160;1.9.&#160;Examples of filters</b></p>
+<a name="log.detailed.utilities.setup.filter_formatter.examples_of_filters"></a><p class="title"><b>Table 1.8. Examples of filters</b></p>
 <div class="table-contents"><table class="table" summary="Examples of filters">
 <colgroup>
 <col>
@@ -1622,7 +2010,7 @@ relation:
 </div>
 <br class="table-break"><p>
             The formatter string syntax is even simpler and pretty much resembles
-            <a href="http://www.boost.org/doc/libs/release/libs/format/index.html" target="_top">Boost.Format</a>
+            <a href="https://www.boost.org/doc/libs/release/libs/format/index.html" target="_top">Boost.Format</a>
             format string syntax. The string is interpreted as a template which can
             contain attribute names enclosed with percent signs ("%").
             The corresponding attribute values will replace these placeholders when
@@ -1681,13 +2069,13 @@ relation:
 <a name="log.detailed.utilities.setup.settings"></a><a class="link" href="utilities.html#log.detailed.utilities.setup.settings" title="Library initialization from a settings container">Library initialization
           from a settings container</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.settings_hpp" title="Header &lt;boost/log/utility/setup/settings.hpp&gt;">boost/log/utility/setup/settings.hpp</a></code><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.from_settings_hpp" title="Header &lt;boost/log/utility/setup/from_settings.hpp&gt;">boost/log/utility/setup/from_settings.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.settings_8hpp" title="Header &lt;boost/log/utility/setup/settings.hpp&gt;">boost/log/utility/setup/settings.hpp</a></code><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.from__settings_8hpp" title="Header &lt;boost/log/utility/setup/from_settings.hpp&gt;">boost/log/utility/setup/from_settings.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
             The headers define components for library initialization from a settings
             container. The settings container is basically a set of named parameters
-            divided into sections. The container is implemented with the <code class="computeroutput"><a class="link" href="../../boost/log/basic_settings.html" title="Class template basic_settings">basic_settings</a></code> class template.
+            divided into sections. The container is implemented with the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/classboost_1_1log_1_1basic__settings.html" title="Class template basic_settings">basic_settings</a></code> class template.
             There are several constraints on how parameters are stored in the container:
           </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -1711,7 +2099,7 @@ relation:
 </ul></div>
 <p>
             So basically, settings container is a layered associative container,
-            with string keys and values. In some respect it is similar to <a href="http://www.boost.org/doc/libs/release/doc/html/property_tree.html" target="_top">Boost.PropertyTree</a>,
+            with string keys and values. In some respect it is similar to <a href="https://www.boost.org/doc/libs/release/doc/html/property_tree.html" target="_top">Boost.PropertyTree</a>,
             and in fact it supports construction from <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">ptree</span></code>.
             The supported parameters are described below.
           </p>
@@ -1726,7 +2114,7 @@ relation:
             </p></td></tr>
 </table></div>
 <div class="table">
-<a name="log.detailed.utilities.setup.settings.section__core___logging_core_settings_"></a><p class="title"><b>Table&#160;1.10.&#160;Section "Core". Logging core settings.</b></p>
+<a name="log.detailed.utilities.setup.settings.section__core___logging_core_settings_"></a><p class="title"><b>Table 1.9. Section "Core". Logging core settings.</b></p>
 <div class="table-contents"><table class="table" summary='Section "Core". Logging core settings.'>
 <colgroup>
 <col>
@@ -1812,7 +2200,7 @@ relation:
             </p></td></tr>
 </table></div>
 <div class="table">
-<a name="log.detailed.utilities.setup.settings.sections_under_the__sinks__section__common_sink_settings_"></a><p class="title"><b>Table&#160;1.11.&#160;Sections under the "Sinks" section. Common sink settings.</b></p>
+<a name="log.detailed.utilities.setup.settings.sections_under_the__sinks__section__common_sink_settings_"></a><p class="title"><b>Table 1.10. Sections under the "Sinks" section. Common sink settings.</b></p>
 <div class="table-contents"><table class="table" summary='Sections under the "Sinks" section. Common sink settings.'>
 <colgroup>
 <col>
@@ -1858,7 +2246,9 @@ relation:
                       <a class="link" href="sink_backends.html#log.detailed.sink_backends.event_log" title="Windows event log backends">SimpleEventLog</a>,
                       <a class="link" href="sink_backends.html#log.detailed.sink_backends.debugger" title="Windows debugger output backend">Debugger</a>.
                       Also, user-defined sink names may also be supported if registered
-                      by calling <code class="computeroutput"><span class="identifier">register_sink_factory</span></code>.
+                      by calling <code class="computeroutput"><a class="link" href="../../doxygen/utilities/from__settings_8hpp_1af9d9752ee6712b8f75529913db3d4bec.html" title="Function template register_sink_factory">register_sink_factory</a></code>.
+                      See <a class="link" href="../extension/settings.html#log.extension.settings.sinks" title="Adding support for user-defined sinks">this</a>
+                      section on how to add support for new sinks.
                     </p>
                   </td>
 </tr>
@@ -1910,7 +2300,7 @@ relation:
             be specified in the same section.
           </p>
 <div class="table">
-<a name="log.detailed.utilities.setup.settings._console__sink_settings"></a><p class="title"><b>Table&#160;1.12.&#160;"Console" sink settings</b></p>
+<a name="log.detailed.utilities.setup.settings._console__sink_settings"></a><p class="title"><b>Table 1.11. "Console" sink settings</b></p>
 <div class="table-contents"><table class="table" summary='"Console" sink settings'>
 <colgroup>
 <col>
@@ -1956,6 +2346,25 @@ relation:
 <tr>
 <td>
                     <p>
+                      AutoNewline
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      "Disabled", "AlwaysInsert" or "InsertIfMissing"
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Controls whether the backend should automatically insert a
+                      trailing newline after every log record, see <code class="computeroutput"><a class="link" href="../../sinks.html#doxygen.sinks.auto__newline__mode_8hpp_1a32ab4e8646a4496f00cc981ffe0ad67a">auto_newline_mode</a></code>.
+                      If not specified, the default value is "InsertIfMissing".
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
                       AutoFlush
                     </p>
                   </td>
@@ -1976,7 +2385,7 @@ relation:
 </table></div>
 </div>
 <br class="table-break"><div class="table">
-<a name="log.detailed.utilities.setup.settings._textfile__sink_settings"></a><p class="title"><b>Table&#160;1.13.&#160;"TextFile" sink settings</b></p>
+<a name="log.detailed.utilities.setup.settings._textfile__sink_settings"></a><p class="title"><b>Table 1.12. "TextFile" sink settings</b></p>
 <div class="table-contents"><table class="table" summary='"TextFile" sink settings'>
 <colgroup>
 <col>
@@ -2014,8 +2423,26 @@ relation:
                   </td>
 <td>
                     <p>
-                      The file name pattern for the sink backend. This parameter
+                      The active file name pattern for the sink backend. This parameter
                       is mandatory.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      TargetFileName
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      File name pattern
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      The target file name pattern for the sink backend. If not specified,
+                      active file name is preserved after rotation.
                     </p>
                   </td>
 </tr>
@@ -2034,6 +2461,25 @@ relation:
                     <p>
                       Log record formatter to be used by the sink. If not specified,
                       the default formatter is used.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      AutoNewline
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      "Disabled", "AlwaysInsert" or "InsertIfMissing"
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Controls whether the backend should automatically insert a
+                      trailing newline after every log record, see <code class="computeroutput"><a class="link" href="../../sinks.html#doxygen.sinks.auto__newline__mode_8hpp_1a32ab4e8646a4496f00cc981ffe0ad67a">auto_newline_mode</a></code>.
+                      If not specified, the default value is "InsertIfMissing".
                     </p>
                   </td>
 </tr>
@@ -2059,6 +2505,26 @@ relation:
 <tr>
 <td>
                     <p>
+                      Append
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      "true" or "false"
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Enables or disables <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_file.appending" title="Appending to the previously written files">appending</a>
+                      to the existing file instead of overwriting it. If not specified,
+                      the default value <code class="computeroutput"><span class="keyword">false</span></code>
+                      is assumed.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
                       RotationSize
                     </p>
                   </td>
@@ -2069,8 +2535,9 @@ relation:
                   </td>
 <td>
                     <p>
-                      File size, in bytes, upon which file rotation will be performed.
-                      If not specified, no size-based rotation will be made.
+                      File size, in bytes, upon which <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_file.file_rotation" title="File rotation">file
+                      rotation</a> will be performed. If not specified, no size-based
+                      rotation will be made.
                     </p>
                   </td>
 </tr>
@@ -2087,9 +2554,9 @@ relation:
                   </td>
 <td>
                     <p>
-                      Time interval, in seconds, upon which file rotation will be
-                      performed. See also the RotationTimePoint parameter and the
-                      note below.
+                      Time interval, in seconds, upon which <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_file.file_rotation" title="File rotation">file
+                      rotation</a> will be performed. See also the RotationTimePoint
+                      parameter and the note below.
                     </p>
                   </td>
 </tr>
@@ -2107,8 +2574,29 @@ relation:
 <td>
                     <p>
                       Time point or a predicate that detects at what moment of time
-                      to perform log file rotation. See also the RotationInterval
-                      parameter and the note below.
+                      to perform log <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_file.file_rotation" title="File rotation">file
+                      rotation</a>. See also the RotationInterval parameter and
+                      the note below.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
+                      EnableFinalRotation
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      "true" or "false"
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Enables or disables final file rotation on sink destruction,
+                      which typically happens on program termination. If not specified,
+                      the default value <code class="computeroutput"><span class="keyword">true</span></code>
+                      is assumed.
                     </p>
                   </td>
 </tr>
@@ -2126,9 +2614,9 @@ relation:
 <td>
                     <p>
                       Target directory name, in which the rotated files will be stored.
-                      If this parameter is specified, rotated file collection is
-                      enabled. Otherwise the feature is not enabled, and all corresponding
-                      parameters are ignored.
+                      If this parameter is specified, rotated <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_file.file_collection" title="Managing rotated files">file
+                      collection</a> is enabled. Otherwise the feature is not
+                      enabled and all corresponding parameters are ignored.
                     </p>
                   </td>
 </tr>
@@ -2173,6 +2661,25 @@ relation:
 <tr>
 <td>
                     <p>
+                      MaxFiles
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Unsigned integer
+                    </p>
+                  </td>
+<td>
+                    <p>
+                      Total number of files in the target directory, upon which the
+                      oldest file will be deleted. If not specified, no count-based
+                      file cleanup will be performed.
+                    </p>
+                  </td>
+</tr>
+<tr>
+<td>
+                    <p>
                       ScanForFiles
                     </p>
                   </td>
@@ -2183,8 +2690,8 @@ relation:
                   </td>
 <td>
                     <p>
-                      Mode of scanning for old files in the target directory, see
-                      <code class="computeroutput"><a class="link" href="../../sinks.html#boost.log.sinks.file.scan_method">scan_method</a></code>. If
+                      Mode of <a class="link" href="sink_backends.html#log.detailed.sink_backends.text_file.file_scanning" title="Scanning for rotated files">scanning</a>
+                      for old files in the target directory, see <code class="computeroutput"><a class="link" href="../../sinks.html#doxygen.sinks.text__file__backend_8hpp_1a1d74a9445bfea95e8e411e69a9d44447">scan_method</a></code>. If
                       not specified, no scanning will be performed.
                     </p>
                   </td>
@@ -2198,7 +2705,7 @@ relation:
 <th align="left">Warning</th>
 </tr>
 <tr><td align="left" valign="top"><p>
-              The text file sink uses <a href="http://www.boost.org/doc/libs/release/libs/filesystem/doc/index.htm" target="_top">Boost.Filesystem</a>
+              The text file sink uses <a href="https://www.boost.org/doc/libs/release/libs/filesystem/doc/index.htm" target="_top">Boost.Filesystem</a>
               internally, which may cause problems on process termination. See <a class="link" href="../rationale/why_crash_on_term.html" title="Why my application crashes on process termination when file sinks are used?">here</a> for more details.
             </p></td></tr>
 </table></div>
@@ -2210,7 +2717,7 @@ relation:
           </p>
 <p>
             The RotationTimePoint parameter should have one of the following formats,
-            according to the <a href="http://www.boost.org/doc/libs/release/doc/html/date_time/date_time_io.html#date_time.format_flags" target="_top">Boost.DateTime</a>
+            according to the <a href="https://www.boost.org/doc/libs/release/doc/html/date_time/date_time_io.html#date_time.format_flags" target="_top">Boost.DateTime</a>
             format notation:
           </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -2230,7 +2737,7 @@ relation:
               </li>
 </ul></div>
 <div class="table">
-<a name="log.detailed.utilities.setup.settings._syslog__sink_settings"></a><p class="title"><b>Table&#160;1.14.&#160;"Syslog" sink settings</b></p>
+<a name="log.detailed.utilities.setup.settings._syslog__sink_settings"></a><p class="title"><b>Table 1.13. "Syslog" sink settings</b></p>
 <div class="table-contents"><table class="table" summary='"Syslog" sink settings'>
 <colgroup>
 <col>
@@ -2313,7 +2820,7 @@ relation:
 </table></div>
 </div>
 <br class="table-break"><div class="table">
-<a name="log.detailed.utilities.setup.settings._simpleeventlog__sink_settings"></a><p class="title"><b>Table&#160;1.15.&#160;"SimpleEventLog" sink settings</b></p>
+<a name="log.detailed.utilities.setup.settings._simpleeventlog__sink_settings"></a><p class="title"><b>Table 1.14. "SimpleEventLog" sink settings</b></p>
 <div class="table-contents"><table class="table" summary='"SimpleEventLog" sink settings'>
 <colgroup>
 <col>
@@ -2405,7 +2912,7 @@ relation:
                   </td>
 <td>
                     <p>
-                      Mode of log source registration in Windows registry, see <code class="computeroutput"><a class="link" href="../../sinks.html#boost.log.sinks.event_log.registration_mode">registration_mode</a></code>.
+                      Mode of log source registration in Windows registry, see <code class="computeroutput"><a class="link" href="../../sinks.html#doxygen.sinks.event__log__backend_8hpp_1ab16ac99c8d27acdb8e803871defc5720">registration_mode</a></code>.
                       If not specified, on-demand registration will be performed.
                     </p>
                   </td>
@@ -2417,30 +2924,50 @@ relation:
             The user is free to fill the settings container from whatever settings
             source he needs. The usage example is below:
           </p>
-<pre class="programlisting"><span class="keyword">void</span> <span class="identifier">init_logging</span><span class="special">()</span>
-<span class="special">{</span>
-    <span class="identifier">logging</span><span class="special">::</span><span class="identifier">settings</span> <span class="identifier">setts</span><span class="special">;</span>
+<p>
+</p>
+<pre class="programlisting"><span class="identifier">logging</span><span class="special">::</span><span class="identifier">settings</span> <span class="identifier">setts</span><span class="special">;</span>
 
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Core"</span><span class="special">][</span><span class="string">"Filter"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"%Severity% &gt;= warning"</span><span class="special">;</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Core"</span><span class="special">][</span><span class="string">"DisableLogging"</span><span class="special">]</span> <span class="special">=</span> <span class="keyword">false</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Core"</span><span class="special">][</span><span class="string">"Filter"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"%Severity% &gt;= warning"</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Core"</span><span class="special">][</span><span class="string">"DisableLogging"</span><span class="special">]</span> <span class="special">=</span> <span class="keyword">false</span><span class="special">;</span>
 
-    <span class="comment">// Subsections can be referred to with a single path</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"Destination"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"Console"</span><span class="special">;</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"Filter"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"%Severity% &gt;= fatal"</span><span class="special">;</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"AutoFlush"</span><span class="special">]</span> <span class="special">=</span> <span class="keyword">true</span><span class="special">;</span>
+<span class="comment">// Subsections can be referred to with a single path</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"Destination"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"Console"</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"Filter"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"%Severity% &gt;= critical"</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"Format"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"%TimeStamp% [%Severity%] %Message%"</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.Console"</span><span class="special">][</span><span class="string">"AutoFlush"</span><span class="special">]</span> <span class="special">=</span> <span class="keyword">true</span><span class="special">;</span>
 
-    <span class="comment">// ...as well as the individual parameters</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.Destination"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"TextFile"</span><span class="special">;</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.FileName"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"MyApp_%3N.log"</span><span class="special">;</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.AutoFlush"</span><span class="special">]</span> <span class="special">=</span> <span class="keyword">true</span><span class="special">;</span>
-    <span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.RotationSize"</span><span class="special">]</span> <span class="special">=</span> <span class="number">10</span> <span class="special">*</span> <span class="number">1024</span> <span class="special">*</span> <span class="number">1024</span><span class="special">;</span> <span class="comment">// 10 MiB</span>
+<span class="comment">// ...as well as the individual parameters</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.Destination"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"TextFile"</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.FileName"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"MyApp_%3N.log"</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.AutoFlush"</span><span class="special">]</span> <span class="special">=</span> <span class="keyword">true</span><span class="special">;</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.RotationSize"</span><span class="special">]</span> <span class="special">=</span> <span class="number">10</span> <span class="special">*</span> <span class="number">1024</span> <span class="special">*</span> <span class="number">1024</span><span class="special">;</span> <span class="comment">// 10 MiB</span>
+<span class="identifier">setts</span><span class="special">[</span><span class="string">"Sinks.File.Format"</span><span class="special">]</span> <span class="special">=</span> <span class="string">"%TimeStamp% [%Severity%] %Message%"</span><span class="special">;</span>
 
-    <span class="identifier">logging</span><span class="special">::</span><span class="identifier">init_from_settings</span><span class="special">(</span><span class="identifier">setts</span><span class="special">);</span>
-<span class="special">}</span>
+<span class="identifier">logging</span><span class="special">::</span><span class="identifier">init_from_settings</span><span class="special">(</span><span class="identifier">setts</span><span class="special">);</span>
 </pre>
 <p>
-            The settings reader also allows to be extended to support custom sink
-            types. See the <a class="link" href="../extension/settings.html" title="Extending library settings support">Extending the library</a>
+          </p>
+<p>
+            <a href="../../../../../../libs/log/example/doc/util_setup_settings.cpp" target="_top">See
+            the complete code</a>.
+          </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              Initialization from settings does not automatically create any attributes
+              or loggers, the application developer is still responsible for creating
+              those. It can be said that loggers and attributes define the data that
+              is exported by the application and the settings only describe how that
+              data is going to be presented to the application user.
+            </p></td></tr>
+</table></div>
+<p>
+            The settings reader also can be extended to support custom sink types.
+            See the <a class="link" href="../extension/settings.html" title="Extending library settings support">Extending the library</a>
             section for more information.
           </p>
 </div>
@@ -2449,19 +2976,19 @@ relation:
 <a name="log.detailed.utilities.setup.settings_file"></a><a class="link" href="utilities.html#log.detailed.utilities.setup.settings_file" title="Library initialization from a settings file">Library
           initialization from a settings file</a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#header.boost.log.utility.setup.from_stream_hpp" title="Header &lt;boost/log/utility/setup/from_stream.hpp&gt;">boost/log/utility/setup/from_stream.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../../utilities.html#doxygen.utilities.from__stream_8hpp" title="Header &lt;boost/log/utility/setup/from_stream.hpp&gt;">boost/log/utility/setup/from_stream.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
             Support for configuration files is a frequently requested feature of
             the library. And despite the fact there is no ultimately convenient and
             flexible format of the library settings, the library provides preliminary
             support for this feature. The functionality is implemented with a simple
-            function <code class="computeroutput"><a class="link" href="../../boost/log/init_from_stream.html" title="Function template init_from_stream">init_from_stream</a></code>, which
-            accepts an STL input stream and reads the library settings from it. The
-            function then passes on the read settings to the <code class="computeroutput"><a class="link" href="../../boost/log/init_from_settings.html" title="Function template init_from_settings">init_from_settings</a></code> function,
-            described <a class="link" href="utilities.html#log.detailed.utilities.setup.settings" title="Library initialization from a settings container">above</a>.
+            function <code class="computeroutput"><a class="link" href="../../doxygen/utilities/from__stream_8hpp_1a3483a67c3684ceee8bb3ebecb638787d.html" title="Function template init_from_stream">init_from_stream</a></code>, which
+            accepts a <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">istream</span></code> and reads the library settings
+            from it. The function then passes on the read settings to the <code class="computeroutput"><a class="link" href="../../doxygen/utilities/from__settings_8hpp_1a51ea769e19852b75a809d5cebde82f78.html" title="Function template init_from_settings">init_from_settings</a></code>
+            function, described <a class="link" href="utilities.html#log.detailed.utilities.setup.settings" title="Library initialization from a settings container">above</a>.
             Therefore the parameter names and their meaning is the same as for the
-            <code class="computeroutput"><a class="link" href="../../boost/log/init_from_settings.html" title="Function template init_from_settings">init_from_settings</a></code>
+            <code class="computeroutput"><a class="link" href="../../doxygen/utilities/from__settings_8hpp_1a51ea769e19852b75a809d5cebde82f78.html" title="Function template init_from_settings">init_from_settings</a></code>
             function.
           </p>
 <p>
@@ -2506,18 +3033,18 @@ AutoFlush=true
     <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
+<p>
+            See a <a href="../../../../../../libs/log/example/settings_file/main.cpp" target="_top">more
+            complete example</a>.
+          </p>
 </div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2007-2015 Andrey
-      Semashev<p>
+<div class="copyright-footer">Copyright © 2007-2024 Andrey Semashev<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>).
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="attributes.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../detailed.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../extension.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>

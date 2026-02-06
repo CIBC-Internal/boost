@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>How to use Boost.Intrusive</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../intrusive.html" title="Chapter&#160;15.&#160;Boost.Intrusive">
+<link rel="up" href="../intrusive.html" title="Chapter 17. Boost.Intrusive">
 <link rel="prev" href="intrusive_vs_nontrusive.html" title="Intrusive and non-intrusive containers">
 <link rel="next" href="usage_when.html" title="When to use?">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -37,9 +39,9 @@
       decisions influencing the class definition itself. Each class that will be
       used in an intrusive container needs some appropriate data members storing
       the information needed by the container. We will take a simple intrusive container,
-      the intrusive list (<code class="computeroutput"><a class="link" href="../boost/intrusive/list.html" title="Class template list">boost::intrusive::list</a></code>),
+      the intrusive list (<code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1list.html" title="Class template list">boost::intrusive::list</a></code>),
       for the following examples, but all <span class="bold"><strong>Boost.Intrusive</strong></span>
-      containers are very similar. To compile the example using <code class="computeroutput"><a class="link" href="../boost/intrusive/list.html" title="Class template list">boost::intrusive::list</a></code>,
+      containers are very similar. To compile the example using <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1list.html" title="Class template list">boost::intrusive::list</a></code>,
       just include:
     </p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">intrusive</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
@@ -59,8 +61,8 @@
 <a name="intrusive.usage.usage_base_hook"></a><a class="link" href="usage.html#intrusive.usage.usage_base_hook" title="Using base hooks">Using base hooks</a>
 </h3></div></div></div>
 <p>
-        For <code class="computeroutput"><a class="link" href="../boost/intrusive/list.html" title="Class template list">list</a></code>, you can publicly
-        derive from <code class="computeroutput"><a class="link" href="../boost/intrusive/list_base_hook.html" title="Class template list_base_hook">list_base_hook</a></code>.
+        For <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1list.html" title="Class template list">list</a></code>, you can publicly
+        derive from <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1list__base__hook.html" title="Class template list_base_hook">list_base_hook</a></code>.
       </p>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="special">...</span><span class="identifier">Options</span><span class="special">&gt;</span>
 <span class="keyword">class</span> <span class="identifier">list_base_hook</span><span class="special">;</span>
@@ -73,7 +75,7 @@
 <li class="listitem">
             <span class="bold"><strong><code class="computeroutput"><span class="identifier">tag</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">Tag</span><span class="special">&gt;</span></code></strong></span>:
             this argument serves as a tag, so you can derive from more than one
-            <code class="computeroutput"><a class="link" href="../boost/intrusive/list_base_hook.html" title="Class template list_base_hook">list_base_hook</a></code>
+            <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1list__base__hook.html" title="Class template list_base_hook">list_base_hook</a></code>
             and hence put an object in multiple intrusive lists at the same time.
             An incomplete type can serve as a tag. If you specify two base hooks,
             you <span class="bold"><strong>must</strong></span> specify a different tag for
@@ -158,8 +160,8 @@
             <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span></code> (for example, STL-like containers
             use the <code class="computeroutput"><span class="identifier">size_type</span></code> defined
             by their allocator). <span class="bold"><strong>Boost.Intrusive</strong></span>
-            can be used to implement such containers specifying the the type of the
-            size. By default the type is <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span></code>.
+            can be used to implement such containers specifying the type of the size.
+            By default the type is <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span></code>.
           </li>
 </ul></div>
 <p>
@@ -187,7 +189,7 @@
 <span class="keyword">struct</span> <span class="identifier">my_tag1</span><span class="special">;</span>
 <span class="keyword">struct</span> <span class="identifier">my_tag2</span><span class="special">;</span>
 
-<span class="keyword">typedef</span> <span class="identifier">list_base_hook</span><span class="special">&lt;</span> <span class="identifier">tag</span><span class="special">&lt;</span><span class="identifier">my_tag</span><span class="special">&gt;</span>  <span class="special">&gt;</span> <span class="identifier">BaseHook</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">list_base_hook</span><span class="special">&lt;</span> <span class="identifier">tag</span><span class="special">&lt;</span><span class="identifier">my_tag1</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">BaseHook</span><span class="special">;</span>
 <span class="keyword">typedef</span> <span class="identifier">list_base_hook</span><span class="special">&lt;</span> <span class="identifier">tag</span><span class="special">&lt;</span><span class="identifier">my_tag2</span><span class="special">&gt;</span> <span class="special">&gt;</span> <span class="identifier">BaseHook2</span><span class="special">;</span>
 <span class="keyword">class</span> <span class="identifier">Foo</span>   <span class="special">:</span>  <span class="keyword">public</span> <span class="identifier">BaseHook</span><span class="special">,</span> <span class="keyword">public</span> <span class="identifier">BaseHook2</span>
 <span class="special">{</span> <span class="comment">/**/</span> <span class="special">};</span>
@@ -275,8 +277,6 @@
         time, using one hook per container. This is a full example using base and
         member hooks:
       </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">intrusive</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&gt;</span>
 
@@ -339,15 +339,13 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-      </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="intrusive.usage.usage_lifetime"></a><a class="link" href="usage.html#intrusive.usage.usage_lifetime" title="Object lifetime">Object lifetime</a>
 </h3></div></div></div>
 <p>
-        Even if the interface of <code class="computeroutput"><a class="link" href="../boost/intrusive/list.html" title="Class template list">list</a></code>
+        Even if the interface of <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1list.html" title="Class template list">list</a></code>
         is similar to <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">list</span></code>, its usage is a bit different: You
         always have to keep in mind that you directly store objects in intrusive
         containers, not copies. The lifetime of a stored object is not bound to or
@@ -366,14 +364,11 @@
 </ul></div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2005 Olaf Krzikalla<br>Copyright &#169; 2006-2013 Ion Gaztanaga<p>
+<div class="copyright-footer">Copyright © 2005 Olaf Krzikalla<br>Copyright © 2006-2015 Ion Gaztanaga<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="intrusive_vs_nontrusive.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../intrusive.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="usage_when.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

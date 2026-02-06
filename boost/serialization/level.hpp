@@ -9,7 +9,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // level.hpp:
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -63,19 +63,11 @@ struct implementation_level_impl {
         //else
         typename mpl::eval_if<
             is_array< T >,
-            #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x560))
-                mpl::int_<not_serializable>,
-            #else
                 mpl::int_<object_serializable>,
-            #endif
         //else
         typename mpl::eval_if<
             is_enum< T >,
-            //#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x560))
-            //    mpl::int_<not_serializable>,
-            //#else
                 mpl::int_<primitive_type>,
-            //#endif
         //else
             mpl::int_<not_serializable>
         >
@@ -88,7 +80,7 @@ struct implementation_level_impl {
 };
 
 template<class T>
-struct implementation_level : 
+struct implementation_level :
     public implementation_level_impl<const T>
 {
 };

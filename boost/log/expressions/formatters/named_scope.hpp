@@ -18,10 +18,9 @@
 #include <string>
 #include <iterator>
 #include <utility>
-#include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/move/core.hpp>
-#include <boost/move/utility.hpp>
+#include <boost/move/utility_core.hpp>
 #include <boost/parameter/binding.hpp>
 #include <boost/preprocessor/iteration/iterate.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
@@ -257,8 +256,10 @@ template< typename FallbackPolicyT, typename CharT >
 class format_named_scope_terminal
 {
 public:
+#ifndef BOOST_LOG_DOXYGEN_PASS
     //! Internal typedef for type categorization
     typedef void _is_boost_log_terminal;
+#endif
 
     //! Attribute value type
     typedef attributes::named_scope::value_type value_type;
@@ -337,7 +338,7 @@ public:
         stream_type strm(str);
         m_visitor_invoker(m_name, fusion::at_c< 0 >(phoenix::env(ctx).args()), binder1st< formatter_function_type&, stream_type& >(m_formatter, strm));
         strm.flush();
-        return boost::move(str);
+        return BOOST_LOG_NRVO_RESULT(str);
     }
 
     //! Invokation operator
@@ -348,7 +349,7 @@ public:
         stream_type strm(str);
         m_visitor_invoker(m_name, fusion::at_c< 0 >(phoenix::env(ctx).args()), binder1st< formatter_function_type const&, stream_type& >(m_formatter, strm));
         strm.flush();
-        return boost::move(str);
+        return BOOST_LOG_NRVO_RESULT(str);
     }
 
     BOOST_DELETED_FUNCTION(format_named_scope_terminal())
@@ -522,7 +523,7 @@ template< typename DescriptorT, template< typename > class ActorT, typename Char
 BOOST_FORCEINLINE format_named_scope_actor< fallback_to_none, CharT, ActorT >
 format_named_scope(attribute_keyword< DescriptorT, ActorT > const& keyword, const CharT* element_format)
 {
-    BOOST_STATIC_ASSERT_MSG((is_same< typename DescriptorT::value_type, attributes::named_scope::value_type >::value),\
+    static_assert(is_same< typename DescriptorT::value_type, attributes::named_scope::value_type >::value,
         "Boost.Log: Named scope formatter only accepts attribute values of type attributes::named_scope::value_type.");
 
     typedef format_named_scope_actor< fallback_to_none, CharT, ActorT > actor_type;
@@ -542,7 +543,7 @@ template< typename DescriptorT, template< typename > class ActorT, typename Char
 BOOST_FORCEINLINE format_named_scope_actor< fallback_to_none, CharT, ActorT >
 format_named_scope(attribute_keyword< DescriptorT, ActorT > const& keyword, std::basic_string< CharT > const& element_format)
 {
-    BOOST_STATIC_ASSERT_MSG((is_same< typename DescriptorT::value_type, attributes::named_scope::value_type >::value),\
+    static_assert(is_same< typename DescriptorT::value_type, attributes::named_scope::value_type >::value,
         "Boost.Log: Named scope formatter only accepts attribute values of type attributes::named_scope::value_type.");
 
     typedef format_named_scope_actor< fallback_to_none, CharT, ActorT > actor_type;
@@ -562,7 +563,7 @@ template< typename T, typename FallbackPolicyT, typename TagT, template< typenam
 BOOST_FORCEINLINE format_named_scope_actor< FallbackPolicyT, CharT, ActorT >
 format_named_scope(attribute_actor< T, FallbackPolicyT, TagT, ActorT > const& placeholder, const CharT* element_format)
 {
-    BOOST_STATIC_ASSERT_MSG((is_same< T, attributes::named_scope::value_type >::value),\
+    static_assert(is_same< T, attributes::named_scope::value_type >::value,
         "Boost.Log: Named scope formatter only accepts attribute values of type attributes::named_scope::value_type.");
 
     typedef format_named_scope_actor< FallbackPolicyT, CharT, ActorT > actor_type;
@@ -582,7 +583,7 @@ template< typename T, typename FallbackPolicyT, typename TagT, template< typenam
 BOOST_FORCEINLINE format_named_scope_actor< FallbackPolicyT, CharT, ActorT >
 format_named_scope(attribute_actor< T, FallbackPolicyT, TagT, ActorT > const& placeholder, std::basic_string< CharT > const& element_format)
 {
-    BOOST_STATIC_ASSERT_MSG((is_same< T, attributes::named_scope::value_type >::value),\
+    static_assert(is_same< T, attributes::named_scope::value_type >::value,
         "Boost.Log: Named scope formatter only accepts attribute values of type attributes::named_scope::value_type.");
 
     typedef format_named_scope_actor< FallbackPolicyT, CharT, ActorT > actor_type;

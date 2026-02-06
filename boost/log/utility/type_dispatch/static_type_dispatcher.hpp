@@ -19,8 +19,7 @@
 #include <utility>
 #include <iterator>
 #include <algorithm>
-#include <boost/array.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/type_index.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/begin.hpp>
@@ -28,11 +27,9 @@
 #include <boost/mpl/deref.hpp>
 #include <boost/mpl/next.hpp>
 #include <boost/mpl/is_sequence.hpp>
-#include <boost/utility/addressof.hpp>
+#include <boost/core/addressof.hpp>
 #include <boost/log/detail/config.hpp>
-#include <boost/log/detail/visible_type.hpp>
 #include <boost/log/utility/once_block.hpp>
-#include <boost/log/utility/type_info_wrapper.hpp>
 #include <boost/log/utility/type_dispatch/type_dispatcher.hpp>
 #include <boost/log/detail/header.hpp>
 
@@ -50,7 +47,7 @@ namespace aux {
 struct dispatching_map_order
 {
     typedef bool result_type;
-    typedef std::pair< type_info_wrapper, void* > first_argument_type, second_argument_type;
+    typedef std::pair< typeindex::type_index, void* > first_argument_type, second_argument_type;
     result_type operator() (first_argument_type const& left, second_argument_type const& right) const
     {
         return (left.first < right.first);
@@ -62,15 +59,15 @@ template< typename VisitorT >
 struct dispatching_map_initializer
 {
     template< typename IteratorT >
-    static BOOST_FORCEINLINE void init(IteratorT*, IteratorT*, std::pair< type_info_wrapper, void* >*)
+    static BOOST_FORCEINLINE void init(IteratorT*, IteratorT*, std::pair< typeindex::type_index, void* >*)
     {
     }
 
     template< typename BeginIteratorT, typename EndIteratorT >
-    static BOOST_FORCEINLINE void init(BeginIteratorT*, EndIteratorT* end, std::pair< type_info_wrapper, void* >* p)
+    static BOOST_FORCEINLINE void init(BeginIteratorT*, EndIteratorT* end, std::pair< typeindex::type_index, void* >* p)
     {
         typedef typename mpl::deref< BeginIteratorT >::type type;
-        do_init(static_cast< visible_type< type >* >(0), p);
+        do_init(static_cast< type* >(0), p);
 
         typedef typename mpl::next< BeginIteratorT >::type next_iterator_type;
         init(static_cast< next_iterator_type* >(0), end, p + 1);
@@ -78,19 +75,19 @@ struct dispatching_map_initializer
 
 private:
     template< typename T >
-    static BOOST_FORCEINLINE void do_init(visible_type< T >*, std::pair< type_info_wrapper, void* >* p)
+    static BOOST_FORCEINLINE void do_init(T*, std::pair< typeindex::type_index, void* >* p)
     {
-        p->first = typeid(visible_type< T >);
+        p->first = typeindex::type_id< T >();
 
         typedef void (*trampoline_t)(void*, T const&);
-        BOOST_STATIC_ASSERT_MSG(sizeof(trampoline_t) == sizeof(void*), "Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer");
+        static_assert(sizeof(trampoline_t) == sizeof(void*), "Boost.Log: Unsupported platform, the size of a function pointer differs from the size of a pointer");
         union
         {
             void* as_pvoid;
             trampoline_t as_trampoline;
         }
         caster;
-        caster.as_trampoline = &type_dispatcher::callback_base::trampoline< VisitorT, T >;
+        caster.as_trampoline = (trampoline_t)&type_dispatcher::callback_base::trampoline< VisitorT, T >;
         p->second = caster.as_pvoid;
     }
 };
@@ -99,9 +96,9 @@ private:
 class type_sequence_dispatcher_base :
     public type_dispatcher
 {
-private:
+protected:
     //! Dispatching map element type
-    typedef std::pair< type_info_wrapper, void* > dispatching_map_element_type;
+    typedef std::pair< typeindex::type_index, void* > dispatching_map_element_type;
 
 private:
     //! Dispatching map
@@ -123,21 +120,20 @@ protected:
 
 private:
     //! The get_callback method implementation
-    static callback_base get_callback(type_dispatcher* p, std::type_info const& type)
+    static callback_base get_callback(type_dispatcher* p, typeindex::type_index type)
     {
         type_sequence_dispatcher_base* const self = static_cast< type_sequence_dispatcher_base* >(p);
-        type_info_wrapper wrapper(type);
         const dispatching_map_element_type* begin = self->m_dispatching_map_begin;
         const dispatching_map_element_type* end = begin + self->m_dispatching_map_size;
         const dispatching_map_element_type* it = std::lower_bound
         (
             begin,
             end,
-            dispatching_map_element_type(wrapper, (void*)0),
+            dispatching_map_element_type(type, (void*)0),
             dispatching_map_order()
         );
 
-        if (it != end && it->first == wrapper)
+        if (it != end && it->first == type)
             return callback_base(self->m_visitor, it->second);
         else
             return callback_base();
@@ -158,11 +154,8 @@ public:
     typedef TypeSequenceT supported_types;
 
 private:
-    //! The dispatching map
-    typedef array<
-        std::pair< type_info_wrapper, void* >,
-        mpl::size< supported_types >::value
-    > dispatching_map;
+    //! Number of entries in the dispatching map
+    static BOOST_CONSTEXPR_OR_CONST std::size_t dispatching_map_size = mpl::size< supported_types >::value;
 
 public:
     /*!
@@ -170,33 +163,33 @@ public:
      */
     template< typename VisitorT >
     explicit type_sequence_dispatcher(VisitorT& visitor) :
-        type_sequence_dispatcher_base(get_dispatching_map< VisitorT >().data(), dispatching_map::static_size, (void*)boost::addressof(visitor))
+        type_sequence_dispatcher_base(get_dispatching_map< VisitorT >(), dispatching_map_size, (void*)boost::addressof(visitor))
     {
     }
 
 private:
     //! The method returns the dispatching map instance
     template< typename VisitorT >
-    static dispatching_map const& get_dispatching_map()
+    static const dispatching_map_element_type* get_dispatching_map()
     {
-        static const dispatching_map* pinstance = NULL;
+        static const dispatching_map_element_type* pinstance = NULL;
 
         BOOST_LOG_ONCE_BLOCK()
         {
-            static dispatching_map instance;
-            typename dispatching_map::value_type* p = &*instance.begin();
+            static dispatching_map_element_type instance[dispatching_map_size];
+            dispatching_map_element_type* p = instance;
 
             typedef typename mpl::begin< supported_types >::type begin_iterator_type;
             typedef typename mpl::end< supported_types >::type end_iterator_type;
             typedef dispatching_map_initializer< VisitorT > initializer;
             initializer::init(static_cast< begin_iterator_type* >(0), static_cast< end_iterator_type* >(0), p);
 
-            std::sort(instance.begin(), instance.end(), dispatching_map_order());
+            std::sort(instance, instance + dispatching_map_size, dispatching_map_order());
 
-            pinstance = &instance;
+            pinstance = instance;
         }
 
-        return *pinstance;
+        return pinstance;
     }
 
     //  Copying and assignment closed
@@ -210,22 +203,22 @@ class single_type_dispatcher_base :
 {
 private:
     //! The type to match against
-    std::type_info const& m_type;
+    typeindex::type_index m_type;
     //! A callback for the supported type
     callback_base m_callback;
 
 protected:
     //! Initializing constructor
-    single_type_dispatcher_base(std::type_info const& type, callback_base const& callback) BOOST_NOEXCEPT :
+    single_type_dispatcher_base(typeindex::type_index type, callback_base const& cb) BOOST_NOEXCEPT :
         type_dispatcher(&single_type_dispatcher_base::get_callback),
         m_type(type),
-        m_callback(callback)
+        m_callback(cb)
     {
     }
 
 private:
     //! The get_callback method implementation
-    static callback_base get_callback(type_dispatcher* p, std::type_info const& type)
+    static callback_base get_callback(type_dispatcher* p, typeindex::type_index type)
     {
         single_type_dispatcher_base* const self = static_cast< single_type_dispatcher_base* >(p);
         if (type == self->m_type)
@@ -244,11 +237,14 @@ template< typename T >
 class single_type_dispatcher :
     public single_type_dispatcher_base
 {
+private:
+    typedef void (*trampoline_t)(void*, T const&);
+
 public:
     //! Constructor
     template< typename VisitorT >
     explicit single_type_dispatcher(VisitorT& visitor) BOOST_NOEXCEPT :
-        single_type_dispatcher_base(typeid(visible_type< T >), callback_base((void*)boost::addressof(visitor), &callback_base::trampoline< VisitorT, T >))
+        single_type_dispatcher_base(typeindex::type_id< T >(), callback_base((void*)boost::addressof(visitor), (trampoline_t)&callback_base::trampoline< VisitorT, T >))
     {
     }
 

@@ -7,7 +7,6 @@
    http://www.boost.org/LICENSE_1_0.txt)
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision"
                 version="1.0">
   
   <xsl:param name="html.stylesheet">
@@ -37,6 +36,8 @@
              select="'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'"/>
   <!--See usage below for explanation of this param-->
   <xsl:param name="boost.noexpand.chapter.toc" select="0"/>
+  <!-- Currently just adds a viewport meta tag -->
+  <xsl:param name="boost.mobile" select="0"/>
 
   <xsl:param name="admon.style"/>
   <xsl:param name="admon.graphics">1</xsl:param>
@@ -52,7 +53,7 @@
   <xsl:param name="generate.section.toc.level" select="3"/>
   <xsl:param name="doc.standalone">false</xsl:param>
   <xsl:param name="chunker.output.indent">yes</xsl:param>
-  <xsl:param name="chunker.output.encoding">US-ASCII</xsl:param>
+  <xsl:param name="chunker.output.encoding">UTF-8</xsl:param>
   <xsl:param name="chunk.quietly" select="not(number($boostbook.verbose))"/>
   <xsl:param name="toc.max.depth">2</xsl:param>
   <xsl:param name="callout.graphics.number.limit">15</xsl:param>
@@ -219,53 +220,13 @@ set       toc,title
   </xsl:template>
 
   <xsl:template name="user.footer.content">
-    <table width="100%">
-      <tr>
-        <td align="left">
-          <xsl:variable name="revision-nodes"
-            select="ancestor-or-self::*
-                    [not (attribute::rev:last-revision='')]"/>
-          <xsl:if test="count($revision-nodes) &gt; 0">
-            <xsl:variable name="revision-node"
-              select="$revision-nodes[last()]"/>
-            <xsl:variable name="revision-text">
-              <xsl:value-of
-                select="normalize-space($revision-node/attribute::rev:last-revision)"/>
-            </xsl:variable>
-            <xsl:if test="string-length($revision-text) &gt; 0 and not($revision-text = '$Date$')">
-              <p>
-                <small>
-                  <xsl:text>Last revised: </xsl:text>
-                  <xsl:choose>
-                    <xsl:when test="not(contains($revision-text, '$Date: ')) and not(contains($revision-text, '$Date:: '))">
-                      <xsl:value-of select="$revision-text"/>
-                    </xsl:when>
-                    <xsl:when test="contains($revision-text, '/')">
-                      <xsl:call-template name="format.cvs.revision">
-                        <xsl:with-param name="text" select="$revision-text"/>
-                      </xsl:call-template>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:call-template name="format.svn.revision">
-                        <xsl:with-param name="text" select="$revision-text"/>
-                      </xsl:call-template>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </small>
-              </p>
-            </xsl:if>
-          </xsl:if>
-        </td>
-        <td align="right">
-          <div class = "copyright-footer">
-            <xsl:apply-templates select="ancestor::*/*/copyright"
-              mode="boost.footer"/>
-            <xsl:apply-templates select="ancestor::*/*/legalnotice"
-              mode="boost.footer"/>
-          </div>
-        </td>
-      </tr>
-    </table>
+    <div class = "copyright-footer">
+      <xsl:apply-templates select="ancestor::*/*/copyright"
+                           mode="boost.footer"/>
+      <xsl:apply-templates select="ancestor::*/*/legalnotice"
+                           mode="boost.footer"/>
+      <xsl:apply-templates select="ancestor::*/*/para[@role='copyright']"/>
+    </div>
   </xsl:template>
 
   <!-- We don't want refentry's to show up in the TOC because they
@@ -304,6 +265,9 @@ set       toc,title
   </xsl:template>
   
   <xsl:template name="user.head.content">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
     <xsl:if test="$boost.mathjax = 1">
       <xsl:variable name="has-math">
         <xsl:apply-templates mode="detect-math" select="*"/>
@@ -312,8 +276,11 @@ set       toc,title
         <script type="text/javascript" src="{$boost.mathjax.script}"/>
       </xsl:if>
     </xsl:if>
+    <xsl:if test="$boost.mobile = 1">
+      <meta name="viewport" content="width=device-width"/>
+    </xsl:if>
   </xsl:template>
-  
+
   <xsl:template match="inlinemediaobject">
     <xsl:choose>
       <xsl:when test="$boost.mathjax = 1 and textobject[@role='tex']">
@@ -385,6 +352,10 @@ set       toc,title
 
 <xsl:template match="itemizedlist[@role = 'index']" mode="class.value">
    <xsl:value-of select="'index'"/>
+</xsl:template>
+
+<xsl:template match="sidebar[@role = 'blurb']" mode="class.value">
+   <xsl:value-of select="'blurb'"/>
 </xsl:template>
 
 <xsl:template match="preface|chapter|appendix|article" mode="toc">

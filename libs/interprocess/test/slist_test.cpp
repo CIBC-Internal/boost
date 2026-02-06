@@ -7,7 +7,6 @@
 // See http://www.boost.org/libs/interprocess for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/containers/slist.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
@@ -38,15 +37,12 @@ int main ()
 {
    if(test::list_test<managed_shared_memory, MyList, false>())
       return 1;
-
+   
    if(test::list_test<managed_shared_memory, MyMoveList, false>())
       return 1;
 
    if(test::list_test<managed_shared_memory, MyCopyMoveList, false>())
       return 1;
-
-//   if(test::list_test<managed_shared_memory, MyVolatileList, false>())
-//      return 1;
 
    if(test::list_test<managed_shared_memory, MyCopyList, false>())
       return 1;
@@ -57,7 +53,6 @@ int main ()
    if(!boost::interprocess::test::test_emplace
       < slist<test::EmplaceInt>, Options>())
       return 1;
+   return 0;
 }
-
-#include <boost/interprocess/detail/config_end.hpp>
 

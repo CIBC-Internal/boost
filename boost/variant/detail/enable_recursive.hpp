@@ -13,64 +13,32 @@
 #ifndef BOOST_VARIANT_DETAIL_ENABLE_RECURSIVE_HPP
 #define BOOST_VARIANT_DETAIL_ENABLE_RECURSIVE_HPP
 
-#include "boost/variant/detail/enable_recursive_fwd.hpp"
-#include "boost/variant/variant_fwd.hpp"
+#include <boost/variant/detail/enable_recursive_fwd.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #if !defined(BOOST_VARIANT_NO_FULL_RECURSIVE_VARIANT_SUPPORT)
-#   include "boost/mpl/apply.hpp"
-#   include "boost/mpl/eval_if.hpp"
-#   include "boost/mpl/lambda.hpp"
+#   include <boost/mpl/apply.hpp>
+#   include <boost/mpl/eval_if.hpp>
+#   include <boost/mpl/lambda.hpp>
 #endif
 
-#include "boost/variant/detail/substitute.hpp"
-#include "boost/mpl/aux_/config/ctps.hpp"
-#include "boost/mpl/bool_fwd.hpp"
-#include "boost/mpl/if.hpp"
-#include "boost/mpl/or.hpp"
-#include "boost/type_traits/is_pointer.hpp"
-#include "boost/type_traits/is_reference.hpp"
-#include "boost/type_traits/is_same.hpp"
+#include <boost/variant/detail/substitute.hpp>
+#include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/bool_fwd.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/is_reference.hpp>
+#include <boost/type_traits/is_same.hpp>
 
-#include "boost/variant/recursive_wrapper.hpp"
+#include <boost/variant/recursive_wrapper.hpp>
 
 namespace boost {
 namespace detail { namespace variant {
 
-#if !defined(BOOST_VARIANT_DETAIL_NO_SUBSTITUTE)
-
 #   define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(T,Dest,Source) \
     substitute< T , Dest , Source > \
     /**/
-
-#else // defined(BOOST_VARIANT_DETAIL_NO_SUBSTITUTE)
-
-///////////////////////////////////////////////////////////////////////////////
-// (detail) class template rebind1
-//
-// Limited workaround in case 'substitute' metafunction unavailable.
-//
-
-template <typename T, typename U1>
-struct rebind1
-{
-private:
-    typedef typename mpl::lambda<
-          mpl::identity<T>
-        >::type le_;
-
-public:
-    typedef typename mpl::eval_if<
-          is_same< le_, mpl::identity<T> >
-        , le_ // identity<T>
-        , mpl::apply1<le_, U1>
-        >::type type;
-};
-
-#   define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(T,Dest,Source) \
-    rebind1< T , Dest > \
-    /**/
-
-#endif // !defined(BOOST_VARIANT_DETAIL_NO_SUBSTITUTE)
 
 ///////////////////////////////////////////////////////////////////////////////
 // (detail) metafunction enable_recursive

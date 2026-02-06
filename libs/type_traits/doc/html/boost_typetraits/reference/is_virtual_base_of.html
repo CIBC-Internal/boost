@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>is_virtual_base_of</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../index.html" title="Chapter&#160;1.&#160;Boost.TypeTraits">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Boost.TypeTraits">
 <link rel="up" href="../reference.html" title="Alphabetical Reference">
 <link rel="prev" href="is_unsigned.html" title="is_unsigned">
 <link rel="next" href="is_void.html" title="is_void">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -46,9 +47,8 @@
         or <code class="computeroutput"> <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">type_traits</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>
       </p>
 <p>
-        <span class="bold"><strong>Compiler Compatibility:</strong></span> this trait also
-        requires a working <a class="link" href="is_base_of.html" title="is_base_of">is_base_of</a>
-        trait.
+        <span class="bold"><strong>Compiler Compatibility:</strong></span> All current compilers
+        are supported by this trait.
       </p>
 <div class="note"><table border="0" summary="Note">
 <tr>
@@ -58,7 +58,8 @@
 <tr><td align="left" valign="top"><p>
           There are a small number of cases where it's simply not possible for this
           trait to work, and where attempting to instantiate the trait will cause
-          compiler errors (see bug report <a href="https://svn.boost.org/trac/boost/ticket/3730" target="_top">#3730</a>).
+          compiler errors (see bug reports <a href="https://svn.boost.org/trac/boost/ticket/3730" target="_top">#3730</a>
+          and <a href="https://svn.boost.org/trac/boost/ticket/11323" target="_top">11323</a>).
           Further more the issues may well be compiler specific. In this situation
           the user should supply a full specialization of the trait to work around
           the problem.
@@ -97,18 +98,15 @@
           is the type <code class="computeroutput"><span class="keyword">bool</span></code>.
         </p></blockquote></div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2000, 2011 Adobe Systems Inc, David Abrahams,
-      Frederic Bron, Steve Cleary, Beman Dawes, Aleksey Gurtovoy, Howard Hinnant,
-      Jesse Jones, Mat Marcus, Itay Maman, John Maddock, Alexander Nasonov, Thorsten
-      Ottosen, Roman Perepelitsa, Robert Ramey, Jeremy Siek, Robert Stewart and Steven
-      Watanabe<p>
+<div class="copyright-footer">Copyright © 2000, 2011 Adobe Systems Inc, David Abrahams,
+      Frederic Bron, Steve Cleary, Beman Dawes, Glen Fernandes, Aleksey Gurtovoy,
+      Howard Hinnant, Jesse Jones, Mat Marcus, Itay Maman, John Maddock, Alexander
+      Nasonov, Thorsten Ottosen, Roman Perepelitsa, Robert Ramey, Jeremy Siek, Robert
+      Stewart and Steven Watanabe<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="is_unsigned.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../reference.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="is_void.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>

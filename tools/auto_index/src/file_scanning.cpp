@@ -81,8 +81,8 @@ void install_default_scanners()
    {
       add_file_scanner(
          "function_name",  // Index type
-         "\\w+(?:\\s*<[^>]>)?[\\s&*]+?(\\w+)\\s*(?:BOOST_[[:upper:]_]+\\s*)?\\([^\\)]*\\)\\s*[;{]", // scanner regex
-         "\\\\<\\\\w+\\\\>(?:\\\\s+<[^>]*>)?[\\\\s&*]+\\\\<\\1\\\\>\\\\s*\\\\([^;{]*\\\\)",  // Format string to create indexing regex.
+         "\\w++(?:\\s*+<[^>]++>)?[\\s&*]+?(\\w+)\\s*(?:BOOST_[[:upper:]_]+\\s*)?\\([^;{}]*\\)\\s*[;{]", // scanner regex
+         "\\\\<\\\\w+\\\\>(?:\\\\s+<[^>]*>)*[\\\\s&*]+\\\\<\\1\\\\>\\\\s*\\\\([^;{]*\\\\)",  // Format string to create indexing regex.
          "\\1",   // Format string to create index term.
          "",  // Filter regex for section id's.
          ""   // Filter regex for filenames.
@@ -345,7 +345,7 @@ void process_script(const std::string& script)
       else if(regex_match(line, what, scan_parser))
       {
          std::string f = unquote(what[1].str());
-         if(!boost::filesystem::path(f).is_complete())
+         if(!boost::filesystem::path(f).is_absolute())
          {
             if(prefix.size())
             {
@@ -379,7 +379,7 @@ void process_script(const std::string& script)
          std::string d = unquote(what[1].str());
          std::string m = unquote(what[2].str());
          bool r = unquote(what[3].str()) == "true";
-         if(!boost::filesystem::path(d).is_complete())
+         if(!boost::filesystem::path(d).is_absolute())
          {
             if(prefix.size())
             {

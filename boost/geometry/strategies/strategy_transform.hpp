@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,16 +23,16 @@
 #include <cmath>
 #include <functional>
 
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/numeric_cast.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 namespace boost { namespace geometry
@@ -54,7 +59,7 @@ struct transform_coordinates
         typedef typename select_coordinate_type<Src, Dst>::type coordinate_type;
 
         F<coordinate_type> function;
-        set<D>(dest, boost::numeric_cast<coordinate_type>(function(get<D>(source), value)));
+        set<D>(dest, util::numeric_cast<coordinate_type>(function(get<D>(source), value)));
         transform_coordinates<Src, Dst, D + 1, N, F>::transform(source, dest, value);
     }
 };
@@ -130,7 +135,15 @@ struct degree_radian_vv
         assert_dimension<P1, 2>();
         assert_dimension<P2, 2>();
 
-        detail::transform_coordinates<P1, P2, 0, 2, F>::transform(p1, p2, math::d2r);
+        typedef typename promote_floating_point
+            <
+                typename select_coordinate_type<P1, P2>::type
+            >::type calculation_type;
+
+        detail::transform_coordinates
+            <
+                P1, P2, 0, 2, F
+            >::transform(p1, p2, math::d2r<calculation_type>());
         return true;
     }
 };
@@ -143,7 +156,16 @@ struct degree_radian_vv_3
         assert_dimension<P1, 3>();
         assert_dimension<P2, 3>();
 
-        detail::transform_coordinates<P1, P2, 0, 2, F>::transform(p1, p2, math::d2r);
+        typedef typename promote_floating_point
+            <
+                typename select_coordinate_type<P1, P2>::type
+            >::type calculation_type;
+
+        detail::transform_coordinates
+            <
+                P1, P2, 0, 2, F
+            >::transform(p1, p2, math::d2r<calculation_type>());
+
         // Copy height or other third dimension
         set<2>(p2, get<2>(p1));
         return true;
@@ -168,7 +190,7 @@ namespace detail
 
         // Phi = first, theta is second, r is third, see documentation on cs::spherical
 
-        // (calculations are splitted to implement ttmath)
+        // (calculations are splitted to implement user defined types)
 
         T r_sin_theta = r;
         T r_cos_theta = r;

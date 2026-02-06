@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Using and building the library</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../thread.html" title="Chapter&#160;30.&#160;Thread 4.5.0">
-<link rel="prev" href="../thread.html" title="Chapter&#160;30.&#160;Thread 4.5.0">
+<link rel="up" href="../thread.html" title="Chapter 38. Thread 4.8.0">
+<link rel="prev" href="../thread.html" title="Chapter 38. Thread 4.8.0">
 <link rel="next" href="changes.html" title="History">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -130,9 +132,10 @@
 <dt><span class="section"><a href="build.html#thread.build.configuration.version">Version</a></span></dt>
 </dl></div>
 <div class="table">
-<a name="thread.build.configuration.default_values_for_configurable_features"></a><p class="title"><b>Table&#160;30.1.&#160;Default Values for Configurable Features</b></p>
+<a name="thread.build.configuration.default_values_for_configurable_features"></a><p class="title"><b>Table 38.1. Default Values for Configurable Features</b></p>
 <div class="table-contents"><table class="table" summary="Default Values for Configurable Features">
 <colgroup>
+<col>
 <col>
 <col>
 <col>
@@ -165,6 +168,11 @@
                   V4
                 </p>
               </th>
+<th>
+                <p>
+                  V5
+                </p>
+              </th>
 </tr></thead>
 <tbody>
 <tr>
@@ -176,6 +184,11 @@
 <td>
                 <p>
                   DONT_USE_CHRONO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES/NO
                 </p>
               </td>
 <td>
@@ -220,6 +233,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -230,6 +248,11 @@
 <td>
                 <p>
                   -
+                </p>
+              </td>
+<td>
+                <p>
+                  NO
                 </p>
               </td>
 <td>
@@ -274,6 +297,11 @@
                   NO
                 </p>
               </td>
+<td>
+                <p>
+                  NO
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -289,6 +317,11 @@
 <td>
                 <p>
                   NO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES
                 </p>
               </td>
 <td>
@@ -328,6 +361,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -355,6 +393,43 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
+</tr>
+<tr>
+<td>
+                <p>
+                  PROVIDES_EXECUTORS
+                </p>
+              </td>
+<td>
+                <p>
+                  -
+                </p>
+              </td>
+<td>
+                <p>
+                  NO
+                </p>
+              </td>
+<td>
+                <p>
+                  NO
+                </p>
+              </td>
+<td>
+                <p>
+                  NO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -370,6 +445,11 @@
 <td>
                 <p>
                   NO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES
                 </p>
               </td>
 <td>
@@ -409,6 +489,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -424,6 +509,11 @@
 <td>
                 <p>
                   NO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES
                 </p>
               </td>
 <td>
@@ -463,6 +553,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -478,6 +573,11 @@
 <td>
                 <p>
                   NO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES
                 </p>
               </td>
 <td>
@@ -517,6 +617,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -544,6 +649,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -554,6 +664,11 @@
 <td>
                 <p>
                   DONT_USE_DATETIME
+                </p>
+              </td>
+<td>
+                <p>
+                  YES/NO
                 </p>
               </td>
 <td>
@@ -598,6 +713,11 @@
                   NO
                 </p>
               </td>
+<td>
+                <p>
+                  NO
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -618,6 +738,11 @@
 <td>
                 <p>
                   YES
+                </p>
+              </td>
+<td>
+                <p>
+                  NO
                 </p>
               </td>
 <td>
@@ -652,6 +777,11 @@
                   NO
                 </p>
               </td>
+<td>
+                <p>
+                  NO
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -672,6 +802,11 @@
 <td>
                 <p>
                   NO
+                </p>
+              </td>
+<td>
+                <p>
+                  YES
                 </p>
               </td>
 <td>
@@ -706,6 +841,11 @@
                   YES
                 </p>
               </td>
+<td>
+                <p>
+                  YES
+                </p>
+              </td>
 </tr>
 <tr>
 <td>
@@ -726,6 +866,11 @@
 <td>
                 <p>
                   NO
+                </p>
+              </td>
+<td>
+                <p>
+                  C++11
                 </p>
               </td>
 <td>
@@ -782,7 +927,7 @@
 </h4></div></div></div>
 <p>
           The Boost.DateTime time related functions introduced in Boost 1.35.0, using
-          the <a class="link" href="../date_time.html" title="Chapter&#160;9.&#160;Boost.Date_Time">Boost.Date_Time</a> library are deprecated.
+          the <a class="link" href="../date_time.html" title="Chapter 11. Boost.Date_Time">Boost.Date_Time</a> library are deprecated.
           These include (but are not limited to):
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -822,7 +967,7 @@
 <a name="thread.build.configuration.move0"></a><a class="link" href="build.html#thread.build.configuration.move0" title="Boost.Atomic">Boost.Atomic</a>
 </h4></div></div></div>
 <p>
-          Boost.Thread uses by default an Boost.Atomic in POSIX platforms to implement
+          Boost.Thread uses by default Boost.Atomic in POSIX platforms to implement
           call_once..
         </p>
 <p>
@@ -1031,12 +1176,12 @@
           Boost.Threads includes in version 3 the Shared Locking Upwards Conversion
           as defined in <a href="http://home.roadrunner.com/~hinnant/bloomington/shared_mutex.html" target="_top">Shared
           Locking</a>. These conversions need to be used carefully to avoid deadlock
-          or livelock. The user need to define explicitly <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSION</span></code>
+          or livelock. The user need to define explicitly <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS</span></code>
           to get these upwards conversions.
         </p>
 <p>
           When <code class="computeroutput"><span class="identifier">BOOST_THREAD_VERSION</span><span class="special">==</span><span class="number">2</span></code> define
-          <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSION</span>
+          <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS</span>
           </code> if you want these features. When <code class="computeroutput"><span class="identifier">BOOST_THREAD_VERSION</span><span class="special">&gt;=</span><span class="number">3</span></code> define
           <code class="computeroutput"><span class="identifier">BOOST_THREAD_DONT_PROVIDE_SHARED_MUTEX_UPWARDS_CONVERSION</span>
           </code> if you don't want these features.
@@ -1243,7 +1388,7 @@
         constructor with variadic rvalue parameters</a>
 </h4></div></div></div>
 <p>
-          C++11 thread constructor accep a variable number of rvalue argumentshas.
+          C++11 thread constructor accept a variable number of rvalue arguments has.
           When <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_VARIADIC_THREAD</span>
           </code> is defined Boost.Thread provides this C++ feature if the following
           are not defined
@@ -1355,7 +1500,7 @@
               Uniformity <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN</span></code>
             </li>
 <li class="listitem">
-              Extension <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSION</span></code>
+              Extension <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS</span></code>
             </li>
 <li class="listitem">
               Conformity <code class="computeroutput"><span class="identifier">BOOST_THREAD_PROVIDES_FUTURE_CTOR_ALLOCATORS</span></code>
@@ -1460,14 +1605,11 @@
 </div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2007 -11 Anthony Williams<br>Copyright &#169; 2011 -15 Vicente J. Botet Escriba<p>
+<div class="copyright-footer">Copyright © 2007 -11 Anthony Williams<br>Copyright © 2011 -17 Vicente J. Botet Escriba<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="../thread.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../thread.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="changes.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

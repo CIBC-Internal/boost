@@ -9,7 +9,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // text_wiarchive.hpp
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -36,7 +36,7 @@
 #  pragma warning(disable : 4511 4512)
 #endif
 
-namespace boost { 
+namespace boost {
 namespace archive {
 
 namespace detail {
@@ -44,7 +44,7 @@ namespace detail {
 } // namespace detail
 
 template<class Archive>
-class text_wiarchive_impl : 
+class BOOST_SYMBOL_VISIBLE text_wiarchive_impl :
     public basic_text_iprimitive<std::wistream>,
     public basic_text_iarchive<Archive>
 {
@@ -76,27 +76,25 @@ protected:
         load(v);
         t = boost::serialization::item_version_type(v);
     }
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(char * t);
     #ifndef BOOST_NO_INTRINSIC_WCHAR_T
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(wchar_t * t);
     #endif
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(std::string &s);
     #ifndef BOOST_NO_STD_WSTRING
-    BOOST_WARCHIVE_DECL(void)
+    BOOST_WARCHIVE_DECL void
     load(std::wstring &ws);
     #endif
-    // note: the following should not needed - but one compiler (vc 7.1)
-    // fails to compile one test (test_shared_ptr) without it !!!
     template<class T>
-    void load_override(T & t, BOOST_PFTO int){
-        basic_text_iarchive<Archive>::load_override(t, 0);
+    void load_override(T & t){
+        basic_text_iarchive<Archive>::load_override(t);
     }
-    BOOST_WARCHIVE_DECL(BOOST_PP_EMPTY()) 
+    BOOST_WARCHIVE_DECL
     text_wiarchive_impl(std::wistream & is, unsigned int flags);
-    ~text_wiarchive_impl(){};
+    ~text_wiarchive_impl() BOOST_OVERRIDE {}
 };
 
 } // namespace archive
@@ -113,16 +111,19 @@ protected:
 #  pragma warning(disable : 4511 4512)
 #endif
 
-namespace boost { 
+namespace boost {
 namespace archive {
 
-class text_wiarchive : 
+class BOOST_SYMBOL_VISIBLE text_wiarchive :
     public text_wiarchive_impl<text_wiarchive>{
 public:
     text_wiarchive(std::wistream & is, unsigned int flags = 0) :
         text_wiarchive_impl<text_wiarchive>(is, flags)
-    {}
-    ~text_wiarchive(){}
+    {
+        if(0 == (flags & no_header))
+            init();
+    }
+    ~text_wiarchive() BOOST_OVERRIDE {}
 };
 
 } // namespace archive

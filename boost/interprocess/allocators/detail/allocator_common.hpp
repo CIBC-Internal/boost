@@ -220,8 +220,7 @@ class cache_impl
       BOOST_CATCH(...){
          this->cached_deallocation(chain);
          BOOST_RETHROW
-      }
-      BOOST_CATCH_END
+      } BOOST_CATCH_END
    }
 
    void cached_deallocation(void *ptr)
@@ -328,7 +327,7 @@ class array_allocation_impl
                      <const value_type>::type            const_reference;
    typedef typename SegmentManager::size_type            size_type;
    typedef typename SegmentManager::difference_type      difference_type;
-   typedef boost::container::container_detail::transform_multiallocation_chain
+   typedef boost::container::dtl::transform_multiallocation_chain
       <typename SegmentManager::multiallocation_chain, T>multiallocation_chain;
 
 
@@ -442,7 +441,7 @@ class node_pool_allocation_impl
                      <const value_type>::type            const_reference;
    typedef typename SegmentManager::size_type            size_type;
    typedef typename SegmentManager::difference_type      difference_type;
-   typedef boost::container::container_detail::transform_multiallocation_chain
+   typedef boost::container::dtl::transform_multiallocation_chain
       <typename SegmentManager::multiallocation_chain, T>multiallocation_chain;
 
 

@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Detailed features description</title>
 <link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Boost.Log v2">
-<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Boost.Log v2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../index.html" title="Chapter 1. Boost.Log v2">
+<link rel="up" href="../index.html" title="Chapter 1. Boost.Log v2">
 <link rel="prev" href="tutorial/wide_char.html" title="Wide character logging">
 <link rel="next" href="detailed/sources.html" title="Logging sources">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr><td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../boost.png"></td></tr></table>
@@ -40,11 +41,11 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="log.detailed.core.record"></a><a class="link" href="detailed.html#log.detailed.core.record" title="Logging records">Logging records</a>
 </h4></div></div></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../core_components.html#header.boost.log.core.record_hpp" title="Header &lt;boost/log/core/record.hpp&gt;">boost/log/core/record.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../core_components.html#doxygen.core_components.record_8hpp" title="Header &lt;boost/log/core/record.hpp&gt;">boost/log/core/record.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           All the information that the logging library processes is packed into a
-          single object of type <code class="computeroutput"><a class="link" href="../boost/log/record.html" title="Class record">record</a></code>.
+          single object of type <code class="computeroutput"><a class="link" href="../doxygen/core_components/classboost_1_1log_1_1record.html" title="Class record">record</a></code>.
           All attached data, including the message text, is represented as named
           attribute values that can be fetched and processed by filters, formatters
           and sinks. Particular attribute values can be accessed in different ways,
@@ -147,7 +148,7 @@
           <span class="phrase"><a name="log.detailed.core.record.record_views"></a></span><a class="link" href="detailed.html#log.detailed.core.record.record_views">Record
           views</a>
         </h6>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../core_components.html#header.boost.log.core.record_view_hpp" title="Header &lt;boost/log/core/record_view.hpp&gt;">boost/log/core/record_view.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../core_components.html#doxygen.core_components.record__view_8hpp" title="Header &lt;boost/log/core/record_view.hpp&gt;">boost/log/core/record_view.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           While records are used for filling the information, the library uses another
@@ -189,7 +190,7 @@
 <dt><span class="section"><a href="detailed.html#log.detailed.core.core.record_feeding">Feeding log
           records</a></span></dt>
 </dl></div>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../core_components.html#header.boost.log.core.core_hpp" title="Header &lt;boost/log/core/core.hpp&gt;">boost/log/core/core.hpp</a></code><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><code class="computeroutput"><a class="link" href="../core_components.html#doxygen.core_components.core_8hpp" title="Header &lt;boost/log/core/core.hpp&gt;">boost/log/core/core.hpp</a></code><span class="special">&gt;</span>
 </pre>
 <p>
           The logging core is a central hub that provides the following facilities:
@@ -502,15 +503,11 @@
 </div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2007-2015 Andrey
-      Semashev<p>
+<div class="copyright-footer">Copyright © 2007-2024 Andrey Semashev<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>).
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="tutorial/wide_char.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="detailed/sources.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>

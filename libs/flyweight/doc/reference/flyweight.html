@@ -125,7 +125,7 @@ synopsis</a>
   <span class=keyword>typename</span> <span class=identifier>ElemType</span><span class=special>,</span><span class=keyword>typename</span> <span class=identifier>Traits</span><span class=special>,</span> 
   <span class=keyword>typename</span> <span class=identifier>T</span><span class=special>,</span><span class=keyword>typename</span> <span class=identifier>Arg1</span><span class=special>,...,</span><span class=keyword>typename</span> <span class=identifier>Arg5</span>
 <span class=special>&gt;</span>
-<span class=keyword>inline</span> <span class=identifier>std</span><span class=special>::</span><span class=identifier>basic_ostream</span><span class=special>&lt;</span><span class=identifier>ElemType</span><span class=special>,</span><span class=identifier>Traits</span><span class=special>&gt;&amp;</span> <span class=keyword>operator</span><span class=special>&gt;&gt;(</span>
+<span class=keyword>inline</span> <span class=identifier>std</span><span class=special>::</span><span class=identifier>basic_istream</span><span class=special>&lt;</span><span class=identifier>ElemType</span><span class=special>,</span><span class=identifier>Traits</span><span class=special>&gt;&amp;</span> <span class=keyword>operator</span><span class=special>&gt;&gt;(</span>
   <span class=identifier>std</span><span class=special>::</span><span class=identifier>basic_istream</span><span class=special>&lt;</span><span class=identifier>ElemType</span><span class=special>,</span><span class=identifier>Traits</span><span class=special>&gt;&amp;</span> <span class=identifier>in</span><span class=special>,</span>
   <span class=identifier>flyweight</span><span class=special>&lt;</span><span class=identifier>T</span><span class=special>,</span><span class=identifier>Arg1</span><span class=special>,...,</span><span class=identifier>Arg5</span><span class=special>&gt;&amp;</span> <span class=identifier>x</span><span class=special>);</span>
 
@@ -298,7 +298,9 @@ objects constructed from equivalent keys.
 
   <span class=keyword>const</span> <span class=identifier>key_type</span><span class=special>&amp;</span>   <span class=identifier>get_key</span><span class=special>()</span><span class=keyword>const</span><span class=special>;</span>
   <span class=keyword>const</span> <span class=identifier>value_type</span><span class=special>&amp;</span> <span class=identifier>get</span><span class=special>()</span><span class=keyword>const</span><span class=special>;</span>
+  <span class=keyword>const</span> <span class=identifier>value_type</span><span class=special>&amp;</span> <span class=keyword>operator</span><span class=special>*()</span><span class=keyword>const</span><span class=special>;</span>
   <span class=keyword>operator</span> <span class=keyword>const</span>    <span class=identifier>value_type</span><span class=special>&amp;()</span><span class=keyword>const</span><span class=special>;</span>  
+  <span class=keyword>const</span> <span class=identifier>value_type</span><span class=special>*</span> <span class=keyword>operator</span><span class=special>-&gt;()</span><span class=keyword>const</span><span class=special>;</span>
 
   <span class=comment>// modifiers:</span>
 
@@ -322,7 +324,7 @@ of <code>flyweight</code> is a <i>key-value</i> flyweight.
 <code>value_type</code> is the type of the values flyweight objects give access to,
 while value lookup is based on associated <code>key_type</code> values.
 <code>key_value</code> must be
-<a href="http://www.sgi.com/tech/stl/Assignable.html"><code>Assignable</code></a>
+<a href="https://boost.org/sgi/stl/Assignable.html"><code>Assignable</code></a>
 and <code>value_type</code> must be constructible from <code>key_type</code>;
 additionally, <code>key_value</code> must
 conform to any extra requirements imposed by the type of factory used.
@@ -444,7 +446,7 @@ explicit flyweight(value_type&amp;&amp; x);</code>
 <blockquote>
 <b>Requires:</b> If <code>flyweight</code> is key-value,
 <code>value_type</code> is
-<a href="http://www.sgi.com/tech/stl/Assignable.html"><code>Assignable</code></a>
+<a href="https://boost.org/sgi/stl/Assignable.html"><code>Assignable</code></a>
 and the
 <a href="key_value.html#key_extractor"><code>Key Extractor</code></a>
 <code>KeyFromValue</code> must have been supplied as part of the
@@ -499,10 +501,19 @@ if <code>KeyFromValue</code> was not provided, <code>nothrow</code>.
 </blockquote>
 
 <code>const value_type&amp; get()const;<br>
+    const value_type&amp; operator*()const;<br>
 	operator const value_type&amp;()const;</code>
 
 <blockquote>
 <b>Returns:</b> The value associated to the <code>flyweight</code>
+object.<br>
+<b>Exception safety:</b> <code>nothrow</code>.
+</blockquote>
+
+<code>const value_type* operator-&gt;()const</code>
+
+<blockquote>
+<b>Returns:</b> The address of the value associated to the <code>flyweight</code>
 object.<br>
 <b>Exception safety:</b> <code>nothrow</code>.
 </blockquote>
@@ -650,14 +661,14 @@ inline std::basic_ostream&lt;ElemType,Traits&gt;&amp; operator&lt;&lt;(<br>
 &nbsp;&nbsp;typename ElemType,typename Traits, <br>
 &nbsp;&nbsp;typename T,typename Arg1,...,typename Arg5<br>
 &gt;<br>
-inline std::basic_ostream&lt;ElemType,Traits&gt;&amp; operator&gt;&gt;(<br>
+inline std::basic_istream&lt;ElemType,Traits&gt;&amp; operator&gt;&gt;(<br>
 &nbsp;&nbsp;std::basic_istream&lt;ElemType,Traits&gt;&amp; in,<br>
 &nbsp;&nbsp;flyweight&lt;T,Arg1,...,Arg5&gt;&amp; x);</code>
 
 <blockquote>
 <b>Requires:</b> If <code>flyweight</code> is key-value,
 <code>value_type</code> is
-<a href="http://www.sgi.com/tech/stl/Assignable.html"><code>Assignable</code></a>
+<a href="https://boost.org/sgi/stl/Assignable.html"><code>Assignable</code></a>
 and the
 <a href="key_value.html#key_extractor"><code>Key Extractor</code></a>
 <code>KeyFromValue</code> must have been supplied as part of the
@@ -784,9 +795,9 @@ Key-value flyweights
 
 <br>
 
-<p>Revised November 11th 2014</p>
+<p>Revised March 17th 2023</p>
 
-<p>&copy; Copyright 2006-2014 Joaqu&iacute;n M L&oacute;pez Mu&ntilde;oz.
+<p>&copy; Copyright 2006-2023 Joaqu&iacute;n M L&oacute;pez Mu&ntilde;oz.
 Distributed under the Boost Software 
 License, Version 1.0. (See accompanying file <a href="../../../../LICENSE_1_0.txt">
 LICENSE_1_0.txt</a> or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">

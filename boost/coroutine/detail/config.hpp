@@ -35,15 +35,12 @@
 # include <boost/config/auto_link.hpp>
 #endif
 
-#if defined(BOOST_USE_SEGMENTED_STACKS)
-# if ! ( (defined(__GNUC__) && __GNUC__ > 3 && __GNUC_MINOR__ > 6) || \
-         (defined(__clang__) && __clang_major__ > 2 && __clang_minor__ > 3) )
-#  error "compiler does not support segmented stacks"
-# endif
-# define BOOST_COROUTINES_SEGMENTS 10
-#endif
-
 #define BOOST_COROUTINES_UNIDIRECT
 #define BOOST_COROUTINES_SYMMETRIC
+
+#if defined(__OpenBSD__)
+// stacks need mmap(2) with MAP_STACK
+# define BOOST_COROUTINES_USE_MAP_STACK
+#endif
 
 #endif // BOOST_COROUTINES_DETAIL_CONFIG_H

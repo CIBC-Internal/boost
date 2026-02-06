@@ -1,9 +1,9 @@
-/*//////////////////////////////////////////////////////////////////////////////
+/*==============================================================================
     Copyright (c) 2013 Jamboree
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//////////////////////////////////////////////////////////////////////////////*/
+==============================================================================*/
 #ifndef BOOST_FUSION_FLATTEN_VIEW_HPP_INCLUDED
 #define BOOST_FUSION_FLATTEN_VIEW_HPP_INCLUDED
 
@@ -19,6 +19,10 @@
 #include <boost/fusion/sequence/intrinsic/end.hpp>
 #include <boost/fusion/view/flatten_view/flatten_view_iterator.hpp>
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4512) // assignment operator could not be generated.
+#endif
 
 namespace boost { namespace fusion
 {
@@ -51,6 +55,10 @@ namespace boost { namespace fusion
         typename mpl::if_<traits::is_view<Sequence>, Sequence, Sequence&>::type seq;
     };
 }}
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 namespace boost { namespace fusion { namespace extension
 {

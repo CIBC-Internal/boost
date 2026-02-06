@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Composition or inheritance</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../move.html" title="Chapter&#160;19.&#160;Boost.Move">
+<link rel="up" href="../move.html" title="Chapter 23. Boost.Move">
 <link rel="prev" href="implementing_movable_classes.html" title="Implementing copyable and movable classes">
 <link rel="next" href="movable_only_classes.html" title="Movable but Non-Copyable Types">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -31,8 +33,6 @@
       the move constructor and move assignment can be easily coded using the <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">move</span></code>
       function:
     </p>
-<p>
-</p>
 <pre class="programlisting"><span class="keyword">class</span> <span class="identifier">Base</span>
 <span class="special">{</span>
    <span class="identifier">BOOST_COPYABLE_AND_MOVABLE</span><span class="special">(</span><span class="identifier">Base</span><span class="special">)</span>
@@ -104,8 +104,6 @@
    <span class="comment">// ...</span>
 <span class="special">};</span>
 </pre>
-<p>
-    </p>
 <div class="important"><table border="0" summary="Important">
 <tr>
 <td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../doc/src/images/important.png"></td>
@@ -124,14 +122,10 @@
       our earlier <code class="computeroutput"><span class="identifier">clone_ptr</span></code> example)
       which will completely avoid the tremendously more expensive copy operations:
     </p>
-<p>
-</p>
 <pre class="programlisting"><span class="identifier">Derived</span> <span class="identifier">d</span><span class="special">;</span>
 <span class="identifier">Derived</span> <span class="identifier">d2</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">d</span><span class="special">));</span>
 <span class="identifier">d2</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">d</span><span class="special">);</span>
 </pre>
-<p>
-    </p>
 <p>
       Note above that the argument x is treated as a lvalue reference. That's why
       it is necessary to say <code class="computeroutput"><span class="identifier">move</span><span class="special">(</span><span class="identifier">x</span><span class="special">)</span></code>
@@ -140,14 +134,11 @@
       some named variable. All moves from lvalues occur explicitly.
     </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2008-2014 Ion Gaztanaga<p>
+<div class="copyright-footer">Copyright © 2008-2024 Ion Gaztanaga<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="implementing_movable_classes.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../move.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="movable_only_classes.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

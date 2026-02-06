@@ -38,16 +38,16 @@ websites.
 
 The relationship of the types of extreme value distributions, of which this is but one, is
 discussed by
-[@http://www.worldscibooks.com/mathematics/p191.html Extreme Value Distributions, Theory and Applications
+[@https://www.google.com/books/edition/Extreme_Value_Distributions/GwBqDQAAQBAJ?hl=en&gbpv=0 Extreme Value Distributions, Theory and Applications
 Samuel Kotz & Saralees Nadarajah].
 
 The distribution has a PDF given by:
 
-f(x) = (1/scale) e[super -(x-location)/scale] e[super -e[super -(x-location)/scale]]
+[expression f(x) = (1/scale) e[super -(x-location)/scale] e[super -e[super -(x-location)/scale]]]
 
-Which in the standard case (scale = 1, location = 0) reduces to:
+which in the standard case (scale = 1, location = 0) reduces to:
 
-f(x) = e[super -x]e[super -e[super -x]]
+[expression f(x) = e[super -x]e[super -e[super -x]]]
 
 The following graph illustrates how the PDF varies with the location parameter:
 
@@ -108,7 +108,7 @@ In the following table:
 [[kurtosis excess][kurtosis - 3 or 12 / 5]]
 ]
 
-[endsect][/section:extreme_dist Extreme Value]
+[endsect] [/section:extreme_dist Extreme Value]
 
 [/ extreme_value.qbk
   Copyright 2006 John Maddock and Paul A. Bristow.

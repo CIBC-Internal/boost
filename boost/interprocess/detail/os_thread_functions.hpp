@@ -33,18 +33,18 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
-#include <boost/interprocess/detail/posix_time_types_wrk.hpp>
 #include <cstddef>
-#include <ostream>
+#include <cassert>
 
 #if defined(BOOST_INTERPROCESS_WINDOWS)
 #  include <boost/interprocess/detail/win32_api.hpp>
-#  include <process.h>
+#  include <boost/winapi/thread.hpp>
 #else
 #  include <pthread.h>
 #  include <unistd.h>
 #  include <sched.h>
 #  include <time.h>
+#  include <errno.h>
 #  ifdef BOOST_INTERPROCESS_BSD_DERIVATIVE
       //Some *BSD systems (OpenBSD & NetBSD) need sys/param.h before sys/sysctl.h, whereas
       //others (FreeBSD & Darwin) need sys/types.h
@@ -52,8 +52,16 @@
 #     include <sys/param.h>
 #     include <sys/sysctl.h>
 #  endif
+#if defined(__VXWORKS__) 
+#include <vxCpuLib.h>
+#endif 
 //According to the article "C/C++ tip: How to measure elapsed real time for benchmarking"
-#  if defined(CLOCK_MONOTONIC_PRECISE)   //BSD
+//Check MacOs first as macOS 10.12 SDK defines both CLOCK_MONOTONIC and
+//CLOCK_MONOTONIC_RAW and no clock_gettime.
+#  if (defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__))
+#     include <mach/mach_time.h>  // mach_absolute_time, mach_timebase_info_data_t
+#     define BOOST_INTERPROCESS_MATCH_ABSOLUTE_TIME
+#  elif defined(CLOCK_MONOTONIC_PRECISE)   //BSD
 #     define BOOST_INTERPROCESS_CLOCK_MONOTONIC CLOCK_MONOTONIC_PRECISE
 #  elif defined(CLOCK_MONOTONIC_RAW)     //Linux
 #     define BOOST_INTERPROCESS_CLOCK_MONOTONIC CLOCK_MONOTONIC_RAW
@@ -61,9 +69,6 @@
 #     define BOOST_INTERPROCESS_CLOCK_MONOTONIC CLOCK_HIGHRES
 #  elif defined(CLOCK_MONOTONIC)         //POSIX (AIX, BSD, Linux, Solaris)
 #     define BOOST_INTERPROCESS_CLOCK_MONOTONIC CLOCK_MONOTONIC
-#  elif !defined(CLOCK_MONOTONIC) && (defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__))
-#     include <mach/mach_time.h>  // mach_absolute_time, mach_timebase_info_data_t
-#     define BOOST_INTERPROCESS_MATCH_ABSOLUTE_TIME
 #  else
 #     error "No high resolution steady clock in your system, please provide a patch"
 #  endif
@@ -77,7 +82,19 @@ namespace ipcdetail{
 
 typedef unsigned long OS_process_id_t;
 typedef unsigned long OS_thread_id_t;
-typedef void*         OS_thread_t;
+struct OS_thread_t
+{
+   OS_thread_t()
+      : m_handle()
+   {}
+
+   
+   void* handle() const
+   {  return m_handle;  }
+
+   void* m_handle;
+};
+
 typedef OS_thread_id_t OS_systemwide_thread_id_t;
 
 //process
@@ -100,8 +117,8 @@ inline bool equal_thread_id(OS_thread_id_t id1, OS_thread_id_t id2)
 //return the system tick in ns
 inline unsigned long get_system_tick_ns()
 {
-   unsigned long curres;
-   winapi::set_timer_resolution(10000, 0, &curres);
+   unsigned long curres, ignore1, ignore2;
+   winapi::query_timer_resolution(&ignore1, &ignore2, &curres);
    //Windows API returns the value in hundreds of ns
    return (curres - 1ul)*100ul;
 }
@@ -109,8 +126,8 @@ inline unsigned long get_system_tick_ns()
 //return the system tick in us
 inline unsigned long get_system_tick_us()
 {
-   unsigned long curres;
-   winapi::set_timer_resolution(10000, 0, &curres);
+   unsigned long curres, ignore1, ignore2;
+   winapi::query_timer_resolution(&ignore1, &ignore2, &curres);
    //Windows API returns the value in hundreds of ns
    return (curres - 1ul)/10ul + 1ul;
 }
@@ -120,8 +137,8 @@ typedef unsigned __int64 OS_highres_count_t;
 inline unsigned long get_system_tick_in_highres_counts()
 {
    __int64 freq;
-   unsigned long curres;
-   winapi::set_timer_resolution(10000, 0, &curres);
+   unsigned long curres, ignore1, ignore2;
+   winapi::query_timer_resolution(&ignore1, &ignore2, &curres);
    //Frequency in counts per second
    if(!winapi::query_performance_frequency(&freq)){
       //Tick resolution in ms
@@ -141,7 +158,13 @@ inline OS_highres_count_t get_current_system_highres_count()
    if(!winapi::query_performance_counter(&count)){
       count = winapi::get_tick_count();
    }
-   return count;
+   return (OS_highres_count_t)count;
+}
+
+inline unsigned get_current_system_highres_rand()
+{
+   unsigned __int64 count = (unsigned __int64) get_current_system_highres_count();
+   return static_cast<unsigned>(count + (count >> 32u));
 }
 
 inline void zero_highres_count(OS_highres_count_t &count)
@@ -172,7 +195,7 @@ inline void thread_sleep_tick()
 inline void thread_yield()
 {  winapi::sched_yield();  }
 
-inline void thread_sleep(unsigned int ms)
+inline void thread_sleep_ms(unsigned int ms)
 {  winapi::sleep(ms);  }
 
 //systemwide thread
@@ -212,7 +235,7 @@ inline long double get_current_process_creation_time()
 
 inline unsigned int get_num_cores()
 {
-   winapi::system_info sysinfo;
+   winapi::interprocess_system_info sysinfo;
    winapi::get_system_info( &sysinfo );
    //in Windows dw is long which is equal in bits to int
    return static_cast<unsigned>(sysinfo.dwNumberOfProcessors);
@@ -337,6 +360,16 @@ inline OS_highres_count_t get_current_system_highres_count()
    #endif
 }
 
+inline unsigned get_current_system_highres_rand()
+{
+   OS_highres_count_t count = get_current_system_highres_count();
+   #if defined(BOOST_INTERPROCESS_CLOCK_MONOTONIC)
+      return static_cast<unsigned>(count.tv_sec + count.tv_nsec);
+   #elif defined(BOOST_INTERPROCESS_MATCH_ABSOLUTE_TIME)
+      return static_cast<unsigned>(count);
+   #endif
+}
+
 #ifndef BOOST_INTERPROCESS_MATCH_ABSOLUTE_TIME
 
 inline void zero_highres_count(OS_highres_count_t &count)
@@ -405,16 +438,26 @@ inline void thread_sleep_tick()
    struct timespec rqt;
    //Sleep for the half of the tick time
    rqt.tv_sec  = 0;
-   rqt.tv_nsec = get_system_tick_ns()/2;
-   ::nanosleep(&rqt, 0);
+   rqt.tv_nsec = (long)get_system_tick_ns()/2;
+
+   struct timespec rmn;
+   while (0 != ::nanosleep(&rqt, &rmn) && errno == EINTR) {
+      rqt.tv_sec = rmn.tv_sec;
+      rqt.tv_nsec = rmn.tv_nsec;
+   }
 }
 
-inline void thread_sleep(unsigned int ms)
+inline void thread_sleep_ms(unsigned int ms)
 {
    struct timespec rqt;
    rqt.tv_sec = ms/1000u;
    rqt.tv_nsec = (ms%1000u)*1000000u;
-   ::nanosleep(&rqt, 0);
+
+   struct timespec rmn;
+   while (0 != ::nanosleep(&rqt, &rmn) && errno == EINTR) {
+      rqt.tv_sec  = rmn.tv_sec;
+      rqt.tv_nsec = rmn.tv_nsec;
+   }
 }
 
 //systemwide thread
@@ -466,6 +509,18 @@ inline unsigned int get_num_cores()
       else{
          return static_cast<unsigned int>(num_cores);
       }
+   #elif defined(__VXWORKS__)
+      cpuset_t set =  ::vxCpuEnabledGet();
+    #ifdef __DCC__
+      int i;
+      for( i = 0; set; ++i)
+          {
+               set &= set -1;
+          }
+      return(i);
+    #else  
+      return (__builtin_popcount(set) );
+    #endif  
    #endif
 }
 
@@ -473,7 +528,11 @@ inline int thread_create(OS_thread_t * thread, void *(*start_routine)(void*), vo
 {  return pthread_create(thread, 0, start_routine, arg); }
 
 inline void thread_join(OS_thread_t thread)
-{  (void)pthread_join(thread, 0);  }
+{
+   int ret = pthread_join(thread, 0);
+   (void)ret;
+   assert(0 == ret);
+}
 
 #endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 
@@ -490,12 +549,12 @@ inline void get_pid_str(pid_str_t &pid_str)
 
 #if defined(BOOST_INTERPROCESS_WINDOWS)
 
-inline int thread_create( OS_thread_t * thread, unsigned (__stdcall * start_routine) (void*), void* arg )
+inline int thread_create( OS_thread_t * thread, boost::ipwinapiext::LPTHREAD_START_ROUTINE_ start_routine, void* arg )
 {
-   void* h = (void*)_beginthreadex( 0, 0, start_routine, arg, 0, 0 );
+   void* h = boost::ipwinapiext::CreateThread(0, 0, start_routine, arg, 0, 0);
 
    if( h != 0 ){
-      *thread = h;
+      thread->m_handle = h;
       return 0;
    }
    else{
@@ -505,8 +564,16 @@ inline int thread_create( OS_thread_t * thread, unsigned (__stdcall * start_rout
 
 inline void thread_join( OS_thread_t thread)
 {
-   winapi::wait_for_single_object( thread, winapi::infinite_time );
-   winapi::close_handle( thread );
+   {
+      unsigned long ret = winapi::wait_for_single_object( thread.handle(), winapi::infinite_time );
+      assert(0 == ret);
+      (void)ret;
+   }
+   {
+      bool ret = winapi::close_handle(thread.handle());
+      assert(true == ret);
+      (void)ret;
+   }
 }
 
 #endif
@@ -544,7 +611,7 @@ class os_thread_func_ptr_deleter
 
 #if defined(BOOST_INTERPROCESS_WINDOWS)
 
-inline unsigned __stdcall launch_thread_routine( void * pv )
+inline boost::winapi::DWORD_ __stdcall launch_thread_routine(boost::winapi::LPVOID_ pv)
 {
    os_thread_func_ptr_deleter<abstract_thread> pt( static_cast<abstract_thread *>( pv ) );
    pt->run();
@@ -573,7 +640,7 @@ class launch_thread_impl
       : f_( f )
    {}
 
-   void run()
+   virtual void run() BOOST_OVERRIDE
    {  f_();  }
 
    private:

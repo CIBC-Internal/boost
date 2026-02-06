@@ -1,5 +1,5 @@
 /*
- *          Copyright Andrey Semashev 2007 - 2015.
+ *          Copyright Andrey Semashev 2007 - 2021.
  * Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
  *          http://www.boost.org/LICENSE_1_0.txt)
@@ -21,23 +21,25 @@
 
 #ifndef BOOST_LOG_NO_THREADS
 
-#if defined(BOOST_THREAD_PLATFORM_PTHREAD)
-#   if defined(_POSIX_SEMAPHORES) && (_POSIX_SEMAPHORES + 0) > 0
-#       if defined(__GNUC__) && defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-#           include <semaphore.h>
-#           include <boost/cstdint.hpp>
-#           define BOOST_LOG_EVENT_USE_POSIX_SEMAPHORE
-#       endif
-#   endif
-#elif defined(BOOST_THREAD_PLATFORM_WIN32)
-#   include <boost/cstdint.hpp>
-#   define BOOST_LOG_EVENT_USE_WINAPI
-#endif
+#include <boost/atomic/capabilities.hpp>
 
-#if !defined(BOOST_LOG_EVENT_USE_POSIX_SEMAPHORE) && !defined(BOOST_LOG_EVENT_USE_WINAPI)
-#   include <boost/thread/mutex.hpp>
-#   include <boost/thread/condition_variable.hpp>
-#   define BOOST_LOG_EVENT_USE_BOOST_CONDITION
+#if BOOST_ATOMIC_HAS_NATIVE_INT32_WAIT_NOTIFY == 2
+#include <boost/cstdint.hpp>
+#include <boost/atomic/atomic.hpp>
+#define BOOST_LOG_EVENT_USE_ATOMIC
+#elif defined(BOOST_THREAD_PLATFORM_PTHREAD) && defined(_POSIX_SEMAPHORES) && _POSIX_SEMAPHORES > 0 && BOOST_ATOMIC_FLAG_LOCK_FREE == 2
+#include <semaphore.h>
+#include <boost/cstdint.hpp>
+#include <boost/atomic/atomic_flag.hpp>
+#define BOOST_LOG_EVENT_USE_POSIX_SEMAPHORE
+#elif defined(BOOST_THREAD_PLATFORM_WIN32)
+#include <boost/cstdint.hpp>
+#include <boost/atomic/atomic.hpp>
+#define BOOST_LOG_EVENT_USE_WINAPI
+#else
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
+#define BOOST_LOG_EVENT_USE_BOOST_CONDITION_VARIABLE
 #endif
 
 #include <boost/log/detail/header.hpp>
@@ -48,12 +50,35 @@ BOOST_LOG_OPEN_NAMESPACE
 
 namespace aux {
 
-#if defined(BOOST_LOG_EVENT_USE_POSIX_SEMAPHORE)
+#if defined(BOOST_LOG_EVENT_USE_ATOMIC)
+
+class atomic_based_event
+{
+private:
+    boost::atomic< boost::uint32_t > m_state;
+
+public:
+    //! Default constructor
+    atomic_based_event() : m_state(0u) {}
+
+    //! Waits for the object to become signalled
+    BOOST_LOG_API void wait();
+    //! Sets the object to a signalled state
+    BOOST_LOG_API void set_signalled();
+
+    //  Copying prohibited
+    BOOST_DELETED_FUNCTION(atomic_based_event(atomic_based_event const&))
+    BOOST_DELETED_FUNCTION(atomic_based_event& operator= (atomic_based_event const&))
+};
+
+typedef atomic_based_event event;
+
+#elif defined(BOOST_LOG_EVENT_USE_POSIX_SEMAPHORE)
 
 class sem_based_event
 {
 private:
-    boost::uint32_t m_state;
+    boost::atomic_flag m_state;
     sem_t m_semaphore;
 
 public:
@@ -79,7 +104,7 @@ typedef sem_based_event event;
 class winapi_based_event
 {
 private:
-    boost::uint32_t m_state;
+    boost::atomic< boost::uint32_t > m_state;
     void* m_event;
 
 public:

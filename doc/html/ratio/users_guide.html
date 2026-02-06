@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>User's Guide</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../ratio.html" title="Chapter&#160;25.&#160;Boost.Ratio 2.1.0">
-<link rel="prev" href="../ratio.html" title="Chapter&#160;25.&#160;Boost.Ratio 2.1.0">
+<link rel="up" href="../ratio.html" title="Chapter 33. Boost.Ratio 2.1.0">
+<link rel="prev" href="../ratio.html" title="Chapter 33. Boost.Ratio 2.1.0">
 <link rel="next" href="reference.html" title="Reference">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -49,29 +51,11 @@
           Boost.Ratio </a>
         </h6>
 <p>
-          Boost.Ratio is in the latest Boost release in the folder <code class="computeroutput"><span class="special">/</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span></code>.
-          Documentation, tests and examples folder are at <code class="computeroutput"><span class="identifier">boost</span><span class="special">/</span><span class="identifier">libs</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span></code>.
-        </p>
-<p>
-          You can also access the latest (unstable?) state from the <a href="http://svn.boost.org/svn/boost/trunk" target="_top">Boost
-          trunk</a> directories <code class="computeroutput"><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span></code>
-          and <code class="computeroutput"><span class="identifier">libs</span><span class="special">/</span><span class="identifier">ratio</span></code>.
-        </p>
-<p>
-          Just go to <a href="http://svn.boost.org/trac/boost/wiki/BoostSubversion" target="_top">the
-          wiki</a> and follow the instructions there for anonymous SVN access.
+          <span class="bold"><strong>Boost.Ratio</strong></span> is part of Boost, so you get
+          it as part of the Boost release.
         </p>
 <h6>
 <a name="ratio.users_guide.getting_started.install.h1"></a>
-          <span class="phrase"><a name="ratio.users_guide.getting_started.install.where_to_install_boost_ratio__"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.where_to_install_boost_ratio__">Where
-          to install Boost.Ratio? </a>
-        </h6>
-<p>
-          The simple way is to decompress (or checkout from SVN) the files in your
-          BOOST_ROOT directory.
-        </p>
-<h6>
-<a name="ratio.users_guide.getting_started.install.h2"></a>
           <span class="phrase"><a name="ratio.users_guide.getting_started.install.building_boost_ratio_"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.building_boost_ratio_">Building
           Boost.Ratio </a>
         </h6>
@@ -81,48 +65,7 @@
           <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>.
         </p>
 <h6>
-<a name="ratio.users_guide.getting_started.install.h3"></a>
-          <span class="phrase"><a name="ratio.users_guide.getting_started.install.requirements"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.requirements">Requirements</a>
-        </h6>
-<p>
-          <span class="bold"><strong>Boost.Ratio</strong></span> depends on some Boost libraries.
-          For these specific parts you must use either Boost version 1.39.0 or later
-          (even older versions may work).
-        </p>
-<p>
-          In particular, <span class="bold"><strong>Boost.Ratio</strong></span> depends on:
-        </p>
-<div class="variablelist">
-<p class="title"><b></b></p>
-<dl class="variablelist">
-<dt><span class="term"><a href="http://www.boost.org/libs/config" target="_top"><span class="bold"><strong>Boost.Config</strong></span></a></span></dt>
-<dd><p>
-                for configuration purposes, ...
-              </p></dd>
-<dt><span class="term"><a href="http://www.boost.org/libs/integer" target="_top"><span class="bold"><strong>Boost.Integer</strong></span></a></span></dt>
-<dd><p>
-                for cstdint conformance, and integer traits ...
-              </p></dd>
-<dt><span class="term"><a href="http://www.boost.org/libs/mpl" target="_top"><span class="bold"><strong>Boost.MPL</strong></span></a></span></dt>
-<dd><p>
-                for MPL Assert and bool, logical ...
-              </p></dd>
-<dt><span class="term"><a href="http://www.boost.org/libs/static_assert" target="_top"><span class="bold"><strong>Boost.StaticAssert</strong></span></a></span></dt>
-<dd><p>
-                for STATIC_ASSERT, ...
-              </p></dd>
-<dt><span class="term"><a href="http://www.boost.org/libs/type_traits" target="_top"><span class="bold"><strong>Boost.TypeTraits</strong></span></a></span></dt>
-<dd><p>
-                for is_base, is_convertible ...
-              </p></dd>
-<dt><span class="term"><a href="http://www.boost.org/libs/utility" target="_top"><span class="bold"><strong>Boost.Utility/EnableIf</strong></span></a></span></dt>
-<dd><p>
-                for enable_if, ...
-              </p></dd>
-</dl>
-</div>
-<h6>
-<a name="ratio.users_guide.getting_started.install.h4"></a>
+<a name="ratio.users_guide.getting_started.install.h2"></a>
           <span class="phrase"><a name="ratio.users_guide.getting_started.install.building_an_executable_that_uses__emphasis_role__bold__boost_ratio__emphasis__"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.building_an_executable_that_uses__emphasis_role__bold__boost_ratio__emphasis__">Building
           an executable that uses <span class="bold"><strong>Boost.Ratio</strong></span> </a>
         </h6>
@@ -130,7 +73,7 @@
           No link is needed.
         </p>
 <h6>
-<a name="ratio.users_guide.getting_started.install.h5"></a>
+<a name="ratio.users_guide.getting_started.install.h3"></a>
           <span class="phrase"><a name="ratio.users_guide.getting_started.install.exception_safety_"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.exception_safety_">Exception
           safety </a>
         </h6>
@@ -139,7 +82,7 @@
           exception safety guarantee.
         </p>
 <h6>
-<a name="ratio.users_guide.getting_started.install.h6"></a>
+<a name="ratio.users_guide.getting_started.install.h4"></a>
           <span class="phrase"><a name="ratio.users_guide.getting_started.install.thread_safety_"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.thread_safety_">Thread
           safety </a>
         </h6>
@@ -147,126 +90,14 @@
           All functions in the library are thread-unsafe except when noted explicitly.
         </p>
 <h6>
-<a name="ratio.users_guide.getting_started.install.h7"></a>
-          <span class="phrase"><a name="ratio.users_guide.getting_started.install.tested_compilers_"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.tested_compilers_">Tested
+<a name="ratio.users_guide.getting_started.install.h5"></a>
+          <span class="phrase"><a name="ratio.users_guide.getting_started.install.supported_compilers_"></a></span><a class="link" href="users_guide.html#ratio.users_guide.getting_started.install.supported_compilers_">Supported
           compilers </a>
         </h6>
 <p>
-          <span class="bold"><strong>Boost.Ratio</strong></span> should work with an C++03
-          conforming compiler. The current version has been tested on:
+          <span class="bold"><strong>Boost.Ratio</strong></span> should work with any C++11
+          conforming compiler.
         </p>
-<p>
-          Windows with
-        </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-              MSVC 10.0
-            </li></ul></div>
-<p>
-          MinGW with
-        </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-              GCC 4.5.0
-            </li>
-<li class="listitem">
-              GCC 4.5.0 -std=c++0x
-            </li>
-<li class="listitem">
-              GCC 4.5.2
-            </li>
-<li class="listitem">
-              GCC 4.5.2 -std=c++0x
-            </li>
-<li class="listitem">
-              GCC 4.6.0
-            </li>
-<li class="listitem">
-              GCC 4.6.0 -std=c++0x
-            </li>
-</ul></div>
-<p>
-          Ubuntu with * GCC 4.4.6 * GCC 4.4.6 -std=c++0x * GCC 4.5.4 * GCC 4.5.4
-          -std=c++0x * GCC 4.6.1 * GCC 4.6.1 -std=c++0x * Intel 12.1.3 * Intel 12.1.3
-          -std=c++0x
-        </p>
-<p>
-          OsX with
-        </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-              GCC 4.1.2
-            </li>
-<li class="listitem">
-              GCC 4.6.2
-            </li>
-<li class="listitem">
-              GCC 4.6.2 -std=c++0x
-            </li>
-<li class="listitem">
-              GCC 4.7.0
-            </li>
-<li class="listitem">
-              GCC 4.7.0 -std=c++0x
-            </li>
-<li class="listitem">
-              GCC 4.7.1
-            </li>
-<li class="listitem">
-              GCC 4.7.1 -std=c++0x
-            </li>
-<li class="listitem">
-              clang 1.6
-            </li>
-<li class="listitem">
-              clang 2.9
-            </li>
-<li class="listitem">
-              clang 2.9 -std=c++0x
-            </li>
-<li class="listitem">
-              clang 3.0
-            </li>
-<li class="listitem">
-              clang 3.0 -std=c++0x
-            </li>
-<li class="listitem">
-              clang 3.1
-            </li>
-<li class="listitem">
-              clang 3.1 -std=c++0x
-            </li>
-<li class="listitem">
-              clang 3.1 -std=c++0x -stdlib=libc++
-            </li>
-<li class="listitem">
-              clang 3.2
-            </li>
-<li class="listitem">
-              clang 3.2 -std=c++11
-            </li>
-<li class="listitem">
-              clang 3.2 -std=c++11 -stdlib=libc++
-            </li>
-</ul></div>
-<div class="note"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../doc/src/images/note.png"></td>
-<th align="left">Note</th>
-</tr>
-<tr><td align="left" valign="top"><p>
-            Please let us know how this works on other platforms/compilers.
-          </p></td></tr>
-</table></div>
-<div class="note"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../doc/src/images/note.png"></td>
-<th align="left">Note</th>
-</tr>
-<tr><td align="left" valign="top"><p>
-            Please send any questions, comments and bug reports to boost &lt;at&gt;
-            lists &lt;dot&gt; boost &lt;dot&gt; org.
-          </p></td></tr>
-</table></div>
 </div>
 </div>
 <div class="section">
@@ -380,7 +211,7 @@
         UTF-32 will be used to encode the names. When the character is <code class="computeroutput"><span class="keyword">wchar_t</span></code>, the encoding will be UTF-16 if <code class="computeroutput"><span class="keyword">wchar_t</span></code> is 16 bits, and otherwise UTF-32.
       </p>
 <p>
-        The <code class="computeroutput"><span class="identifier">symbol</span></code> (Greek mu or &#956;)
+        The <code class="computeroutput"><span class="identifier">symbol</span></code> (Greek mu or μ)
         for micro is defined by <a href="http://www.unicode.org/charts/PDF/U0080.pdf" target="_top">Unicode</a>
         to be U+00B5.
       </p>
@@ -420,22 +251,6 @@
 <span class="identifier">ratio_string</span><span class="special">&lt;</span><span class="identifier">giga</span><span class="special">,</span> <span class="keyword">char</span><span class="special">&gt;::</span><span class="identifier">symbol</span><span class="special">()</span> <span class="special">=</span> <span class="identifier">G</span>
 <span class="identifier">ratio_string</span><span class="special">&lt;</span><span class="identifier">ratio</span><span class="special">&lt;</span><span class="number">4</span><span class="special">,</span> <span class="number">6</span><span class="special">&gt;,</span> <span class="keyword">char</span><span class="special">&gt;::</span><span class="identifier">prefix</span><span class="special">()</span> <span class="special">=</span> <span class="special">[</span><span class="number">2</span><span class="special">/</span><span class="number">3</span><span class="special">]</span>
 <span class="identifier">ratio_string</span><span class="special">&lt;</span><span class="identifier">ratio</span><span class="special">&lt;</span><span class="number">4</span><span class="special">,</span> <span class="number">6</span><span class="special">&gt;,</span> <span class="keyword">char</span><span class="special">&gt;::</span><span class="identifier">symbol</span><span class="special">()</span> <span class="special">=</span> <span class="special">[</span><span class="number">2</span><span class="special">/</span><span class="number">3</span><span class="special">]</span>
-</pre>
-<h5>
-<a name="ratio.users_guide.tutorial.h2"></a>
-        <span class="phrase"><a name="ratio.users_guide.tutorial.ratio_mpl_numeric_metafunctions"></a></span><a class="link" href="users_guide.html#ratio.users_guide.tutorial.ratio_mpl_numeric_metafunctions">Ratio
-        MPL Numeric Metafunctions</a>
-      </h5>
-<p>
-        With the view of the _ratio class as a <a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational
-        Constant</a> we can mix _ratio&lt;&gt; and <span class="bold"><strong>Boost.MPL</strong></span>
-        Integral Constants in the same expression, as in
-      </p>
-<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">mpl</span><span class="special">::</span><span class="identifier">times</span><span class="special">&lt;</span><span class="identifier">int_</span><span class="special">&lt;</span><span class="number">5</span><span class="special">&gt;,</span> <span class="identifier">giga</span><span class="special">&gt;::</span><span class="identifier">type</span> <span class="identifier">_5giga</span><span class="special">;</span>
-<span class="comment">// _5giga::num == 5000000000, _5giga::den == 1</span>
-
-<span class="keyword">typedef</span> <span class="identifier">mpl</span><span class="special">::</span><span class="identifier">times</span><span class="special">&lt;</span><span class="identifier">int_</span><span class="special">&lt;</span><span class="number">5</span><span class="special">&gt;,</span> <span class="identifier">nano</span><span class="special">&gt;::</span><span class="identifier">type</span> <span class="identifier">_5nano</span><span class="special">;</span>
-<span class="comment">// _5nano::num == 1, _5nano::den == 200000000</span>
 </pre>
 </div>
 <div class="section">
@@ -721,15 +536,12 @@
 </div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2008 Howard Hinnant<br>Copyright &#169; 2006, 2008 Beman Dawes<br>Copyright &#169; 2009-2012 Vicente
+<div class="copyright-footer">Copyright © 2008 Howard Hinnant<br>Copyright © 2006, 2008 Beman Dawes<br>Copyright © 2009-2012 Vicente
       J. Botet Escriba<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="../ratio.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../ratio.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="reference.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

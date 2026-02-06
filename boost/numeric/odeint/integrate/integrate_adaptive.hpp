@@ -7,7 +7,7 @@
  [end_description]
 
  Copyright 2011-2013 Karsten Ahnert
- Copyright 2011-2012 Mario Mulansky
+ Copyright 2011-2015 Mario Mulansky
 
  Distributed under the Boost Software License, Version 1.0.
  (See accompanying file LICENSE_1_0.txt or
@@ -17,8 +17,6 @@
 
 #ifndef BOOST_NUMERIC_ODEINT_INTEGRATE_INTEGRATE_ADAPTIVE_HPP_INCLUDED
 #define BOOST_NUMERIC_ODEINT_INTEGRATE_INTEGRATE_ADAPTIVE_HPP_INCLUDED
-
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/numeric/odeint/stepper/stepper_categories.hpp>
 #include <boost/numeric/odeint/integrate/null_observer.hpp>

@@ -8,6 +8,8 @@
 
 #ifdef _MSC_VER
 #pragma once
+#pragma warning(push)
+#pragma warning(disable:4702) // Unreachable code (release mode only warning)
 #endif
 
 #include <boost/math/special_functions/detail/bessel_j1.hpp>
@@ -15,7 +17,17 @@
 #include <boost/math/tools/rational.hpp>
 #include <boost/math/tools/big_constant.hpp>
 #include <boost/math/policies/error_handling.hpp>
-#include <boost/assert.hpp>
+#include <boost/math/tools/assert.hpp>
+
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma diagnostic ignored work :(
+//
+#pragma GCC system_header
+#endif
 
 // Bessel function of the second kind of order one
 // x <= 8, minimax rational approximations on root-bracketing intervals
@@ -26,36 +38,9 @@ namespace boost { namespace math { namespace detail{
 template <typename T, typename Policy>
 T bessel_y1(T x, const Policy&);
 
-template <class T, class Policy>
-struct bessel_y1_initializer
-{
-   struct init
-   {
-      init()
-      {
-         do_init();
-      }
-      static void do_init()
-      {
-         bessel_y1(T(1), Policy());
-      }
-      void force_instantiate()const{}
-   };
-   static const init initializer;
-   static void force_instantiate()
-   {
-      initializer.force_instantiate();
-   }
-};
-
-template <class T, class Policy>
-const typename bessel_y1_initializer<T, Policy>::init bessel_y1_initializer<T, Policy>::initializer;
-
 template <typename T, typename Policy>
-T bessel_y1(T x, const Policy& pol)
+T bessel_y1(T x, const Policy&)
 {
-    bessel_y1_initializer<T, Policy>::force_instantiate();
-
     static const T P1[] = {
          static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 4.0535726612579544093e+13)),
          static_cast<T>(BOOST_MATH_BIG_CONSTANT(T, 64, 5.4708611716525426053e+12)),
@@ -145,11 +130,8 @@ T bessel_y1(T x, const Policy& pol)
     using namespace boost::math::tools;
     using namespace boost::math::constants;
 
-    if (x <= 0)
-    {
-       return policies::raise_domain_error<T>("bost::math::bessel_y1<%1%>(%1%,%1%)",
-            "Got x == %1%, but x must be > 0, complex result not supported.", x, pol);
-    }
+    BOOST_MATH_ASSERT(x > 0);
+
     if (x <= 4)                       // x in (0, 4]
     {
         T y = x * x;
@@ -191,6 +173,10 @@ T bessel_y1(T x, const Policy& pol)
 }
 
 }}} // namespaces
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_MATH_BESSEL_Y1_HPP
 

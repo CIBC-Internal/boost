@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Circular_buffer example</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../circular_buffer.html" title="Chapter&#160;7.&#160;Boost.Circular Buffer">
-<link rel="prev" href="../circular_buffer.html" title="Chapter&#160;7.&#160;Boost.Circular Buffer">
+<link rel="up" href="../circular_buffer.html" title="Chapter 7. Boost.Circular Buffer">
+<link rel="prev" href="../circular_buffer.html" title="Chapter 7. Boost.Circular Buffer">
 <link rel="next" href="rationale.html" title="Rationale">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,7 +29,7 @@
 <a name="circular_buffer.example"></a><a class="link" href="example.html" title="Circular_buffer example">Circular_buffer example</a>
 </h2></div></div></div>
 <p>
-      Here is a simple example to introduce the class <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code>.
+      Here is a simple example to introduce the class <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code>.
     </p>
 <p>
       For all examples, we need this include:
@@ -35,12 +37,12 @@
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">circular_buffer</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 </pre>
 <p>
-      This example shows contruction, inserting elements, overwriting and popping.
+      This example shows construction, inserting elements, overwriting and popping.
     </p>
 <pre class="programlisting"><span class="comment">// Create a circular buffer with a capacity for 3 integers.</span>
 <span class="identifier">boost</span><span class="special">::</span><span class="identifier">circular_buffer</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">&gt;</span> <span class="identifier">cb</span><span class="special">(</span><span class="number">3</span><span class="special">);</span>
 
-<span class="comment">// Insert threee elements into the buffer.</span>
+<span class="comment">// Insert three elements into the buffer.</span>
 <span class="identifier">cb</span><span class="special">.</span><span class="identifier">push_back</span><span class="special">(</span><span class="number">1</span><span class="special">);</span>
 <span class="identifier">cb</span><span class="special">.</span><span class="identifier">push_back</span><span class="special">(</span><span class="number">2</span><span class="special">);</span>
 <span class="identifier">cb</span><span class="special">.</span><span class="identifier">push_back</span><span class="special">(</span><span class="number">3</span><span class="special">);</span>
@@ -74,14 +76,11 @@
       The full annotated description is in the C++ Reference section.
     </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2013 Jan Gaspar<p>
+<div class="copyright-footer">Copyright © 2003-2013 Jan Gaspar<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="../circular_buffer.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../circular_buffer.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="rationale.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

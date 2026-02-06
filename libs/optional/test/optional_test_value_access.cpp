@@ -11,7 +11,7 @@
 
 #include "boost/optional/optional.hpp"
 
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 #pragma hdrstop
 #endif
 
@@ -175,7 +175,7 @@ void test_const_move()
 }
 
 
-#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+#if (!defined BOOST_NO_CXX11_REF_QUALIFIERS) && (!defined BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES)
 struct MoveOnly
 {
     explicit MoveOnly(int){}

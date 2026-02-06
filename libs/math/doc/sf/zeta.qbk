@@ -16,7 +16,7 @@
    
    }} // namespaces
    
-The return type of these functions is computed using the __arg_pomotion_rules:
+The return type of these functions is computed using the __arg_promotion_rules:
 the return type is `double` if T is an integer type, and T otherwise.
 
 [optional_policy]
@@ -46,23 +46,16 @@ along with comparisons to the __gsl and __cephes libraries.
 Unless otherwise specified any floating point type that is narrower
 than the one shown will have __zero_error.
 
-[table Errors In the Function zeta(z)
-[[Significand Size] [Platform and Compiler] [z > 0][z < 0]]
-[[53] [Win32, Visual C++ 8] [Peak=0.99 Mean=0.1
+[table_zeta]
 
-GSL Peak=8.7 Mean=1.0 
+The following error plot are based on an exhaustive search of the functions domain, MSVC-15.5 at `double` precision, 
+and GCC-7.1/Ubuntu for `long double` and `__float128`.
 
-__cephes Peak=2.1 Mean=1.1
-]  [Peak=7.1 Mean=3.0 
+[graph zeta__double]
 
-GSL Peak=137 Mean=14 
+[graph zeta__80_bit_long_double]
 
-__cephes Peak=5084 Mean=470
-]]
-[[64] [RedHat Linux IA_EM64, gcc-4.1] [Peak=0.99 Mean=0.5]  [Peak=570 Mean=60]]
-[[64] [Redhat Linux IA64, gcc-4.1] [Peak=0.99 Mean=0.5]  [Peak=559 Mean=56]]
-[[113] [HPUX IA64, aCC A.06.06] [Peak=1.0 Mean=0.4]  [Peak=1018 Mean=79]]
-]
+[graph zeta____float128]
 
 [h4 Testing]
 
@@ -95,22 +88,22 @@ For 0 < z < 1 the approximating form is:
 
 [equation zeta4]
 
-For a rational approximation R(1-z) and a constant C.
+For a rational approximation /R(1-z)/ and a constant /C/:
 
 For 1 < z < 4 the approximating form is:
 
 [equation zeta5]
 
-For a rational approximation R(n-z) and a constant C and integer n.
+For a rational approximation /R(n-z)/ and a constant /C/ and integer /n/:
 
 For z > 4 the approximating form is:
 
-[zeta](z) = 1 + e[super R(z - n)]
+[expression [zeta](z) = 1 + e[super R(z - n)]]
 
-For a rational approximation R(z-n) and integer n, note that the accuracy 
-required for R(z-n) is not full machine precision, but an absolute error
-of: [epsilon]/R(0).  This saves us quite a few digits when dealing with large 
-z, especially when [epsilon] is small.
+For a rational approximation /R(z-n)/ and integer /n/, note that the accuracy 
+required for /R(z-n)/ is not full machine-precision, but an absolute error
+of: /[epsilon]/R(0)/.  This saves us quite a few digits when dealing with large 
+/z/, especially when [epsilon] is small.
 
 Finally, there are some special cases for integer arguments, there are
 closed forms for negative or even integers:
@@ -124,7 +117,8 @@ closed forms for negative or even integers:
 and for positive odd integers we simply cache pre-computed values as these are of great
 benefit to some infinite series calculations.
 
-[endsect]
+[endsect] [/section:zeta Riemann Zeta Function]
+
 [/ :error_function The Error Functions]
 
 [/ 

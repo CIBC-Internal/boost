@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>List Parser (a % b)</title>
 <link rel="stylesheet" href="../../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../../index.html" title="Spirit 2.5.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../../index.html" title="Spirit 2.59">
 <link rel="up" href="../operator.html" title="Parser Operators">
 <link rel="prev" href="kleene.html" title="Kleene Parser (*a)">
 <link rel="next" href="not_predicate.html" title="Not-Predicate Parser (!a)">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -104,11 +105,27 @@
                       Match a list of one or more repetitions of <code class="computeroutput"><span class="identifier">a</span></code>
                       separated by occurrences of <code class="computeroutput"><span class="identifier">b</span></code>.
                       This is equivalent to <code class="computeroutput"><span class="identifier">a</span>
-                      <span class="special">&gt;&gt;</span> <span class="special">*(</span><span class="identifier">b</span> <span class="special">&gt;&gt;</span>
-                      <span class="identifier">a</span><span class="special">)</span></code>.
+                      <span class="special">&gt;&gt;</span> <span class="special">*(</span><span class="identifier">omit</span><span class="special">[</span><span class="identifier">b</span><span class="special">]</span>
+                      <span class="special">&gt;&gt;</span> <span class="identifier">a</span><span class="special">)</span></code>.
                     </p>
                   </td>
 </tr></tbody>
+</table></div>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+              The list operator <code class="computeroutput"><span class="identifier">a</span> <span class="special">%</span> <span class="identifier">b</span></code>
+              omits the attribute of parser <code class="computeroutput"><span class="identifier">b</span></code>.
+              If you need <code class="computeroutput"><span class="identifier">b</span></code> to contribute
+              to the result attribute choose <code class="computeroutput"><span class="identifier">a</span>
+              <span class="special">&gt;&gt;</span> <span class="special">*(</span><span class="identifier">b</span> <span class="special">&gt;&gt;</span>
+              <span class="identifier">a</span><span class="special">)</span></code>
+              over the list operator <code class="computeroutput"><span class="identifier">a</span>
+              <span class="special">%</span> <span class="identifier">b</span></code>.
+            </p></td></tr>
 </table></div>
 <h6>
 <a name="spirit.qi.reference.operator.list.h4"></a>
@@ -145,7 +162,7 @@
 <td>
                     <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">a</span><span class="special">:</span> <span class="identifier">A</span><span class="special">,</span> <span class="identifier">b</span><span class="special">:</span> <span class="identifier">B</span> <span class="special">--&gt;</span> <span class="special">(</span><span class="identifier">a</span> <span class="special">%</span> <span class="identifier">b</span><span class="special">):</span> <span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">A</span><span class="special">&gt;</span>
+<pre class="table-programlisting"><span class="identifier">a</span><span class="special">:</span> <span class="identifier">A</span><span class="special">,</span> <span class="identifier">b</span><span class="special">:</span> <span class="identifier">B</span> <span class="special">--&gt;</span> <span class="special">(</span><span class="identifier">a</span> <span class="special">%</span> <span class="identifier">b</span><span class="special">):</span> <span class="identifier">vector</span><span class="special">&lt;</span><span class="identifier">A</span><span class="special">&gt;</span>
 <span class="identifier">a</span><span class="special">:</span> <span class="identifier">Unused</span><span class="special">,</span> <span class="identifier">b</span><span class="special">:</span> <span class="identifier">B</span> <span class="special">--&gt;</span> <span class="special">(</span><span class="identifier">a</span> <span class="special">%</span> <span class="identifier">b</span><span class="special">):</span> <span class="identifier">Unused</span></pre>
 <p>
                     </p>
@@ -201,14 +218,11 @@
 <p>
           </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2001-2011 Joel de Guzman, Hartmut Kaiser<p>
+<div class="copyright-footer">Copyright © 2001-2011 Joel de Guzman, Hartmut Kaiser<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="kleene.html"><img src="../../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../operator.html"><img src="../../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../../index.html"><img src="../../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="not_predicate.html"><img src="../../../../../../../../doc/src/images/next.png" alt="Next"></a>

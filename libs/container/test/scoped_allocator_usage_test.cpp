@@ -7,7 +7,6 @@
 // See http://www.boost.org/libs/container for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-#include <boost/container/detail/config_begin.hpp>
 #include <memory>
 
 #include <boost/move/utility_core.hpp>
@@ -31,7 +30,7 @@ class SimpleAllocator
 public:
    typedef Ty value_type;
 
-   SimpleAllocator(int value)
+   explicit SimpleAllocator(int value)
       : m_state(value)
    {}
 
@@ -59,18 +58,18 @@ public:
 
    template <typename T> friend class SimpleAllocator;
 
-   friend bool operator == (const SimpleAllocator &, const SimpleAllocator &)
-   {  return true;  }
+   friend bool operator == (const SimpleAllocator &a, const SimpleAllocator &b)
+   {  return a.m_state == b.m_state;  }
 
-   friend bool operator != (const SimpleAllocator &, const SimpleAllocator &)
-   {  return false;  }
+   friend bool operator != (const SimpleAllocator &a, const SimpleAllocator &b)
+   {  return a.m_state != b.m_state;  }
 };
 
 class alloc_int
 {
    private: // Not copyable
 
-   BOOST_MOVABLE_BUT_NOT_COPYABLE(alloc_int)
+   BOOST_COPYABLE_AND_MOVABLE(alloc_int)
 
    public:
    typedef SimpleAllocator<int> allocator_type;
@@ -87,13 +86,30 @@ class alloc_int
       other.m_value = -1;
    }
 
+   alloc_int(const alloc_int &other)
+      : m_value(other.m_value), m_allocator(boost::move(other.m_allocator))
+   {
+   }
+
+   alloc_int(const alloc_int &other, const allocator_type &allocator)
+      : m_value(other.m_value), m_allocator(allocator)
+   {
+   }
+
    alloc_int(int value, const allocator_type &allocator)
       : m_value(value), m_allocator(allocator)
    {}
 
    alloc_int & operator=(BOOST_RV_REF(alloc_int)other)
    {
-      other.m_value = other.m_value;
+      m_value = other.m_value;
+      other.m_value = -1;
+      return *this;
+   }
+
+   alloc_int & operator=(const alloc_int &other)
+   {
+      m_value = other.m_value;
       return *this;
    }
 
@@ -341,7 +357,7 @@ bool test_value_and_state_equals(const alloc_int &r, int value, int state)
 {  return r.get_value() == value && r.get_allocator_state() == state;  }
 
 template<class F, class S>
-bool test_value_and_state_equals(const container_detail::pair<F, S> &p, int value, int state)
+bool test_value_and_state_equals(const dtl::pair<F, S> &p, int value, int state)
 {  return test_value_and_state_equals(p.first, value, state) && test_alloc_state_equals(p.second, value, state);  }
 
 template<class F, class S>
@@ -356,7 +372,8 @@ bool one_level_allocator_propagation_test()
    typedef typename ContainerWrapper::allocator_type allocator_type;
    typedef typename ContainerWrapper::value_type value_type;
    {
-      ContainerWrapper c(allocator_type(SimpleAllocator<value_type>(5)));
+      allocator_type al(SimpleAllocator<value_type>(5));
+      ContainerWrapper c(al);
 
       c.clear();
       iterator it = c.emplace(c.cbegin(), 42);
@@ -365,30 +382,54 @@ bool one_level_allocator_propagation_test()
          return false;
    }
    {
-      ContainerWrapper c2(allocator_type(SimpleAllocator<value_type>(4)));
+      allocator_type al(SimpleAllocator<value_type>(4));
+      ContainerWrapper c2(al);
+      {
+         iterator it = c2.emplace(c2.cbegin(), 41);
+         if(!test_value_and_state_equals(*it, 41, 4))
+            return false;
+      }
+
       ContainerWrapper c(::boost::move(c2), allocator_type(SimpleAllocator<value_type>(5)));
 
-      c.clear();
-      iterator it = c.emplace(c.cbegin(), 42);
-
-      if(!test_value_and_state_equals(*it, 42, 5))
+      if(!test_value_and_state_equals(*c.begin(), 41, 5))
          return false;
-   }/*
+
+      {
+         c.clear();
+         iterator it = c.emplace(c.cbegin(), 42);
+
+         if(!test_value_and_state_equals(*it, 42, 5))
+            return false;
+      }
+   }
    {
-      ContainerWrapper c2(allocator_type(SimpleAllocator<value_type>(3)));
+      allocator_type al(SimpleAllocator<value_type>(4));
+      ContainerWrapper c2(al);
+      {
+         iterator it = c2.emplace(c2.cbegin(), 41);
+         if(!test_value_and_state_equals(*it, 41, 4))
+            return false;
+      }
+
       ContainerWrapper c(c2, allocator_type(SimpleAllocator<value_type>(5)));
 
-      c.clear();
-      iterator it = c.emplace(c.cbegin(), 42);
-
-      if(!test_value_and_state_equals(*it, 42, 5))
+      if(!test_value_and_state_equals(*c.begin(), 41, 5))
          return false;
-   }*/
+
+      {
+         c.clear();
+         iterator it = c.emplace(c.cbegin(), 42);
+
+         if(!test_value_and_state_equals(*it, 42, 5))
+            return false;
+      }
+   }
    return true;
 }
 
 int main()
-{/*
+{
    //unique assoc
    if(!one_level_allocator_propagation_test<FlatMap>())
       return 1;
@@ -406,7 +447,7 @@ int main()
    if(!one_level_allocator_propagation_test<FlatMultiSet>())
       return 1;
    if(!one_level_allocator_propagation_test<MultiSet>())
-      return 1;*/
+      return 1;
    //sequence containers
    if(!one_level_allocator_propagation_test<Vector>())
       return 1;
@@ -422,5 +463,3 @@ int main()
       return 1;
    return 0;
 }
-
-#include <boost/container/detail/config_end.hpp>

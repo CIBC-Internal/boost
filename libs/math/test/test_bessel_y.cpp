@@ -152,6 +152,30 @@ void expected_results()
          ".*Yn.*",              // test data group
          ".*", 30000, 30000);         // test function
    //
+   // Cygwin:
+   //
+      add_expected_result(
+         "GNU.*",                       // compiler
+         ".*",                          // stdlib
+         "Cygwin*",                     // platform
+         largest_type,                  // test type(s)
+         ".*Yv.*Random.*",              // test data group
+         ".*", 400000, 300000);         // test function
+      add_expected_result(
+         "GNU.*",                       // compiler
+         ".*",                          // stdlib
+         "Cygwin*",                     // platform
+         largest_type,                  // test type(s)
+         ".*Y[01v].*",                  // test data group
+         ".*", 2000, 1000);             // test function
+      add_expected_result(
+         "GNU.*",                       // compiler
+         ".*",                          // stdlib
+         "Cygwin*",                     // platform
+         largest_type,                  // test type(s)
+         ".*Yn.*",                      // test data group
+         ".*", 30000, 30000);           // test function
+   //
    // Solaris version of long double has it's own error rates,
    // again just a touch higher than msvc's 64-bit double:
    //
@@ -164,7 +188,7 @@ void expected_results()
       ".*", 2000, 2000);         // test function
 
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-   if((std::numeric_limits<double>::digits != std::numeric_limits<long double>::digits)
+   BOOST_IF_CONSTEXPR((std::numeric_limits<double>::digits != std::numeric_limits<long double>::digits)
       && (std::numeric_limits<long double>::digits < 90))
    {
       // some errors spill over into type double as well:
@@ -182,6 +206,16 @@ void expected_results()
          "double",                      // test type(s)
          ".*Yv.*",              // test data group
          ".*", 80, 70);         // test function
+   }
+   else BOOST_IF_CONSTEXPR(std::numeric_limits<long double>::digits >= 90)
+   {
+      add_expected_result(
+         ".*",                          // compiler
+         ".*",                          // stdlib
+         ".*",                          // platform
+         "double",                      // test type(s)
+         ".*Yv.*Mathworld.*",           // test data group
+         ".*", 20, 5);         // test function
    }
 #endif
    //
@@ -260,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 
