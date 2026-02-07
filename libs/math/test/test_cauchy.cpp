@@ -16,18 +16,23 @@
 #  pragma warning(disable: 4127) // conditional expression is constant
 #endif
 
+#ifdef SYCL_LANGUAGE_VERSION
+#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
+#include "sycl/sycl.hpp"
+#include <boost/math/tools/config.hpp>
+#endif
+
 // #define BOOST_MATH_ASSERT_UNDEFINED_POLICY false 
 // To compile even if Cauchy mean is used.
-
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #include <boost/math/distributions/cauchy.hpp>
     using boost::math::cauchy_distribution;
 
-#include "test_out_of_range.hpp"
-
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
+
+#include "test_out_of_range.hpp"
 
 #include <iostream>
    using std::cout;
@@ -37,9 +42,13 @@ template <class RealType>
 void test_spots(RealType T)
 {
   // Check some bad parameters to construct the distribution,
+#ifndef BOOST_NO_EXCEPTIONS
   BOOST_CHECK_THROW(boost::math::cauchy_distribution<RealType> nbad1(0, 0), std::domain_error); // zero scale.
   BOOST_CHECK_THROW(boost::math::cauchy_distribution<RealType> nbad1(0, -1), std::domain_error); // negative scale (shape).
-
+#else
+  BOOST_CHECK_THROW(boost::math::cauchy_distribution<RealType>(0, 0), std::domain_error); // zero scale.
+  BOOST_CHECK_THROW(boost::math::cauchy_distribution<RealType>(0, -1), std::domain_error); // negative scale (shape).
+#endif
   cauchy_distribution<RealType> C01;
 
   BOOST_CHECK_EQUAL(C01.location(), 0); // Check standard values.
@@ -121,6 +130,25 @@ void test_spots(RealType T)
          static_cast<RealType>(-10.0)),              // x
          static_cast<RealType>(0.031725517430553569514977118601302L),                // probability.
          tolerance); // %
+   BOOST_CHECK_CLOSE(
+      ::boost::math::cdf(
+         cauchy_distribution<RealType>(),
+         static_cast<RealType>(-15000000.0)),
+         static_cast<RealType>(0.000000021220659078919346664504384865488560725L),
+         tolerance); // %
+
+   #ifndef SYCL_LANGUAGE_VERSION // Returns infinity
+   BOOST_CHECK_CLOSE(
+      // Test the CDF at -max_value()/4.
+      // For an input x of this magnitude, the reference value is 4/|x|/pi.
+      ::boost::math::cdf(
+         cauchy_distribution<RealType>(),
+         -boost::math::tools::max_value<RealType>()/4),
+         static_cast<RealType>(4)
+                      / boost::math::tools::max_value<RealType>()
+                      / boost::math::constants::pi<RealType>(),
+         tolerance); // %
+   #endif
 
    //
    // Complements:
@@ -185,6 +213,25 @@ void test_spots(RealType T)
          static_cast<RealType>(-10.0))),              // x
          static_cast<RealType>(0.9682744825694464304850228813987L),                // probability.
          tolerance); // %
+   BOOST_CHECK_CLOSE(
+      ::boost::math::cdf(
+         complement(cauchy_distribution<RealType>(),
+         static_cast<RealType>(15000000.0))),
+         static_cast<RealType>(0.000000021220659078919346664504384865488560725L),
+         tolerance); // %
+
+   #ifndef SYCL_LANGUAGE_VERSION // Returns infinity
+   BOOST_CHECK_CLOSE(
+      // Test the complemented CDF at max_value()/4.
+      // For an input x of this magnitude, the reference value is 4/x/pi.
+      ::boost::math::cdf(
+         complement(cauchy_distribution<RealType>(),
+         boost::math::tools::max_value<RealType>()/4)),
+         static_cast<RealType>(4)
+                      / boost::math::tools::max_value<RealType>()
+                      / boost::math::constants::pi<RealType>(),
+         tolerance); // %
+   #endif
 
    //
    // Quantiles:
@@ -652,6 +699,11 @@ void test_spots(RealType T)
    BOOST_CHECK_EQUAL(
        median(dist),
        static_cast<RealType>(0));
+   RealType expected_entropy = log(2*boost::math::constants::two_pi<RealType>());
+   BOOST_CHECK_CLOSE(
+       entropy(dist),
+       expected_entropy, tolerance);
+
    //
    // Things that now don't compile (BOOST-STATIC_ASSERT_FAILURE) by default.
    // #define BOOST_MATH_ASSERT_UNDEFINED_POLICY false 
@@ -696,7 +748,7 @@ void test_spots(RealType T)
 
 } // template <class RealType>void test_spots(RealType)
 
-BOOST_AUTO_TEST_CASE( test_main )
+BOOST_AUTO_TEST_CASE(test_main)
 {
   BOOST_MATH_CONTROL_FP;
    // Check that can generate cauchy distribution using the two convenience methods:
@@ -712,14 +764,14 @@ BOOST_AUTO_TEST_CASE( test_main )
   test_spots(0.0); // Test double. OK at decdigits 7, tolerance = 1e07 %
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
   test_spots(0.0L); // Test long double.
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582)) && !defined(BOOST_MATH_NO_REAL_CONCEPT_TESTS)
   test_spots(boost::math::concepts::real_concept(0.)); // Test real concept.
 #endif
 #else
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
 } // BOOST_AUTO_TEST_CASE( test_main )

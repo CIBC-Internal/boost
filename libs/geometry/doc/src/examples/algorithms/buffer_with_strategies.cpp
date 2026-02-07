@@ -1,14 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2013, 2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2013, 2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[buffer_with_strategies
-//` Shows how the buffer algorithm can be used to create a buffer of a linestring
+//` Shows how the buffer algorithm can be used to create a buffer of a linestring, a multi point, a multi polygon
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -17,9 +17,9 @@
 
 int main()
 {
-    typedef double coordinate_type;
-    typedef boost::geometry::model::d2::point_xy<coordinate_type> point;
-    typedef boost::geometry::model::polygon<point> polygon;
+    using coordinate_type = double;
+    using point = boost::geometry::model::d2::point_xy<coordinate_type>;
+    using polygon = boost::geometry::model::polygon<point>;
 
     // Declare strategies
     const double buffer_distance = 1.0;

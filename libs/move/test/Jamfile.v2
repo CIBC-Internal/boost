@@ -6,6 +6,14 @@
 ##
 ##
 ##############################################################################
+
+import testing ;
+
+project : requirements
+    <library>/boost/core//boost_core
+    <library>/boost/container//boost_container
+    ;
+
 rule test_all
 {
    local all_rules = ;
@@ -22,7 +30,5 @@ rule test_all
    return $(all_rules) ;
 }
 
-test-suite move_test : [ test_all r ] 
-: <link>static
-;
- 
+test-suite move_test : [ test_all r ] ;
+

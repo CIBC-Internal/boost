@@ -7,7 +7,7 @@
 #include "table_type.hpp"
 
 #include <boost/math/special_functions/polygamma.hpp>
-#include "libs/math/test/test_polygamma.hpp"
+#include "test_polygamma.hpp"
 
 void expected_results()
 {
@@ -28,7 +28,7 @@ void expected_results()
       ".*",                          // platform
       ".*",                          // test type(s)
       ".*",                          // test data group
-      ".*", 500, 200);               // test function
+      ".*", 700, 400);               // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.

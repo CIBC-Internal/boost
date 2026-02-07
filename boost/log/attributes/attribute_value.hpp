@@ -15,11 +15,11 @@
 #ifndef BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
 #define BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
 
+#include <boost/type_index.hpp>
 #include <boost/move/core.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/core/explicit_operator_bool.hpp>
 #include <boost/log/detail/config.hpp>
-#include <boost/utility/explicit_operator_bool.hpp>
-#include <boost/log/utility/type_info_wrapper.hpp>
 #include <boost/log/utility/type_dispatch/type_dispatcher.hpp>
 #include <boost/log/attributes/attribute.hpp>
 #include <boost/log/attributes/value_extraction_fwd.hpp>
@@ -98,12 +98,12 @@ public:
         /*!
          * \return The attribute value that refers to self implementation.
          */
-        virtual attribute_value get_value() { return attribute_value(this); }
+        attribute_value get_value() BOOST_OVERRIDE { return attribute_value(this); }
 
         /*!
          * \return The attribute value type
          */
-        virtual type_info_wrapper get_type() const { return type_info_wrapper(); }
+        virtual typeindex::type_index get_type() const { return typeindex::type_index(); }
     };
 
 private:
@@ -114,7 +114,7 @@ public:
     /*!
      * Default constructor. Creates an empty (absent) attribute value.
      */
-    BOOST_DEFAULTED_FUNCTION(attribute_value(), {})
+    BOOST_DEFAULTED_FUNCTION(attribute_value(), BOOST_NOEXCEPT {})
 
     /*!
      * Copy constructor
@@ -166,12 +166,12 @@ public:
      * the information cannot be provided. If the returned value is not empty, the type
      * can be used for value extraction.
      */
-    type_info_wrapper get_type() const
+    typeindex::type_index get_type() const
     {
         if (m_pImpl.get())
             return m_pImpl->get_type();
         else
-            return type_info_wrapper();
+            return typeindex::type_index();
     }
 
     /*!

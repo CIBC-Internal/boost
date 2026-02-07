@@ -16,12 +16,12 @@
 #define BOOST_LOG_UTILITY_SETUP_FILTER_PARSER_HPP_INCLUDED_
 
 #include <string>
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/smart_ptr/make_shared_object.hpp>
 #include <boost/phoenix/operator/comparison.hpp>
 #include <boost/type_traits/is_base_and_derived.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/core/enable_if.hpp>
 #include <boost/log/detail/setup_config.hpp>
 #include <boost/log/detail/code_conversion.hpp>
 #include <boost/log/exceptions.hpp>
@@ -125,7 +125,7 @@ struct filter_factory
      */
     virtual filter on_custom_relation(attribute_name const& name, string_type const& rel, string_type const& arg)
     {
-        BOOST_LOG_THROW_DESCR_PARAMS(parse_error, "The custom attribute value relation \"" + boost::log::aux::to_narrow(arg) + "\" is not supported", (name));
+        BOOST_LOG_THROW_DESCR_PARAMS(parse_error, "The custom attribute value relation \"" + boost::log::aux::to_narrow(rel) + "\" is not supported", (name));
         BOOST_LOG_UNREACHABLE_RETURN(filter());
     }
 
@@ -208,7 +208,7 @@ public:
      */
     virtual filter on_custom_relation(attribute_name const& name, string_type const& rel, string_type const& arg)
     {
-        BOOST_LOG_THROW_DESCR_PARAMS(parse_error, "The custom attribute value relation \"" + boost::log::aux::to_narrow(arg) + "\" is not supported", (name));
+        BOOST_LOG_THROW_DESCR_PARAMS(parse_error, "The custom attribute value relation \"" + boost::log::aux::to_narrow(rel) + "\" is not supported", (name));
         BOOST_LOG_UNREACHABLE_RETURN(filter());
     }
 
@@ -217,7 +217,12 @@ public:
      */
     virtual value_type parse_argument(string_type const& arg)
     {
-        return boost::lexical_cast< value_type >(arg);
+        std::basic_istringstream< typename base_type::char_type > strm(arg);
+        value_type val{};
+        strm >> val;
+        if (BOOST_UNLIKELY((strm.rdstate() & (std::ios_base::badbit | std::ios_base::failbit)) != 0))
+            BOOST_LOG_THROW_DESCR(parse_error, "Failed to parse argument value from \"" + boost::log::aux::to_narrow(arg) + "\"");
+        return val;
     }
 };
 
@@ -242,8 +247,8 @@ BOOST_LOG_SETUP_API void register_filter_factory(
  * \param factory The filter factory
  */
 template< typename FactoryT >
-inline typename enable_if<
-    is_base_and_derived< filter_factory< typename FactoryT::char_type >, FactoryT >
+inline typename boost::enable_if_c<
+    is_base_and_derived< filter_factory< typename FactoryT::char_type >, FactoryT >::value
 >::type register_filter_factory(attribute_name const& name, shared_ptr< FactoryT > const& factory)
 {
     typedef filter_factory< typename FactoryT::char_type > factory_base;

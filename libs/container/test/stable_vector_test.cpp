@@ -7,14 +7,11 @@
 // See http://www.boost.org/libs/container for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-
-#include <boost/container/detail/config_begin.hpp>
+#define STABLE_VECTOR_ENABLE_INVARIANT_CHECKING
 #include <memory>
 
 #include <boost/container/stable_vector.hpp>
-#include <boost/container/allocator.hpp>
 #include <boost/container/node_allocator.hpp>
-#include <boost/container/adaptive_pool.hpp>
 
 #include "check_equal_containers.hpp"
 #include "movable_int.hpp"
@@ -24,48 +21,22 @@
 #include "propagate_allocator_test.hpp"
 #include "vector_test.hpp"
 #include "default_init_test.hpp"
+#include "../../intrusive/test/iterator_test.hpp"
 
 using namespace boost::container;
-
-namespace boost {
-namespace container {
-
-//Explicit instantiation to detect compilation errors
-template class stable_vector<test::movable_and_copyable_int,
-   test::dummy_test_allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector<test::movable_and_copyable_int,
-   test::simple_allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector<test::movable_and_copyable_int,
-   std::allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector
-   < test::movable_and_copyable_int
-   , allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector
-   < test::movable_and_copyable_int
-   , adaptive_pool<test::movable_and_copyable_int> >;
-
-template class stable_vector
-   < test::movable_and_copyable_int
-   , node_allocator<test::movable_and_copyable_int> >;
-
-template class stable_vector_iterator<int*, false>;
-template class stable_vector_iterator<int*, true >;
-
-}}
 
 class recursive_vector
 {
    public:
-   int id_;
    stable_vector<recursive_vector> vector_;
    stable_vector<recursive_vector>::iterator it_;
    stable_vector<recursive_vector>::const_iterator cit_;
    stable_vector<recursive_vector>::reverse_iterator rit_;
    stable_vector<recursive_vector>::const_reverse_iterator crit_;
+
+   recursive_vector (const recursive_vector &o)
+      : vector_(o.vector_)
+   {}
 
    recursive_vector &operator=(const recursive_vector &o)
    { vector_ = o.vector_;  return *this; }
@@ -100,14 +71,17 @@ int test_cont_variants()
    typedef typename GetAllocatorCont<VoidAllocator>::template apply<test::movable_int>::type MyMoveCont;
    typedef typename GetAllocatorCont<VoidAllocator>::template apply<test::movable_and_copyable_int>::type MyCopyMoveCont;
    typedef typename GetAllocatorCont<VoidAllocator>::template apply<test::copyable_int>::type MyCopyCont;
+   typedef typename GetAllocatorCont<VoidAllocator>::template apply<test::moveconstruct_int>::type MyMoveConstructCont;
 
-   if(test::vector_test<MyCont>())
+   if (test::vector_test<MyCont>())
       return 1;
-   if(test::vector_test<MyMoveCont>())
+   if (test::vector_test<MyMoveCont>())
       return 1;
-   if(test::vector_test<MyCopyMoveCont>())
+   if (test::vector_test<MyCopyMoveCont>())
       return 1;
-   if(test::vector_test<MyCopyCont>())
+   if (test::vector_test<MyCopyCont>())
+      return 1;
+   if (test::vector_test<MyMoveConstructCont>())
       return 1;
 
    return 0;
@@ -158,19 +132,9 @@ int main()
       std::cerr << "test_cont_variants< std::allocator<void> > failed" << std::endl;
       return 1;
    }
-   //       boost::container::allocator
-   if(test_cont_variants< allocator<void> >()){
-      std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
-      return 1;
-   }
    //       boost::container::node_allocator
    if(test_cont_variants< node_allocator<void> >()){
       std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
-      return 1;
-   }
-   //       boost::container::adaptive_pool
-   if(test_cont_variants< adaptive_pool<void> >()){
-      std::cerr << "test_cont_variants< adaptive_pool<void> > failed" << std::endl;
       return 1;
    }
 
@@ -206,7 +170,63 @@ int main()
        return 1;
    }
 
+   ////////////////////////////////////
+   //    Iterator testing
+   ////////////////////////////////////
+   {
+      typedef boost::container::stable_vector<int> cont_int;
+      for (std::size_t i = 10; i <= 10000; i *= 10) {
+         cont_int a;
+         for (int j = 0; j < (int)i; ++j)
+            a.push_back((int)j);
+         boost::intrusive::test::test_iterator_random< cont_int >(a);
+         if (boost::report_errors() != 0) {
+            return 1;
+         }
+      }
+   }
+
+#ifndef BOOST_CONTAINER_NO_CXX17_CTAD
+   ////////////////////////////////////
+   //    Constructor Template Auto Deduction testing
+   ////////////////////////////////////
+   {
+      auto gold = std::vector{ 1, 2, 3 };
+      auto test = boost::container::stable_vector(gold.begin(), gold.end());
+      if (test.size() != 3) {
+         return 1;
+      }
+      if (!(test[0] == 1 && test[1] == 2 && test[2] == 3)) {
+         return 1;
+      }
+   }
+#endif
+
+   ////////////////////////////////////
+   //    has_trivial_destructor_after_move testing
+   ////////////////////////////////////
+   // default allocator
+   {
+      typedef boost::container::stable_vector<int> cont;
+      typedef cont::allocator_type allocator_type;
+      typedef boost::container::allocator_traits<allocator_type>::pointer pointer;
+      BOOST_CONTAINER_STATIC_ASSERT_MSG(
+        !(boost::has_trivial_destructor_after_move<cont>::value !=
+          boost::has_trivial_destructor_after_move<allocator_type>::value &&
+          boost::has_trivial_destructor_after_move<pointer>::value)
+        , "has_trivial_destructor_after_move(default allocator) test failed");
+   }
+   // std::allocator
+   {
+      typedef boost::container::stable_vector<int, std::allocator<int> > cont;
+      typedef cont::allocator_type allocator_type;
+      typedef boost::container::allocator_traits<allocator_type>::pointer pointer;
+      BOOST_CONTAINER_STATIC_ASSERT_MSG(
+        !(boost::has_trivial_destructor_after_move<cont>::value !=
+          boost::has_trivial_destructor_after_move<allocator_type>::value &&
+          boost::has_trivial_destructor_after_move<pointer>::value)
+        , "has_trivial_destructor_after_move(std::allocator) test failed");
+   }
+
    return 0;
 }
-
-#include <boost/container/detail/config_end.hpp>

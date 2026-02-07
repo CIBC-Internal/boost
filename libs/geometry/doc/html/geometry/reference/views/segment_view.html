@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>segment_view</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Geometry">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../index.html" title="Chapter 1. Geometry">
 <link rel="up" href="../views.html" title="Views">
 <link rel="prev" href="box_view.html" title="box_view">
 <link rel="next" href="closeable_view.html" title="closeable_view">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,7 +28,7 @@
 <a name="geometry.reference.views.segment_view"></a><a class="link" href="segment_view.html" title="segment_view">segment_view</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp134422112"></a>
+          <a class="indexterm" name="id102491"></a>
 Makes a segment behave like a linestring or a range.
         </p>
 <h6>
@@ -56,7 +57,6 @@ Makes a segment behave like a linestring or a range.
 </p>
 <pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Segment</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">segment_view</span>
-      <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">detail</span><span class="special">::</span><span class="identifier">points_view</span><span class="special">&lt;</span> <span class="identifier">geometry</span><span class="special">::</span><span class="identifier">point_type</span><span class="special">&lt;</span> <span class="identifier">Segment</span> <span class="special">&gt;::</span><span class="identifier">type</span><span class="special">,</span> <span class="number">2</span> <span class="special">&gt;</span>
 <span class="special">{</span>
   <span class="comment">// ...</span>
 <span class="special">};</span>
@@ -129,7 +129,7 @@ Makes a segment behave like a linestring or a range.
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">segment_view</span><span class="special">(</span><span class="identifier">Segment</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">segment</span><span class="special">)</span></pre>
+<pre class="table-programlisting"><span class="identifier">segment_view</span><span class="special">(</span><span class="identifier">Segment</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">segment</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -147,6 +147,73 @@ Makes a segment behave like a linestring or a range.
 </table></div>
 <h6>
 <a name="geometry.reference.views.segment_view.h5"></a>
+          <span class="phrase"><a name="geometry.reference.views.segment_view.member_function_s_"></a></span><a class="link" href="segment_view.html#geometry.reference.views.segment_view.member_function_s_">Member
+          Function(s)</a>
+        </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                  <p>
+                    Function
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Description
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Parameters
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Returns
+                  </p>
+                </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                  <p>
+</p>
+<pre class="table-programlisting"><span class="identifier">const_iterator</span> <span class="identifier">begin</span><span class="special">()</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+</p>
+<pre class="table-programlisting"><span class="identifier">const_iterator</span> <span class="identifier">end</span><span class="special">()</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry.reference.views.segment_view.h6"></a>
           <span class="phrase"><a name="geometry.reference.views.segment_view.header"></a></span><a class="link" href="segment_view.html#geometry.reference.views.segment_view.header">Header</a>
         </h6>
 <p>
@@ -162,14 +229,14 @@ Makes a segment behave like a linestring or a range.
           <code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">views</span><span class="special">/</span><span class="identifier">segment_view</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>
         </p>
 <h6>
-<a name="geometry.reference.views.segment_view.h6"></a>
+<a name="geometry.reference.views.segment_view.h7"></a>
           <span class="phrase"><a name="geometry.reference.views.segment_view.complexity"></a></span><a class="link" href="segment_view.html#geometry.reference.views.segment_view.complexity">Complexity</a>
         </h6>
 <p>
           Compile time
         </p>
 <h6>
-<a name="geometry.reference.views.segment_view.h7"></a>
+<a name="geometry.reference.views.segment_view.h8"></a>
           <span class="phrase"><a name="geometry.reference.views.segment_view.example"></a></span><a class="link" href="segment_view.html#geometry.reference.views.segment_view.example">Example</a>
         </h6>
 <p>
@@ -184,12 +251,12 @@ Makes a segment behave like a linestring or a range.
 
 <span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
 <span class="special">{</span>
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">segment</span>
+    <span class="keyword">using</span> <span class="identifier">segment_type</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">segment</span>
         <span class="special">&lt;</span>
             <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;</span><span class="keyword">double</span><span class="special">,</span> <span class="number">2</span><span class="special">,</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">cs</span><span class="special">::</span><span class="identifier">cartesian</span><span class="special">&gt;</span>
-        <span class="special">&gt;</span> <span class="identifier">segment_type</span><span class="special">;</span>
+        <span class="special">&gt;;</span>
 
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">segment_view</span><span class="special">&lt;</span><span class="identifier">segment_type</span><span class="special">&gt;</span> <span class="identifier">segment_view</span><span class="special">;</span>
+    <span class="keyword">using</span> <span class="identifier">segment_view</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">segment_view</span><span class="special">&lt;</span><span class="identifier">segment_type</span><span class="special">&gt;;</span>
 
     <span class="identifier">segment_type</span> <span class="identifier">segment</span><span class="special">;</span>
     <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">assign_values</span><span class="special">(</span><span class="identifier">segment</span><span class="special">,</span> <span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">,</span> <span class="number">1</span><span class="special">,</span> <span class="number">1</span><span class="special">);</span>
@@ -215,19 +282,16 @@ Makes a segment behave like a linestring or a range.
 <p>
           Output:
         </p>
-<pre class="programlisting">(0, 0) (0, 4) (4, 4) (4, 0) (0, 0)
-Area: 16
+<pre class="programlisting">(0, 0) (1, 1)
+Length: 1.41421
 </pre>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2009-2015 Barend Gehrels, Bruno Lalande,
-      Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates<p>
+<div class="copyright-footer">Copyright © 2009-2024 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam
+      Wulkiewicz, Oracle and/or its affiliates<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="box_view.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../views.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="closeable_view.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>

@@ -8,11 +8,17 @@
 // Constants are too big for float case, but this doesn't matter for test.
 #endif
 
+#include <boost/math/tools/config.hpp>
+
+#ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
 #include <boost/math/concepts/real_concept.hpp>
+#endif
+
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
+#include <boost/math/special_functions/heuman_lambda.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/array.hpp>
 #include "functor.hpp"
@@ -27,11 +33,14 @@
 template <class Real, typename T>
 void do_test_heuman_lambda(const T& data, const char* type_name, const char* test)
 {
+#if !(defined(ERROR_REPORTING_MODE) && !defined(HEUMAN_LAMBDA_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    std::cout << "Testing: " << test << std::endl;
 
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef HEUMAN_LAMBDA_FUNCTION_TO_TEST
+   value_type(*fp2)(value_type, value_type) = HEUMAN_LAMBDA_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
     value_type (*fp2)(value_type, value_type) = boost::math::ellint_d<value_type, value_type>;
 #else
    value_type(*fp2)(value_type, value_type) = boost::math::heuman_lambda;
@@ -43,9 +52,10 @@ void do_test_heuman_lambda(const T& data, const char* type_name, const char* tes
       bind_func<Real>(fp2, 1, 0),
       extract_result<Real>(2));
    handle_test_result(result, data[result.worst()], result.worst(),
-      type_name, "boost::math::heuman_lambda", test);
+      type_name, "heuman_lambda", test);
 
    std::cout << std::endl;
+#endif
 }
 
 template <typename T>
@@ -54,7 +64,7 @@ void test_spots(T, const char* type_name)
     BOOST_MATH_STD_USING
     // Function values calculated on http://functions.wolfram.com/
     // Note that Mathematica's EllipticE accepts k^2 as the second parameter.
-    static const boost::array<boost::array<T, 3>, 5> data1 = {{
+    static const std::array<std::array<T, 3>, 5> data1 = {{
        { { SC_(0.25), SC_(0.5), SC_(0.231195544262270355901990821099667428154924832224446817213200) } },
        { { SC_(-0.25), SC_(0.5), SC_(-0.231195544262270355901990821099667428154924832224446817213200) } },
         { { SC_(0), SC_(0.5), SC_(0) } },
@@ -67,5 +77,17 @@ void test_spots(T, const char* type_name)
 #include "heuman_lambda_data.ipp"
 
     do_test_heuman_lambda<T>(heuman_lambda_data, type_name, "Elliptic Integral Heuman Lambda: Random Data");
+
+    //
+    // Special cases for coverage:
+    //
+#ifndef BOOST_MATH_NO_EXCEPTIONS
+    BOOST_CHECK_THROW(boost::math::heuman_lambda(T(1.1), T(0.5)), std::domain_error);
+    BOOST_CHECK_THROW(boost::math::heuman_lambda(static_cast<T>(1e-100), T(2.5)), std::domain_error);
+#else
+    BOOST_CHECK((boost::math::isnan)(boost::math::heuman_lambda(T(1.1), T(0.5))));
+    BOOST_CHECK((boost::math::isnan)(boost::math::heuman_lambda(static_cast<T>(1e-100), T(2.5))));
+#endif
+
 }
 

@@ -183,7 +183,7 @@ command invokes Boost.Build to build the separately-compiled Boost
 libraries. Please consult the `Boost.Build documentation`__ for a list
 of allowed options.
 
-__ http://www.boost.org/build/doc/html/bbv2/overview/invocation.html
+__ ../../tools/build/doc/html/index.html#bbv2.overview.invocation
 
 Or, Build Binaries From Source
 ------------------------------
@@ -191,14 +191,6 @@ Or, Build Binaries From Source
 If you're using an earlier version of Visual C++, or a compiler
 from another vendor, you'll need to use Boost.Build_ to create your
 own binaries.
-
-.. Admonition:: Boost.CMake
-
-  There is also an experimental CMake build for boost, supported and distributed
-  separately.  See the `Boost.CMake`_ wiki page for more information.
-
-  .. _`Boost.CMake`:
-       https://svn.boost.org/trac/boost/wiki/CMake
 
 .. include:: detail/build-from-source-head.rst
 
@@ -216,7 +208,7 @@ Be sure to read `this note`__ about the appearance of ``^``,
 
 The option “\ **--build-type=complete**\ ” causes Boost.Build to build
 all supported variants of the libraries.  For instructions on how to
-build only specific variants, please ask on the `Boost.Build mailing
+build only specific variants, please ask on the `Boost Users' mailing
 list`_.
 
 __ continuation_

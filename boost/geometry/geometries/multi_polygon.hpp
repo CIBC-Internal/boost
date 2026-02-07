@@ -23,12 +23,10 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #include <boost/config.hpp>
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+
 #include <initializer_list>
-#endif
-#endif
+
 
 namespace boost { namespace geometry
 {
@@ -42,6 +40,7 @@ namespace model
         e.g. Hawaii
 \ingroup geometries
 
+\qbk{[include reference/geometries/multi_polygon.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_multi_polygon MultiPolygon Concept]
@@ -55,9 +54,10 @@ template
 >
 class multi_polygon : public Container<Polygon, Allocator<Polygon> >
 {
-    BOOST_CONCEPT_ASSERT( (concept::Polygon<Polygon>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Polygon<Polygon>) );
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+    // default constructor and base_type definitions are required only
+    // if the constructor taking std::initializer_list is defined
 
     typedef Container<Polygon, Allocator<Polygon> > base_type;
 
@@ -66,8 +66,6 @@ public:
     multi_polygon()
         : base_type()
     {}
-
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{multi_polygon}
     inline multi_polygon(std::initializer_list<Polygon> l)
@@ -86,9 +84,6 @@ public:
 //        return *this;
 //    }
 //#endif
-
-#endif
-#endif
 };
 
 
@@ -107,7 +102,7 @@ template
 >
 struct tag< model::multi_polygon<Polygon, Container, Allocator> >
 {
-    typedef multi_polygon_tag type;
+    using type = multi_polygon_tag;
 };
 
 } // namespace traits

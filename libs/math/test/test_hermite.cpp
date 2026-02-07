@@ -5,8 +5,15 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef SYCL_LANGUAGE_VERSION
 #include <pch_light.hpp>
-#include"test_hermite.hpp"
+#endif
+
+#ifndef BOOST_MATH_OVERFLOW_ERROR_POLICY
+#define BOOST_MATH_OVERFLOW_ERROR_POLICY ignore_error
+#endif
+
+#include "test_hermite.hpp"
 
 //
 // DESCRIPTION:
@@ -61,14 +68,14 @@ void expected_results()
       ".*",                          // platform
       largest_type,                  // test type(s)
       ".*",      // test data group
-      "boost::math::hermite", 10, 5);  // test function
+      "hermite", 10, 5);  // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       "real_concept",                  // test type(s)
       ".*",      // test data group
-      "boost::math::hermite", 10, 5);  // test function
+      "hermite", 10, 5);  // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.
@@ -89,7 +96,9 @@ BOOST_AUTO_TEST_CASE( test_main )
    test_spots(0.0, "double");
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
    test_spots(0.0L, "long double");
+#ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
    test_spots(boost::math::concepts::real_concept(0.1), "real_concept");
+#endif
 #endif
 
    expected_results();
@@ -107,7 +116,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
    
 }

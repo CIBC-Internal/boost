@@ -7,6 +7,7 @@
 //
 
 #include <algorithm>
+#include <boost/math/tools/test.hpp>
 #include <boost/math/concepts/real_concept.hpp>
 #include <boost/math/distributions/complement.hpp>
 #include <boost/math/distributions/hyperexponential.hpp>
@@ -14,11 +15,12 @@
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <cstddef>
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 #define BOOST_MATH_HYPEREXP_CHECK_CLOSE_COLLECTIONS(T, actual, expected, tol) \
     do {                                                                      \
@@ -32,16 +34,18 @@
         }                                                                     \
     } while(false)
 
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-typedef boost::mpl::list<float, double, long double, boost::math::concepts::real_concept> test_types;
+#if !defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) && !defined(BOOST_MATH_NO_REAL_CONCEPT_TESTS)
+using test_types = std::tuple<float, double, long double, boost::math::concepts::real_concept>;
+#elif !defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS)
+using test_types = std::tuple<float, double, long double>;
 #else
-typedef boost::mpl::list<float, double> test_types;
+using test_types = std::tuple<float, double>;
 #endif
 
 template <typename RealT>
 RealT make_tolerance()
 {
-    // Tolerance is 100eps expressed as a persentage (as required by Boost.Build):
+    // Tolerance is 100eps expressed as a percentage (as required by Boost.Build):
     return boost::math::tools::epsilon<RealT>() * 100 * 100;
 }
 
@@ -303,8 +307,8 @@ void f(T t)
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-   boost::array<double, 3> da1 = { { 0.5, 1, 1.5 } };
-   boost::array<double, 3> da2 = { { 0.25, 0.5, 0.25 } };
+   std::array<double, 3> da1 = { { 0.5, 1, 1.5 } };
+   std::array<double, 3> da2 = { { 0.25, 0.5, 0.25 } };
    std::vector<double> v1(da1.begin(), da1.end());
    std::vector<double> v2(da2.begin(), da2.end());
 
@@ -342,7 +346,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(special_cases, RealT, test_types)
 {
     const RealT tol = make_tolerance<RealT>();
 
-	// When the number of phases is 1, the hyperexponential distribution is an exponential distribution
+    // When the number of phases is 1, the hyperexponential distribution is an exponential distribution
     const RealT rates1[] = { static_cast<RealT>(0.5L) };
     boost::math::hyperexponential_distribution<RealT> hexp1(rates1);
     boost::math::exponential_distribution<RealT> exp1(rates1[0]);
@@ -355,7 +359,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(special_cases, RealT, test_types)
     BOOST_CHECK_CLOSE(boost::math::quantile(hexp1, static_cast<RealT>(0.75L)), boost::math::quantile(exp1, static_cast<RealT>(0.75L)), tol);
     BOOST_CHECK_CLOSE(boost::math::mode(hexp1), boost::math::mode(exp1), tol);
 
-	// When a k-phase hyperexponential distribution has all rates equal to r, the distribution is an exponential distribution with rate r
+    // When a k-phase hyperexponential distribution has all rates equal to r, the distribution is an exponential distribution with rate r
     const RealT rate2 = static_cast<RealT>(0.5L);
     const RealT rates2[] = { rate2, rate2, rate2 };
     boost::math::hyperexponential_distribution<RealT> hexp2(rates2);
@@ -370,18 +374,43 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(special_cases, RealT, test_types)
     BOOST_CHECK_CLOSE(boost::math::mode(hexp2), boost::math::mode(exp2), tol);
 }
 
+// Test C++20 ranges (Currently only GCC10 has full support to P0896R4)
+#if (__cplusplus > 202000L || _MSVC_LANG > 202000L) && __has_include(<ranges>) && __GNUC__ >= 10
+// Support for ranges is broken using gcc 11.1
+#if __GNUC__ != 11
+#include <ranges>
+#include <array>
+#endif
+#endif
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(error_cases, RealT, test_types)
 {
    typedef boost::math::hyperexponential_distribution<RealT> dist_t;
-   boost::array<RealT, 2> probs = { { 1, 2 } };
-   boost::array<RealT, 3> probs2 = { { 1, 2, 3 } };
-   boost::array<RealT, 3> rates = { { 1, 2, 3 } };
-   BOOST_CHECK_THROW(dist_t(probs.begin(), probs.end(), rates.begin(), rates.end()), std::domain_error);
-   BOOST_CHECK_THROW(dist_t(probs, rates), std::domain_error);
+   std::array<RealT, 2> probs = { { 1, 2 } };
+   std::array<RealT, 3> probs2 = { { 1, 2, 3 } };
+   std::array<RealT, 3> rates = { { 1, 2, 3 } };
+   BOOST_MATH_CHECK_THROW(dist_t(probs.begin(), probs.end(), rates.begin(), rates.end()), std::domain_error);
+   BOOST_MATH_CHECK_THROW(dist_t(probs, rates), std::domain_error);
    rates[1] = 0;
-   BOOST_CHECK_THROW(dist_t(probs2, rates), std::domain_error);
+   BOOST_MATH_CHECK_THROW(dist_t(probs2, rates), std::domain_error);
    rates[1] = -1;
-   BOOST_CHECK_THROW(dist_t(probs2, rates), std::domain_error);
-   BOOST_CHECK_THROW(dist_t(probs.begin(), probs.begin(), rates.begin(), rates.begin()), std::domain_error);
-   BOOST_CHECK_THROW(dist_t(rates.begin(), rates.begin()), std::domain_error);
+   BOOST_MATH_CHECK_THROW(dist_t(probs2, rates), std::domain_error);
+   BOOST_MATH_CHECK_THROW(dist_t(probs.begin(), probs.begin(), rates.begin(), rates.begin()), std::domain_error);
+   BOOST_MATH_CHECK_THROW(dist_t(rates.begin(), rates.begin()), std::domain_error);
+
+   // Test C++20 ranges (Currently only GCC10 has full support to P0896R4)
+   #if (__cplusplus > 202000L || _MSVC_LANG > 202000L) && __has_include(<ranges>) && __GNUC__ >= 10
+   // Support for ranges is broken using gcc 11.1
+   #if __GNUC__ != 11
+
+   std::array<RealT, 2> probs_array {1,2};
+   std::array<RealT, 3> rates_array {1,2,3};
+   BOOST_MATH_CHECK_THROW(dist_t(std::ranges::begin(probs_array), std::ranges::end(probs_array), std::ranges::begin(rates_array), std::ranges::end(rates_array)), std::domain_error);
+
+   const auto probs_range = probs_array | std::ranges::views::all;
+   const auto rates_range = rates_array | std::ranges::views::all;
+
+   BOOST_MATH_CHECK_THROW(dist_t(probs_range, rates_range), std::domain_error);
+   #endif
+   #endif
 }

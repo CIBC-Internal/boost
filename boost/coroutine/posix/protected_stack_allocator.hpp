@@ -53,7 +53,7 @@ struct basic_protected_stack_allocator
                     static_cast< float >( size) / traits_type::page_size() ) ) );
         BOOST_ASSERT_MSG( 2 <= pages, "at least two pages must fit into stack (one page is guard-page)");
         const std::size_t size_( pages * traits_type::page_size() );
-        BOOST_ASSERT( 0 < size && 0 < size_);
+        BOOST_ASSERT( 0 != size && 0 != size_);
         BOOST_ASSERT( size_ <= size);
 
         // conform to POSIX.4 (POSIX.1b-1993, _POSIX_C_SOURCE=199309L)
@@ -65,12 +65,7 @@ struct basic_protected_stack_allocator
         if ( MAP_FAILED == limit) throw std::bad_alloc();
 
         // conforming to POSIX.1-2001
-#if defined(BOOST_DISABLE_ASSERTS)
-        ::mprotect( limit, traits_type::page_size(), PROT_NONE);
-#else
-        const int result( ::mprotect( limit, traits_type::page_size(), PROT_NONE) );
-        BOOST_ASSERT( 0 == result);
-#endif
+        BOOST_VERIFY( 0 == ::mprotect( limit, traits_type::page_size(), PROT_NONE));
 
         ctx.size = size_;
         ctx.sp = static_cast< char * >( limit) + ctx.size;

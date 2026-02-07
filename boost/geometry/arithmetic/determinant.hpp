@@ -16,7 +16,9 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
+#include <boost/geometry/util/numeric_cast.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -31,7 +33,7 @@ class calculate_determinant
     template <typename T>
     static inline ReturnType rt(T const& v)
     {
-        return boost::numeric_cast<ReturnType>(v);
+        return util::numeric_cast<ReturnType>(v);
     }
 
 public :
@@ -57,14 +59,14 @@ inline ReturnType determinant(U const& ux, U const& uy
 template <typename ReturnType, typename U, typename V>
 inline ReturnType determinant(U const& u, V const& v)
 {
-    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<U>) );
-    BOOST_CONCEPT_ASSERT( (concept::ConstPoint<V>) );
+    BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<U>) );
+    BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<V>) );
 
     return calculate_determinant
         <
             ReturnType,
-            typename geometry::coordinate_type<U>::type,
-            typename geometry::coordinate_type<V>::type
+            geometry::coordinate_type_t<U>,
+            geometry::coordinate_type_t<V>
         >::apply(get<0>(u), get<1>(u), get<0>(v), get<1>(v));
 }
 

@@ -14,7 +14,7 @@
 #include <boost/numeric/odeint.hpp>
 
 //[my_vector
-template< int MAX_N >
+template< size_t MAX_N >
 class my_vector
 {
     typedef std::vector< double > vector;
@@ -75,7 +75,7 @@ namespace boost { namespace numeric { namespace odeint {
 template<size_t N>
 struct is_resizeable< my_vector<N> >
 {
-    typedef boost::true_type type;
+    typedef std::true_type type;
     static const bool value = type::value;
 };
 
@@ -103,7 +103,10 @@ int main()
     state_type x(3);
     x[0] = 5.0 ; x[1] = 10.0 ; x[2] = 10.0;
 
-    // my_vector works with range_algebra as it implements 
+    // make sure resizing is ON
+    static_assert( is_resizeable<state_type>::value == true, "Resizing must be on" );
+
+    // my_vector works with range_algebra as it implements
     // the required parts of a container interface
     // no further work is required
 

@@ -1,14 +1,16 @@
 ///////////////////////////////////////////////////////////////
-//  Copyright 2011 John Maddock. Distributed under the Boost
-//  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_
+//  Copyright 2011 - 2025 John Maddock.
+//  Copyright Christopher Kormanyos 2021 - 2025.
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying file
+//  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
+//
 
 #include "setup.hpp"
 #include "table_type.hpp"
 #define TEST_UDT
 
 #include <boost/math/special_functions/math_fwd.hpp>
-#include "libs/math/test/test_digamma.hpp"
+#include "test_digamma.hpp"
 
 void expected_results()
 {
@@ -17,32 +19,60 @@ void expected_results()
    // various compilers and platforms.
    //
    add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
-      ".*",                          // platform
-      ".*mpfr_float_backend<18>.*",  // test type(s)
-      ".*Negative.*",                // test data group
-      ".*", 20000, 2000);            // test function
+       ".*",                         // compiler
+       ".*",                         // stdlib
+       ".*",                         // platform
+       ".*mpfr_float_backend<18>.*", // test type(s)
+       ".*Negative.*",               // test data group
+       ".*", 20000, 2000);           // test function
    add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
-      ".*",                          // platform
-      ".*",                          // test type(s)
-      ".*Negative.*",                // test data group
-      ".*", 350, 40);                // test function
+       ".*",                     // compiler
+       ".*",                     // stdlib
+       ".*",                     // platform
+       ".*cpp_double_double.*",  // test type(s)
+       ".*Negative.*",           // test data group
+       ".*", 650, 50);           // test function
    add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
-      ".*",                          // platform
-      ".*",                          // test type(s)
-      ".*",                          // test data group
-      ".*", 80, 30);                 // test function
+       ".*",           // compiler
+       ".*",           // stdlib
+       ".*",           // platform
+       ".*",           // test type(s)
+       ".*Negative.*", // test data group
+       ".*", 550, 40); // test function
+   add_expected_result(
+       ".*",                         // compiler
+       ".*",                         // stdlib
+       ".*",                         // platform
+       ".*cpp_dec_float.*",          // test type(s)
+       ".*Near the Positive Root.*", // test data group
+       ".*", 2500, 200);             // test function
+   add_expected_result(
+       ".*",                         // compiler
+       ".*",                         // stdlib
+       ".*",                         // platform
+       ".*mpfr_float_backend<0>.*",  // test type(s)
+       ".*Near the Positive Root.*", // test data group
+       ".*", 30000, 2000);           // test function
+   add_expected_result(
+       ".*",                         // compiler
+       ".*",                         // stdlib
+       ".*",                         // platform
+       ".*",                         // test type(s)
+       ".*Near the Positive Root.*", // test data group
+       ".*", 6000, 1000);            // test function
+   add_expected_result(
+       ".*",          // compiler
+       ".*",          // stdlib
+       ".*",          // platform
+       ".*",          // test type(s)
+       ".*",          // test data group
+       ".*", 80, 30); // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.
    //
    std::cout << "Tests run with " << BOOST_COMPILER << ", "
-      << BOOST_STDLIB << ", " << BOOST_PLATFORM << std::endl;
+             << BOOST_STDLIB << ", " << BOOST_PLATFORM << std::endl;
 }
 
 template <class T>
@@ -51,7 +81,7 @@ void test(T t, const char* p)
    test_digamma(t, p);
 }
 
-BOOST_AUTO_TEST_CASE( test_main )
+BOOST_AUTO_TEST_CASE(test_main)
 {
    using namespace boost::multiprecision;
    expected_results();
@@ -63,4 +93,3 @@ BOOST_AUTO_TEST_CASE( test_main )
    //
    ALL_TESTS
 }
-

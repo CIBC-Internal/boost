@@ -7,7 +7,7 @@
 #include "table_type.hpp"
 
 #include <boost/math/special_functions/hermite.hpp>
-#include "libs/math/test/test_hermite.hpp"
+#include "test_hermite.hpp"
 
 void expected_results()
 {
@@ -21,7 +21,7 @@ void expected_results()
       ".*",                          // platform
       ".*",                          // test type(s)
       ".*",                          // test data group
-      "boost::math::hermite", 10, 5);  // test function
+      "hermite", 10, 5);  // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.

@@ -3,7 +3,20 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef SYCL_LANGUAGE_VERSION
 #include <pch_light.hpp>
+#else
+#include "sycl/sycl.hpp"
+#endif 
+
+#ifdef __clang__
+#  pragma clang diagnostic push 
+#  pragma clang diagnostic ignored "-Wliteral-range"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push 
+#  pragma GCC diagnostic ignored "-Woverflow"
+#endif
+
 #include "test_igamma.hpp"
 
 //
@@ -65,6 +78,13 @@ void expected_results()
       largest_type,                     // test type(s)
       "[^|]*medium[^|]*",               // test data group
       "[^|]*", 1300, 200);                 // test function
+   add_expected_result(
+      "[^|]*",                          // compiler
+      "[^|]*",                          // stdlib
+      ".*Solaris.*",                    // platform
+      "real_concept",                   // test type(s)
+      "[^|]*medium[^|]*",               // test data group
+      "[^|]*", 1000, 200);              // test function
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
@@ -232,11 +252,49 @@ void expected_results()
       "real_concept",                   // test type(s)
       "[^|]*integer[^|]*",              // test data group
       ".*", 100, 50);                    // test function
+   //
+   // Cygwin:
+   //
+   add_expected_result(
+      "GNU[^|]*",                       // compiler
+      "[^|]*",                          // stdlib
+      "Cygwin*",                        // platform
+      "real_concept",                   // test type(s)
+      "[^|]*medium[^|]*",               // test data group
+      "[^|]*", 1300, 200);              // test function
+   add_expected_result(
+      "GNU[^|]*",                       // compiler
+      "[^|]*",                          // stdlib
+      "Cygwin*",                        // platform
+      largest_type,                     // test type(s)
+      "[^|]*medium[^|]*",               // test data group
+      "[^|]*", 700, 200);               // test function
+   add_expected_result(
+      "GNU[^|]*",                       // compiler
+      "[^|]*",                          // stdlib
+      "Cygwin*",                        // platform
+      largest_type,                     // test type(s)
+      "[^|]*small[^|]*",                // test data group
+      "[^|]*", 100, 50);                // test function
+   add_expected_result(
+      "GNU[^|]*",                       // compiler
+      "[^|]*",                          // stdlib
+      "Cygwin*",                        // platform
+      largest_type,                     // test type(s)
+      "[^|]*integer[^|]*",              // test data group
+      ".*", 120, 50);                   // test function
+   add_expected_result(
+      "GNU[^|]*",                       // compiler
+      "[^|]*",                          // stdlib
+      "Cygwin*",                        // platform
+      "real_concept",                   // test type(s)
+      "[^|]*integer[^|]*",              // test data group
+      ".*", 100, 50);                   // test function
 
    //
    // Large exponent range causes more extreme test cases to be evaluated:
    //
-   if(std::numeric_limits<long double>::max_exponent > std::numeric_limits<double>::max_exponent)
+   BOOST_IF_CONSTEXPR(std::numeric_limits<long double>::max_exponent > std::numeric_limits<double>::max_exponent)
    {
       add_expected_result(
          "[^|]*",                          // compiler
@@ -271,21 +329,21 @@ void expected_results()
       "[^|]*",                          // platform
       largest_type,                     // test type(s)
       "[^|]*large[^|]*",                // test data group
-      "boost::math::gamma_q", 500, 50);  // test function
+      "gamma_q", 500, 50);  // test function
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
       "Cygwin",                         // platform
       largest_type,                     // test type(s)
       "[^|]*large[^|]*",                // test data group
-      "boost::math::gamma_p", 700, 50);  // test function
+      "gamma_p", 700, 50);  // test function
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
       "[^|]*",                          // platform
       largest_type,                     // test type(s)
       "[^|]*large[^|]*",                // test data group
-      "boost::math::gamma_p", 350, 50);  // test function
+      "gamma_p", 350, 50);  // test function
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
@@ -353,7 +411,7 @@ BOOST_AUTO_TEST_CASE( test_main )
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
    test_gamma(0.1L, "long double");
 #ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
    test_gamma(boost::math::concepts::real_concept(0.1), "real_concept");
 #endif
 #endif
@@ -361,7 +419,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
    
 }

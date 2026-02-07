@@ -7,14 +7,15 @@
     http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #include <iostream>
-#include <boost/detail/lightweight_test.hpp>
 #include <string>
 
-using namespace std;
 
 #include "impl/string_length.hpp"
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_assign_actor.hpp>
+
+#include <boost/core/lightweight_test.hpp>
+
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,7 +161,7 @@ directives_test2()
 {
     //  Test that lexeme_d does not skip trailing spaces
 
-    string str1, str2;
+    std::string str1, str2;
     identifier ident;
 
     parse("rock_n_roll never_dies ",
@@ -168,7 +169,7 @@ directives_test2()
         ident[assign_a(str1)] >> ident[assign_a(str2)], space_p
     );
 
-    cout << '*' << str1 << ',' << str2 << '*' << endl;
+    std::cout << '*' << str1 << ',' << str2 << '*' << std::endl;
 
 
     BOOST_TEST(str1 == "rock_n_roll");

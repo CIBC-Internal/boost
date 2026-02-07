@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Algorithm</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Phoenix 3.2.0">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../index.html" title="Chapter 1. Phoenix 3.2.0">
 <link rel="up" href="../stl.html" title="STL">
 <link rel="prev" href="container.html" title="Container">
-<link rel="next" href="../../inside.html" title="Inside Phoenix">
+<link rel="next" href="tuple.html" title="Tuple">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -20,7 +21,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="container.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stl.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../../inside.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="container.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stl.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="tuple.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -73,15 +74,15 @@
           The following tables describe the different categories of algorithms, and
           their semantics.
         </p>
-<div class="sidebar">
-<div class="titlepage"></div>
+<div class="blurb">
+<div class="titlepage"><div><div><p class="title"><b></b></p></div></div></div>
 <p>
           <span class="inlinemediaobject"><img src="../../../images/tip.png"></span>
           Arguments in brackets denote optional parameters.
         </p>
 </div>
 <div class="table">
-<a name="phoenix.modules.stl.algorithm.t0"></a><p class="title"><b>Table&#160;1.6.&#160;Iteration Algorithms</b></p>
+<a name="phoenix.modules.stl.algorithm.t0"></a><p class="title"><b>Table 1.6. Iteration Algorithms</b></p>
 <div class="table-contents"><table class="table" summary="Iteration Algorithms">
 <colgroup>
 <col>
@@ -136,7 +137,7 @@
 </table></div>
 </div>
 <br class="table-break"><div class="table">
-<a name="phoenix.modules.stl.algorithm.t1"></a><p class="title"><b>Table&#160;1.7.&#160;Querying Algorithms</b></p>
+<a name="phoenix.modules.stl.algorithm.t1"></a><p class="title"><b>Table 1.7. Querying Algorithms</b></p>
 <div class="table-contents"><table class="table" summary="Querying Algorithms">
 <colgroup>
 <col>
@@ -449,9 +450,10 @@
 </table></div>
 </div>
 <br class="table-break"><div class="table">
-<a name="phoenix.modules.stl.algorithm.t2"></a><p class="title"><b>Table&#160;1.8.&#160;Transformation Algorithms</b></p>
+<a name="phoenix.modules.stl.algorithm.t2"></a><p class="title"><b>Table 1.8. Transformation Algorithms</b></p>
 <div class="table-contents"><table class="table" summary="Transformation Algorithms">
 <colgroup>
+<col>
 <col>
 <col>
 </colgroup>
@@ -464,6 +466,11 @@
 <th>
                   <p>
                     stl Semantics
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Language Standards
                   </p>
                 </th>
 </tr></thead>
@@ -482,6 +489,8 @@
                     <span class="identifier">o</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -494,6 +503,8 @@
                     <code class="computeroutput"><span class="identifier">copy_backward</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -510,6 +521,8 @@
                     <span class="identifier">o</span><span class="special">,</span>
                     <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -529,6 +542,8 @@
                     <span class="identifier">o</span><span class="special">,</span>
                     <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -547,6 +562,8 @@
                     <span class="identifier">b</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -564,6 +581,8 @@
                     <span class="identifier">a</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -576,6 +595,8 @@
                     <code class="computeroutput"><span class="identifier">replace_copy</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">,</span> <span class="identifier">a</span><span class="special">,</span> <span class="identifier">b</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -587,6 +608,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">replace_copy_if</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">,</span> <span class="identifier">f</span><span class="special">,</span> <span class="identifier">a</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -602,6 +625,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span>
                     <span class="identifier">a</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -619,6 +644,8 @@
                     <span class="identifier">a</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -633,6 +660,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span>
                     <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -650,6 +679,8 @@
                     <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -665,6 +696,8 @@
                     <span class="identifier">a</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -679,6 +712,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span>
                     <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -697,6 +732,8 @@
                     <span class="identifier">a</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -708,6 +745,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">remove_copy_if</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">,</span> <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -723,6 +762,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span>
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -741,6 +782,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -754,6 +797,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">))</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -765,6 +810,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">reverse_copy</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -780,6 +827,8 @@
                     <span class="identifier">m</span><span class="special">,</span>
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">))</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -798,6 +847,8 @@
                     <span class="identifier">o</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -808,6 +859,11 @@
 <td>
                   <p>
                     <code class="computeroutput"><span class="identifier">random_shuffle</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">f</span><span class="special">)</span></code>
+                  </p>
+                </td>
+<td>
+                  <p>
+                    Until C++17
                   </p>
                 </td>
 </tr>
@@ -825,6 +881,8 @@
                     <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -836,6 +894,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">stable_partition</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">f</span><span class="special">)</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -852,6 +912,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -867,6 +929,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -879,6 +943,8 @@
                     <code class="computeroutput"><span class="identifier">partial_sort</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">m</span><span class="special">,</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -890,6 +956,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">partial_sort_copy</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">begin</span><span class="special">(</span><span class="identifier">r2</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r2</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -907,6 +975,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span>
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -928,6 +998,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -939,6 +1011,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">inplace_merge</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">m</span><span class="special">,</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -959,6 +1033,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -970,6 +1046,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">set_intersection</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">begin</span><span class="special">(</span><span class="identifier">r2</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r2</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -983,6 +1061,8 @@
                     <code class="computeroutput"><span class="identifier">set_difference</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">begin</span><span class="special">(</span><span class="identifier">r2</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r2</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -994,6 +1074,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">set_symmetric_difference</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r1</span><span class="special">),</span> <span class="identifier">begin</span><span class="special">(</span><span class="identifier">r2</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r2</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -1010,6 +1092,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -1024,6 +1108,8 @@
                     <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span>
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -1040,6 +1126,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -1055,6 +1143,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -1066,6 +1156,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">next_permutation</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -1079,6 +1171,8 @@
                     <code class="computeroutput"><span class="identifier">prev_permutation</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">)[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -1090,6 +1184,8 @@
                   <p>
                     <code class="computeroutput"><span class="identifier">inner_product</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">[,</span> <span class="identifier">f1</span><span class="special">,</span> <span class="identifier">f2</span><span class="special">])</span></code>
                   </p>
+                </td>
+<td>
                 </td>
 </tr>
 <tr>
@@ -1108,6 +1204,8 @@
                     <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 <tr>
 <td>
@@ -1120,24 +1218,23 @@
                     <code class="computeroutput"><span class="identifier">adjacent_difference</span><span class="special">(</span><span class="identifier">begin</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">end</span><span class="special">(</span><span class="identifier">r</span><span class="special">),</span> <span class="identifier">o</span><span class="special">[,</span> <span class="identifier">f</span><span class="special">])</span></code>
                   </p>
                 </td>
+<td>
+                </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <br class="table-break">
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2002-2005, 2010, 2014, 2015 Joel de Guzman, Dan Marsden, Thomas
+<div class="copyright-footer">Copyright © 2002-2005, 2010, 2014, 2015 Joel de Guzman, Dan Marsden, Thomas
       Heller, John Fletcher<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="container.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stl.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../../inside.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="container.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stl.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="tuple.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

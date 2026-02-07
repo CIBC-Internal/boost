@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Managed Memory Segments</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../interprocess.html" title="Chapter&#160;14.&#160;Boost.Interprocess">
+<link rel="up" href="../interprocess.html" title="Chapter 15. Boost.Interprocess">
 <link rel="prev" href="synchronization_mechanisms.html" title="Synchronization mechanisms">
-<link rel="next" href="allocators_containers.html" title="Allocators, containers and memory allocation algorithms">
+<link rel="next" href="allocators_containers.html" title="Allocators and memory allocation algorithms">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -324,7 +326,7 @@
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 </pre>
 <pre class="programlisting"><span class="comment">//1.  Creates a new shared memory object</span>
-<span class="comment">//    called "MySharedMemory".</span>
+<span class="comment">//    called "MyName".</span>
 <span class="comment">//2.  Maps the whole object to this</span>
 <span class="comment">//    process' address space.</span>
 <span class="comment">//3.  Constructs some objects in shared memory</span>
@@ -332,18 +334,18 @@
 <span class="comment">//!!  If anything fails, throws interprocess_exception</span>
 <span class="comment">//</span>
 <span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span>      <span class="special">(</span> <span class="identifier">create_only</span>
-                                   <span class="special">,</span> <span class="string">"MySharedMemory"</span> <span class="comment">//Shared memory object name</span>
-                                   <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>          <span class="comment">//Shared memory object size in bytes</span>
+                                   <span class="special">,</span> <span class="string">"MyName"</span>    <span class="comment">//Shared memory object name</span>
+                                   <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>     <span class="comment">//Shared memory object size in bytes</span>
 </pre>
 <pre class="programlisting"><span class="comment">//1.  Opens a shared memory object</span>
-<span class="comment">//    called "MySharedMemory".</span>
+<span class="comment">//    called "MyName".</span>
 <span class="comment">//2.  Maps the whole object to this</span>
 <span class="comment">//    process' address space.</span>
 <span class="comment">//3.  Obtains pointers to constructed internal objects</span>
 <span class="comment">//    to implement managed features.</span>
 <span class="comment">//!!  If anything fails, throws interprocess_exception</span>
 <span class="comment">//</span>
-<span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span>      <span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span>       <span class="string">"MySharedMemory"</span><span class="special">);//</span><span class="identifier">Shared</span> <span class="identifier">memory</span> <span class="identifier">object</span> <span class="identifier">name</span>
+<span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span> <span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="string">"MyName"</span><span class="special">);</span> <span class="comment">//Shared memory object name</span>
 </pre>
 <pre class="programlisting"><span class="comment">//1.  If the segment was previously created</span>
 <span class="comment">//    equivalent to "open_only" (size is ignored).</span>
@@ -351,8 +353,8 @@
 <span class="comment">//!!  If anything fails, throws interprocess_exception</span>
 <span class="comment">//</span>
 <span class="identifier">managed_shared_memory</span> <span class="identifier">segment</span>      <span class="special">(</span> <span class="identifier">open_or_create</span>
-                                   <span class="special">,</span> <span class="string">"MySharedMemory"</span> <span class="comment">//Shared memory object name</span>
-                                   <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>          <span class="comment">//Shared memory object size in bytes</span>
+                                   <span class="special">,</span> <span class="string">"MyName"</span>    <span class="comment">//Shared memory object name</span>
+                                   <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>     <span class="comment">//Shared memory object size in bytes</span>
 </pre>
 <p>
           When the <code class="computeroutput"><span class="identifier">managed_shared_memory</span></code>
@@ -378,14 +380,14 @@
 </h4></div></div></div>
 <p>
           Windows users might also want to use native windows shared memory instead
-          of the portable <code class="computeroutput"><a class="link" href="../boost/interprocess/shared_memory_object.html" title="Class shared_memory_object">shared_memory_object</a></code>
-          managed memory. This is achieved through the <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55409488.html" title="Class template basic_managed_windows_shared_memory">basic_managed_windows_shared_memory</a></code>
+          of the portable <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1shared__memory__object.html" title="Class shared_memory_object">shared_memory_object</a></code>
+          managed memory. This is achieved through the <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__windows__shared__memory.html" title="Class template basic_managed_windows_shared_memory">basic_managed_windows_shared_memory</a></code>
           class. To use it just include:
         </p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_windows_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 </pre>
 <p>
-          This class has the same interface as <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55351744.html" title="Class template basic_managed_shared_memory">basic_managed_shared_memory</a></code>
+          This class has the same interface as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__shared__memory.html" title="Class template basic_managed_shared_memory">basic_managed_shared_memory</a></code>
           but uses native windows shared memory. Note that this managed class has
           the same lifetime issues as the windows shared memory: when the last process
           attached to the windows shared memory is detached from the memory (or ends/crashes)
@@ -405,19 +407,19 @@
 </h4></div></div></div>
 <p>
           Unix users might also want to use XSI (system V) instead of the portable
-          <code class="computeroutput"><a class="link" href="../boost/interprocess/shared_memory_object.html" title="Class shared_memory_object">shared_memory_object</a></code>
-          managed memory. This is achieved through the <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55458208.html" title="Class template basic_managed_xsi_shared_memory">basic_managed_xsi_shared_memory</a></code>
+          <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1shared__memory__object.html" title="Class shared_memory_object">shared_memory_object</a></code>
+          managed memory. This is achieved through the <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__xsi__shared__memory.html" title="Class template basic_managed_xsi_shared_memory">basic_managed_xsi_shared_memory</a></code>
           class. To use it just include:
         </p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_xsi_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 </pre>
 <p>
-          This class has nearly the same interface as <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55351744.html" title="Class template basic_managed_shared_memory">basic_managed_shared_memory</a></code>
+          This class has nearly the same interface as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__shared__memory.html" title="Class template basic_managed_shared_memory">basic_managed_shared_memory</a></code>
           but uses XSI shared memory as backend.
         </p>
 </div>
 <p>
-        For more information about managed XSI shared memory capabilities, see <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55458208.html" title="Class template basic_managed_xsi_shared_memory">basic_managed_xsi_shared_memory</a></code>
+        For more information about managed XSI shared memory capabilities, see <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__xsi__shared__memory.html" title="Class template basic_managed_xsi_shared_memory">basic_managed_xsi_shared_memory</a></code>
         class reference.
       </p>
 </div>
@@ -520,7 +522,9 @@
 <span class="comment">//    file to implement managed features.</span>
 <span class="comment">//!!  If anything fails, throws interprocess_exception</span>
 <span class="comment">//</span>
-<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span>      <span class="string">"MyMappedFile"</span><span class="special">,</span>   <span class="comment">//Mapped file name      65536);           //Mapped file size</span>
+<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span> <span class="identifier">create_only</span>
+                               <span class="special">,</span> <span class="string">"MyMappedFile"</span> <span class="comment">//Mapped file name</span>
+                               <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>        <span class="comment">//Mapped file size</span>
 </pre>
 <pre class="programlisting"><span class="comment">//1.  Opens a file</span>
 <span class="comment">//    called "MyMappedFile".</span>
@@ -530,15 +534,18 @@
 <span class="comment">//    to implement managed features.</span>
 <span class="comment">//!!  If anything fails, throws interprocess_exception</span>
 <span class="comment">//</span>
-<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span>      <span class="string">"MyMappedFile"</span><span class="special">);</span>  <span class="comment">//Mapped file name[c++]</span>
-
-<span class="comment">//1.  If the file was previously created</span>
+<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span> <span class="identifier">open_only</span>
+                               <span class="special">,</span> <span class="string">"MyMappedFile"</span><span class="special">);</span> <span class="comment">//Mapped file name</span>
+</pre>
+<pre class="programlisting"><span class="comment">//1.  If the file was previously created</span>
 <span class="comment">//    equivalent to "open_only".</span>
 <span class="comment">//2.  Otherwise, equivalent to "open_only" (size is ignored)</span>
 <span class="comment">//</span>
 <span class="comment">//!!  If anything fails, throws interprocess_exception</span>
 <span class="comment">//</span>
-<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span><span class="identifier">open_or_create</span><span class="special">,</span>      <span class="string">"MyMappedFile"</span><span class="special">,</span>   <span class="comment">//Mapped file name      65536);           //Mapped file size</span>
+<span class="identifier">managed_mapped_file</span> <span class="identifier">mfile</span>      <span class="special">(</span><span class="identifier">open_or_create</span>
+                               <span class="special">,</span> <span class="string">"MyMappedFile"</span> <span class="comment">//Mapped file name</span>
+                               <span class="special">,</span> <span class="number">65536</span><span class="special">);</span>        <span class="comment">//Mapped file size</span>
 </pre>
 <p>
           When the <code class="computeroutput"><span class="identifier">managed_mapped_file</span></code>
@@ -558,7 +565,7 @@
         </p>
 </div>
 <p>
-        For more information about managed mapped file capabilities, see <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed_mapped_file.html" title="Class template basic_managed_mapped_file">basic_managed_mapped_file</a></code>
+        For more information about managed mapped file capabilities, see <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__mapped__file.html" title="Class template basic_managed_mapped_file">basic_managed_mapped_file</a></code>
         class reference.
       </p>
 </div>
@@ -608,8 +615,6 @@
           throws boost::interprocess::bad_alloc (which derives from <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">bad_alloc</span></code>) if there is no more memory
           and the non-throwing version returns 0 pointer.
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 
 <span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
@@ -619,13 +624,13 @@
    <span class="comment">//Remove shared memory on construction and destruction</span>
    <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
    <span class="special">{</span>
-      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
-      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
    <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
 
    <span class="comment">//Managed memory segment that allocates portions of a shared memory</span>
    <span class="comment">//segment with the default management algorithm</span>
-   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span><span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span>"MyName"<span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
 
    <span class="comment">//Allocate 100 bytes of memory from segment, throwing version</span>
    <span class="keyword">void</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">allocate</span><span class="special">(</span><span class="number">100</span><span class="special">);</span>
@@ -641,8 +646,6 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-        </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -809,7 +812,7 @@
           That is, the mutex type used to synchronize named/unique allocations is
           defined by the <code class="computeroutput"><span class="identifier">MemoryAlgorithm</span><span class="special">::</span><span class="identifier">mutex_family</span><span class="special">::</span><span class="identifier">recursive_mutex_type</span></code>
           type. For shared memory, and memory mapped file based managed segments
-          this recursive mutex is defined as <code class="computeroutput"><a class="link" href="../boost/interprocess/interprocess_r_idp56590896.html" title="Class interprocess_recursive_mutex">interprocess_recursive_mutex</a></code>.
+          this recursive mutex is defined as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1interprocess__recursive__mutex.html" title="Class interprocess_recursive_mutex">interprocess_recursive_mutex</a></code>.
         </p>
 <p>
           If two processes can call:
@@ -898,10 +901,8 @@
          <span class="special">&gt;</span>  <span class="identifier">my_managed_shared_memory</span><span class="special">;</span>
 </pre>
 <p>
-          <span class="bold"><strong>Boost.Interprocess</strong></span> plans to offer an
-          <span class="bold"><strong>unordered_map</strong></span> based index as soon as this
-          container is included in Boost. If these indexes are not enough for you,
-          you can define your own index type. To know how to do this, go to <a class="link" href="customizing_interprocess.html#interprocess.customizing_interprocess.custom_indexes" title="Building custom indexes">Building
+          If these indexes are not enough for you, you can define your own index
+          type. To know how to do this, go to <a class="link" href="customizing_interprocess.html#interprocess.customizing_interprocess.custom_indexes" title="Building custom indexes">Building
           custom indexes</a> section.
         </p>
 </div>
@@ -960,8 +961,6 @@
 <p>
           Here is an example showing this functionality:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstring</span><span class="special">&gt;</span>
@@ -978,11 +977,11 @@
    <span class="comment">//Remove shared memory on construction and destruction</span>
    <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
    <span class="special">{</span>
-      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
-      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
    <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
 
-   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">10000</span><span class="special">*</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">));</span>
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">10000</span><span class="special">*</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">));</span>
 
    <span class="comment">//Construct objects</span>
    <span class="identifier">my_class</span> <span class="special">*</span><span class="identifier">named_object</span>  <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="identifier">my_class</span><span class="special">&gt;(</span><span class="string">"Object name"</span><span class="special">)[</span><span class="number">1</span><span class="special">]();</span>
@@ -1010,8 +1009,6 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-        </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -1064,7 +1061,8 @@
 <dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.managed_memory_segment_expand_in_place">Expand
         in place memory allocation</a></span></dt>
 <dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only">Opening
-        managed shared memory and mapped files with Copy On Write or Read Only modes</a></span></dt>
+        managed shared memory and mapped files in <span class="emphasis"><em>Copy On Write</em></span>
+        or <span class="emphasis"><em>Read Only</em></span> modes</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -1129,10 +1127,8 @@
           fit the managed segment.
         </p>
 <p>
-          Here we have an example showing how to grow and shrink to fit <code class="computeroutput"><a class="link" href="../boost/interprocess/managed_shared_memory.html" title="Type definition managed_shared_memory">managed_shared_memory</a></code>:
+          Here we have an example showing how to grow and shrink to fit <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/managed__shared__memory_8hpp_1a49fc68e77e17ab77d91f1005c99023d9.html" title="Type definition managed_shared_memory">managed_shared_memory</a></code>:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_mapped_file</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;</span>
@@ -1148,13 +1144,13 @@
    <span class="comment">//Remove shared memory on construction and destruction</span>
    <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
    <span class="special">{</span>
-      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
-      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
    <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
 
    <span class="special">{</span>
       <span class="comment">//Create a managed shared memory</span>
-      <span class="identifier">managed_shared_memory</span> <span class="identifier">shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">1000</span><span class="special">);</span>
+      <span class="identifier">managed_shared_memory</span> <span class="identifier">shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">1000</span><span class="special">);</span>
 
       <span class="comment">//Check size</span>
       <span class="identifier">assert</span><span class="special">(</span><span class="identifier">shm</span><span class="special">.</span><span class="identifier">get_size</span><span class="special">()</span> <span class="special">==</span> <span class="number">1000</span><span class="special">);</span>
@@ -1164,10 +1160,11 @@
    <span class="special">}</span>
    <span class="special">{</span>
       <span class="comment">//Now that the segment is not mapped grow it adding extra 500 bytes</span>
-      <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">grow</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">500</span><span class="special">);</span>
+      <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">grow</span><span class="special">(</span>"MyName"<span class="special">,</span> <span class="number">500</span><span class="special">);</span>
 
       <span class="comment">//Map it again</span>
-      <span class="identifier">managed_shared_memory</span> <span class="identifier">shm</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">);</span>
+      <span class="identifier">managed_shared_memory</span> <span class="identifier">shm</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> "MyName"<span class="special">);</span>
+
       <span class="comment">//Check size</span>
       <span class="identifier">assert</span><span class="special">(</span><span class="identifier">shm</span><span class="special">.</span><span class="identifier">get_size</span><span class="special">()</span> <span class="special">==</span> <span class="number">1500</span><span class="special">);</span>
       <span class="comment">//Check "MyClass" is still there</span>
@@ -1177,10 +1174,11 @@
    <span class="special">}</span>
    <span class="special">{</span>
       <span class="comment">//Now minimize the size of the segment</span>
-      <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">shrink_to_fit</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span>
+      <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">shrink_to_fit</span><span class="special">(</span>"MyName"<span class="special">);</span>
 
       <span class="comment">//Map it again</span>
-      <span class="identifier">managed_shared_memory</span> <span class="identifier">shm</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">);</span>
+      <span class="identifier">managed_shared_memory</span> <span class="identifier">shm</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> "MyName"<span class="special">);</span>
+
       <span class="comment">//Check size</span>
       <span class="identifier">assert</span><span class="special">(</span><span class="identifier">shm</span><span class="special">.</span><span class="identifier">get_size</span><span class="special">()</span> <span class="special">&lt;</span> <span class="number">1000</span><span class="special">);</span>
       <span class="comment">//Check "MyClass" is still there</span>
@@ -1192,9 +1190,7 @@
 <span class="special">}</span>
 </pre>
 <p>
-        </p>
-<p>
-          <code class="computeroutput"><a class="link" href="../boost/interprocess/managed_mapped_file.html" title="Type definition managed_mapped_file">managed_mapped_file</a></code>
+          <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/managed__mapped__file_8hpp_1a0d4da159703df101158c50948bb69156.html" title="Type definition managed_mapped_file">managed_mapped_file</a></code>
           also offers a similar function to grow or shrink_to_fit the managed file.
           Please, remember that <span class="bold"><strong>no process should be modifying
           the file/shared memory while the growing/shrinking process is performed</strong></span>.
@@ -1312,8 +1308,6 @@
 <p>
           Here is a small example showing how aligned allocation is used:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;</span>
 
@@ -1324,13 +1318,13 @@
    <span class="comment">//Remove shared memory on construction and destruction</span>
    <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
    <span class="special">{</span>
-      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
-      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
    <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
 
    <span class="comment">//Managed memory segment that allocates portions of a shared memory</span>
    <span class="comment">//segment with the default management algorithm</span>
-   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
 
    <span class="keyword">const</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">Alignment</span> <span class="special">=</span> <span class="number">128</span><span class="special">;</span>
 
@@ -1338,7 +1332,7 @@
    <span class="keyword">void</span> <span class="special">*</span><span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">allocate_aligned</span><span class="special">(</span><span class="number">100</span><span class="special">,</span> <span class="identifier">Alignment</span><span class="special">);</span>
 
    <span class="comment">//Check alignment</span>
-   <span class="identifier">assert</span><span class="special">((</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">ptr</span><span class="special">)-</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="number">0</span><span class="special">))</span> <span class="special">%</span> <span class="identifier">Alignment</span> <span class="special">==</span> <span class="number">0</span><span class="special">);</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">(</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">ptr</span><span class="special">)-</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="number">0</span><span class="special">))</span> <span class="special">%</span> <span class="identifier">Alignment</span> <span class="special">==</span> <span class="number">0</span><span class="special">);</span>
 
    <span class="comment">//Deallocate it</span>
    <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">deallocate</span><span class="special">(</span><span class="identifier">ptr</span><span class="special">);</span>
@@ -1347,7 +1341,7 @@
    <span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">allocate_aligned</span><span class="special">(</span><span class="number">100</span><span class="special">,</span> <span class="identifier">Alignment</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">nothrow</span><span class="special">);</span>
 
    <span class="comment">//Check alignment</span>
-   <span class="identifier">assert</span><span class="special">((</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">ptr</span><span class="special">)-</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="number">0</span><span class="special">))</span> <span class="special">%</span> <span class="identifier">Alignment</span> <span class="special">==</span> <span class="number">0</span><span class="special">);</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">(</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">ptr</span><span class="special">)-</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="number">0</span><span class="special">))</span> <span class="special">%</span> <span class="identifier">Alignment</span> <span class="special">==</span> <span class="number">0</span><span class="special">);</span>
 
    <span class="comment">//Deallocate it</span>
    <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">deallocate</span><span class="special">(</span><span class="identifier">ptr</span><span class="special">);</span>
@@ -1359,10 +1353,10 @@
    <span class="comment">//This allocation will maximize the size of the aligned memory</span>
    <span class="comment">//and will increase the possibility of finding more aligned memory</span>
    <span class="identifier">ptr</span> <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">allocate_aligned</span>
-      <span class="special">(</span><span class="number">3</span><span class="special">*</span><span class="identifier">Alignment</span> <span class="special">-</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">PayloadPerAllocation</span><span class="special">,</span> <span class="identifier">Alignment</span><span class="special">);</span>
+      <span class="special">(</span><span class="number">3u</span><span class="special">*</span><span class="identifier">Alignment</span> <span class="special">-</span> <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">PayloadPerAllocation</span><span class="special">,</span> <span class="identifier">Alignment</span><span class="special">);</span>
 
    <span class="comment">//Check alignment</span>
-   <span class="identifier">assert</span><span class="special">((</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">ptr</span><span class="special">)-</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="number">0</span><span class="special">))</span> <span class="special">%</span> <span class="identifier">Alignment</span> <span class="special">==</span> <span class="number">0</span><span class="special">);</span>
+   <span class="identifier">assert</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">(</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">ptr</span><span class="special">)-</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="number">0</span><span class="special">))</span> <span class="special">%</span> <span class="identifier">Alignment</span> <span class="special">==</span> <span class="number">0</span><span class="special">);</span>
 
    <span class="comment">//Deallocate it</span>
    <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">deallocate</span><span class="special">(</span><span class="identifier">ptr</span><span class="special">);</span>
@@ -1370,8 +1364,6 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-        </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -1414,7 +1406,7 @@
               Allocation of N buffers of memory with the same size.
             </li>
 <li class="listitem">
-              Allocation ot N buffers of memory, each one of different size.
+              Allocation of N buffers of memory, each one of different size.
             </li>
 </ul></div>
 <pre class="programlisting"><span class="comment">//!Allocates n_elements of elem_bytes bytes.</span>
@@ -1441,8 +1433,6 @@
 <p>
           Here is a small example showing all this functionality:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">move</span><span class="special">/</span><span class="identifier">utility_core</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span> <span class="comment">//boost::move</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;//</span><span class="identifier">assert</span>
@@ -1458,11 +1448,11 @@
    <span class="comment">//Remove shared memory on construction and destruction</span>
    <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
    <span class="special">{</span>
-      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
-      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
    <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
 
-   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span><span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span>"MyName"<span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
 
    <span class="comment">//Allocate 16 elements of 100 bytes in a single call. Non-throwing version.</span>
    <span class="identifier">multiallocation_chain</span> <span class="identifier">chain</span><span class="special">;</span>
@@ -1499,8 +1489,6 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-        </p>
 <p>
           Allocating N buffers of the same size improves the performance of pools
           and node containers (for example STL-like lists): when inserting a range
@@ -1760,8 +1748,6 @@
 <p>
           Here is a small example that shows the use of <code class="computeroutput"><span class="identifier">allocation_command</span></code>:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_shared_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cassert</span><span class="special">&gt;</span>
 
@@ -1772,13 +1758,13 @@
    <span class="comment">//Remove shared memory on construction and destruction</span>
    <span class="keyword">struct</span> <span class="identifier">shm_remove</span>
    <span class="special">{</span>
-      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
-      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="string">"MySharedMemory"</span><span class="special">);</span> <span class="special">}</span>
+      <span class="identifier">shm_remove</span><span class="special">()</span> <span class="special">{</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
+      <span class="special">~</span><span class="identifier">shm_remove</span><span class="special">(){</span> <span class="identifier">shared_memory_object</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span> <span class="special">}</span>
    <span class="special">}</span> <span class="identifier">remover</span><span class="special">;</span>
 
    <span class="comment">//Managed memory segment that allocates portions of a shared memory</span>
    <span class="comment">//segment with the default management algorithm</span>
-   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="string">"MySharedMemory"</span><span class="special">,</span> <span class="number">10000</span><span class="special">*</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">));</span>
+   <span class="identifier">managed_shared_memory</span> <span class="identifier">managed_shm</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">10000</span><span class="special">*</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">));</span>
 
    <span class="comment">//Allocate at least 100 bytes, 1000 bytes if possible</span>
    <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">min_size</span> <span class="special">=</span> <span class="number">100</span><span class="special">;</span>
@@ -1804,7 +1790,6 @@
    <span class="identifier">managed_shared_memory</span><span class="special">::</span><span class="identifier">size_type</span> <span class="identifier">expanded_size</span> <span class="special">=</span> <span class="identifier">first_received_size</span><span class="special">*</span><span class="number">3</span><span class="special">;</span>
    <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="special">*</span> <span class="identifier">ret</span> <span class="special">=</span> <span class="identifier">managed_shm</span><span class="special">.</span><span class="identifier">allocation_command</span>
       <span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">::</span><span class="identifier">expand_fwd</span><span class="special">,</span> <span class="identifier">min_size</span><span class="special">,</span> <span class="identifier">expanded_size</span><span class="special">,</span> <span class="identifier">ptr</span><span class="special">);</span>
-
    <span class="comment">//Check invariants</span>
    <span class="identifier">assert</span><span class="special">(</span><span class="identifier">ptr</span> <span class="special">!=</span> <span class="number">0</span><span class="special">);</span>
    <span class="identifier">assert</span><span class="special">(</span><span class="identifier">ret</span> <span class="special">==</span> <span class="identifier">ptr</span><span class="special">);</span>
@@ -1841,8 +1826,6 @@
 <span class="special">}</span>
 </pre>
 <p>
-        </p>
-<p>
           <code class="computeroutput"><span class="identifier">allocation_command</span></code> is a
           very powerful function that can lead to important performance gains. It's
           specially useful when programming vector-like data structures where the
@@ -1852,55 +1835,81 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only" title="Opening managed shared memory and mapped files with Copy On Write or Read Only modes">Opening
-        managed shared memory and mapped files with Copy On Write or Read Only modes</a>
+<a name="interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only" title="Opening managed shared memory and mapped files in Copy On Write or Read Only modes">Opening
+        managed shared memory and mapped files in <span class="emphasis"><em>Copy On Write</em></span>
+        or <span class="emphasis"><em>Read Only</em></span> modes</a>
 </h4></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only.open_copy_on_write_mode"><span class="emphasis"><em>open_copy_on_write</em></span>
+          mode</a></span></dt>
+<dt><span class="section"><a href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only.open_read_only_mode"><span class="emphasis"><em>open_read_only</em></span>
+          mode</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only.open_copy_on_write_mode"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only.open_copy_on_write_mode" title="open_copy_on_write mode"><span class="emphasis"><em>open_copy_on_write</em></span>
+          mode</a>
+</h5></div></div></div>
 <p>
-          When mapping a memory segment based on shared memory or files, there is
-          an option to open them using <span class="bold"><strong>open_copy_on_write</strong></span>
-          option. This option is similar to <code class="computeroutput"><span class="identifier">open_only</span></code>
-          but every change the programmer does with this managed segment is kept
-          private to this process and is not translated to the underlying device
-          (shared memory or file).
-        </p>
+            The programmer can open a managed shared memory or mapped file using
+            the <code class="computeroutput"><span class="identifier">open_copy_on_write</span></code>
+            option. This option is similar to <code class="computeroutput"><span class="identifier">open_only</span></code>
+            but every change performed on this managed segment is kept private to
+            the process and those changes are not translated to the underlying device
+            (shared memory or file).
+          </p>
 <p>
-          The underlying shared memory or file is opened as read-only so several
-          processes can share an initial managed segment and make private changes
-          to it. If many processes open a managed segment in copy on write mode and
-          not modified pages from the managed segment will be shared between all
-          those processes, with considerable memory savings.
-        </p>
-<p>
-          Opening managed shared memory and mapped files with <span class="bold"><strong>open_read_only</strong></span>
-          maps the underlying device in memory with <span class="bold"><strong>read-only</strong></span>
-          attributes. This means that any attempt to write that memory, either creating
-          objects or locking any mutex might result in an page-fault error (and thus,
-          program termination) from the OS. Read-only mode opens the underlying device
-          (shared memory, file...) in read-only mode and can result in considerable
-          memory savings if several processes just want to process a managed memory
-          segment without modifying it. Read-only mode operations are limited:
-        </p>
+            This copy-on-write approach can reduce memory consumption:
+          </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
-              Read-only mode must be used only from managed classes. If the programmer
-              obtains the segment manager and tries to use it directly it might result
-              in an access violation. The reason for this is that the segment manager
-              is placed in the underlying device and does not nothing about the mode
-              it's been mapped in memory.
-            </li>
+                Sharing of identical pages: When multiple processes use <code class="computeroutput"><span class="identifier">open_copy_on_write</span></code>, the operating
+                system initially makes them share the same underlying physical memory
+                pages. No actual copying of the data occurs at the time of opening.
+              </li>
 <li class="listitem">
-              Only const member functions from managed segments should be used.
-            </li>
-<li class="listitem">
-              Additionally, the <code class="computeroutput"><span class="identifier">find</span><span class="special">&lt;&gt;</span></code> member function avoids using
-              internal locks and can be used to look for named and unique objects.
-            </li>
+                Copy only on modification: A private copy of portion of the managed
+                segment is created in process-private memory only when one of the
+                processes attempts to write that portion. Processes that only read
+                most of the data continue to share the original portions (memory
+                pages). This can lead to substantial memory savings, especially when
+                dealing with large datasets or when many processes need to access
+                the same data with only a few modifying it.
+              </li>
 </ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only.open_read_only_mode"></a><a class="link" href="managed_memory_segments.html#interprocess.managed_memory_segments.managed_memory_segment_advanced_features.copy_on_write_read_only.open_read_only_mode" title="open_read_only mode"><span class="emphasis"><em>open_read_only</em></span>
+          mode</a>
+</h5></div></div></div>
 <p>
-          Here is an example that shows the use of these two open modes:
+            Opening a managed shared memory or managed mapped file with <code class="computeroutput"><span class="identifier">open_read_only</span></code> maps the underlying
+            device in memory with <span class="bold"><strong>read-only</strong></span> attributes.
+            This means that any attempt to write to that memory (including locking
+            any mutex) might result in a page-fault error (and thus, program termination)
+            from the OS.
+          </p>
+<p>
+            Due to this, managed shared memory or managed mapped file operations
+            are quite limited on this mode:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+                Only const member functions from managed shared memory/mapped file
+                should be used. If the programmer obtains the segment manager and
+                tries to use any available operation on that object, it might result
+                in an access violation.
+              </li>
+<li class="listitem">
+                Additionally, the <code class="computeroutput"><span class="identifier">find</span><span class="special">&lt;&gt;</span></code> member function avoids using
+                internal locks and can be used to look for named and unique objects.
+              </li>
+</ul></div>
+</div>
+<p>
+          Here is an example that shows the use of these two modes:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_mapped_file</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">fstream</span><span class="special">&gt;</span> <span class="comment">//std::fstream</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">iterator</span><span class="special">&gt;//</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">distance</span>
@@ -1923,7 +1932,7 @@
    <span class="special">{</span>
       <span class="comment">//Create an named integer in a managed mapped file</span>
       <span class="identifier">managed_mapped_file</span> <span class="identifier">managed_file</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="identifier">ManagedFile</span><span class="special">,</span> <span class="number">65536</span><span class="special">);</span>
-      <span class="identifier">managed_file</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">&gt;(</span><span class="string">"MyInt"</span><span class="special">)(</span><span class="number">0u</span><span class="special">);</span>
+      <span class="identifier">managed_file</span><span class="special">.</span><span class="identifier">construct</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">&gt;(</span><span class="string">"MyInt"</span><span class="special">)(</span><span class="number">0</span><span class="special">);</span>
 
       <span class="comment">//Now create a copy on write version</span>
       <span class="identifier">managed_mapped_file</span> <span class="identifier">managed_file_cow</span><span class="special">(</span><span class="identifier">open_copy_on_write</span><span class="special">,</span> <span class="identifier">ManagedFile</span><span class="special">);</span>
@@ -1969,8 +1978,6 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-        </p>
 </div>
 </div>
 <div class="section">
@@ -2103,11 +2110,9 @@
 <p>
           Let's see an example of the use of managed_external_buffer:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_external_buffer</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">allocators</span><span class="special">/</span><span class="identifier">allocator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">containers</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">container</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstring</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">aligned_storage</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 
@@ -2134,7 +2139,7 @@
       <span class="identifier">allocator_t</span><span class="special">;</span>
 
    <span class="comment">//Alias a STL compatible list to be constructed in the static buffer</span>
-   <span class="keyword">typedef</span> <span class="identifier">list</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">allocator_t</span><span class="special">&gt;</span>    <span class="identifier">MyBufferList</span><span class="special">;</span>
+   <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">list</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">allocator_t</span><span class="special">&gt;</span>    <span class="identifier">MyBufferList</span><span class="special">;</span>
 
    <span class="comment">//The list must be initialized with the allocator</span>
    <span class="comment">//All objects created with objects_in_static_memory will</span>
@@ -2163,16 +2168,19 @@
 <span class="special">}</span>
 </pre>
 <p>
-        </p>
-<p>
           <span class="bold"><strong>Boost.Interprocess</strong></span> STL compatible allocators
           can also be used to place STL compatible containers in the user segment.
         </p>
 <p>
-          <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55243232.html" title="Class template basic_managed_external_buffer">basic_managed_external_buffer</a></code>
+          <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__external__buffer.html" title="Class template basic_managed_external_buffer">basic_managed_external_buffer</a></code>
           can be also useful to build small databases for embedded systems limiting
           the size of the used memory to a predefined memory chunk, instead of letting
           the database fragment the heap memory.
+        </p>
+<p>
+          <span class="bold"><strong>Note:</strong></span> The external memory supplied by
+          the user shall be aligned to the maximum value between <code class="computeroutput"><span class="keyword">alignof</span><span class="special">(</span><span class="identifier">max_align_t</span><span class="special">)</span></code> and the alignment of the strictest over-aligned
+          type to be built inside that memory.
         </p>
 </div>
 <div class="section">
@@ -2227,7 +2235,7 @@
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_heap_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 </pre>
 <p>
-          The use is exactly the same as <code class="computeroutput"><a class="link" href="../boost/interprocess/basic_managed__idp55243232.html" title="Class template basic_managed_external_buffer">basic_managed_external_buffer</a></code>,
+          The use is exactly the same as <code class="computeroutput"><a class="link" href="../doxygen/boost_interprocess_header_reference/classboost_1_1interprocess_1_1basic__managed__external__buffer.html" title="Class template basic_managed_external_buffer">basic_managed_external_buffer</a></code>,
           except that memory is created by the managed memory segment itself using
           dynamic (new/delete) memory.
         </p>
@@ -2242,15 +2250,13 @@
           example <code class="computeroutput"><span class="identifier">offset_ptr</span></code>). Otherwise,
           the result is undefined. Here is an example:
         </p>
-<p>
-</p>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">containers</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">container</span><span class="special">/</span><span class="identifier">list</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">managed_heap_memory</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">interprocess</span><span class="special">/</span><span class="identifier">allocators</span><span class="special">/</span><span class="identifier">allocator</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cstddef</span><span class="special">&gt;</span>
 
 <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">list</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">managed_heap_memory</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span> <span class="special">&gt;</span>
+<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">list</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">allocator</span><span class="special">&lt;</span><span class="keyword">int</span><span class="special">,</span> <span class="identifier">managed_heap_memory</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span> <span class="special">&gt;</span>
    <span class="identifier">MyList</span><span class="special">;</span>
 
 <span class="keyword">int</span> <span class="identifier">main</span> <span class="special">()</span>
@@ -2265,12 +2271,12 @@
    <span class="identifier">managed_heap_memory</span><span class="special">::</span><span class="identifier">handle_t</span> <span class="identifier">list_handle</span> <span class="special">=</span> <span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">get_handle_from_address</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">);</span>
 
    <span class="comment">//Fill list until there is no more memory in the buffer</span>
-   <span class="keyword">try</span><span class="special">{</span>
+   try <span class="special">{</span>
       <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">)</span> <span class="special">{</span>
          <span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">begin</span><span class="special">(),</span> <span class="number">0</span><span class="special">);</span>
       <span class="special">}</span>
    <span class="special">}</span>
-   <span class="keyword">catch</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">bad_alloc</span> <span class="special">&amp;){</span>
+   catch<span class="special">(</span><span class="keyword">const</span> <span class="identifier">bad_alloc</span> <span class="special">&amp;){</span>
       <span class="comment">//memory is full</span>
    <span class="special">}</span>
    <span class="comment">//Let's obtain the size of the list</span>
@@ -2286,12 +2292,12 @@
                <span class="special">(</span><span class="identifier">heap_memory</span><span class="special">.</span><span class="identifier">get_address_from_handle</span><span class="special">(</span><span class="identifier">list_handle</span><span class="special">));</span>
 
    <span class="comment">//Fill list until there is no more memory in the buffer</span>
-   <span class="keyword">try</span><span class="special">{</span>
+   try <span class="special">{</span>
       <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">)</span> <span class="special">{</span>
          <span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">insert</span><span class="special">(</span><span class="identifier">mylist</span><span class="special">-&gt;</span><span class="identifier">begin</span><span class="special">(),</span> <span class="number">0</span><span class="special">);</span>
       <span class="special">}</span>
    <span class="special">}</span>
-   <span class="keyword">catch</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">bad_alloc</span> <span class="special">&amp;){</span>
+   catch<span class="special">(</span><span class="keyword">const</span> <span class="identifier">bad_alloc</span> <span class="special">&amp;){</span>
       <span class="comment">//memory is full</span>
    <span class="special">}</span>
 
@@ -2307,7 +2313,17 @@
 <span class="special">}</span>
 </pre>
 <p>
+          <span class="bold"><strong>Note:</strong></span> Heap memory is not guaranteed to
+          be compatible with over-aligned types so it is not supported to use memory
+          allocation algorithms or construct objects that need over-aligned memory:
         </p>
+<pre class="programlisting"><span class="comment">// 64 byte aligned memory might not be supported</span>
+<span class="keyword">typedef</span> <span class="identifier">basic_managed_heap_memory</span><span class="special">&lt;</span>
+    <span class="keyword">char</span><span class="special">,</span>
+    <span class="identifier">rbtree_best_fit</span><span class="special">&lt;</span><span class="identifier">mutex_family</span><span class="special">,</span> <span class="identifier">offset_ptr</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">,</span> <span class="keyword">long</span><span class="special">,</span> <span class="keyword">unsigned</span> <span class="keyword">long</span><span class="special">,</span> <span class="number">64</span><span class="special">&gt;,</span> <span class="number">64</span><span class="special">&gt;,</span>
+    <span class="identifier">iset_index</span>
+<span class="special">&gt;</span> <span class="identifier">managed_heap_with_overalignment_t</span><span class="special">;</span>
+</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
@@ -2350,8 +2366,6 @@
           a whole database constructed in a memory buffer using <span class="bold"><strong>Boost.Interprocess</strong></span>,
           send the database through a message queue and duplicated in another buffer:
         </p>
-<p>
-</p>
 <pre class="programlisting"><span class="comment">//This test creates a in memory data-base using Interprocess machinery and</span>
 <span class="comment">//serializes it through a message queue. Then rebuilds the data-base in</span>
 <span class="comment">//another buffer and checks it against the original data-base</span>
@@ -2362,7 +2376,7 @@
    <span class="keyword">typedef</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;</span>   <span class="identifier">MyLess</span><span class="special">;</span>
    <span class="keyword">typedef</span> <span class="identifier">node_allocator</span><span class="special">&lt;</span><span class="identifier">MyPair</span><span class="special">,</span> <span class="identifier">managed_external_buffer</span><span class="special">::</span><span class="identifier">segment_manager</span><span class="special">&gt;</span>
       <span class="identifier">node_allocator_t</span><span class="special">;</span>
-   <span class="keyword">typedef</span> <span class="identifier">map</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">,</span>
+   <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">container</span><span class="special">::</span><span class="identifier">map</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">,</span>
                <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">,</span>
                <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;,</span>
                <span class="identifier">node_allocator_t</span><span class="special">&gt;</span>
@@ -2375,13 +2389,13 @@
    <span class="comment">//Allocate a memory buffer to hold the destiny database using vector&lt;char&gt;</span>
    <span class="identifier">std</span><span class="special">::</span><span class="identifier">vector</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">&gt;</span> <span class="identifier">buffer_destiny</span><span class="special">(</span><span class="identifier">BufferSize</span><span class="special">,</span> <span class="number">0</span><span class="special">);</span>
 
-   <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">test</span><span class="special">::</span><span class="identifier">get_process_id_name</span><span class="special">());</span>
+   <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span>
    <span class="special">{</span>
       <span class="comment">//Create the message-queues</span>
-      <span class="identifier">message_queue</span> <span class="identifier">mq1</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> <span class="identifier">test</span><span class="special">::</span><span class="identifier">get_process_id_name</span><span class="special">(),</span> <span class="number">1</span><span class="special">,</span> <span class="identifier">MaxMsgSize</span><span class="special">);</span>
+      <span class="identifier">message_queue</span> <span class="identifier">mq1</span><span class="special">(</span><span class="identifier">create_only</span><span class="special">,</span> "MyName"<span class="special">,</span> <span class="number">1</span><span class="special">,</span> <span class="identifier">MaxMsgSize</span><span class="special">);</span>
 
       <span class="comment">//Open previously created message-queue simulating other process</span>
-      <span class="identifier">message_queue</span> <span class="identifier">mq2</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> <span class="identifier">test</span><span class="special">::</span><span class="identifier">get_process_id_name</span><span class="special">());</span>
+      <span class="identifier">message_queue</span> <span class="identifier">mq2</span><span class="special">(</span><span class="identifier">open_only</span><span class="special">,</span> "MyName"<span class="special">);</span>
 
       <span class="comment">//A managed heap memory to create the origin database</span>
       <span class="identifier">managed_heap_memory</span> <span class="identifier">db_origin</span><span class="special">(</span><span class="identifier">buffer_destiny</span><span class="special">.</span><span class="identifier">size</span><span class="special">());</span>
@@ -2394,14 +2408,14 @@
          <span class="keyword">return</span> <span class="keyword">false</span><span class="special">;</span>
 
       <span class="comment">//Fill map1 until is full</span>
-      <span class="keyword">try</span><span class="special">{</span>
+      try <span class="special">{</span>
          <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span>
          <span class="keyword">while</span><span class="special">(</span><span class="number">1</span><span class="special">){</span>
             <span class="special">(*</span><span class="identifier">map1</span><span class="special">)[</span><span class="identifier">i</span><span class="special">]</span> <span class="special">=</span> <span class="identifier">i</span><span class="special">;</span>
             <span class="special">++</span><span class="identifier">i</span><span class="special">;</span>
          <span class="special">}</span>
       <span class="special">}</span>
-      <span class="keyword">catch</span><span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">::</span><span class="identifier">bad_alloc</span> <span class="special">&amp;){}</span>
+      catch<span class="special">(</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">interprocess</span><span class="special">::</span><span class="identifier">bad_alloc</span> <span class="special">&amp;){}</span>
 
       <span class="comment">//Data control data sending through the message queue</span>
       <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">sent</span> <span class="special">=</span> <span class="number">0</span><span class="special">;</span>
@@ -2467,23 +2481,18 @@
       <span class="identifier">db_origin</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">map1</span><span class="special">);</span>
       <span class="identifier">db_destiny</span><span class="special">.</span><span class="identifier">destroy_ptr</span><span class="special">(</span><span class="identifier">map2</span><span class="special">);</span>
    <span class="special">}</span>
-   <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span><span class="identifier">test</span><span class="special">::</span><span class="identifier">get_process_id_name</span><span class="special">());</span>
+   <span class="identifier">message_queue</span><span class="special">::</span><span class="identifier">remove</span><span class="special">(</span>"MyName"<span class="special">);</span>
    <span class="keyword">return</span> <span class="keyword">true</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-        </p>
 </div>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2005-2012 Ion Gaztanaga<p>
+<div class="copyright-footer">Copyright © 2005-2024 Ion Gaztanaga<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="synchronization_mechanisms.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../interprocess.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="allocators_containers.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

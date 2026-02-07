@@ -4,6 +4,10 @@
 //
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,7 +15,16 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 
-#include <boost/mpl/assert.hpp>
+#include <limits>
+
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
@@ -26,10 +39,10 @@ struct gl_draw_point
 template <typename Point>
 struct gl_draw_point<Point, 2>
 {
-    static inline void apply(Point const& p, typename coordinate_type<Point>::type z)
+    static inline void apply(Point const& p, coordinate_type_t<Point> z)
     {
-        typename coordinate_type<Point>::type const& x = geometry::get<0>(p);
-        typename coordinate_type<Point>::type const& y = geometry::get<1>(p);
+        coordinate_type_t<Point> const& x = geometry::get<0>(p);
+        coordinate_type_t<Point> const& y = geometry::get<1>(p);
         /*glBegin(GL_POINT);
         glVertex3f(x, y, z);
         glEnd();*/
@@ -49,7 +62,7 @@ struct gl_draw_box
 template <typename Box>
 struct gl_draw_box<Box, 2>
 {
-    static inline void apply(Box const& b, typename coordinate_type<Box>::type z)
+    static inline void apply(Box const& b, coordinate_type_t<Box> z)
     {
         glBegin(GL_LINE_LOOP);
         glVertex3f(geometry::get<min_corner, 0>(b), geometry::get<min_corner, 1>(b), z);
@@ -67,7 +80,7 @@ struct gl_draw_segment
 template <typename Segment>
 struct gl_draw_segment<Segment, 2>
 {
-    static inline void apply(Segment const& s, typename coordinate_type<Segment>::type z)
+    static inline void apply(Segment const& s, coordinate_type_t<Segment> z)
     {
         glBegin(GL_LINES);
         glVertex3f(geometry::get<0, 0>(s), geometry::get<0, 1>(s), z);
@@ -79,7 +92,9 @@ struct gl_draw_segment<Segment, 2>
 template <typename Indexable, typename Tag>
 struct gl_draw_indexable
 {
-    BOOST_MPL_ASSERT_MSG((false), NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Indexable type.",
+        Indexable, Tag);
 };
 
 template <typename Box>
@@ -100,12 +115,13 @@ struct gl_draw_indexable<Segment, segment_tag>
 } // namespace dispatch
 
 template <typename Indexable> inline
-void gl_draw_indexable(Indexable const& i, typename coordinate_type<Indexable>::type z)
+void gl_draw_indexable(Indexable const& i, coordinate_type_t<Indexable> z)
 {
-    dispatch::gl_draw_indexable<
-        Indexable,
-        typename tag<Indexable>::type
-    >::apply(i, z);
+    dispatch::gl_draw_indexable
+        <
+            Indexable,
+            tag_t<Indexable>
+        >::apply(i, z);
 }
 
 } // namespace utilities
@@ -114,16 +130,20 @@ namespace rtree { namespace utilities {
 
 namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+template <typename MembersHolder>
+struct gl_draw
+    : public MembersHolder::visitor_const
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::box_type box_type;
+    typedef typename MembersHolder::translator_type translator_type;
 
-    inline gl_draw(Translator const& t,
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
+
+    inline gl_draw(translator_type const& t,
                    size_t level_first = 0,
                    size_t level_last = (std::numeric_limits<size_t>::max)(),
-                   typename coordinate_type<Box>::type z_coord_level_multiplier = 1
+                   coordinate_type_t<box_type> z_coord_level_multiplier = 1
     )
         : tr(t)
         , level_f(level_first)
@@ -162,7 +182,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
                 detail::utilities::gl_draw_indexable(it->first, level_rel * z_mul);
             }
         }
-        
+
         size_t level_backup = level;
         ++level;
 
@@ -197,10 +217,10 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
         }
     }
 
-    Translator const& tr;
+    translator_type const& tr;
     size_t level_f;
     size_t level_l;
-    typename coordinate_type<Box>::type z_mul;
+    coordinate_type_t<box_type> z_mul;
 
     size_t level;
 };
@@ -211,9 +231,7 @@ template <typename Rtree> inline
 void gl_draw(Rtree const& tree,
              size_t level_first = 0,
              size_t level_last = (std::numeric_limits<size_t>::max)(),
-             typename coordinate_type<
-                    typename Rtree::bounds_type
-                >::type z_coord_level_multiplier = 1
+             coordinate_type_t<typename Rtree::bounds_type> z_coord_level_multiplier = 1
              )
 {
     typedef utilities::view<Rtree> RTV;
@@ -226,11 +244,7 @@ void gl_draw(Rtree const& tree,
     }
 
     visitors::gl_draw<
-        typename RTV::value_type,
-        typename RTV::options_type,
-        typename RTV::translator_type,
-        typename RTV::box_type,
-        typename RTV::allocators_type
+        typename RTV::members_holder
     > gl_draw_v(rtv.translator(), level_first, level_last, z_coord_level_multiplier);
 
     rtv.apply_visitor(gl_draw_v);

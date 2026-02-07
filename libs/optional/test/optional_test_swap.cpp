@@ -16,12 +16,17 @@
 
 #include "boost/optional/optional.hpp"
 
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 #pragma hdrstop
 #endif
 
 #include "boost/core/lightweight_test.hpp"
 
+#if __cplusplus < 201103L
+#include <algorithm>
+#else
+#include <utility>
+#endif
 
 using boost::optional;
 using boost::none;
@@ -46,6 +51,9 @@ namespace optional_swap_test
       BOOST_TEST(!"The assignment should not be used while swapping!");
       throw assignment_exception();
     }
+
+    base_class_with_forbidden_assignment() {}
+    base_class_with_forbidden_assignment(base_class_with_forbidden_assignment const&) {}
 
     virtual ~base_class_with_forbidden_assignment() {}
   };
@@ -88,7 +96,8 @@ namespace optional_swap_test
 
     class_whose_default_ctor_should_be_used() : data('\0') { }
 
-    class_whose_default_ctor_should_be_used(const class_whose_default_ctor_should_be_used &)
+    class_whose_default_ctor_should_be_used(const class_whose_default_ctor_should_be_used & rhs)
+      : base_class_with_forbidden_assignment(rhs)
     {
       BOOST_TEST(!"This copy constructor should not be used while swapping!");
       throw copy_ctor_exception();
@@ -131,7 +140,8 @@ namespace optional_swap_test
       throw default_ctor_exception();
     }
 
-    class_whose_explicit_ctor_should_be_used(const class_whose_explicit_ctor_should_be_used &)
+    class_whose_explicit_ctor_should_be_used(const class_whose_explicit_ctor_should_be_used & rhs)
+      : base_class_with_forbidden_assignment(rhs)
     {
       BOOST_TEST(!"This copy constructor should not be used while swapping!");
       throw copy_ctor_exception();
@@ -178,9 +188,9 @@ namespace optional_swap_test
      return;
 
     if( !hasX )
-       x = boost::in_place('\0');
+       x.emplace('\0');
     else if ( !hasY )
-       y = boost::in_place('\0');
+       y.emplace('\0');
 
     optional_swap_test::swap(*x,*y);
 
@@ -201,13 +211,13 @@ namespace boost {
 //
 
 template <> struct optional_swap_should_use_default_constructor<
-  optional_swap_test::class_whose_default_ctor_should_be_used> : mpl::true_ {} ;
+  optional_swap_test::class_whose_default_ctor_should_be_used> : true_type {} ;
 
 template <> struct optional_swap_should_use_default_constructor<
-  optional_swap_test::class_whose_default_ctor_should_not_be_used> : mpl::false_ {} ;
+  optional_swap_test::class_whose_default_ctor_should_not_be_used> : false_type {} ;
 
 template <class T> struct optional_swap_should_use_default_constructor<
-  optional_swap_test::template_whose_default_ctor_should_be_used<T> > : mpl::true_ {} ;
+  optional_swap_test::template_whose_default_ctor_should_be_used<T> > : true_type {} ;
 
 
 //

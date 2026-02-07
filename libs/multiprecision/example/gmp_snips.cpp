@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////
 //  Copyright 2011 John Maddock. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_
+//  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
 #include <boost/multiprecision/gmp.hpp>
 #include <boost/math/special_functions/gamma.hpp>
@@ -75,7 +75,6 @@ void t2()
 void t3()
 {
 //[mpq_eg
-//=#include <boost/multiprecision/gmp.hpp>
 //=#include <boost/multiprecision/gmp.hpp>
 //=#include <iostream>
 //=

@@ -3,7 +3,20 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef SYCL_LANGUAGE_VERSION
 #include <pch_light.hpp>
+#else
+#include "sycl/sycl.hpp"
+#endif
+
+#ifdef __clang__
+#  pragma clang diagnostic push 
+#  pragma clang diagnostic ignored "-Wliteral-range"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push 
+#  pragma GCC diagnostic ignored "-Woverflow"
+#endif
+#define BOOST_MATH_OVERFLOW_ERROR_POLICY ignore_error
 #include "test_igamma_inv.hpp"
 
 #if !defined(TEST_FLOAT) && !defined(TEST_DOUBLE) && !defined(TEST_LDOUBLE) && !defined(TEST_REAL_CONCEPT)
@@ -77,7 +90,7 @@ void expected_results()
          "[^|]*",                          // platform
          "real_concept",                     // test type(s)
          "[^|]*small[^|]*",                   // test data group
-         "[^|]*", 70000, 8000);                  // test function
+         "[^|]*", 98000, 12000);                  // test function
    }
    //
    // These high error rates are seen on on some Linux
@@ -89,14 +102,22 @@ void expected_results()
       "linux.*",                          // platform
       largest_type,                     // test type(s)
       "[^|]*medium[^|]*",                   // test data group
+      #ifdef SYCL_LANGUAGE_VERSION
+      "[^|]*", 350, 50);
+      #else
       "[^|]*", 350, 5);                  // test function
+      #endif
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
       "linux.*",                          // platform
       largest_type,                     // test type(s)
       "[^|]*large[^|]*",                   // test data group
+      #ifdef SYCL_LANGUAGE_VERSION
+      "[^|]*", 150, 20);                  // test function
+      #else
       "[^|]*", 150, 5);                  // test function
+      #endif
 
 
    //
@@ -129,14 +150,14 @@ void expected_results()
       "[^|]*",                          // platform
       "float|double",                   // test type(s)
       "[^|]*small[^|]*",                    // test data group
-      "boost::math::gamma_p_inv", 500, 60);   // test function
+      "gamma_p_inv", 500, 60);   // test function
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
       "[^|]*",                          // platform
       "float|double",                   // test type(s)
       "[^|]*",                          // test data group
-      "boost::math::gamma_q_inv", 350, 60);   // test function
+      "gamma_q_inv", 350, 60);   // test function
    add_expected_result(
       "[^|]*",                          // compiler
       "[^|]*",                          // stdlib
@@ -191,8 +212,8 @@ BOOST_AUTO_TEST_CASE( test_main )
 #ifdef TEST_LDOUBLE
    test_spots(0.0L, "long double");
 #endif
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
-#ifdef TEST_REAL_CONCEPT
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
+#if defined(TEST_REAL_CONCEPT) && !defined(BOOST_MATH_NO_REAL_CONCEPT_TESTS)
    test_spots(boost::math::concepts::real_concept(0.1), "real_concept");
 #endif
 #endif
@@ -211,8 +232,8 @@ BOOST_AUTO_TEST_CASE( test_main )
    test_gamma(0.1L, "long double");
 #endif
 #ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
-#ifdef TEST_REAL_CONCEPT
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
+#if defined(TEST_REAL_CONCEPT) && !defined(BOOST_MATH_NO_REAL_CONCEPT_TESTS)
    test_gamma(boost::math::concepts::real_concept(0.1), "real_concept");
 #endif
 #endif
@@ -221,7 +242,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
    
 }

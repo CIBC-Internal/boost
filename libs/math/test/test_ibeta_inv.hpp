@@ -7,16 +7,17 @@
 #include <boost/math/concepts/real_concept.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
+#include <boost/math/special_functions/beta.hpp>
+#include <boost/math/special_functions/next.hpp>  // for has_denorm_now
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/tools/stats.hpp>
-#include <boost/math/tools/test.hpp>
+#include "../include_private/boost/math/tools/test.hpp"
 #include <boost/math/constants/constants.hpp>
 #include <boost/type_traits/is_floating_point.hpp>
 #include <boost/array.hpp>
 #include "functor.hpp"
 
-#include "test_beta_hooks.hpp"
 #include "handle_test_result.hpp"
 #include "table_type.hpp"
 
@@ -28,7 +29,7 @@ template <class Real, class T>
 void test_inverses(const T& data)
 {
    using namespace std;
-   typedef typename T::value_type row_type;
+   //typedef typename T::value_type row_type;
    typedef Real                   value_type;
 
    value_type precision = static_cast<value_type>(ldexp(1.0, 1-boost::math::policies::digits<value_type, boost::math::policies::policy<> >()/2)) * 100;
@@ -72,11 +73,14 @@ void test_inverses(const T& data)
 template <class Real, class T>
 void test_inverses2(const T& data, const char* type_name, const char* test_name)
 {
-   typedef typename T::value_type row_type;
+#if !(defined(ERROR_REPORTING_MODE) && !defined(IBETA_INV_FUNCTION_TO_TEST))
+   //typedef typename T::value_type row_type;
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type, value_type, value_type);
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef IBETA_INV_FUNCTION_TO_TEST
+   pg funcp = IBETA_INV_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::ibeta_inv<value_type, value_type, value_type>;
 #else
    pg funcp = boost::math::ibeta_inv;
@@ -94,11 +98,13 @@ void test_inverses2(const T& data, const char* type_name, const char* test_name)
       data,
       bind_func<Real>(funcp, 0, 1, 2),
       extract_result<Real>(3));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::ibeta_inv", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "ibeta_inv", test_name);
    //
    // test ibetac_inv(T, T, T) against data:
    //
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef IBETAC_INV_FUNCTION_TO_TEST
+   funcp = IBETAC_INV_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    funcp = boost::math::ibetac_inv<value_type, value_type, value_type>;
 #else
    funcp = boost::math::ibetac_inv;
@@ -107,13 +113,15 @@ void test_inverses2(const T& data, const char* type_name, const char* test_name)
       data,
       bind_func<Real>(funcp, 0, 1, 2),
       extract_result<Real>(4));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::ibetac_inv", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "ibetac_inv", test_name);
+#endif
 }
 
 
 template <class T>
 void test_beta(T, const char* name)
 {
+#if !defined(ERROR_REPORTING_MODE)
    (void)name;
    //
    // The actual test data is rather verbose, so it's in a separate file
@@ -137,6 +145,8 @@ void test_beta(T, const char* name)
 #  include "ibeta_large_data.ipp"
 
    test_inverses<T>(ibeta_large_data);
+#endif
+
 #endif
 
 #if !defined(TEST_DATA) || (TEST_DATA == 4)
@@ -262,5 +272,62 @@ void test_spots(T)
          static_cast<T>(0.125),
          static_cast<T>(0.125)),
       static_cast<T>(0.99999994039535522460937500000000000000000000000L), tolerance);
+   //
+   // Bug cases, issue 873:
+   //
+   if ((std::numeric_limits<T>::max)() > static_cast<T>(1e50))
+   {
+      BOOST_CHECK_CLOSE(
+         ::boost::math::ibeta_inv(
+            static_cast<T>(1e50L),
+            static_cast<T>(10),
+            static_cast<T>(1) / static_cast<T>(10)),
+         static_cast<T>(1), tolerance);
+      BOOST_CHECK_CLOSE(
+         ::boost::math::ibetac_inv(
+            static_cast<T>(1e50L),
+            static_cast<T>(10),
+            static_cast<T>(1) / static_cast<T>(10)),
+         static_cast<T>(1), tolerance);
+   }
+   if (std::numeric_limits<T>::has_quiet_NaN)
+   {
+      T n = std::numeric_limits<T>::quiet_NaN();
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(n, static_cast<T>(2.125), static_cast<T>(0.125)), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(static_cast<T>(2.125), n, static_cast<T>(0.125)), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(static_cast<T>(2.125), static_cast<T>(1.125), n), std::domain_error);
+   }
+   if (std::numeric_limits<T>::has_infinity)
+   {
+      T n = std::numeric_limits<T>::infinity();
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(n, static_cast<T>(2.125), static_cast<T>(0.125)), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(static_cast<T>(2.125), n, static_cast<T>(0.125)), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(static_cast<T>(2.125), static_cast<T>(1.125), n), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(-n, static_cast<T>(2.125), static_cast<T>(0.125)), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(static_cast<T>(2.125), -n, static_cast<T>(0.125)), std::domain_error);
+      BOOST_MATH_CHECK_THROW(::boost::math::ibeta_inv(static_cast<T>(2.125), static_cast<T>(1.125), -n), std::domain_error);
+   }
+   #ifndef SYCL_LANGUAGE_VERSION
+   if (boost::math::detail::has_denorm_now<T>())
+   {
+      T m = std::numeric_limits<T>::denorm_min();
+      T small = 2 * (std::numeric_limits<T>::min)();
+      BOOST_CHECK((boost::math::isfinite)(boost::math::ibeta_inv(m, static_cast<T>(2.125), static_cast<T>(0.125))));
+      BOOST_CHECK((boost::math::isfinite)(boost::math::ibeta_inv(m, m, static_cast<T>(0.125))));
+      BOOST_CHECK_LT(boost::math::ibeta_inv(m, static_cast<T>(12.125), static_cast<T>(0.125)), small);
+      BOOST_CHECK((boost::math::isfinite)(boost::math::ibeta_inv(static_cast<T>(2.125), m, static_cast<T>(0.125))));
+      BOOST_CHECK((boost::math::isfinite)(boost::math::ibeta_inv(static_cast<T>(12.125), m, static_cast<T>(0.125))));
+      BOOST_CHECK((boost::math::isfinite)(boost::math::ibeta_inv(m, m, static_cast<T>(0.125))));
+   }
+   #endif
+   //
+   // scipy: https://github.com/scipy/scipy/issues/21725
+   //
+   BOOST_CHECK_CLOSE(
+      ::boost::math::ibeta_inv(
+         static_cast<T>(1.0e11L),
+         static_cast<T>(1.0e13L),
+         static_cast<T>(0.995L)),
+      static_cast<T>(0.0099010703473402885173268397418009652L), 5e-10);
 }
 

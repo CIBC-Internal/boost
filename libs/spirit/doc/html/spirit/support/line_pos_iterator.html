@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>The line position iterator</title>
 <link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../index.html" title="Spirit 2.5.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Spirit 2.59">
 <link rel="up" href="../support.html" title="Supporting Libraries">
 <link rel="prev" href="multi_pass.html" title="The multi pass iterator">
 <link rel="next" href="utree.html" title="The utree data structure">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -32,7 +33,9 @@
         current line number, nothing else. Unlike <a href="../../../../../../libs/spirit/classic/index.html" target="_top"><span class="emphasis"><em>Spirit.Classic</em></span></a>'s
         <code class="computeroutput"><span class="identifier">position_iterator</span></code>, it does
         not store the column number and does not need an end iterator. The current
-        column can be computed, if needed.
+        column can be computed, if needed. NOTE: line counting considers position
+        inside multicharacter line-breaks (such as CRLF and LFCR) as being on the
+        next line already.
       </p>
 <h5>
 <a name="spirit.support.line_pos_iterator.h0"></a>
@@ -51,7 +54,7 @@
 <span class="keyword">public</span><span class="special">:</span>
     <span class="identifier">line_pos_iterator</span><span class="special">();</span>
 
-    <span class="keyword">explicit</span> <span class="identifier">line_pos_iterator</span><span class="special">(</span><span class="identifier">Iterator</span><span class="special">);</span>
+    <span class="keyword">explicit</span> <span class="identifier">line_pos_iterator</span><span class="special">(</span><span class="identifier">Iterator</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">line_start</span> <span class="special">=</span> <span class="number">1</span><span class="special">);</span>
 
     <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">position</span><span class="special">()</span> <span class="keyword">const</span><span class="special">;</span>
 
@@ -61,7 +64,8 @@
     <span class="keyword">void</span> <span class="identifier">increment</span><span class="special">();</span>
 
     <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">line</span><span class="special">;</span> <span class="comment">// The line position.</span>
-    <span class="keyword">typename</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">iterator_traits</span><span class="special">&lt;</span><span class="identifier">Iterator</span><span class="special">&gt;::</span><span class="identifier">value_type</span> <span class="identifier">prev</span><span class="special">;</span>
+    <span class="keyword">bool</span> <span class="identifier">prev_n</span><span class="special">;</span>
+    <span class="keyword">bool</span> <span class="identifier">prev_r</span><span class="special">;</span>
 <span class="special">};</span>
 </pre>
 <p>
@@ -96,6 +100,20 @@
       </p>
 <h5>
 <a name="spirit.support.line_pos_iterator.h3"></a>
+        <span class="phrase"><a name="spirit.support.line_pos_iterator.get_line_end"></a></span><a class="link" href="line_pos_iterator.html#spirit.support.line_pos_iterator.get_line_end">get_line_end</a>
+      </h5>
+<p>
+</p>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">Iterator</span><span class="special">&gt;</span>
+<span class="keyword">inline</span> <span class="identifier">Iterator</span> <span class="identifier">get_line_end</span><span class="special">(</span><span class="identifier">Iterator</span> <span class="identifier">current</span><span class="special">,</span> <span class="identifier">Iterator</span> <span class="identifier">upper_bound</span><span class="special">);</span>
+</pre>
+<p>
+      </p>
+<p>
+        Get an iterator to the end of the line. Applicable to any iterator.
+      </p>
+<h5>
+<a name="spirit.support.line_pos_iterator.h4"></a>
         <span class="phrase"><a name="spirit.support.line_pos_iterator.get_current_line"></a></span><a class="link" href="line_pos_iterator.html#spirit.support.line_pos_iterator.get_current_line">get_current_line</a>
       </h5>
 <p>
@@ -112,7 +130,7 @@
         the current line. Applicable to any iterator.
       </p>
 <h5>
-<a name="spirit.support.line_pos_iterator.h4"></a>
+<a name="spirit.support.line_pos_iterator.h5"></a>
         <span class="phrase"><a name="spirit.support.line_pos_iterator.get_column"></a></span><a class="link" href="line_pos_iterator.html#spirit.support.line_pos_iterator.get_column">get_column</a>
       </h5>
 <p>
@@ -127,14 +145,11 @@
         Get the current column. Applicable to any iterator.
       </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2001-2011 Joel de Guzman, Hartmut Kaiser<p>
+<div class="copyright-footer">Copyright © 2001-2011 Joel de Guzman, Hartmut Kaiser<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="multi_pass.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../support.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="utree.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>

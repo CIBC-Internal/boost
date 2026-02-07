@@ -1,14 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2013 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -43,11 +42,7 @@
 #include <algorithms/overlay/overlay_cases.hpp>
 
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
-#  include <boost/geometry/multi/algorithms/correct.hpp>
-#  include <boost/geometry/multi/algorithms/within.hpp>
-#  include <boost/geometry/multi/algorithms/detail/extreme_points.hpp>
-#  include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#  include <boost/geometry/multi/io/wkt/wkt.hpp>
+#  include <boost/geometry/algorithms/detail/extreme_points.hpp>
 #endif
 
 
@@ -105,7 +100,7 @@ void test_geometry(std::string const& case_id, Geometry const& geometry, double 
 
         // Top (red/magenta)
         mapper.map(top_points, "stroke:rgb(255,0,0);stroke-width:2");
-        BOOST_FOREACH(intruder_type const& intruder, top_intruders)
+        for (intruder_type const& intruder : top_intruders)
         {
             mapper.map(intruder, "stroke:rgb(255,0,255);stroke-width:2");
         }
@@ -115,7 +110,7 @@ void test_geometry(std::string const& case_id, Geometry const& geometry, double 
         //// Right (blue/cyan)
         // (mostly commented, makes the picture less clear)
         //mapper.map(right_points, "stroke:rgb(0,0,255);stroke-width:2");
-        //BOOST_FOREACH(intruder_type const& intruder, right_intruders)
+        //for (intruder_type const& intruder : right_intruders)
         //{
         //    mapper.map(intruder, "stroke:rgb(0,255,255);stroke-width:2");
         //}
@@ -147,6 +142,11 @@ void test_point_order_and_type()
     test_geometry<cw_open_polygon>("with_hole_cw_open", "POLYGON((0 0,0 9,9 9,9 0),(2 2,7 2,7 7,2 7))", 0, 0);
     test_geometry<ccw_closed_polygon>("with_hole_ccw_closed", "POLYGON((0 0,9 0,9 9,0 9,0 0),(2 2,2 7,7 7,7 2,2 2))", 0, 0);
     test_geometry<cw_closed_polygon>("with_hole_cw_closed", "POLYGON((0 0,0 9,9 9,9 0,0 0),(2 2,7 2,7 7,2 7,2 2))", 0, 0);
+
+    test_geometry<cw_closed_polygon>("t1", "POLYGON((0 0,0 10,10 0,0 0))", 0, 0);
+    test_geometry<cw_closed_polygon>("t2", "POLYGON((0 0,10 0,0 -10,0 0))", 0, 0);
+    test_geometry<cw_closed_polygon>("t3", "POLYGON((0 0,0 -10,-10 0,0 0))", 0, 0);
+    test_geometry<cw_closed_polygon>("t4", "POLYGON((0 0,-10 0,0 10,0 0))", 0, 0);
 }
 
 template <typename Point>

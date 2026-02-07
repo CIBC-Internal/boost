@@ -120,13 +120,8 @@ public:
     {
     }
 
-#if BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x564) )
     template<class Y>
     explicit shared_ptr(Y * p): px(p), pn(p, boost::checked_deleter<Y>()) // Y must be complete
-#else
-    template<class Y>
-    explicit shared_ptr(Y * p): px(p), pn(p, boost::checked_deleter<Y>()) // Y must be complete
-#endif
     {
         detail::sp_enable_shared_from_this( pn, p, p );
     }
@@ -145,15 +140,13 @@ public:
 //  generated copy constructor, assignment, destructor are fine...
 
 //  except that Borland C++ has a bug, and g++ with -Wsynth warns
-#if defined(__BORLANDC__) || defined(__GNUC__)
-
+#if defined(__GNUC__)
     shared_ptr & operator=(shared_ptr const & r) // never throws
     {
         px = r.px;
         pn = r.pn; // shared_count::op= doesn't throw
         return *this;
     }
-
 #endif
 
     template<class Y>
@@ -258,7 +251,7 @@ public:
         BOOST_ASSERT(px != 0);
         return px;
     }
-    
+
     T * get() const // never throws
     {
         return px;
@@ -275,13 +268,13 @@ public:
 
 #elif defined(__MWERKS__) && BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003))
     typedef T * (this_type::*unspecified_bool_type)() const;
-    
+
     operator unspecified_bool_type() const // never throws
     {
         return px == 0? 0: &this_type::get;
     }
 
-#else 
+#else
 
     typedef T * this_type::*unspecified_bool_type;
 
@@ -443,7 +436,7 @@ template<class D, class T> D * get_deleter(shared_ptr< T > const & p)
 
 #ifdef BOOST_MSVC
 # pragma warning(pop)
-#endif    
+#endif
 
 #endif  // #if defined(BOOST_NO_MEMBER_TEMPLATES) && !defined(BOOST_MSVC6_MEMBER_TEMPLATES)
 

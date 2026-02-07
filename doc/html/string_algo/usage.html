@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Usage</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../string_algo.html" title="Chapter&#160;29.&#160;Boost String Algorithms Library">
+<link rel="up" href="../string_algo.html" title="Chapter 2. Boost String Algorithms Library">
 <link rel="prev" href="release_notes.html" title="Release Notes">
 <link rel="next" href="quickref.html" title="Quick Reference">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -26,18 +28,18 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="string_algo.usage"></a>Usage</h2></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="usage.html#idp424671488">First Example</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424694160">Case conversion</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424701520">Predicates and Classification</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424711840">Trimming</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424718864">Find algorithms</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424731952">Replace Algorithms</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424745488">Find Iterator</a></span></dt>
-<dt><span class="section"><a href="usage.html#idp424756880">Split</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.2">First Example</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.3">Case conversion</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.4">Predicates and Classification</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.5">Trimming</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.6">Find algorithms</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.7">Replace Algorithms</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.8">Find Iterator</a></span></dt>
+<dt><span class="section"><a href="usage.html#id-1.3.3.5.9">Split</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424671488"></a>First Example</h3></div></div></div>
+<a name="id-1.3.3.5.2"></a>First Example</h3></div></div></div>
 <p>
             Using the algorithms is straightforward. Let us have a look at the first example:
         </p>
@@ -97,19 +99,19 @@
                     copy and a mutable version of the same algorithm, the mutable version has no suffix 
                     and the copy version has the suffix <span class="emphasis"><em>_copy</em></span>. 
                     Some algorithms have the prefix <span class="emphasis"><em>i</em></span> 
-                    (e.g. <code class="computeroutput"><a class="link" href="../boost/algorithm/ifind_first.html" title="Function template ifind_first">ifind_first()</a></code>).
+                    (e.g. <code class="computeroutput"><a class="link" href="../doxygen/find_8hpp_1a12eb858264c4f0c606a87da962efdbde.html" title="Function template ifind_first">ifind_first()</a></code>).
                     This prefix identifies that the algorithm works in a case-insensitive manner.
                 </p></li>
 </ul></div>
 <p>
-            To use the library, include the <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string_hpp" title="Header &lt;boost/algorithm/string.hpp&gt;">boost/algorithm/string.hpp</a></code> header. 
+            To use the library, include the <code class="computeroutput"><a class="link" href="reference.html#doxygen.string_8hpp" title="Header &lt;boost/algorithm/string.hpp&gt;">boost/algorithm/string.hpp</a></code> header. 
             If the regex related functions are needed, include the 
-            <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string_regex_hpp" title="Header &lt;boost/algorithm/string_regex.hpp&gt;">boost/algorithm/string_regex.hpp</a></code> header.
+            <code class="computeroutput"><a class="link" href="reference.html#doxygen.string__regex_8hpp" title="Header &lt;boost/algorithm/string_regex.hpp&gt;">boost/algorithm/string_regex.hpp</a></code> header.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424694160"></a>Case conversion</h3></div></div></div>
+<a name="id-1.3.3.5.3"></a>Case conversion</h3></div></div></div>
 <p>
             STL has a nice way of converting character case. Unfortunately, it works only
             for a single character and we want to convert a string, 
@@ -119,16 +121,16 @@
     to_upper(str1); // str1=="HELLO WORLD!"
         </pre>
 <p>
-            <code class="computeroutput"><a class="link" href="../boost/algorithm/to_upper.html" title="Function template to_upper">to_upper()</a></code> and <code class="computeroutput"><a class="link" href="../boost/algorithm/to_lower.html" title="Function template to_lower">to_lower()</a></code> convert the case of 
+            <code class="computeroutput"><a class="link" href="../doxygen/case__conv_8hpp_1a6763566233c47511a755e2d2203f914d.html" title="Function template to_upper">to_upper()</a></code> and <code class="computeroutput"><a class="link" href="../doxygen/case__conv_8hpp_1a1a318a47f9b4482c28552a62d0297a27.html" title="Function template to_lower">to_lower()</a></code> convert the case of 
             characters in a string using a specified locale.
         </p>
 <p>
-            For more information see the reference for <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.case_conv_hpp" title="Header &lt;boost/algorithm/string/case_conv.hpp&gt;">boost/algorithm/string/case_conv.hpp</a></code>.
+            For more information see the reference for <code class="computeroutput"><a class="link" href="reference.html#doxygen.case__conv_8hpp" title="Header &lt;boost/algorithm/string/case_conv.hpp&gt;">boost/algorithm/string/case_conv.hpp</a></code>.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424701520"></a>Predicates and Classification</h3></div></div></div>
+<a name="id-1.3.3.5.4"></a>Predicates and Classification</h3></div></div></div>
 <p>
             A part of the library deals with string related predicates. Consider this example:
         </p>
@@ -161,7 +163,7 @@
             under various conditions. The conditions are: a string starts with the substring, 
             ends with the substring, 
             simply contains the substring or if both strings are equal. See the reference for 
-            <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.predicate_hpp" title="Header &lt;boost/algorithm/string/predicate.hpp&gt;">boost/algorithm/string/predicate.hpp</a></code> for more details. 
+            <code class="computeroutput"><a class="link" href="reference.html#doxygen.predicate_8hpp" title="Header &lt;boost/algorithm/string/predicate.hpp&gt;">boost/algorithm/string/predicate.hpp</a></code> for more details. 
         </p>
 <p>  
             Note that if we had used "hello world" as the input to the test, it would have
@@ -169,18 +171,18 @@
             input string is not a lower case letter.
         </p>
 <p>  
-            In addition the algorithm <code class="computeroutput"><a class="link" href="../boost/algorithm/all.html" title="Function template all">all()</a></code> checks
+            In addition the algorithm <code class="computeroutput"><a class="link" href="../doxygen/predicate_8hpp_1a02b634f662d43fcbc5fbe52fa29e1886.html" title="Function template all">all()</a></code> checks
             all elements of a container to satisfy a condition specified by a predicate. 
             This predicate can be any unary predicate, but the library provides a bunch of 
             useful string-related predicates and combinators ready for use.
-            These are located in the <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.classification_hpp" title="Header &lt;boost/algorithm/string/classification.hpp&gt;">boost/algorithm/string/classification.hpp</a></code> header.
+            These are located in the <code class="computeroutput"><a class="link" href="reference.html#doxygen.classification_8hpp" title="Header &lt;boost/algorithm/string/classification.hpp&gt;">boost/algorithm/string/classification.hpp</a></code> header.
             Classification predicates can be combined using logical combinators to form
             a more complex expressions. For example: <code class="computeroutput">is_from_range('a','z') || is_digit()</code>
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424711840"></a>Trimming</h3></div></div></div>
+<a name="id-1.3.3.5.5"></a>Trimming</h3></div></div></div>
 <p>
             When parsing the input from a user, strings often have unwanted leading or trailing 
             characters. To get rid of them, we need trim functions:
@@ -200,13 +202,13 @@
             And for those cases when there is a need to remove something else than blank space, there
             are <span class="emphasis"><em>_if</em></span> variants. Using these, a user can specify a functor which will 
             select the <span class="emphasis"><em>space</em></span> to be removed. It is possible to use classification 
-            predicates like <code class="computeroutput"><a class="link" href="../boost/algorithm/is_digit.html" title="Function is_digit">is_digit()</a></code> mentioned in the previous paragraph.
-            See the reference for the <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.trim_hpp" title="Header &lt;boost/algorithm/string/trim.hpp&gt;">boost/algorithm/string/trim.hpp</a></code>.
+            predicates like <code class="computeroutput"><a class="link" href="../doxygen/classification_8hpp_1ac34dbdf3b64bd3c43111c9feb30d32cb.html" title="Function is_digit">is_digit()</a></code> mentioned in the previous paragraph.
+            See the reference for the <code class="computeroutput"><a class="link" href="reference.html#doxygen.trim_8hpp" title="Header &lt;boost/algorithm/string/trim.hpp&gt;">boost/algorithm/string/trim.hpp</a></code>.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424718864"></a>Find algorithms</h3></div></div></div>
+<a name="id-1.3.3.5.6"></a>Find algorithms</h3></div></div></div>
 <p>
             The library contains a set of find algorithms. Here is an example:
         </p>
@@ -226,12 +228,12 @@
     }
         </pre>
 <p>
-            We have used <code class="computeroutput"><a class="link" href="../boost/algorithm/find_last.html" title="Function template find_last">find_last()</a></code> to search the <code class="computeroutput">text</code> for "ll".
+            We have used <code class="computeroutput"><a class="link" href="../doxygen/find_8hpp_1a2b8cac68a6cb6479f2dfc824d87c3a9b.html" title="Function template find_last">find_last()</a></code> to search the <code class="computeroutput">text</code> for "ll".
             The result is given in the <a href="../../../libs/range/doc/html/range/reference/utilities/iterator_range.html" target="_top"><code class="computeroutput">boost::iterator_range</code></a>. 
             This range delimits the
             part of the input which satisfies the find criteria. In our example it is the last occurrence of "ll".
             
-            As we can see, input of the <code class="computeroutput"><a class="link" href="../boost/algorithm/find_last.html" title="Function template find_last">find_last()</a></code> algorithm can be also 
+            As we can see, input of the <code class="computeroutput"><a class="link" href="../doxygen/find_8hpp_1a2b8cac68a6cb6479f2dfc824d87c3a9b.html" title="Function template find_last">find_last()</a></code> algorithm can be also 
             char[] because this type is supported by 
             <a href="../../../libs/range/index.html" target="_top">Boost.Range</a>.
 
@@ -241,12 +243,12 @@
             Also it is convertible to bool therefore it is easy to use find algorithms for a simple containment checking.
         </p>
 <p>
-            Find algorithms are located in <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.find_hpp" title="Header &lt;boost/algorithm/string/find.hpp&gt;">boost/algorithm/string/find.hpp</a></code>.
+            Find algorithms are located in <code class="computeroutput"><a class="link" href="reference.html#doxygen.find_8hpp" title="Header &lt;boost/algorithm/string/find.hpp&gt;">boost/algorithm/string/find.hpp</a></code>.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424731952"></a>Replace Algorithms</h3></div></div></div>
+<a name="id-1.3.3.5.7"></a>Replace Algorithms</h3></div></div></div>
 <p>
             Find algorithms can be used for searching for a specific part of string. Replace goes one step
             further. After a matching part is found, it is substituted with something else. The substitution is computed
@@ -263,7 +265,7 @@
             For the complete list of replace and erase functions see the 
             <a class="link" href="reference.html" title="Reference">reference</a>.
             There is a lot of predefined function for common usage, however, the library allows you to 
-            define a custom <code class="computeroutput">replace()</code> that suits a specific need. There is a generic <code class="computeroutput"><a class="link" href="../boost/algorithm/find_format.html" title="Function template find_format">find_format()</a></code> 
+            define a custom <code class="computeroutput">replace()</code> that suits a specific need. There is a generic <code class="computeroutput"><a class="link" href="../doxygen/find__format_8hpp_1af7c28074e6a21acae105753837d011b6.html" title="Function template find_format">find_format()</a></code> 
             function which takes two parameters.
             The first one is a <a class="link" href="concept.html#string_algo.finder_concept" title="Finder Concept">Finder</a> object, the second one is 
             a <a class="link" href="concept.html#string_algo.formatter_concept" title="Formatter concept">Formatter</a> object. 
@@ -272,15 +274,15 @@
             substitute for it. Replace algorithm puts these two together and makes the desired substitution. 
         </p>
 <p>
-            Check <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.replace_hpp" title="Header &lt;boost/algorithm/string/replace.hpp&gt;">boost/algorithm/string/replace.hpp</a></code>, <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.erase_hpp" title="Header &lt;boost/algorithm/string/erase.hpp&gt;">boost/algorithm/string/erase.hpp</a></code> and
-            <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.find_format_hpp" title="Header &lt;boost/algorithm/string/find_format.hpp&gt;">boost/algorithm/string/find_format.hpp</a></code> for reference.
+            Check <code class="computeroutput"><a class="link" href="reference.html#doxygen.replace_8hpp" title="Header &lt;boost/algorithm/string/replace.hpp&gt;">boost/algorithm/string/replace.hpp</a></code>, <code class="computeroutput"><a class="link" href="reference.html#doxygen.erase_8hpp" title="Header &lt;boost/algorithm/string/erase.hpp&gt;">boost/algorithm/string/erase.hpp</a></code> and
+            <code class="computeroutput"><a class="link" href="reference.html#doxygen.find__format_8hpp" title="Header &lt;boost/algorithm/string/find_format.hpp&gt;">boost/algorithm/string/find_format.hpp</a></code> for reference.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424745488"></a>Find Iterator</h3></div></div></div>
+<a name="id-1.3.3.5.8"></a>Find Iterator</h3></div></div></div>
 <p>
-            An extension to find algorithms it the Find Iterator. Instead of searching for just a one part of a string, 
+            An extension to find algorithms is the Find Iterator. Instead of searching for just a one part of a string, 
             the find iterator allows us to iterate over the substrings matching the specified criteria.
             This facility is using the <a class="link" href="concept.html#string_algo.finder_concept" title="Finder Concept">Finder</a> to incrementally
             search the string. 
@@ -288,8 +290,8 @@
             object, that delimits the current match.
         </p>
 <p>
-            There are two iterators provided <code class="computeroutput"><a class="link" href="../boost/algorithm/find_iterator.html" title="Class template find_iterator">find_iterator</a></code> and 
-            <code class="computeroutput"><a class="link" href="../boost/algorithm/split_iterator.html" title="Class template split_iterator">split_iterator</a></code>. The former iterates over substrings that are found using the specified
+            There are two iterators provided <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1algorithm_1_1find__iterator.html" title="Class template find_iterator">find_iterator</a></code> and 
+            <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1algorithm_1_1split__iterator.html" title="Class template split_iterator">split_iterator</a></code>. The former iterates over substrings that are found using the specified
             Finder. The latter iterates over the gaps between these substrings.
         </p>
 <pre class="programlisting">
@@ -331,12 +333,12 @@
             to construct a find iterator for a particular range.
         </p>
 <p>
-            See the reference in <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.find_iterator_hpp" title="Header &lt;boost/algorithm/string/find_iterator.hpp&gt;">boost/algorithm/string/find_iterator.hpp</a></code>.
+            See the reference in <code class="computeroutput"><a class="link" href="reference.html#doxygen.find__iterator_8hpp" title="Header &lt;boost/algorithm/string/find_iterator.hpp&gt;">boost/algorithm/string/find_iterator.hpp</a></code>.
         </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp424756880"></a>Split</h3></div></div></div>
+<a name="id-1.3.3.5.9"></a>Split</h3></div></div></div>
 <p>
             Split algorithms are an extension to the find iterator for one common usage scenario.
             These algorithms use a find iterator and store all matches into the provided
@@ -344,8 +346,8 @@
             references (e.g. <code class="computeroutput">iterator_range</code>) of the extracted substrings.
         </p>
 <p>
-            Two algorithms are provided. <code class="computeroutput"><a class="link" href="../boost/algorithm/find_all.html" title="Function template find_all">find_all()</a></code> finds all copies
-            of a string in the input. <code class="computeroutput"><a class="link" href="../boost/algorithm/split_idp192413584.html" title="Function template split">split()</a></code> splits the input into parts.
+            Two algorithms are provided. <code class="computeroutput"><a class="link" href="../doxygen/split_8hpp_1ac0d7acd87c9598620574a998e9e906a2.html" title="Function template find_all">find_all()</a></code> finds all copies
+            of a string in the input. <code class="computeroutput"><a class="link" href="../doxygen/split_8hpp_1a58d960629ea9e004c6adaa39c65f3f28.html" title="Function template split">split()</a></code> splits the input into parts.
         </p>
 <pre class="programlisting">
     string str1("hello abc-*-ABC-*-aBc goodbye");
@@ -365,27 +367,24 @@
         </p>
 <p>
             First example show how to construct a container to hold references to all extracted
-            substrings. Algorithm <code class="computeroutput"><a class="link" href="../boost/algorithm/ifind_all.html" title="Function template ifind_all">ifind_all()</a></code> puts into FindVec references
+            substrings. Algorithm <code class="computeroutput"><a class="link" href="../doxygen/split_8hpp_1a251024fe0d086b96b4c3c41724bd5ec2.html" title="Function template ifind_all">ifind_all()</a></code> puts into FindVec references
             to all substrings that are in case-insensitive manner equal to "abc".
         </p>
 <p>
-            Second example uses <code class="computeroutput"><a class="link" href="../boost/algorithm/split_idp192413584.html" title="Function template split">split()</a></code> to split string str1 into parts
+            Second example uses <code class="computeroutput"><a class="link" href="../doxygen/split_8hpp_1a58d960629ea9e004c6adaa39c65f3f28.html" title="Function template split">split()</a></code> to split string str1 into parts
             separated by characters '-' or '*'. These parts are then put into the SplitVec.
             It is possible to specify if adjacent separators are concatenated or not.
         </p>
 <p>
-            More information can be found in the reference: <code class="computeroutput"><a class="link" href="reference.html#header.boost.algorithm.string.split_hpp" title="Header &lt;boost/algorithm/string/split.hpp&gt;">boost/algorithm/string/split.hpp</a></code>.
+            More information can be found in the reference: <code class="computeroutput"><a class="link" href="reference.html#doxygen.split_8hpp" title="Header &lt;boost/algorithm/string/split.hpp&gt;">boost/algorithm/string/split.hpp</a></code>.
         </p>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2002-2004 Pavol Droba<p>Use, modification and distribution is subject to the Boost
+<div class="copyright-footer">Copyright © 2002-2004 Pavol Droba<p>Use, modification and distribution is subject to the Boost
                 Software License, Version 1.0. (See accompanying file
                 <code class="filename">LICENSE_1_0.txt</code> or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
             </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="release_notes.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../string_algo.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="quickref.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

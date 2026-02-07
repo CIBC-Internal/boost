@@ -12,27 +12,30 @@
 // Revisions:
 // 12 May 2008 (added more swap tests)
 //
+#ifndef BOOST_NO_IOSTREAM
 #include<iostream>
+#endif // BOOST_NO_IOSTREAM
 #include<stdexcept>
 #include<string>
 
 #define BOOST_ENABLE_ASSERT_HANDLER
 
+#include "boost/config.hpp"
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
 #include "boost/bind/apply.hpp" // Included just to test proper interaction with boost::apply<> as reported by Daniel Wallin
-#include "boost/mpl/bool.hpp"
-#include "boost/mpl/bool_fwd.hpp"  // For mpl::true_ and mpl::false_
+#endif
 
 #include "boost/optional/optional.hpp"
 
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 #pragma hdrstop
 #endif
 
 #include "boost/none.hpp"
 
-#include "boost/test/minimal.hpp"
+#include "boost/core/lightweight_test.hpp"
 
-#include "optional_test_common.cpp"
+#include "optional_test_common.hpp"
 
 void test_implicit_construction ( optional<double> opt, double v, double z )
 {
@@ -46,12 +49,12 @@ void test_implicit_construction ( optional<X> opt, X const& v, X const& z )
 
 void test_default_implicit_construction ( double, optional<double> opt )
 {
-  BOOST_CHECK(!opt);
+  BOOST_TEST(!opt);
 }
 
 void test_default_implicit_construction ( X const&, optional<X> opt )
 {
-  BOOST_CHECK(!opt);
+  BOOST_TEST(!opt);
 }
 
 //
@@ -75,7 +78,7 @@ void test_basics( T const* )
   check_uninitialized(def);
 
   // Implicit construction
-  // The first parameter is implicitely converted to optional<T>(a);
+  // The first parameter is implicitly converted to optional<T>(a);
   test_implicit_construction(a,a,z);
 
   // Direct initialization.
@@ -162,7 +165,7 @@ void test_basics( T const* )
 }
 
 template<class T>
-void test_conditional_ctor_and_get_valur_or ( T const* )
+void test_conditional_ctor_and_get_value_or ( T const* )
 {
   TRACE( std::endl << BOOST_CURRENT_FUNCTION  );
 
@@ -188,65 +191,65 @@ void test_conditional_ctor_and_get_valur_or ( T const* )
   check_value(o1,a,z);
 
   T b = def0.get_value_or(z);
-  BOOST_CHECK( b == z ) ;
+  BOOST_TEST( b == z ) ;
 
   b = get_optional_value_or(def0,z);
-  BOOST_CHECK( b == z ) ;
+  BOOST_TEST( b == z ) ;
 
   b = o0.get_value_or(z);
-  BOOST_CHECK( b == a ) ;
+  BOOST_TEST( b == a ) ;
 
   b = get_optional_value_or(o0,z);
-  BOOST_CHECK( b == a ) ;
+  BOOST_TEST( b == a ) ;
 
 
   T const& crz = z ;
   T&        rz = z ;
 
   T const& crzz = def0.get_value_or(crz);
-  BOOST_CHECK( crzz == crz ) ;
+  BOOST_TEST( crzz == crz ) ;
 
   T& rzz = def0.get_value_or(rz);
-  BOOST_CHECK( rzz == rz ) ;
+  BOOST_TEST( rzz == rz ) ;
 
   T const& crzzz = get_optional_value_or(cdef0,crz);
-  BOOST_CHECK( crzzz == crz ) ;
+  BOOST_TEST( crzzz == crz ) ;
 
   T& rzzz = get_optional_value_or(def0,rz);
-  BOOST_CHECK( rzzz == rz ) ;
+  BOOST_TEST( rzzz == rz ) ;
 
   T const& crb = o0.get_value_or(crz);
-  BOOST_CHECK( crb == a ) ;
+  BOOST_TEST( crb == a ) ;
 
   T& rb = o0.get_value_or(rz);
-  BOOST_CHECK( rb == b ) ;
+  BOOST_TEST( rb == b ) ;
 
   T const& crbb = get_optional_value_or(co0,crz);
-  BOOST_CHECK( crbb == b ) ;
+  BOOST_TEST( crbb == b ) ;
 
   T const& crbbb = get_optional_value_or(o0,crz);
-  BOOST_CHECK( crbbb == b ) ;
+  BOOST_TEST( crbbb == b ) ;
 
   T& rbb = get_optional_value_or(o0,rz);
-  BOOST_CHECK( rbb == b ) ;
+  BOOST_TEST( rbb == b ) ;
 
   T& ra = a ;
 
   optional<T&> defref(false,ra);
-  BOOST_CHECK(!defref);
+  BOOST_TEST(!defref);
 
   optional<T&> ref(true,ra);
-  BOOST_CHECK(!!ref);
+  BOOST_TEST(!!ref);
 
   a = T(432);
 
-  BOOST_CHECK( *ref == a ) ;
+  BOOST_TEST( *ref == a ) ;
 
   T& r1 = defref.get_value_or(z);
-  BOOST_CHECK( r1 == z ) ;
+  BOOST_TEST( r1 == z ) ;
 
   T& r2 = ref.get_value_or(z);
-  BOOST_CHECK( r2 == a ) ;
+  BOOST_TEST( r2 == a ) ;
 }
 
 //
@@ -262,18 +265,18 @@ void test_direct_value_manip( T const* )
   optional<T> const c_opt0(x) ;
   optional<T>         opt0(x);
 
-  BOOST_CHECK( c_opt0.get().V() == x.V() ) ;
-  BOOST_CHECK(   opt0.get().V() == x.V() ) ;
+  BOOST_TEST( c_opt0.get().V() == x.V() ) ;
+  BOOST_TEST(   opt0.get().V() == x.V() ) ;
 
-  BOOST_CHECK( c_opt0->V() == x.V() ) ;
-  BOOST_CHECK(   opt0->V() == x.V() ) ;
+  BOOST_TEST( c_opt0->V() == x.V() ) ;
+  BOOST_TEST(   opt0->V() == x.V() ) ;
 
-  BOOST_CHECK( (*c_opt0).V() == x.V() ) ;
-  BOOST_CHECK( (*  opt0).V() == x.V() ) ;
+  BOOST_TEST( (*c_opt0).V() == x.V() ) ;
+  BOOST_TEST( (*  opt0).V() == x.V() ) ;
 
   T y(4);
   opt0 = y ;
-  BOOST_CHECK( get(opt0).V() == y.V() ) ;
+  BOOST_TEST( get(opt0).V() == y.V() ) ;
 }
 
 //
@@ -295,7 +298,7 @@ void test_uninitialized_access( T const* )
     passed = true ;
   }
   catch (...) {}
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   passed = false ;
   try
@@ -306,7 +309,7 @@ void test_uninitialized_access( T const* )
     passed = true ;
   }
   catch (...) {}
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   passed = false ;
   try
@@ -318,7 +321,7 @@ void test_uninitialized_access( T const* )
     passed = true ;
   }
   catch (...) {}
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   passed = false ;
   try
@@ -329,7 +332,7 @@ void test_uninitialized_access( T const* )
     passed = true ;
   }
   catch (...) {}
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 }
 
 #if BOOST_WORKAROUND( BOOST_INTEL_CXX_VERSION, <= 700) // Intel C++ 7.0
@@ -374,7 +377,7 @@ void test_throwing_direct_init( T const* )
   }
   catch ( ... ){}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
   check_is_not_pending_copy( ARG(T) );
   check_instance_count(count, ARG(T) );
 
@@ -410,7 +413,7 @@ void test_throwing_val_assign_on_uninitialized( T const* )
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   check_is_not_pending_copy( ARG(T) );
   check_instance_count(count, ARG(T) );
@@ -448,15 +451,15 @@ void test_throwing_val_assign_on_initialized( T const* )
   {
     // This should:
     //   Attempt to assign 'a' and throw.
-    //   opt is kept initialized but its value not neccesarily fully assigned
-    //   (in this test, incompletely assigned is flaged with the value -1 being set)
+    //   opt is kept initialized but its value not necessarily fully assigned
+    //   (in this test, incompletely assigned is flagged with the value -1 being set)
     set_pending_assign( ARG(T) ) ;
     opt.reset ( a ) ;
     passed = true ;
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   check_is_not_pending_assign( ARG(T) );
   check_instance_count(count, ARG(T) );
@@ -495,7 +498,7 @@ void test_throwing_copy_initialization( T const* )
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   check_is_not_pending_copy( ARG(T) );
   check_instance_count(count, ARG(T) );
@@ -538,7 +541,7 @@ void test_throwing_assign_to_uninitialized( T const* )
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   check_is_not_pending_copy( ARG(T) );
   check_instance_count(count, ARG(T) );
@@ -573,15 +576,15 @@ void test_throwing_assign_to_initialized( T const* )
   {
     // This should:
     //   Attempt to copy construct 'opt1.value()' into opt0 and throw.
-    //   opt0 is kept initialized but its value not neccesarily fully assigned
-    //   (in this test, incompletely assigned is flaged with the value -1 being set)
+    //   opt0 is kept initialized but its value not necessarily fully assigned
+    //   (in this test, incompletely assigned is flagged with the value -1 being set)
     set_pending_assign( ARG(T) ) ;
     opt0 = opt1 ;
     passed = true ;
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   // opt0 was left uninitialized
   check_is_not_pending_assign( ARG(T) );
@@ -661,7 +664,7 @@ void test_throwing_swap( T const* )
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   // optional's swap doesn't affect the initialized states of the arguments. Therefore,
   // the following must hold:
@@ -685,14 +688,14 @@ void test_throwing_swap( T const* )
   try
   {
     // This should attempt to swap optionals and fail at opt0.reset(*opt1)
-    // Both opt0 and op1 are left unchanged (unswaped)
+    // Both opt0 and op1 are left unchanged (unswapped)
     swap(opt0,opt1);
 
     passed = true ;
   }
   catch ( ... ) {}
 
-  BOOST_CHECK(!passed);
+  BOOST_TEST(!passed);
 
   check_uninitialized(opt0);
   check_initialized(opt1);
@@ -720,69 +723,69 @@ void test_relops( T const* )
   optional<T> opt2(v2);
 
   // Check identity
-  BOOST_CHECK ( def0 == def0 ) ;
-  BOOST_CHECK ( opt0 == opt0 ) ;
-  BOOST_CHECK ( !(def0 != def0) ) ;
-  BOOST_CHECK ( !(opt0 != opt0) ) ;
+  BOOST_TEST ( def0 == def0 ) ;
+  BOOST_TEST ( opt0 == opt0 ) ;
+  BOOST_TEST ( !(def0 != def0) ) ;
+  BOOST_TEST ( !(opt0 != opt0) ) ;
 
-  // Check when both are uininitalized.
-  BOOST_CHECK (   def0 == def1  ) ; // both uninitialized compare equal
-  BOOST_CHECK ( !(def0 <  def1) ) ; // uninitialized is never less    than uninitialized
-  BOOST_CHECK ( !(def0 >  def1) ) ; // uninitialized is never greater than uninitialized
-  BOOST_CHECK ( !(def0 != def1) ) ;
-  BOOST_CHECK (   def0 <= def1  ) ;
-  BOOST_CHECK (   def0 >= def1  ) ;
+  // Check when both are uninitialized.
+  BOOST_TEST (   def0 == def1  ) ; // both uninitialized compare equal
+  BOOST_TEST ( !(def0 <  def1) ) ; // uninitialized is never less    than uninitialized
+  BOOST_TEST ( !(def0 >  def1) ) ; // uninitialized is never greater than uninitialized
+  BOOST_TEST ( !(def0 != def1) ) ;
+  BOOST_TEST (   def0 <= def1  ) ;
+  BOOST_TEST (   def0 >= def1  ) ;
 
   // Check when only lhs is uninitialized.
-  BOOST_CHECK (   def0 != opt0  ) ; // uninitialized is never equal to initialized
-  BOOST_CHECK ( !(def0 == opt0) ) ;
-  BOOST_CHECK (   def0 <  opt0  ) ; // uninitialized is always less than initialized
-  BOOST_CHECK ( !(def0 >  opt0) ) ;
-  BOOST_CHECK (   def0 <= opt0  ) ;
-  BOOST_CHECK ( !(def0 >= opt0) ) ;
+  BOOST_TEST (   def0 != opt0  ) ; // uninitialized is never equal to initialized
+  BOOST_TEST ( !(def0 == opt0) ) ;
+  BOOST_TEST (   def0 <  opt0  ) ; // uninitialized is always less than initialized
+  BOOST_TEST ( !(def0 >  opt0) ) ;
+  BOOST_TEST (   def0 <= opt0  ) ;
+  BOOST_TEST ( !(def0 >= opt0) ) ;
 
   // Check when only rhs is uninitialized.
-  BOOST_CHECK (   opt0 != def0  ) ; // initialized is never equal to uninitialized
-  BOOST_CHECK ( !(opt0 == def0) ) ;
-  BOOST_CHECK ( !(opt0 <  def0) ) ; // initialized is never less than uninitialized
-  BOOST_CHECK (   opt0 >  def0  ) ;
-  BOOST_CHECK ( !(opt0 <= def0) ) ;
-  BOOST_CHECK (   opt0 >= opt0  ) ;
+  BOOST_TEST (   opt0 != def0  ) ; // initialized is never equal to uninitialized
+  BOOST_TEST ( !(opt0 == def0) ) ;
+  BOOST_TEST ( !(opt0 <  def0) ) ; // initialized is never less than uninitialized
+  BOOST_TEST (   opt0 >  def0  ) ;
+  BOOST_TEST ( !(opt0 <= def0) ) ;
+  BOOST_TEST (   opt0 >= opt0  ) ;
 
   // If both are initialized, values are compared
-  BOOST_CHECK ( opt0 != opt1 ) ;
-  BOOST_CHECK ( opt1 == opt2 ) ;
-  BOOST_CHECK ( opt0 <  opt1 ) ;
-  BOOST_CHECK ( opt1 >  opt0 ) ;
-  BOOST_CHECK ( opt1 <= opt2 ) ;
-  BOOST_CHECK ( opt1 >= opt0 ) ;
+  BOOST_TEST ( opt0 != opt1 ) ;
+  BOOST_TEST ( opt1 == opt2 ) ;
+  BOOST_TEST ( opt0 <  opt1 ) ;
+  BOOST_TEST ( opt1 >  opt0 ) ;
+  BOOST_TEST ( opt1 <= opt2 ) ;
+  BOOST_TEST ( opt1 >= opt0 ) ;
 
   // Compare against a value directly
-  BOOST_CHECK ( opt0 == v0 ) ;
-  BOOST_CHECK ( opt0 != v1 ) ;
-  BOOST_CHECK ( opt1 == v2 ) ;
-  BOOST_CHECK ( opt0 <  v1 ) ;
-  BOOST_CHECK ( opt1 >  v0 ) ;
-  BOOST_CHECK ( opt1 <= v2 ) ;
-  BOOST_CHECK ( opt1 >= v0 ) ;
-  BOOST_CHECK ( v0 != opt1 ) ;
-  BOOST_CHECK ( v1 == opt2 ) ;
-  BOOST_CHECK ( v0 <  opt1 ) ;
-  BOOST_CHECK ( v1 >  opt0 ) ;
-  BOOST_CHECK ( v1 <= opt2 ) ;
-  BOOST_CHECK ( v1 >= opt0 ) ;
-  BOOST_CHECK (   def0 != v0  ) ;
-  BOOST_CHECK ( !(def0 == v0) ) ;
-  BOOST_CHECK (   def0 <  v0  ) ;
-  BOOST_CHECK ( !(def0 >  v0) ) ;
-  BOOST_CHECK (   def0 <= v0  ) ;
-  BOOST_CHECK ( !(def0 >= v0) ) ;
-  BOOST_CHECK (   v0 != def0  ) ;
-  BOOST_CHECK ( !(v0 == def0) ) ;
-  BOOST_CHECK ( !(v0 <  def0) ) ;
-  BOOST_CHECK (   v0 >  def0  ) ;
-  BOOST_CHECK ( !(v0 <= def0) ) ;
-  BOOST_CHECK (   v0 >= opt0  ) ;
+  BOOST_TEST ( opt0 == v0 ) ;
+  BOOST_TEST ( opt0 != v1 ) ;
+  BOOST_TEST ( opt1 == v2 ) ;
+  BOOST_TEST ( opt0 <  v1 ) ;
+  BOOST_TEST ( opt1 >  v0 ) ;
+  BOOST_TEST ( opt1 <= v2 ) ;
+  BOOST_TEST ( opt1 >= v0 ) ;
+  BOOST_TEST ( v0 != opt1 ) ;
+  BOOST_TEST ( v1 == opt2 ) ;
+  BOOST_TEST ( v0 <  opt1 ) ;
+  BOOST_TEST ( v1 >  opt0 ) ;
+  BOOST_TEST ( v1 <= opt2 ) ;
+  BOOST_TEST ( v1 >= opt0 ) ;
+  BOOST_TEST (   def0 != v0  ) ;
+  BOOST_TEST ( !(def0 == v0) ) ;
+  BOOST_TEST (   def0 <  v0  ) ;
+  BOOST_TEST ( !(def0 >  v0) ) ;
+  BOOST_TEST (   def0 <= v0  ) ;
+  BOOST_TEST ( !(def0 >= v0) ) ;
+  BOOST_TEST (   v0 != def0  ) ;
+  BOOST_TEST ( !(v0 == def0) ) ;
+  BOOST_TEST ( !(v0 <  def0) ) ;
+  BOOST_TEST (   v0 >  def0  ) ;
+  BOOST_TEST ( !(v0 <= def0) ) ;
+  BOOST_TEST (   v0 >= opt0  ) ;
 }
 
 template<class T>
@@ -796,16 +799,16 @@ void test_none( T const* )
   optional<T> def1(none) ;
   optional<T> non_def( T(1234) ) ;
 
-  BOOST_CHECK ( def0    == none ) ;
-  BOOST_CHECK ( non_def != none ) ;
-  BOOST_CHECK ( !def1           ) ;
-  BOOST_CHECK ( !(non_def <  none) ) ;
-  BOOST_CHECK (   non_def >  none  ) ;
-  BOOST_CHECK ( !(non_def <= none) ) ;
-  BOOST_CHECK (   non_def >= none  ) ;
+  BOOST_TEST ( def0    == none ) ;
+  BOOST_TEST ( non_def != none ) ;
+  BOOST_TEST ( !def1           ) ;
+  BOOST_TEST ( !(non_def <  none) ) ;
+  BOOST_TEST (   non_def >  none  ) ;
+  BOOST_TEST ( !(non_def <= none) ) ;
+  BOOST_TEST (   non_def >= none  ) ;
 
   non_def = none ;
-  BOOST_CHECK ( !non_def ) ;
+  BOOST_TEST ( !non_def ) ;
 
   test_default_implicit_construction(T(1),none);
 }
@@ -820,12 +823,12 @@ void test_arrow( T const* )
   optional<T>        oa(a) ;
   optional<T> const coa(a) ;
 
-  BOOST_CHECK ( coa->V() == 1234 ) ;
+  BOOST_TEST ( coa->V() == 1234 ) ;
 
   oa->V() = 4321 ;
 
-  BOOST_CHECK (     a.V() = 1234 ) ;
-  BOOST_CHECK ( (*oa).V() = 4321 ) ;
+  BOOST_TEST (     a.V() = 1234 ) ;
+  BOOST_TEST ( (*oa).V() = 4321 ) ;
 }
 
 void test_with_builtin_types()
@@ -833,7 +836,7 @@ void test_with_builtin_types()
   TRACE( std::endl << BOOST_CURRENT_FUNCTION   );
 
   test_basics( ARG(double) );
-  test_conditional_ctor_and_get_valur_or( ARG(double) );
+  test_conditional_ctor_and_get_value_or( ARG(double) );
   test_uninitialized_access( ARG(double) );
   test_no_throwing_swap( ARG(double) );
   test_relops( ARG(double) ) ;
@@ -847,6 +850,8 @@ struct VBase : virtual X
     VBase(int v) : X(v) {}
     // MSVC 8.0 doesn't generate this correctly...
     VBase(const VBase& other) : X(static_cast<const X&>(other)) {}
+
+    VBase& operator=(VBase const& rhs) { X::operator=(rhs); return *this; }
 };
 
 void test_with_class_type()
@@ -855,7 +860,7 @@ void test_with_class_type()
 
   test_basics( ARG(X) );
   test_basics( ARG(VBase) );
-  test_conditional_ctor_and_get_valur_or( ARG(X) );
+  test_conditional_ctor_and_get_value_or( ARG(X) );
   test_direct_value_manip( ARG(X) );
   test_uninitialized_access( ARG(X) );
   test_throwing_direct_init( ARG(X) );
@@ -869,7 +874,7 @@ void test_with_class_type()
   test_relops( ARG(X) ) ;
   test_none( ARG(X) ) ;
   test_arrow( ARG(X) ) ;
-  BOOST_CHECK ( X::count == 0 ) ;
+  BOOST_TEST ( X::count == 0 ) ;
 }
 
 int eat ( bool ) { return 1 ; }
@@ -888,7 +893,7 @@ void test_no_implicit_conversions_impl( T const& )
   TRACE( std::endl << BOOST_CURRENT_FUNCTION   );
 
   optional<T> def ;
-  BOOST_CHECK ( eat(def) == 0 ) ;
+  BOOST_TEST ( eat(def) == 0 ) ;
 }
 
 void test_no_implicit_conversions()
@@ -915,6 +920,7 @@ class CustomAddressOfClass
 public:
     CustomAddressOfClass() : n(0) {}
     CustomAddressOfClass(CustomAddressOfClass const& that) : n(that.n) {}
+    CustomAddressOfClass& operator=(CustomAddressOfClass const& rhs) { n = rhs.n; return *this; }
     explicit CustomAddressOfClass(int m) : n(m) {}
     int* operator& () { return &n; }
     bool operator== (CustomAddressOfClass const& that) const { return n == that.n; }
@@ -923,18 +929,18 @@ public:
 void test_custom_addressof_operator()
 {
     boost::optional< CustomAddressOfClass > o1(CustomAddressOfClass(10));
-    BOOST_CHECK(!!o1);
-    BOOST_CHECK(o1.get() == CustomAddressOfClass(10));
+    BOOST_TEST(!!o1);
+    BOOST_TEST(o1.get() == CustomAddressOfClass(10));
 
     o1 = CustomAddressOfClass(20);
-    BOOST_CHECK(!!o1);
-    BOOST_CHECK(o1.get() == CustomAddressOfClass(20));
+    BOOST_TEST(!!o1);
+    BOOST_TEST(o1.get() == CustomAddressOfClass(20));
 
     o1 = boost::none;
-    BOOST_CHECK(!o1);
+    BOOST_TEST(!o1);
 }
 
-int test_main( int, char* [] )
+int main()
 {
   try
   {
@@ -948,7 +954,5 @@ int test_main( int, char* [] )
     BOOST_ERROR("Unexpected Exception caught!");
   }
 
-  return 0;
+  return boost::report_errors();
 }
-
-

@@ -10,10 +10,10 @@
 # include <iostream>
 # include <iomanip>
 # include <limits>
+# include <type_traits>
 # include <cmath>
 
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_floating_point.hpp> 
+#include <boost/math/tools/assert.hpp>
 #include <boost/math/special_functions/next.hpp> // for float_distance
 
 //[numeric_derivative_example
@@ -44,7 +44,7 @@ at x = 3= 2. In other words,
 
 The expected result is
 
- 0:74535 59924 99929 89880 . (5)
+ 0:74535 59924 99929 89880 . (5)
 The program below uses the derivative template in order to perform
 the numerical calculation of this derivative. The program also compares the
 numerically-obtained result with the expected result and reports the absolute
@@ -53,7 +53,7 @@ bits of lost precision.
 
 */
 
-/*` [note Rquires the C++11 feature of
+/*` [note Requires the C++11 feature of
 [@http://en.wikipedia.org/wiki/Anonymous_function#C.2B.2B anonymous functions]
 for the derivative function calls like `[]( const double & x_) -> double`.
 */
@@ -74,7 +74,7 @@ value_type derivative (const value_type x, const value_type dx, function_type fu
     \return derivative at x.
   */
 
-  BOOST_STATIC_ASSERT_MSG(false == std::numeric_limits<value_type>::is_integer, "value_type must be a floating-point type!");
+  static_assert(false == std::numeric_limits<value_type>::is_integer, "value_type must be a floating-point type!");
 
   const value_type dx2(dx * 2U);
   const value_type dx3(dx * 3U);

@@ -1,13 +1,14 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>box_view</title>
 <link rel="stylesheet" href="../../../../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
-<link rel="home" href="../../../index.html" title="Chapter&#160;1.&#160;Geometry">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../../index.html" title="Chapter 1. Geometry">
 <link rel="up" href="../views.html" title="Views">
 <link rel="prev" href="../views.html" title="Views">
 <link rel="next" href="segment_view.html" title="segment_view">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,7 +28,7 @@
 <a name="geometry.reference.views.box_view"></a><a class="link" href="box_view.html" title="box_view">box_view</a>
 </h4></div></div></div>
 <p>
-          <a class="indexterm" name="idp134238928"></a>
+          <a class="indexterm" name="id102162"></a>
 Makes a box behave like a ring or a range.
         </p>
 <h6>
@@ -54,7 +55,6 @@ Makes a box behave like a ring or a range.
 </p>
 <pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Box</span><span class="special">,</span> <span class="keyword">bool</span> <span class="identifier">Clockwise</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">box_view</span>
-      <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">detail</span><span class="special">::</span><span class="identifier">points_view</span><span class="special">&lt;</span> <span class="identifier">geometry</span><span class="special">::</span><span class="identifier">point_type</span><span class="special">&lt;</span> <span class="identifier">Box</span> <span class="special">&gt;::</span><span class="identifier">type</span><span class="special">,</span> <span class="number">5</span> <span class="special">&gt;</span>
 <span class="special">{</span>
   <span class="comment">// ...</span>
 <span class="special">};</span>
@@ -155,7 +155,7 @@ Makes a box behave like a ring or a range.
 <td>
                   <p>
 </p>
-<pre xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="table-programlisting"><span class="identifier">box_view</span><span class="special">(</span><span class="identifier">Box</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">box</span><span class="special">)</span></pre>
+<pre class="table-programlisting"><span class="identifier">box_view</span><span class="special">(</span><span class="identifier">Box</span> <span class="keyword">const</span> <span class="special">&amp;</span> <span class="identifier">box</span><span class="special">)</span></pre>
 <p>
                   </p>
                 </td>
@@ -173,6 +173,72 @@ Makes a box behave like a ring or a range.
 </table></div>
 <h6>
 <a name="geometry.reference.views.box_view.h5"></a>
+          <span class="phrase"><a name="geometry.reference.views.box_view.member_function_s_"></a></span><a class="link" href="box_view.html#geometry.reference.views.box_view.member_function_s_">Member Function(s)</a>
+        </h6>
+<div class="informaltable"><table class="table">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                  <p>
+                    Function
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Description
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Parameters
+                  </p>
+                </th>
+<th>
+                  <p>
+                    Returns
+                  </p>
+                </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                  <p>
+</p>
+<pre class="table-programlisting"><span class="identifier">const_iterator</span> <span class="identifier">begin</span><span class="special">()</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+</p>
+<pre class="table-programlisting"><span class="identifier">const_iterator</span> <span class="identifier">end</span><span class="special">()</span></pre>
+<p>
+                  </p>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+<td>
+                </td>
+</tr>
+</tbody>
+</table></div>
+<h6>
+<a name="geometry.reference.views.box_view.h6"></a>
           <span class="phrase"><a name="geometry.reference.views.box_view.header"></a></span><a class="link" href="box_view.html#geometry.reference.views.box_view.header">Header</a>
         </h6>
 <p>
@@ -188,14 +254,14 @@ Makes a box behave like a ring or a range.
           <code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">geometry</span><span class="special">/</span><span class="identifier">views</span><span class="special">/</span><span class="identifier">box_view</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code>
         </p>
 <h6>
-<a name="geometry.reference.views.box_view.h6"></a>
+<a name="geometry.reference.views.box_view.h7"></a>
           <span class="phrase"><a name="geometry.reference.views.box_view.complexity"></a></span><a class="link" href="box_view.html#geometry.reference.views.box_view.complexity">Complexity</a>
         </h6>
 <p>
           Compile time
         </p>
 <h6>
-<a name="geometry.reference.views.box_view.h7"></a>
+<a name="geometry.reference.views.box_view.h8"></a>
           <span class="phrase"><a name="geometry.reference.views.box_view.example"></a></span><a class="link" href="box_view.html#geometry.reference.views.box_view.example">Example</a>
         </h6>
 <p>
@@ -210,13 +276,13 @@ Makes a box behave like a ring or a range.
 
 <span class="keyword">int</span> <span class="identifier">main</span><span class="special">()</span>
 <span class="special">{</span>
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span>
+    <span class="keyword">using</span> <span class="identifier">box_type</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">box</span>
         <span class="special">&lt;</span>
             <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">model</span><span class="special">::</span><span class="identifier">point</span><span class="special">&lt;</span><span class="keyword">double</span><span class="special">,</span> <span class="number">2</span><span class="special">,</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">cs</span><span class="special">::</span><span class="identifier">cartesian</span><span class="special">&gt;</span>
-        <span class="special">&gt;</span> <span class="identifier">box_type</span><span class="special">;</span>
+        <span class="special">&gt;;</span>
 
     <span class="comment">// Define the Boost.Range compatible type:</span>
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">box_view</span><span class="special">&lt;</span><span class="identifier">box_type</span><span class="special">&gt;</span> <span class="identifier">box_view</span><span class="special">;</span>
+    <span class="keyword">using</span> <span class="identifier">box_view</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">box_view</span><span class="special">&lt;</span><span class="identifier">box_type</span><span class="special">&gt;;</span>
 
     <span class="identifier">box_type</span> <span class="identifier">box</span><span class="special">;</span>
     <span class="identifier">boost</span><span class="special">::</span><span class="identifier">geometry</span><span class="special">::</span><span class="identifier">assign_values</span><span class="special">(</span><span class="identifier">box</span><span class="special">,</span> <span class="number">0</span><span class="special">,</span> <span class="number">0</span><span class="special">,</span> <span class="number">4</span><span class="special">,</span> <span class="number">4</span><span class="special">);</span>
@@ -246,15 +312,12 @@ Makes a box behave like a ring or a range.
 Area: 16
 </pre>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2009-2015 Barend Gehrels, Bruno Lalande,
-      Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates<p>
+<div class="copyright-footer">Copyright © 2009-2024 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam
+      Wulkiewicz, Oracle and/or its affiliates<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="../views.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../views.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="segment_view.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>

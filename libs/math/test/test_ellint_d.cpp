@@ -4,7 +4,15 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include <pch_light.hpp>
+#define BOOST_MATH_OVERFLOW_ERROR_POLICY ignore_error
+
+#ifndef SYCL_LANGUAGE_VERSION
+#include <pch_light.hpp> // include /libs/math/src/
+#else
+#include "sycl/sycl.hpp"
+#endif
+
+
 #include "test_ellint_d.hpp"
 
 //
@@ -94,7 +102,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
 }

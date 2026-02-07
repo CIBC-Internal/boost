@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -11,18 +12,16 @@
 #define BOOST_GEOMETRY_GEOMETRIES_POINTING_SEGMENT_HPP
 
 #include <cstddef>
+#include <type_traits>
 
-#include <boost/assert.hpp>
 #include <boost/concept/assert.hpp>
 #include <boost/core/addressof.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_const.hpp>
-
-#include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 
+#include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 namespace boost { namespace geometry
 {
@@ -42,11 +41,11 @@ template <typename ConstOrNonConstPoint>
 class pointing_segment
 {
     BOOST_CONCEPT_ASSERT( (
-        typename boost::mpl::if_
+        typename std::conditional
             <
-                boost::is_const<ConstOrNonConstPoint>,
-                concept::Point<ConstOrNonConstPoint>,
-                concept::ConstPoint<ConstOrNonConstPoint>
+                std::is_const<ConstOrNonConstPoint>::value,
+                concepts::Point<ConstOrNonConstPoint>,
+                concepts::ConstPoint<ConstOrNonConstPoint>
             >
     ) );
 
@@ -79,33 +78,30 @@ namespace traits
 template <typename Point>
 struct tag<model::pointing_segment<Point> >
 {
-    typedef segment_tag type;
+    using type = segment_tag;
 };
 
 template <typename Point>
 struct point_type<model::pointing_segment<Point> >
 {
-    typedef Point type;
+    using type = Point;
 };
 
 template <typename Point, std::size_t Dimension>
 struct indexed_access<model::pointing_segment<Point>, 0, Dimension>
 {
-    typedef model::pointing_segment<Point> segment_type;
-    typedef typename geometry::coordinate_type
-        <
-            segment_type
-        >::type coordinate_type;
+    using segment_type = model::pointing_segment<Point>;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static inline coordinate_type get(segment_type const& s)
     {
-        BOOST_ASSERT( s.first != NULL );
+        BOOST_GEOMETRY_ASSERT( s.first != NULL );
         return geometry::get<Dimension>(*s.first);
     }
 
     static inline void set(segment_type& s, coordinate_type const& value)
     {
-        BOOST_ASSERT( s.first != NULL );
+        BOOST_GEOMETRY_ASSERT( s.first != NULL );
         geometry::set<Dimension>(*s.first, value);
     }
 };
@@ -114,21 +110,18 @@ struct indexed_access<model::pointing_segment<Point>, 0, Dimension>
 template <typename Point, std::size_t Dimension>
 struct indexed_access<model::pointing_segment<Point>, 1, Dimension>
 {
-    typedef model::pointing_segment<Point> segment_type;
-    typedef typename geometry::coordinate_type
-        <
-            segment_type
-        >::type coordinate_type;
+    using segment_type = model::pointing_segment<Point>;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static inline coordinate_type get(segment_type const& s)
     {
-        BOOST_ASSERT( s.second != NULL );
+        BOOST_GEOMETRY_ASSERT( s.second != NULL );
         return geometry::get<Dimension>(*s.second);
     }
 
     static inline void set(segment_type& s, coordinate_type const& value)
     {
-        BOOST_ASSERT( s.second != NULL );
+        BOOST_GEOMETRY_ASSERT( s.second != NULL );
         geometry::set<Dimension>(*s.second, value);
     }
 };

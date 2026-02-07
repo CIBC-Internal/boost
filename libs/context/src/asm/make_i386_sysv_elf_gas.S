@@ -12,13 +12,26 @@
  *  ----------------------------------------------------------------------------------  *
  *  |   0x0   |   0x4   |   0x8   |   0xc   |   0x10   |   0x14  |   0x18  |   0x1c  |  *
  *  ----------------------------------------------------------------------------------  *
- *  | fc_mxcsr|fc_x87_cw|   EDI   |   ESI   |   EBX    |   EBP   |   EIP   |   EXIT  |  *
+ *  | fc_mxcsr|fc_x87_cw|  guard  |   EDI   |   ESI    |   EBX   |   EBP   |   EIP   |  *
+ *  ----------------------------------------------------------------------------------  *
+ *  ----------------------------------------------------------------------------------  *
+ *  |    8    |    9    |    10   |    11   |    12    |    13   |    14   |    15   |  *
+ *  ----------------------------------------------------------------------------------  *
+ *  |   0x20  |   0x24  |   0x28  |                                                  |  *
+ *  ----------------------------------------------------------------------------------  *
+ *  |  hidden |    to   |   data  |                                                  |  *
  *  ----------------------------------------------------------------------------------  *
  *                                                                                      *
  ****************************************************************************************/
 
+#ifdef __x86_64__
+#include "make_x86_64_sysv_elf_gas.S"
+#else
+
+.file "make_i386_sysv_elf_gas.S"
 .text
 .globl make_fcontext
+.hidden make_fcontext
 .align 2
 .type make_fcontext,@function
 make_fcontext:
@@ -26,44 +39,72 @@ make_fcontext:
     movl  0x4(%esp), %eax
 
     /* reserve space for first argument of context-function
-       rax might already point to a 16byte border */
+       eax might already point to a 16byte border */
     leal  -0x8(%eax), %eax
 
     /* shift address in EAX to lower 16 byte boundary */
     andl  $-16, %eax
 
-    /* reserve space for context-data on context-stack */
-    /* size for fc_mxcsr .. EIP + return-address for context-function */
-    /* on context-function entry: (ESP -0x4) % 8 == 0 */
-    leal  -0x20(%eax), %eax
+    /* reserve space for context-data on context-stack, and align the stack */
+    leal  -0x34(%eax), %eax
 
     /* third arg of make_fcontext() == address of context-function */
-    movl  0xc(%esp), %edx
-    movl  %edx, 0x18(%eax)
+    /* stored in EBX */
+    movl  0xc(%esp), %ecx
+    movl  %ecx, 0x14(%eax)
 
     /* save MMX control- and status-word */
-    stmxcsr  (%eax)
+    stmxcsr (%eax)
     /* save x87 control-word */
     fnstcw  0x4(%eax)
 
-    /* compute abs address of label finish */
+#if defined(BOOST_CONTEXT_TLS_STACK_PROTECTOR)
+    /* save stack guard */
+    movl  %gs:0x14, %ecx    /* read stack guard from TLS record */
+    movl  %ecx, 0x8(%eax)   /* save stack guard */
+#endif
+
+    /* return transport_t */
+    /* FCTX == EDI, DATA == ESI */
+    leal  0xc(%eax), %ecx
+    movl  %ecx, 0x20(%eax)
+
+    /* compute abs address of label trampoline */
     call  1f
-    /* address of label 1 */
+    /* address of trampoline 1 */
 1:  popl  %ecx
+    /* compute abs address of label trampoline */
+    addl  $trampoline-1b, %ecx
+    /* save address of trampoline as return address */
+    /* will be entered after calling jump_fcontext() first time */
+    movl  %ecx, 0x1c(%eax)
+
     /* compute abs address of label finish */
-    addl  $finish-1b, %ecx
+    call  2f
+    /* address of label 2 */
+2:  popl  %ecx
+    /* compute abs address of label finish */
+    addl  $finish-2b, %ecx
     /* save address of finish as return-address for context-function */
     /* will be entered after context-function returns */
-    movl  %ecx, 0x1c(%eax)
+    movl  %ecx, 0x18(%eax)
 
     ret /* return pointer to context-data */
 
+trampoline:
+    /* move transport_t for entering context-function */
+    movl  %edi, (%esp)
+    movl  %esi, 0x4(%esp)
+    pushl %ebp
+    /* jump to context-function */
+    jmp *%ebx
+
 finish:
-    call  2f
-    /* address of label 2 */
-2:  popl  %ebx
+    call  3f
+    /* address of label 3 */
+3:  popl  %ebx
     /* compute address of GOT and store it in EBX */
-    addl  $_GLOBAL_OFFSET_TABLE_+[.-2b], %ebx
+    addl  $_GLOBAL_OFFSET_TABLE_+[.-3b], %ebx
 
     /* exit code is zero */
     xorl  %eax, %eax
@@ -75,3 +116,5 @@ finish:
 
 /* Mark that we don't need executable stack.  */
 .section .note.GNU-stack,"",%progbits
+
+#endif

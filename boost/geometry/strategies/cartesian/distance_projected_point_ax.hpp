@@ -20,12 +20,13 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP
 
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("This include file is deprecated and will be removed in Boost 1.88")
 
 #include <algorithm>
 
 #include <boost/concept_check.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -169,7 +170,7 @@ public :
             <
                 calculation_type,
                 dimension<PointOfSegment>::value,
-                typename coordinate_system<PointOfSegment>::type
+                coordinate_system_t<PointOfSegment>
             > fp_point_type;
 
         // For convenience
@@ -196,7 +197,7 @@ public :
         subtract_point(w, projected);
 
         Strategy strategy;
-        boost::ignore_unused_variable_warning(strategy);
+        boost::ignore_unused(strategy);
 
         typename result_type<Point, PointOfSegment>::type result;
 
@@ -311,6 +312,5 @@ public :
 
 
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP

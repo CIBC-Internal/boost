@@ -17,6 +17,7 @@
  * http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
  */
 
+#include <boost/log/detail/config.hpp>
 #include <climits> // PATH_MAX
 #include <boost/log/attributes/current_process_name.hpp>
 #include <boost/filesystem/path.hpp>
@@ -27,9 +28,6 @@
 
 #if defined(BOOST_WINDOWS)
 
-#define WIN32_LEAN_AND_MEAN
-
-#include "windows_version.hpp"
 #include <windows.h>
 #include <boost/log/detail/header.hpp>
 
@@ -115,7 +113,7 @@ BOOST_LOG_CLOSE_NAMESPACE // namespace log
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#include <boost/lexical_cast.hpp>
+#include <string>
 #include <boost/filesystem/operations.hpp>
 #include <boost/log/detail/header.hpp>
 
@@ -139,7 +137,7 @@ BOOST_LOG_API std::string get_process_name()
     if (filesystem::exists("/proc/curproc/file"))
         return filesystem::read_symlink("/proc/curproc/file").filename().string();
 
-    return boost::lexical_cast< std::string >(getpid());
+    return std::to_string(getpid());
 }
 
 } // namespace aux
@@ -153,7 +151,7 @@ BOOST_LOG_CLOSE_NAMESPACE // namespace log
 #else
 
 #include <unistd.h>
-#include <boost/lexical_cast.hpp>
+#include <string>
 #include <boost/filesystem/operations.hpp>
 #include <boost/log/detail/header.hpp>
 
@@ -175,7 +173,7 @@ BOOST_LOG_API std::string get_process_name()
     if (filesystem::exists("/proc/curproc/exe"))
         return filesystem::read_symlink("/proc/curproc/exe").filename().string();
 
-    return boost::lexical_cast< std::string >(getpid());
+    return std::to_string(getpid());
 }
 
 } // namespace aux

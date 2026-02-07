@@ -14,9 +14,10 @@
 
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/collections_save_imp.hpp>
-#include <boost/serialization/collections_load_imp.hpp>
+#include <boost/serialization/detail/stack_constructor.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/utility.hpp>
+#include <boost/serialization/library_version_type.hpp>
 
 namespace boost { namespace property_tree
 {
@@ -41,11 +42,45 @@ namespace boost { namespace property_tree
     template<class Archive, class K, class D, class C>
     inline void save(Archive &ar,
                      const basic_ptree<K, D, C> &t,
-                     const unsigned int file_version)
+                     const unsigned int /*file_version*/)
     {
         using namespace boost::serialization;
         stl::save_collection<Archive, basic_ptree<K, D, C> >(ar, t);
         ar << make_nvp("data", t.data());
+    }
+
+    namespace detail
+    {
+        template <class Archive, class K, class D, class C>
+        inline void load_children(Archive &ar,
+                                  basic_ptree<K, D, C> &t)
+        {
+            namespace bsl = boost::serialization;
+
+            typedef basic_ptree<K, D, C> tree;
+            typedef typename tree::value_type value_type;
+    
+            bsl::collection_size_type count;
+            ar >> BOOST_SERIALIZATION_NVP(count);
+            bsl::item_version_type item_version(0);
+            const bsl::library_version_type library_version(
+                ar.get_library_version()
+            );
+            if(bsl::library_version_type(3) < library_version){
+                ar >> BOOST_SERIALIZATION_NVP(item_version);
+            }
+            // Can't use the serialization helper, it expects resize() to exist
+            // for default-constructible elements.
+            // This is a copy/paste of the fallback version.
+            t.clear();
+            while(count-- > 0){
+                bsl::detail::stack_construct<Archive, value_type>
+                    u(ar, item_version);
+                ar >> bsl::make_nvp("item", u.reference());
+                t.push_back(u.reference());
+                ar.reset_object_address(& t.back() , & u.reference());
+            }
+        }
     }
 
     /**
@@ -64,20 +99,12 @@ namespace boost { namespace property_tree
     template<class Archive, class K, class D, class C>
     inline void load(Archive &ar,
                      basic_ptree<K, D, C> &t,
-                     const unsigned int file_version)
+                     const unsigned int /*file_version*/)
     {
-        using namespace boost::serialization;
-        // Load children
-        stl::load_collection<Archive,
-                             basic_ptree<K, D, C>,
-                             stl::archive_input_seq<Archive,
-                                 basic_ptree<K, D, C> >,
-                             stl::no_reserve_imp<
-                                 basic_ptree<K, D, C> >
-                            >(ar, t);
+        namespace bsl = boost::serialization;
 
-        // Load data (must be after load_collection, as it calls clear())
-        ar >> make_nvp("data", t.data());
+        detail::load_children(ar, t);
+        ar >> bsl::make_nvp("data", t.data());
     }
 
     /**

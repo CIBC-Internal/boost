@@ -1,5 +1,5 @@
 /*
-            Copyright Edward Nevill 2015
+            Copyright Edward Nevill + Oliver Kowalke 2015
    Distributed under the Boost Software License, Version 1.0.
       (See accompanying file LICENSE_1_0.txt or copy at
           http://www.boost.org/LICENSE_1_0.txt)
@@ -51,10 +51,11 @@
  *                                                     *
  *******************************************************/
 
-.cpu    generic+fp+simd
+.file "make_arm64_aapcs_elf_gas.S"
 .text
 .align  2
 .global make_fcontext
+.hidden make_fcontext
 .type   make_fcontext, %function
 make_fcontext:
     # shift address in x0 (allocated stack) to lower 16 byte boundary

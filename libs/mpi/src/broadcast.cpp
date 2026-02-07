@@ -6,6 +6,7 @@
 
 // Message Passing Interface 1.1 -- Section 4.4. Broadcast
 
+#include <boost/mpi/config.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/skeleton_and_content.hpp>
 #include <boost/mpi/detail/point_to_point.hpp>
@@ -30,19 +31,14 @@ broadcast<const packed_oarchive>(const communicator& comm,
   int tag = environment::collectives_tag();
 
   // Broadcast data to all nodes
-  std::vector<MPI_Request> requests(size * 2);
-  int num_requests = 0;
+  std::vector<request> requests(size-1);
+  std::vector<request>::iterator it = requests.begin();
   for (int dest = 0; dest < size; ++dest) {
     if (dest != root) {
-      // Build up send requests for each child send.
-      num_requests += detail::packed_archive_isend(comm, dest, tag, oa,
-                                                   &requests[num_requests], 2);
+      *it++ = detail::packed_archive_isend(comm, dest, tag, oa);
     }
   }
-
-  // Complete all of the sends
-  BOOST_MPI_CHECK_RESULT(MPI_Waitall,
-                         (num_requests, &requests[0], MPI_STATUSES_IGNORE));
+  wait_all(requests.begin(), requests.end());
 }
 
 template<>
@@ -70,20 +66,14 @@ broadcast<packed_iarchive>(const communicator& comm, packed_iarchive& ia,
     detail::packed_archive_recv(comm, root, tag, ia, status);
   } else {
     // Broadcast data to all nodes
-    std::vector<MPI_Request> requests(size * 2);
-    int num_requests = 0;
+    std::vector<request> requests(size-1);
+    std::vector<request>::iterator it = requests.begin();
     for (int dest = 0; dest < size; ++dest) {
       if (dest != root) {
-        // Build up send requests for each child send.
-        num_requests += detail::packed_archive_isend(comm, dest, tag, ia,
-                                                     &requests[num_requests],
-                                                     2);
+        *it++ = detail::packed_archive_isend(comm, dest, tag, ia);
       }
     }
-
-    // Complete all of the sends
-    BOOST_MPI_CHECK_RESULT(MPI_Waitall,
-                           (num_requests, &requests[0], MPI_STATUSES_IGNORE));
+    wait_all(requests.begin(), requests.end());
   }
 }
 
@@ -122,7 +112,11 @@ template<>
 void broadcast<const content>(const communicator& comm, const content& c,
                               int root)
 {
-#ifdef LAM_MPI
+#if defined(BOOST_MPI_BCAST_BOTTOM_WORKS_FINE)
+  BOOST_MPI_CHECK_RESULT(MPI_Bcast,
+                         (MPI_BOTTOM, 1, c.get_mpi_datatype(),
+                          root, comm));
+#else
   if (comm.size() < 2)
     return;
 
@@ -142,10 +136,6 @@ void broadcast<const content>(const communicator& comm, const content& c,
                             root, environment::collectives_tag(),
                             comm, MPI_STATUS_IGNORE));
   }
-#else
-  BOOST_MPI_CHECK_RESULT(MPI_Bcast,
-                         (MPI_BOTTOM, 1, c.get_mpi_datatype(),
-                          root, comm));
 #endif
 }
 

@@ -16,16 +16,21 @@
 
 //#include <pch.hpp> // include directory libs/math/src/tr1/ is needed.
 
+#include <boost/math/tools/config.hpp>
+#include "../include_private/boost/math/tools/test.hpp"
+
+#ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
+#endif
+
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/inverse_gaussian.hpp>
 using boost::math::inverse_gaussian_distribution;
 using boost::math::inverse_gaussian;
 
-#include <boost/math/tools/test.hpp>
 #include "test_out_of_range.hpp"
 
 #include <iostream>
@@ -35,6 +40,8 @@ using std::endl;
 using std::setprecision;
 #include <limits>
 using std::numeric_limits;
+#include <cmath>
+using std::log;
 
 template <class RealType>
 void check_inverse_gaussian(RealType mean, RealType scale, RealType x, RealType p, RealType q, RealType tol)
@@ -90,13 +97,18 @@ void test_spots(RealType)
   cout << "Tolerance for type " << typeid(RealType).name()  << " is " << tolerance << endl;
 
   // Check some bad parameters to the distribution,
-  BOOST_CHECK_THROW(boost::math::inverse_gaussian_distribution<RealType> nbad1(0, 0), std::domain_error); // zero scale
-  BOOST_CHECK_THROW(boost::math::inverse_gaussian_distribution<RealType> nbad1(0, -1), std::domain_error); // negative scale
+#ifndef BOOST_NO_EXCEPTIONS
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_gaussian_distribution<RealType> nbad1(0, 0), std::domain_error); // zero scale
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_gaussian_distribution<RealType> nbad1(0, -1), std::domain_error); // negative scale
+#else
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_gaussian_distribution<RealType>(0, 0), std::domain_error); // zero scale
+  BOOST_MATH_CHECK_THROW(boost::math::inverse_gaussian_distribution<RealType>(0, -1), std::domain_error); // negative scale
+#endif
 
   inverse_gaussian_distribution<RealType> w11;
 
   // Error tests:
-  check_out_of_range<inverse_gaussian_distribution<RealType> >(0, 1);
+  check_out_of_range<inverse_gaussian_distribution<RealType> >(0.25, 1);
   
   // Check complements.
 
@@ -201,21 +213,29 @@ BOOST_AUTO_TEST_CASE( test_main )
   // formatC(SuppDists::dinverse_gaussian(1, 1, 1), digits=17) ...
   BOOST_CHECK_CLOSE_FRACTION( //  x = 1
     pdf(w11, 1.), static_cast<double>(0.3989422804014327), tolfeweps); // pdf
+  BOOST_CHECK_CLOSE_FRACTION( //  x = 1
+    logpdf(w11, 1.), static_cast<double>(log(0.3989422804014327)), tolfeweps); // logpdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 1.), static_cast<double>(0.66810200122317065), 10 * tolfeweps); // cdf
 
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w11, 0.1), static_cast<double>(0.21979480031862672), tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w11, 0.1), static_cast<double>(log(0.21979480031862672)), tolfeweps); // logpdf
+  BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 0.1), static_cast<double>(0.0040761113207110162), 10 * tolfeweps); // cdf
 
   BOOST_CHECK_CLOSE_FRACTION( // small x
     pdf(w11, 0.01), static_cast<double>(2.0811768202028392e-19), tolfeweps); // pdf
+  BOOST_CHECK_CLOSE_FRACTION( // small x
+    logpdf(w11, 0.01), static_cast<double>(log(2.0811768202028392e-19)), tolfeweps); // logpdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 0.01), static_cast<double>(4.122313403318778e-23), 10 * tolfeweps); // cdf
 
   BOOST_CHECK_CLOSE_FRACTION( // smaller x
     pdf(w11, 0.001), static_cast<double>(2.4420044378793562e-213),  tolfeweps); // pdf
+  BOOST_CHECK_CLOSE_FRACTION( // smaller x
+    logpdf(w11, 0.001), static_cast<double>(log(2.4420044378793562e-213)),  tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 0.001), static_cast<double>(4.8791443010851493e-219), 1000 * tolfeweps); // cdf
   // 4.8791443010859224e-219 versus 4.8791443010851493e-219 so still 14 decimal digits.
@@ -235,24 +255,34 @@ BOOST_AUTO_TEST_CASE( test_main )
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w11, 0.5), static_cast<double>(0.87878257893544476), tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w11, 0.5), static_cast<double>(log(0.87878257893544476)), tolfeweps); // logpdf
+  BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 0.5), static_cast<double>(0.3649755481729598), tolfeweps); // cdf
 
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w11, 2), static_cast<double>(0.10984782236693059), tolfeweps); // pdf
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w11, 2), static_cast<double>(log(0.10984782236693059)), tolfeweps); // logpdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 2), static_cast<double>(.88547542598600637), tolfeweps); // cdf
 
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w11, 10), static_cast<double>(0.00021979480031862676), tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w11, 10), static_cast<double>(log(0.00021979480031862676)), tolfeweps); // logpdf
+  BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 10), static_cast<double>(0.99964958546279115), tolfeweps); // cdf
 
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w11, 100), static_cast<double>(2.0811768202028246e-25), tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w11, 100), static_cast<double>(log(2.0811768202028246e-25)), tolfeweps); // logpdf
+  BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 100), static_cast<double>(1), tolfeweps); // cdf
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w11, 1000), static_cast<double>(2.4420044378793564e-222), 10 * tolfeweps); // pdf
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w11, 1000), static_cast<double>(log(2.4420044378793564e-222)), 10 * tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w11, 1000), static_cast<double>(1.), tolfeweps); // cdf
 
@@ -289,14 +319,21 @@ BOOST_AUTO_TEST_CASE( test_main )
   // ===================
   BOOST_CHECK_CLOSE_FRACTION( // formatC(SuppDists::dinvGauss(1, 2, 3), digits=17) "0.47490884963330904"
     pdf(w23, 1.), static_cast<double>(0.47490884963330904), tolfeweps ); // pdf
-
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w23, 1.), static_cast<double>(log(0.47490884963330904)), tolfeweps ); // logpdf
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w23, 0.1), static_cast<double>(2.8854207087665401e-05), tolfeweps * 2); // pdf
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w23, 0.1), static_cast<double>(log(2.8854207087665401e-05)), tolfeweps * 2); // logpdf
   //2.8854207087665452e-005 2.8854207087665401e-005
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w23, 10.), static_cast<double>(0.0019822751498574636), tolfeweps); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w23, 10.), static_cast<double>(log(0.0019822751498574636)), tolfeweps); // logpdf
+  BOOST_CHECK_CLOSE_FRACTION(
     pdf(w23, 10.), static_cast<double>(0.0019822751498574636), tolfeweps); // pdf
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w23, 10.), static_cast<double>(log(0.0019822751498574636)), tolfeweps); // logpdf
 
   // Bigger changes in mean and scale.
 
@@ -304,11 +341,15 @@ BOOST_AUTO_TEST_CASE( test_main )
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w012, 1.), static_cast<double>(3.7460367141230404e-36), tolfeweps ); // pdf
   BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w012, 1.), static_cast<double>(log(3.7460367141230404e-36)), tolfeweps ); // logpdf
+  BOOST_CHECK_CLOSE_FRACTION(
     cdf(w012, 1.), static_cast<double>(1), tolfeweps ); // pdf
 
   inverse_gaussian w0110(0.1, 10);
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w0110, 1.), static_cast<double>(1.6279643678071011e-176), 100 * tolfeweps ); // pdf
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w0110, 1.), static_cast<double>(log(1.6279643678071011e-176)), 100 * tolfeweps ); // logpdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w0110, 1.), static_cast<double>(1), tolfeweps ); // cdf
   BOOST_CHECK_CLOSE_FRACTION(
@@ -317,6 +358,8 @@ BOOST_AUTO_TEST_CASE( test_main )
 
   BOOST_CHECK_CLOSE_FRACTION(
     pdf(w0110, 0.1), static_cast<double>(39.894228040143268), tolfeweps ); // pdf
+  BOOST_CHECK_CLOSE_FRACTION(
+    logpdf(w0110, 0.1), static_cast<double>(log(39.894228040143268)), tolfeweps ); // logpdf
   BOOST_CHECK_CLOSE_FRACTION(
     cdf(w0110, 0.1), static_cast<double>(0.51989761564832704), 10 * tolfeweps ); // cdf
 
@@ -333,7 +376,7 @@ BOOST_AUTO_TEST_CASE( test_main )
   std::cout << "<note>The long double tests have been disabled on this platform "
     "either because the long double overloads of the usual math functions are "
     "not available at all, or because they are too inaccurate for these tests "
-    "to pass.</note>" << std::cout;
+    "to pass.</note>" << std::endl;
 #endif
   /*      */
   

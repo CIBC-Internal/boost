@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2002 - 2011.
-//  Copyright 2011 John Maddock. Distributed under the Boost
+//  Copyright Christopher Kormanyos 2002 - 2025.
+//  Copyright 2011 - 2025 John Maddock. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_
+//  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 //
 // This work is based on an earlier work:
 // "Algorithm 910: A Portable C++ Multiple-Precision System for Special-Function Calculations",
@@ -12,7 +12,7 @@
 #include "table_type.hpp"
 
 #include <boost/math/special_functions/math_fwd.hpp>
-#include "libs/math/test/test_binomial_coeff.hpp"
+#include "test_binomial_coeff.hpp"
 
 void expected_results()
 {
@@ -21,32 +21,53 @@ void expected_results()
    // various compilers and platforms.
    //
    add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
-      ".*",                          // platform
-      ".*gmp.*",                     // test type(s)
-      ".*",                          // test data group
-      ".*", 3000, 1500);             // test function
+       ".*",              // compiler
+       ".*",              // stdlib
+       ".*",              // platform
+       ".*gmp.*",         // test type(s)
+       ".*",              // test data group
+       ".*", 3000, 1500); // test function
    add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
-      ".*",                          // platform
-      ".*mpfr_float_backend<18>.*",  // test type(s)
-      ".*",                          // test data group
-      ".*", 750, 150);               // test function
+       ".*",                         // compiler
+       ".*",                         // stdlib
+       ".*",                         // platform
+       ".*mpfr_float_backend<18>.*", // test type(s)
+       ".*",                         // test data group
+       ".*", 750, 150);              // test function
    add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
-      ".*",                          // platform
-      ".*",                          // test type(s)
-      ".*",                          // test data group
-      ".*", 100, 20);                // test function
+       ".*",                        // compiler
+       ".*",                        // stdlib
+       ".*",                        // platform
+       ".*mpfr_float_backend<0>.*", // test type(s)
+       ".*",                        // test data group
+       ".*", 150, 100);             // test function
+   add_expected_result(
+       ".*",                        // compiler
+       ".*",                        // stdlib
+       ".*",                        // platform
+       ".*mpfr_float_backend.*", // test type(s)
+       ".*",                        // test data group
+       ".*", 150, 100);             // test function
+   add_expected_result(
+       ".*",                        // compiler
+       ".*",                        // stdlib
+       ".*",                        // platform
+       ".*cpp_double_double.*",     // test type(s)
+       ".*",                        // test data group
+       ".*", 180, 50);              // test function
+   add_expected_result(
+       ".*",           // compiler
+       ".*",           // stdlib
+       ".*",           // platform
+       ".*",           // test type(s)
+       ".*",           // test data group
+       ".*", 100, 20); // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.
    //
    std::cout << "Tests run with " << BOOST_COMPILER << ", "
-      << BOOST_STDLIB << ", " << BOOST_PLATFORM << std::endl;
+             << BOOST_STDLIB << ", " << BOOST_PLATFORM << std::endl;
 }
 
 template <class T>
@@ -55,7 +76,7 @@ void test(T t, const char* p)
    test_binomial(t, p);
 }
 
-BOOST_AUTO_TEST_CASE( test_main )
+BOOST_AUTO_TEST_CASE(test_main)
 {
    using namespace boost::multiprecision;
    expected_results();
@@ -67,7 +88,3 @@ BOOST_AUTO_TEST_CASE( test_main )
    //
    ALL_TESTS
 }
-
-
-
-

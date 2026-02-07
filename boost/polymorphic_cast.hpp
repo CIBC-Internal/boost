@@ -14,7 +14,7 @@
 //  08 Nov 14  Add polymorphic_pointer_downcast (Boris Rasin)
 //  09 Jun 14  "cast.hpp" was renamed to "polymorphic_cast.hpp" and
 //             inclusion of numeric_cast was removed (Antony Polukhin)
-//  23 Jun 05  numeric_cast removed and redirected to the new verion (Fernando Cacciola)
+//  23 Jun 05  numeric_cast removed and redirected to the new version (Fernando Cacciola)
 //  02 Apr 01  Removed BOOST_NO_LIMITS workarounds and included
 //             <boost/limits.hpp> instead (the workaround did not
 //             actually compile when BOOST_NO_LIMITS was defined in
@@ -31,7 +31,7 @@
 //  19 Oct 00  Fix numeric_cast for floating-point types (Dave Abrahams)
 //  15 Jul 00  Suppress numeric_cast warnings for GCC, Borland and MSVC
 //             (Dave Abrahams)
-//  30 Jun 00  More MSVC6 wordarounds.  See comments below.  (Dave Abrahams)
+//  30 Jun 00  More MSVC6 workarounds.  See comments below.  (Dave Abrahams)
 //  28 Jun 00  Removed implicit_cast<>.  See comment below. (Beman Dawes)
 //  27 Jun 00  More MSVC6 workarounds
 //  15 Jun 00  Add workarounds for MSVC6
@@ -49,13 +49,23 @@
 #ifndef BOOST_POLYMORPHIC_CAST_HPP
 #define BOOST_POLYMORPHIC_CAST_HPP
 
-# include <boost/config.hpp>
-# include <boost/assert.hpp>
-# include <boost/throw_exception.hpp>
-# include <typeinfo>
+#include <boost/config.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #   pragma once
+#endif
+
+# include <boost/assert.hpp>
+# include <boost/throw_exception.hpp>
+
+# include <memory>  // std::addressof
+# include <typeinfo>
+# include <type_traits>
+
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
+#define BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST constexpr
+#else
+#define BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST inline
 #endif
 
 namespace boost
@@ -70,7 +80,7 @@ namespace boost
     //  section 15.8 exercise 1, page 425.
 
     template <class Target, class Source>
-    inline Target polymorphic_cast(Source* x)
+    BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST Target polymorphic_cast(Source* x)
     {
         Target tmp = dynamic_cast<Target>(x);
         if ( tmp == 0 ) boost::throw_exception( std::bad_cast() );
@@ -79,7 +89,7 @@ namespace boost
 
 //  polymorphic_downcast  ----------------------------------------------------//
 
-    //  BOOST_ASSERT() checked polymorphic downcast.  Crosscasts prohibited.
+    //  BOOST_ASSERT() checked raw pointer polymorphic downcast.  Crosscasts prohibited.
 
     //  WARNING: Because this cast uses BOOST_ASSERT(), it violates
     //  the One Definition Rule if used in multiple translation units
@@ -89,12 +99,34 @@ namespace boost
     //  Contributed by Dave Abrahams
 
     template <class Target, class Source>
-    inline Target polymorphic_downcast(Source* x)
+    BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST Target polymorphic_downcast(Source* x)
     {
         BOOST_ASSERT( dynamic_cast<Target>(x) == x );  // detect logic error
         return static_cast<Target>(x);
     }
 
+    //  BOOST_ASSERT() checked reference polymorphic downcast.  Crosscasts prohibited.
+
+    //  WARNING: Because this cast uses BOOST_ASSERT(), it violates
+    //  the One Definition Rule if used in multiple translation units
+    //  where BOOST_DISABLE_ASSERTS, BOOST_ENABLE_ASSERT_HANDLER
+    //  NDEBUG are defined inconsistently.
+
+    //  Contributed by Julien Delacroix
+
+    template <class Target, class Source>
+    BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST typename std::enable_if<
+        std::is_reference<Target>::value, Target
+    >::type polymorphic_downcast(Source& x)
+    {
+        using target_pointer_type = typename std::remove_reference<Target>::type*;
+        return *boost::polymorphic_downcast<target_pointer_type>(
+            std::addressof(x)
+        );
+    }
+
 } // namespace boost
+
+#undef BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST
 
 #endif  // BOOST_POLYMORPHIC_CAST_HPP

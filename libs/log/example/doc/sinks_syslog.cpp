@@ -5,6 +5,11 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#include <boost/config.hpp>
+#if !defined(BOOST_WINDOWS)
+#define BOOST_LOG_USE_NATIVE_SYSLOG
+#endif
+
 #include <string>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/smart_ptr/make_shared_object.hpp>
@@ -49,7 +54,7 @@ void init_native_syslog()
 //->
 
 //<-
-#if !defined(BOOST_LOG_NO_ASIO)
+#if !defined(BOOST_LOG_WITHOUT_ASIO)
 //->
 void init_builtin_syslog()
 {
@@ -84,7 +89,7 @@ int main(int, char*[])
 {
 #if defined(BOOST_LOG_USE_NATIVE_SYSLOG)
     init_native_syslog();
-#elif !defined(BOOST_LOG_NO_ASIO)
+#elif !defined(BOOST_LOG_WITHOUT_ASIO)
     init_builtin_syslog();
 #endif
 

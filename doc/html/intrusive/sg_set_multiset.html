@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Intrusive scapegoat tree based associative containers: sg_set, sg_multiset and sgtree</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../intrusive.html" title="Chapter&#160;15.&#160;Boost.Intrusive">
+<link rel="up" href="../intrusive.html" title="Chapter 16. Boost.Intrusive">
 <link rel="prev" href="splay_set_multiset.html" title="Intrusive splay tree based associative containers: splay_set, splay_multiset and , splay_tree">
 <link rel="next" href="treap_set_multiset.html" title="Intrusive treap based associative containers: treap_set, treap_multiset and treap">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -91,17 +93,17 @@
 </ul></div>
 <p>
       <span class="bold"><strong>Boost.Intrusive</strong></span> offers 3 containers based
-      on scapegoat trees: <code class="computeroutput"><a class="link" href="../boost/intrusive/sg_set.html" title="Class template sg_set">sg_set</a></code>,
-      <code class="computeroutput"><a class="link" href="../boost/intrusive/sg_multiset.html" title="Class template sg_multiset">sg_multiset</a></code> and
-      <code class="computeroutput"><a class="link" href="../boost/intrusive/sgtree.html" title="Class template sgtree">sgtree</a></code>. The first two
-      are similar to <code class="computeroutput"><a class="link" href="../boost/intrusive/set.html" title="Class template set">set</a></code> or <code class="computeroutput"><a class="link" href="../boost/intrusive/multiset.html" title="Class template multiset">multiset</a></code> and the latter is a generalization
+      on scapegoat trees: <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sg__set.html" title="Class template sg_set">sg_set</a></code>,
+      <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sg__multiset.html" title="Class template sg_multiset">sg_multiset</a></code> and
+      <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sgtree.html" title="Class template sgtree">sgtree</a></code>. The first two
+      are similar to <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1set.html" title="Class template set">set</a></code> or <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1multiset.html" title="Class template multiset">multiset</a></code> and the latter is a generalization
       that offers functions both to insert unique and multiple keys.
     </p>
 <p>
       The memory overhead of these containers with Boost.Intrusive hooks is 3 pointers.
     </p>
 <p>
-      An empty, <code class="computeroutput"><a class="link" href="../boost/intrusive/sg_set.html" title="Class template sg_set">sg_set</a></code>, <code class="computeroutput"><a class="link" href="../boost/intrusive/sg_multiset.html" title="Class template sg_multiset">sg_multiset</a></code> or <code class="computeroutput"><a class="link" href="../boost/intrusive/sgtree.html" title="Class template sgtree">sgtree</a></code>
+      An empty, <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sg__set.html" title="Class template sg_set">sg_set</a></code>, <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sg__multiset.html" title="Class template sg_multiset">sg_multiset</a></code> or <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sgtree.html" title="Class template sgtree">sgtree</a></code>
       has also the size of 3 pointers, two integers and two floating point values
       (equivalent to the size of 7 pointers on most systems).
     </p>
@@ -137,7 +139,8 @@
             with custom ValueTraits</a>.)
           </li>
 <li class="listitem">
-            <span class="bold"><strong><code class="computeroutput"><span class="identifier">size_type</span><span class="special">&lt;</span><span class="keyword">bool</span> <span class="identifier">Enabled</span><span class="special">&gt;</span></code></strong></span>:
+            <span class="bold"><strong><code class="computeroutput"><span class="identifier">size_type</span><span class="special">&lt;</span><span class="keyword">typename</span>
+            <span class="identifier">SizeType</span><span class="special">&gt;</span></code></strong></span>:
             To specify the type that will be used to store the size of the container.
             Default: <code class="computeroutput"><span class="identifier">size_type</span><span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span><span class="special">&gt;</span></code>
           </li>
@@ -150,7 +153,8 @@
             <span class="bold"><strong><code class="computeroutput"><span class="identifier">compare</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">Compare</span><span class="special">&gt;</span></code></strong></span>:
             Comparison function for the objects to be inserted in containers. The
             comparison functor must induce a strict weak ordering. Default: <code class="computeroutput"><span class="identifier">compare</span><span class="special">&lt;</span>
-            <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;</span> <span class="special">&gt;</span></code>
+            <span class="identifier">std</span><span class="special">::</span><span class="identifier">less</span><span class="special">&lt;</span><span class="identifier">key_type</span><span class="special">&gt;</span>
+            <span class="special">&gt;</span></code>
           </li>
 <li class="listitem">
             <span class="bold"><strong><code class="computeroutput"><span class="identifier">floating_point</span><span class="special">&lt;</span><span class="keyword">bool</span> <span class="identifier">Enable</span><span class="special">&gt;</span></code></strong></span>:
@@ -161,6 +165,15 @@
             used when this option is activated is <span class="emphasis"><em>1/sqrt(2) ~ 0,70711</em></span>.
             Default: <code class="computeroutput"><span class="identifier">floating_point</span><span class="special">&lt;</span><span class="keyword">true</span><span class="special">&gt;</span></code>
           </li>
+<li class="listitem">
+            <span class="bold"><strong><code class="computeroutput"><span class="identifier">key_of_value</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">KeyOfValueFunctionObject</span><span class="special">&gt;</span></code></strong></span>:
+            A function object that will define the <code class="computeroutput"><span class="identifier">key_type</span></code>
+            of the value type to be stored. This type will allow a map-like interface.
+            See <a class="link" href="map_multimap.html" title="Map and multimap-like interface for associative containers">Map and multimap-like interface
+            with set and multiset</a> for details. Default: <code class="computeroutput"><span class="identifier">key_type</span></code>
+            is equal to <code class="computeroutput"><span class="identifier">value_type</span></code>
+            (set-like interface).
+          </li>
 </ul></div>
 </div>
 <div class="section">
@@ -168,11 +181,9 @@
 <a name="intrusive.sg_set_multiset.sg_set_multiset_example"></a><a class="link" href="sg_set_multiset.html#intrusive.sg_set_multiset.sg_set_multiset_example" title="Example">Example</a>
 </h3></div></div></div>
 <p>
-        Now let's see a small example using binary search tree hooks and <code class="computeroutput"><a class="link" href="../boost/intrusive/sg_set.html" title="Class template sg_set">sg_set</a></code>/ <code class="computeroutput"><a class="link" href="../boost/intrusive/sg_multiset.html" title="Class template sg_multiset">sg_multiset</a></code>
+        Now let's see a small example using binary search tree hooks and <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sg__set.html" title="Class template sg_set">sg_set</a></code>/ <code class="computeroutput"><a class="link" href="../doxygen/classboost_1_1intrusive_1_1sg__multiset.html" title="Class template sg_multiset">sg_multiset</a></code>
         containers:
       </p>
-<p>
-</p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">intrusive</span><span class="special">/</span><span class="identifier">sg_set</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">vector</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">functional</span><span class="special">&gt;</span>
@@ -245,18 +256,13 @@
    <span class="keyword">return</span> <span class="number">0</span><span class="special">;</span>
 <span class="special">}</span>
 </pre>
-<p>
-      </p>
 </div>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2005 Olaf Krzikalla<br>Copyright &#169; 2006-2013 Ion Gaztanaga<p>
+<div class="copyright-footer">Copyright © 2005 Olaf Krzikalla<br>Copyright © 2006-2015 Ion Gaztanaga<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="splay_set_multiset.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../intrusive.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="treap_set_multiset.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

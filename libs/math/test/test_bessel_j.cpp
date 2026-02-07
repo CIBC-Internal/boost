@@ -3,7 +3,21 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef SYCL_LANGUAGE_VERSION
 #include <pch_light.hpp>
+#else
+#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
+#include "sycl/sycl.hpp"
+#include <boost/math/tools/config.hpp>
+#endif
+
+#ifdef __clang__
+#  pragma clang diagnostic push 
+#  pragma clang diagnostic ignored "-Wliteral-range"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push 
+#  pragma GCC diagnostic ignored "-Woverflow"
+#endif
 
 #include "test_bessel_j.hpp"
 
@@ -143,7 +157,11 @@ void expected_results()
       "Mac OS",                          // platform
       largest_type,                  // test type(s)
       ".*J1.*Tricky.*",              // test data group
+#ifdef __aarch64__
+      ".*", 4000000, 2000000);       // test function
+#else
       ".*", 3000000, 2000000);       // test function
+#endif
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
@@ -177,7 +195,7 @@ void expected_results()
 
 
 #ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-   if((std::numeric_limits<double>::digits != std::numeric_limits<long double>::digits)
+   BOOST_IF_CONSTEXPR ((std::numeric_limits<double>::digits != std::numeric_limits<long double>::digits)
       && (std::numeric_limits<long double>::digits < 90))
    {
       // some errors spill over into type double as well:
@@ -233,6 +251,30 @@ void expected_results()
          largest_type,                  // test type(s)
          ".*(JN|j).*|.*Tricky.*",       // test data group
          ".*", 33000, 20000);               // test function
+   }
+   else BOOST_IF_CONSTEXPR (std::numeric_limits<long double>::digits >= 90)
+   {
+      add_expected_result(
+         ".*",                          // compiler
+         ".*",                          // stdlib
+         ".*",                          // platform
+         "double",                      // test type(s)
+         ".*J0.*Tricky.*",              // test data group
+         ".*", 100000, 100000);         // test function
+      add_expected_result(
+         ".*",                          // compiler
+         ".*",                          // stdlib
+         ".*",                          // platform
+         "double",                      // test type(s)
+         ".*J1.*Tricky.*",              // test data group
+         ".*", 70, 50);                 // test function
+      add_expected_result(
+         ".*",                          // compiler
+         ".*",                          // stdlib
+         ".*",                          // platform
+         "double",                      // test type(s)
+         ".*Mathworld.*",               // test data group
+         ".*", 20, 10);                 // test function
    }
 #endif
    add_expected_result(
@@ -300,7 +342,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 

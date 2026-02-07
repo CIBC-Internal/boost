@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Reference</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../ratio.html" title="Chapter&#160;25.&#160;Boost.Ratio 2.1.0">
+<link rel="up" href="../ratio.html" title="Chapter 32. Boost.Ratio 2.1.0">
 <link rel="prev" href="users_guide.html" title="User's Guide">
 <link rel="next" href="appendices.html" title="Appendices">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -27,122 +29,12 @@
 <a name="ratio.reference"></a><a class="link" href="reference.html" title="Reference">Reference </a>
 </h2></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="reference.html#ratio.reference.config_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">config</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.std">C++0x Recommendation</a></span></dt>
+<dt><span class="section"><a href="reference.html#ratio.reference.std">Standard C++11 Functionality</a></span></dt>
 <dt><span class="section"><a href="reference.html#ratio.reference.io">Ratio I/O</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl">Rational Constant</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ratio.reference.config_hpp"></a><a class="link" href="reference.html#ratio.reference.config_hpp" title="Header &lt;boost/ratio/config.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">config</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h3></div></div></div>
-<div class="toc"><dl class="toc">
-<dt><span class="section"><a href="reference.html#ratio.reference.config_hpp.ext">Extensions</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.config_hpp.deprecated">Deprecated</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.config_hpp.version">Version</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.config_hpp.assert">Static Assert</a></span></dt>
-</dl></div>
-<pre class="programlisting"><span class="comment">// Configuration macros</span>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.version" title="Version"><code class="computeroutput"><span class="identifier">BOOST_RATIO_VERSION</span> </code></a>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated"><code class="computeroutput"><span class="identifier">BOOST_RATIO_PROVIDES_DEPRECATED_FEATURES_SINCE_V2_0_0</span></code></a>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated"><code class="computeroutput"><span class="identifier">BOOST_RATIO_DONT_PROVIDE_DEPRECATED_FEATURES_SINCE_V2_0_0</span> </code></a>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_STATIC_ASSERT</span></code></a>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_MPL_ASSERT</span></code></a>
-<span class="preprocessor">#define</span> <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_ARRAY_ASSERT</span></code></a>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.config_hpp.ext"></a><a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions">Extensions</a>
-</h4></div></div></div>
-<p>
-          When <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a>
-          is defined, <span class="bold"><strong>Boost.Ratio</strong></span> provides in addition
-          some extension to the C++ standard, see below.
-        </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.config_hpp.deprecated"></a><a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated">Deprecated</a>
-</h4></div></div></div>
-<p>
-          When <a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated"><code class="computeroutput"><span class="identifier">BOOST_RATIO_PROVIDES_DEPRECATED_FEATURES_SINCE_V2_0_0</span></code></a>
-          is defined the deprecated features stated as DEPRECATED V2 are provided.
-        </p>
-<p>
-          When <a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated"><code class="computeroutput"><span class="identifier">BOOST_RATIO_DONT_PROVIDE_DEPRECATED_FEATURES_SINCE_V2_0_0</span>
-          </code></a> is defined the deprecated features stated as DEPRECATED
-          V2 are NOT provided.
-        </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.config_hpp.version"></a><a class="link" href="reference.html#ratio.reference.config_hpp.version" title="Version">Version</a>
-</h4></div></div></div>
-<p>
-          <a class="link" href="reference.html#ratio.reference.config_hpp.version" title="Version"><code class="computeroutput"><span class="identifier">BOOST_RATIO_VERSION</span>
-          </code></a> stands for the Boost.Ratio version which can be 1 or 2.
-          The default up to 1.55 is version 1. Since 1.56 it will be 2.
-        </p>
-<p>
-          When <a class="link" href="reference.html#ratio.reference.config_hpp.version" title="Version"><code class="computeroutput"><span class="identifier">BOOST_RATIO_VERSION</span>
-          </code></a> is 1 <a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated"><code class="computeroutput"><span class="identifier">BOOST_RATIO_PROVIDES_DEPRECATED_FEATURES_SINCE_V2_0_0</span></code></a>
-          is defined by default.
-        </p>
-<p>
-          When <a class="link" href="reference.html#ratio.reference.config_hpp.version" title="Version"><code class="computeroutput"><span class="identifier">BOOST_RATIO_VERSION</span>
-          </code></a> is 2 <a class="link" href="reference.html#ratio.reference.config_hpp.deprecated" title="Deprecated"><code class="computeroutput"><span class="identifier">BOOST_RATIO_DONT_PROVIDE_DEPRECATED_FEATURES_SINCE_V2_0_0</span>
-          </code></a> is defined by default.
-        </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.config_hpp.assert"></a><a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert">Static Assert</a>
-</h4></div></div></div>
-<p>
-          When BOOST_NO_STATIC_ASSERT is defined, the user can select the way static
-          assertions are reported. Define
-        </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-              <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_STATIC_ASSERT</span></code></a>
-              to use Boost.StaticAssert.
-            </li>
-<li class="listitem">
-              <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_MPL_ASSERT</span></code></a>
-              to use <span class="bold"><strong>Boost.MPL</strong></span> static assertions.
-            </li>
-<li class="listitem">
-              <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_ARRAY_ASSERT</span></code></a>
-              to use <span class="bold"><strong>Boost.Ratio</strong></span> internal static
-              assertions.
-            </li>
-</ul></div>
-<p>
-          The default behavior is as if <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_ARRAY_ASSERT</span></code></a>
-          was defined.
-        </p>
-<p>
-          When <a class="link" href="reference.html#ratio.reference.config_hpp.assert" title="Static Assert"><code class="computeroutput"><span class="identifier">BOOST_RATIO_USES_MPL_ASSERT</span></code></a>
-          is not defined the following symbols are defined as shown:
-        </p>
-<pre class="programlisting"><span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_OVERFLOW_IN_ADD</span> <span class="string">"overflow in ratio add"</span>
-<span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_OVERFLOW_IN_SUB</span> <span class="string">"overflow in ratio sub"</span>
-<span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_OVERFLOW_IN_MUL</span> <span class="string">"overflow in ratio mul"</span>
-<span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_OVERFLOW_IN_DIV</span> <span class="string">"overflow in ratio div"</span>
-<span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_NUMERATOR_IS_OUT_OF_RANGE</span> <span class="string">"ratio numerator is out of range"</span>
-<span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_DIVIDE_BY_0</span> <span class="string">"ratio divide by 0"</span>
-<span class="preprocessor">#define</span> <span class="identifier">BOOST_RATIO_DENOMINATOR_IS_OUT_OF_RANGE</span> <span class="string">"ratio denominator is out of range"</span>
-</pre>
-<p>
-          Depending upon the static assertion system used, a hint as to the failing
-          assertion will appear in some form in the compiler diagnostic output.
-        </p>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="ratio.reference.std"></a><a class="link" href="reference.html#ratio.reference.std" title="C++0x Recommendation">C++0x Recommendation</a>
+<a name="ratio.reference.std"></a><a class="link" href="reference.html#ratio.reference.std" title="Standard C++11 Functionality">Standard C++11 Functionality</a>
 </h3></div></div></div>
 <div class="toc"><dl class="toc">
 <dt><span class="section"><a href="reference.html#ratio.reference.std.ratio_ratio_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
@@ -158,7 +50,6 @@
         </p>
 <pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">ratio_io</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">rational_constant</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 </pre>
 </div>
 <div class="section">
@@ -171,21 +62,14 @@
         </p>
 <pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span>  <span class="special">{</span>
 
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">N</span><span class="special">,</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">D</span> <span class="special">=</span> <span class="number">1</span><span class="special">&gt;</span> <span class="keyword">class</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">;</span>
+    <span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">N</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">D</span> <span class="special">=</span> <span class="number">1</span><span class="special">&gt;</span> <span class="keyword">class</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">;</span>
 
     <span class="comment">// ratio arithmetic</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_add</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_subtract</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_multiply</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_divide</span></code></a><span class="special">;</span>
-<span class="preprocessor">#ifdef</span> <span class="identifier">BOOST_RATIO_EXTENSIONS</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">,</span><span class="keyword">int</span> <span class="identifier">P</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_power</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_negate</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_sign</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_abs</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_gcd</span></code></a><span class="special">;</span>
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_lcm</span></code></a><span class="special">;</span>
-<span class="preprocessor">#endif</span>
+    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_add</span></code></a> <span class="special">=</span> <span class="comment">/* ... */</span><span class="special">;</span>
+    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_subtract</span></code></a> <span class="special">=</span> <span class="comment">/* ... */</span><span class="special">;</span>
+    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_multiply</span></code></a> <span class="special">=</span> <span class="comment">/* ... */</span><span class="special">;</span>
+    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_divide</span></code></a> <span class="special">=</span> <span class="comment">/* ... */</span><span class="special">;</span>
+    <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_gcd</span></code></a> <span class="special">=</span> <span class="comment">/* ... */</span><span class="special">;</span>
 
     <span class="comment">// ratio comparison</span>
     <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_equal</span></code></a><span class="special">;</span>
@@ -212,16 +96,6 @@
     <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>      <span class="number">1000000000000LL</span><span class="special">,</span> <span class="number">1LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_si_typedefs" title="SI typedefs"><code class="computeroutput"><span class="identifier">tera</span></code></a><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>   <span class="number">1000000000000000LL</span><span class="special">,</span> <span class="number">1LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_si_typedefs" title="SI typedefs"><code class="computeroutput"><span class="identifier">peta</span></code></a><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span><span class="number">1000000000000000000LL</span><span class="special">,</span> <span class="number">1LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_si_typedefs" title="SI typedefs"><code class="computeroutput"><span class="identifier">exa</span></code></a><span class="special">;</span>
-
-<span class="preprocessor">#ifdef</span> <span class="identifier">BOOST_RATIO_EXTENSIONS</span>
-    <span class="comment">// convenience IEC typedefs</span>
-    <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>                                   <span class="number">1024LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs"><code class="computeroutput"><span class="identifier">kibi</span></code></a><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>                            <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs"><code class="computeroutput"><span class="identifier">mebi</span></code></a><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>                     <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs"><code class="computeroutput"><span class="identifier">gibi</span></code></a><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>              <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs"><code class="computeroutput"><span class="identifier">tebi</span></code></a><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>       <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs"><code class="computeroutput"><span class="identifier">pebi</span></code></a><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs"><code class="computeroutput"><span class="identifier">exbi</span></code></a><span class="special">;</span>
-<span class="preprocessor">#endif</span>
 <span class="special">}</span>
 </pre>
 </div>
@@ -236,10 +110,6 @@
 <dt><span class="section"><a href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison"><code class="computeroutput"><span class="identifier">ratio</span></code> Comparison</a></span></dt>
 <dt><span class="section"><a href="reference.html#ratio.reference.std.ratio_hpp.ratio_si_typedefs">SI
           typedefs</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs">IEC
-          typedefs</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.std.ratio_hpp.limitations">Limitations</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.std.ratio_hpp.extensions">Extensions</a></span></dt>
 </dl></div>
 <p>
           <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a>
@@ -255,30 +125,12 @@
 <a name="ratio.reference.std.ratio_hpp.ratio"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;">Class Template
           <code class="computeroutput"><span class="identifier">ratio</span><span class="special">&lt;&gt;</span></code></a>
 </h5></div></div></div>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">N</span><span class="special">,</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">D</span><span class="special">&gt;</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">N</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">D</span><span class="special">&gt;</span>
 <span class="keyword">class</span> <span class="identifier">ratio</span> <span class="special">{</span>
 <span class="keyword">public</span><span class="special">:</span>
-    <span class="keyword">static</span> <span class="keyword">const</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">num</span><span class="special">;</span>
-    <span class="keyword">static</span> <span class="keyword">const</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">den</span><span class="special">;</span>
+    <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">num</span><span class="special">;</span>
+    <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">den</span><span class="special">;</span>
     <span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span><span class="identifier">num</span><span class="special">,</span> <span class="identifier">den</span><span class="special">&gt;</span> <span class="identifier">type</span><span class="special">;</span>
-
-    <span class="preprocessor">#ifdef</span> <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a>
-    <span class="keyword">typedef</span> <span class="identifier">mpl</span><span class="special">::</span><span class="identifier">rational_c_tag</span> <span class="identifier">tag</span><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">rational</span><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span><span class="special">&gt;</span> <span class="identifier">value_type</span><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">num_type</span><span class="special">;</span>
-    <span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">den_type</span><span class="special">;</span>
-
-    <span class="identifier">ratio</span><span class="special">()</span> <span class="special">=</span> <span class="keyword">default</span><span class="special">;</span>
-
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">_N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">_D2</span><span class="special">&gt;</span>
-    <span class="identifier">ratio</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">ratio</span><span class="special">&lt;</span><span class="identifier">_N2</span><span class="special">,</span> <span class="identifier">_D2</span><span class="special">&gt;&amp;);</span>
-
-    <span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">_N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">_D2</span><span class="special">&gt;</span>
-    <span class="identifier">ratio</span><span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <span class="identifier">ratio</span><span class="special">&lt;</span><span class="identifier">_N2</span><span class="special">,</span> <span class="identifier">_D2</span><span class="special">&gt;&amp;);</span>
-
-    <span class="keyword">static</span> <span class="identifier">value_type</span> <span class="identifier">value</span><span class="special">();</span>
-    <span class="identifier">value_type</span> <span class="keyword">operator</span><span class="special">()()</span> <span class="keyword">const</span><span class="special">;</span>
-    <span class="preprocessor">#endif</span>
 <span class="special">};</span>
 </pre>
 <p>
@@ -320,89 +172,6 @@
             and <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N2</span><span class="special">,</span><span class="identifier">D2</span><span class="special">&gt;</span></code>
             have the same normalized form if <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N1</span><span class="special">,</span><span class="identifier">D1</span><span class="special">&gt;::</span><span class="identifier">type</span></code> is the same type as <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N2</span><span class="special">,</span><span class="identifier">D2</span><span class="special">&gt;::</span><span class="identifier">type</span></code>
           </p>
-<div class="section">
-<div class="titlepage"><div><div><h6 class="title">
-<a name="ratio.reference.std.ratio_hpp.ratio.ca"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca" title="Construction and Assignment">Construction
-            and Assignment</a>
-</h6></div></div></div>
-<p>
-              Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is
-              defined.
-            </p>
-<h7><a name="ratio.reference.std.ratio_hpp.ratio.ca.h0"></a>
-              <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio.ca.default_constructor"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca.default_constructor">Default
-              Constructor</a>
-            </h7><pre class="programlisting"><span class="identifier">ratio</span><span class="special">()=</span><span class="keyword">default</span><span class="special">;</span>
-</pre>
-<p>
-              <span class="bold"><strong>Effects:</strong></span> Constructs a <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a> object.
-            </p>
-<h7><a name="ratio.reference.std.ratio_hpp.ratio.ca.h1"></a>
-              <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio.ca.copy_constructor"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca.copy_constructor">Copy
-              Constructor</a>
-            </h7><pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">D2</span><span class="special">&gt;</span>
-  <span class="identifier">ratio</span><span class="special">(</span><span class="keyword">const</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N2</span><span class="special">,</span> <span class="identifier">D2</span><span class="special">&gt;&amp;</span> <span class="identifier">r</span><span class="special">);</span>
-</pre>
-<p>
-              <span class="bold"><strong>Effects:</strong></span> Constructs a <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a> object.
-            </p>
-<p>
-              <span class="bold"><strong>Remarks:</strong></span> This constructor will not
-              participate in overload resolution unless <code class="computeroutput"><span class="identifier">r</span></code>
-              has the same normalized form as <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>.
-            </p>
-<h7><a name="ratio.reference.std.ratio_hpp.ratio.ca.h2"></a>
-              <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio.ca.assignement"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.ca.assignement">Assignement</a>
-            </h7><pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="identifier">intmax_t</span> <span class="identifier">N2</span><span class="special">,</span> <span class="identifier">intmax_t</span> <span class="identifier">D2</span><span class="special">&gt;</span>
-  <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="keyword">const</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">N2</span><span class="special">,</span> <span class="identifier">D2</span><span class="special">&gt;&amp;</span> <span class="identifier">r</span><span class="special">);</span>
-</pre>
-<p>
-              <span class="bold"><strong>Effects:</strong></span> Assigns a <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a> object.
-            </p>
-<p>
-              <span class="bold"><strong>Returns:</strong></span> *this.
-            </p>
-<p>
-              <span class="bold"><strong>Remarks:</strong></span> This operator will not participate
-              in overload resolution unless <code class="computeroutput"><span class="identifier">r</span></code>
-              has the same normalized form as <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>.
-            </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h6 class="title">
-<a name="ratio.reference.std.ratio_hpp.ratio.mpl"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.mpl" title="MPL Numeric Metafunctions">MPL Numeric
-            Metafunctions</a>
-</h6></div></div></div>
-<p>
-              Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is
-              defined.
-            </p>
-<p>
-              In order to work with <span class="bold"><strong>Boost.MPL</strong></span> numeric
-              metafunctions as a <a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational
-              Constant</a>, the following has beed added:
-            </p>
-<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">mpl</span><span class="special">::</span><span class="identifier">rational_c_tag</span> <span class="identifier">tag</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">rational</span><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span><span class="special">&gt;</span> <span class="identifier">value_type</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">num_type</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">intmax_t</span> <span class="identifier">den_type</span><span class="special">;</span>
-</pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h6 class="title">
-<a name="ratio.reference.std.ratio_hpp.ratio.obs"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio.obs" title="Observers">Observers</a>
-</h6></div></div></div>
-<p>
-              Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is
-              defined.
-            </p>
-<pre class="programlisting"><span class="keyword">static</span> <span class="identifier">value_type</span> <span class="identifier">value</span><span class="special">();</span>
-<span class="identifier">value_type</span> <span class="keyword">operator</span><span class="special">()()</span> <span class="keyword">const</span><span class="special">;</span>
-</pre>
-<p>
-              <span class="bold"><strong>Returns:</strong></span> value_type(num,den);
-            </p>
-</div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -418,156 +187,54 @@
 <a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h0"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_add__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_add__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_add</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_add</span> <span class="special">{</span>
-   <span class="keyword">typedef</span> <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span> <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <span class="identifier">ratio_add</span> <span class="special">=</span> <span class="comment">/* see below */</span><span class="special">;</span>
 </pre>
 <p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
+            <code class="computeroutput"><span class="identifier">ratio_add</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span></code>
             is a synonym for <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span> <span class="special">+</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
           </p>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h1"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_subtract__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_subtract__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_subtract</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_subtract</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <span class="identifier">ratio_subtract</span> <span class="special">=</span> <span class="comment">/* see below */</span><span class="special">;</span>
 </pre>
 <p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
+            <code class="computeroutput"><span class="identifier">ratio_subtract</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span></code>
             is a synonym for <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span> <span class="special">-</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
           </p>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h2"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_multiply__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_multiply__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_multiply</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_multiply</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <span class="identifier">ratio_multiply</span> <span class="special">=</span> <span class="comment">/* see below */</span><span class="special">;</span>
 </pre>
 <p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
+            <code class="computeroutput"><span class="identifier">ratio_multiply</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span></code>
             is a synonym for <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
           </p>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h3"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_divide__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_divide__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_divide</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_divide</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <span class="identifier">ratio_divide</span> <span class="special">=</span> <span class="comment">/* see below */</span><span class="special">;</span>
 </pre>
 <p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
+            <code class="computeroutput"><span class="identifier">ratio_divide</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span></code>
             is a synonym for <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
           </p>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h4"></a>
-            <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_power__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_power__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_power</span><span class="special">&lt;&gt;</span></code></a>
-          </h6>
-<p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">,</span> <span class="keyword">int</span> <span class="identifier">P</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_power</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
-</pre>
-<p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
-            is a synonym for <code class="computeroutput"><span class="identifier">R</span><span class="special">*</span>
-            <span class="special">*</span><span class="identifier">R</span></code>
-            P times.
-          </p>
-<h6>
-<a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h5"></a>
-            <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_negate__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_negate__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_negate</span><span class="special">&lt;&gt;</span></code></a>
-          </h6>
-<p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
-          </p>
-<p>
-            This extension of the C++ standard helps in the definition of some <span class="bold"><strong>Boost.MPL</strong></span> numeric metafunctions.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_negate</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
-</pre>
-<p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
-            is a synonym for <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;-</span><span class="identifier">R</span><span class="special">::</span><span class="identifier">num</span><span class="special">,</span> <span class="identifier">R</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
-          </p>
-<h6>
-<a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h6"></a>
-            <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_abs__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_abs__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_abs</span><span class="special">&lt;&gt;</span></code></a>
-          </h6>
-<p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
-          </p>
-<p>
-            This extension of the C++ standard helps in the definition of some <span class="bold"><strong>Boost.MPL</strong></span> numeric metafunctions.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_abs</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
-</pre>
-<p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
-            is a synonym for <code class="computeroutput"><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="identifier">abs_c</span><span class="special">&lt;</span><span class="identifier">intmax_t</span><span class="special">,</span><span class="identifier">R</span><span class="special">::</span><span class="identifier">num</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">,</span> <span class="identifier">R</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
-          </p>
-<h6>
-<a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h7"></a>
-            <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_sign__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_sign__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_sign</span><span class="special">&lt;&gt;</span></code></a>
-          </h6>
-<p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
-          </p>
-<p>
-            This extension of the C++ standard helps in the definition of some <span class="bold"><strong>Boost.MPL</strong></span> numeric metafunctions.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_sign</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
-</pre>
-<p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
-            is a synonym for <code class="computeroutput"><span class="identifier">sign_c</span><span class="special">&lt;</span><span class="identifier">intmax_t</span><span class="special">,</span><span class="identifier">R</span><span class="special">::</span><span class="identifier">num</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
-          </p>
-<h6>
-<a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h8"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_gcd__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_gcd__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_gcd</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
 <p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
+            This extension of the C++ standard is used by Boost.Chrono.
           </p>
-<p>
-            This extension of the C++ standard helps in the definition of some <span class="bold"><strong>Boost.MPL</strong></span> numeric metafunctions.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_gcd</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">using</span> <span class="identifier">ratio_gcd</span> <span class="special">=</span> <span class="comment">/* see below */</span><span class="special">;</span>
 </pre>
 <p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
-            is a synonym for <code class="computeroutput"><span class="identifier">ratio</span><span class="special">&lt;</span><span class="identifier">gcd_c</span><span class="special">&lt;</span><span class="identifier">intmax_t</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">,</span> <span class="identifier">mpl</span><span class="special">::</span><span class="identifier">lcm_c</span><span class="special">&lt;</span><span class="identifier">intmax_t</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
-          </p>
-<h6>
-<a name="ratio.reference.std.ratio_hpp.ratio_arithmetic.h9"></a>
-            <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_lcm__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic._code__phrase_role__identifier__ratio_lcm__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_lcm</span><span class="special">&lt;&gt;</span></code></a>
-          </h6>
-<p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
-          </p>
-<p>
-            This extension of the C++ standard helps in the definition of some <span class="bold"><strong>Boost.MPL</strong></span> numeric metafunctions.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_lcm</span> <span class="special">{</span>
-   <span class="keyword">typedef</span>  <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span>  <span class="identifier">type</span><span class="special">;</span>
-<span class="special">};</span>
-</pre>
-<p>
-            The nested typedef <code class="computeroutput"><span class="identifier">type</span></code>
-            is a synonym for <code class="computeroutput"><span class="identifier">ratio</span><span class="special">&lt;</span><span class="identifier">lcm_c</span><span class="special">&lt;</span><span class="identifier">intmax_t</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">,</span> <span class="identifier">gcd_c</span><span class="special">&lt;</span><span class="identifier">intmax_t</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;::</span><span class="identifier">type</span></code>.
+            <code class="computeroutput"><span class="identifier">ratio_gcd</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span></code>
+            is a synonym for <code class="computeroutput"><span class="identifier">ratio</span><span class="special">&lt;</span><span class="identifier">GCD</span><span class="special">(</span><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span><span class="special">),</span> <span class="identifier">LCM</span><span class="special">(</span><span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span><span class="special">)&gt;::</span><span class="identifier">type</span></code>.
           </p>
 </div>
 <div class="section">
@@ -579,18 +246,20 @@
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_equal__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_equal__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_equal</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span>  <span class="keyword">struct</span> <span class="identifier">ratio_equal</span>
-    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span> <span class="special">&gt;</span> <span class="special">{};</span>
+    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span> <span class="special">&gt;</span> <span class="special">{};</span>
 </pre>
 <p>
-            If R1::num == R2::num &amp;&amp; R1::den == R2::den, ratio_equal derives
-            from true_type, else derives from false_type.
+            If <code class="computeroutput"><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span> <span class="special">==</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span> <span class="special">&amp;&amp;</span>
+            <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span> <span class="special">==</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span></code>, <code class="computeroutput"><span class="identifier">ratio_equal</span></code>
+            derives from <code class="computeroutput"><span class="identifier">true_type</span></code>,
+            else derives from <code class="computeroutput"><span class="identifier">false_type</span></code>.
           </p>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_comparison.h1"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_not_equal__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_not_equal__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_not_equal</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span>  <span class="keyword">struct</span> <span class="identifier">ratio_not_equal</span>
-    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">!</span><span class="identifier">ratio_equal</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
+    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">!</span><span class="identifier">ratio_equal</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
 </pre>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_comparison.h2"></a>
@@ -598,32 +267,34 @@
           </h6>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span>
 <span class="keyword">struct</span> <span class="identifier">ratio_less</span>
-    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span> <span class="special">&gt;</span> <span class="special">{};</span>
+    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">[/</span><span class="identifier">see</span> <span class="identifier">below</span><span class="special">]</span> <span class="special">&gt;</span> <span class="special">{};</span>
 </pre>
 <p>
-            If R1::num * R2::den &lt; R2::num * R1::den, ratio_less derives from
-            true_type, else derives from false_type.
+            If <code class="computeroutput"><span class="identifier">R1</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R2</span><span class="special">::</span><span class="identifier">den</span> <span class="special">&lt;</span>
+            <span class="identifier">R2</span><span class="special">::</span><span class="identifier">num</span> <span class="special">*</span> <span class="identifier">R1</span><span class="special">::</span><span class="identifier">den</span></code>, <code class="computeroutput"><span class="identifier">ratio_less</span></code>
+            derives from <code class="computeroutput"><span class="identifier">true_type</span></code>,
+            else derives from <code class="computeroutput"><span class="identifier">false_type</span></code>.
           </p>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_comparison.h3"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_less_equal__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_less_equal__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_less_equal</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_less_equal</span>
-    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">!</span><span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R2</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
+    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">!</span><span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R2</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
 </pre>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_comparison.h4"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_greater__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_greater__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_greater</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_greater</span>
-    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R2</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
+    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R2</span><span class="special">,</span> <span class="identifier">R1</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
 </pre>
 <h6>
 <a name="ratio.reference.std.ratio_hpp.ratio_comparison.h5"></a>
             <span class="phrase"><a name="ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_greater_equal__phrase__phrase_role__special___lt__gt___phrase___code_"></a></span><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison._code__phrase_role__identifier__ratio_greater_equal__phrase__phrase_role__special___lt__gt___phrase___code_"><code class="computeroutput"><span class="identifier">ratio_greater_equal</span><span class="special">&lt;&gt;</span></code></a>
           </h6>
 <pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">R2</span><span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">ratio_greater_equal</span>
-    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">!</span><span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
+    <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">integral_constant</span><span class="special">&lt;</span><span class="keyword">bool</span><span class="special">,</span> <span class="special">!</span><span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;::</span><span class="identifier">value</span><span class="special">&gt;</span> <span class="special">{};</span>
 </pre>
 </div>
 <div class="section">
@@ -655,87 +326,6 @@
 <span class="keyword">typedef</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span>   <span class="number">1000000000000000LL</span><span class="special">,</span> <span class="number">1LL</span><span class="special">&gt;</span> <span class="identifier">peta</span><span class="special">;</span>
 <span class="keyword">typedef</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a><span class="special">&lt;</span><span class="number">1000000000000000000LL</span><span class="special">,</span> <span class="number">1LL</span><span class="special">&gt;</span> <span class="identifier">exa</span><span class="special">;</span>
 </pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.std.ratio_hpp.ratio_iec_typedefs"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_iec_typedefs" title="IEC typedefs">IEC
-          typedefs</a>
-</h5></div></div></div>
-<p>
-            Included only if <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a> is defined.
-          </p>
-<p>
-            The <a href="http://http://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000" target="_top">Specific
-            units of IEC 60027-2 A.2 and ISO/IEC 80000</a> specifies height IEC
-            prefixes. <span class="bold"><strong>Boost.Ratio</strong></span> defines all except
-            <code class="computeroutput"><span class="identifier">zebi</span></code> and <code class="computeroutput"><span class="identifier">yobi</span></code>
-          </p>
-<pre class="programlisting"><span class="comment">// convenience ETC typedefs</span>
-<span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>                                   <span class="number">1024LL</span><span class="special">&gt;</span> <span class="identifier">kibi</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>                            <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <span class="identifier">mebi</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>                     <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <span class="identifier">gibi</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>              <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <span class="identifier">tebi</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span>       <span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <span class="identifier">pebi</span><span class="special">;</span>
-<span class="keyword">typedef</span> <span class="identifier">ratio</span><span class="special">&lt;</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">*</span><span class="number">1024LL</span><span class="special">&gt;</span> <span class="identifier">exbi</span><span class="special">;</span>
-</pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.std.ratio_hpp.limitations"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.limitations" title="Limitations">Limitations</a>
-</h5></div></div></div>
-<p>
-            The following are limitations of Boost.Ratio relative to the specification
-            in the C++0x draft standard:
-          </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-                Four of the SI units typedefs -- <code class="computeroutput"><span class="identifier">yocto</span></code>,
-                <code class="computeroutput"><span class="identifier">zepto</span></code>, <code class="computeroutput"><span class="identifier">zetta</span></code>, and <code class="computeroutput"><span class="identifier">yotta</span></code>
-                -- are to be conditionally supported, if the range of <code class="computeroutput"><span class="identifier">intmax_t</span></code> allows, but are not supported
-                by <span class="bold"><strong>Boost.Ratio</strong></span>.
-              </li>
-<li class="listitem">
-                Ratio values should be of type static <code class="computeroutput"><span class="keyword">constexpr</span>
-                <span class="identifier">intmax_t</span></code> (see <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3135.html#1122" target="_top">Ratio
-                values should be constexpr</a>), but for compiler not supporting
-                <code class="computeroutput"><span class="keyword">constexpr</span></code> today, <span class="bold"><strong>Boost.Ratio</strong></span> uses <code class="computeroutput"><span class="keyword">static</span>
-                <span class="keyword">const</span> <span class="identifier">intmax_t</span></code>
-                instead.
-              </li>
-<li class="listitem">
-                Rational arithmetic should use template aliases (see <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3134.html#921" target="_top">Rational
-                Arithmetic should use template aliases</a>), but those are not
-                available in C++03, so inheritance is used instead.
-              </li>
-</ul></div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.std.ratio_hpp.extensions"></a><a class="link" href="reference.html#ratio.reference.std.ratio_hpp.extensions" title="Extensions">Extensions</a>
-</h5></div></div></div>
-<p>
-            When <a class="link" href="reference.html#ratio.reference.config_hpp.ext" title="Extensions"><code class="computeroutput"><span class="identifier">BOOST_RATIO_EXTENSIONS</span></code></a>
-            is defined <span class="bold"><strong>Boost.Ratio</strong></span> provides the
-            following extensions:
-          </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-                Extends the requirements of the C++0x draft standard by making the
-                copy constructor and copy assignment operator have the same normalized
-                form (see <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3133.html#1281" target="_top">copy
-                constructor and assignment between ratios having the same normalized
-                form</a>).
-              </li>
-<li class="listitem">
-                More C++ standard like metafunctions applied to ratio types, like
-                __static_abs or __static_negate.
-              </li>
-<li class="listitem">
-                An __Boost_Mpl rational constant concept and the associated __Boost_Mpl
-                arithmetic and comparison specializations including __numeric_cast,
-                __plus, __equal_to between others.
-              </li>
-</ul></div>
 </div>
 </div>
 </div>
@@ -929,32 +519,6 @@
               <span class="bold"><strong>Returns</strong></span>: prefix().
             </p>
 </div>
-<div class="section">
-<div class="titlepage"><div><div><h6 class="title">
-<a name="ratio.reference.io.ratio_io_hpp.ratio_string.long_name"></a><a class="link" href="reference.html#ratio.reference.io.ratio_io_hpp.ratio_string.long_name" title="Static Member function long_name() DEPRECATED V2">Static
-            Member function <code class="computeroutput"><span class="identifier">long_name</span><span class="special">()</span></code> DEPRECATED V2</a>
-</h6></div></div></div>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">Ratio</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">CharT</span><span class="special">&gt;</span>
-<span class="identifier">basic_string</span><span class="special">&lt;</span><span class="identifier">charT</span><span class="special">&gt;</span>
-<span class="identifier">ratio_string</span><span class="special">&lt;</span><span class="identifier">Ratio</span><span class="special">,</span> <span class="identifier">CharT</span><span class="special">&gt;::</span><span class="identifier">long_name</span><span class="special">();</span>
-</pre>
-<p>
-              <span class="bold"><strong>Returns</strong></span>: prefix().
-            </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h6 class="title">
-<a name="ratio.reference.io.ratio_io_hpp.ratio_string.short_name"></a><a class="link" href="reference.html#ratio.reference.io.ratio_io_hpp.ratio_string.short_name" title="Static Member function short_name() DEPRECATED V2">Static
-            Member function <code class="computeroutput"><span class="identifier">short_name</span><span class="special">()</span></code> DEPRECATED V2</a>
-</h6></div></div></div>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">Ratio</span><span class="special">,</span> <span class="keyword">class</span> <span class="identifier">CharT</span><span class="special">&gt;</span>
-<span class="identifier">basic_string</span><span class="special">&lt;</span><span class="identifier">charT</span><span class="special">&gt;</span>
-<span class="identifier">ratio_string</span><span class="special">&lt;</span><span class="identifier">Ratio</span><span class="special">,</span> <span class="identifier">CharT</span><span class="special">&gt;::</span><span class="identifier">short_name</span><span class="special">();</span>
-</pre>
-<p>
-              <span class="bold"><strong>Returns</strong></span>: symbol().
-            </p>
-</div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
@@ -972,7 +536,7 @@
             and <code class="computeroutput"><span class="identifier">symbol</span><span class="special">()</span></code>.
           </p>
 <div class="table">
-<a name="ratio.reference.io.ratio_io_hpp.spe.the_return_values_of_specializations_of_ratio_string"></a><p class="title"><b>Table&#160;25.1.&#160;The return values of specializations of ratio_string</b></p>
+<a name="ratio.reference.io.ratio_io_hpp.spe.the_return_values_of_specializations_of_ratio_string"></a><p class="title"><b>Table 32.1. The return values of specializations of ratio_string</b></p>
 <div class="table-contents"><table class="table" summary="The return values of specializations of ratio_string">
 <colgroup>
 <col>
@@ -2092,941 +1656,13 @@
 </div>
 </div>
 </div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="ratio.reference.mpl"></a><a class="link" href="reference.html#ratio.reference.mpl" title="Rational Constant">Rational Constant</a>
-</h3></div></div></div>
-<div class="toc"><dl class="toc">
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.rational_constant">Rational Constant
-        Concept</a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.rational_constant_hpp">Header
-        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">rational_constant</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_rational_c_tag_hpp">Header
-        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">rational_c_tag</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_numeric_cast_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">numeric_cast</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_arithmetic_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">arithmetic</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_plus_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">plus</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_minus_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">minus</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_times_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">times</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_divides_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">divides</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_gcd_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">gcd</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_lcm_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">lcm</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_negate_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">negate</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_abs_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">abs</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_sign_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">sign</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_comparison_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">comparison</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_equal_to_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">equal_to</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_not_equal_to_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">not_equal_to</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_less_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">less</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_less_equal_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">less_equal</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_greater_hpp">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">greater</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-<dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_greater_equal_hpp">Header
-        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">greater_equal</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a></span></dt>
-</dl></div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.rational_constant"></a><a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational Constant
-        Concept</a>
-</h4></div></div></div>
-<h6>
-<a name="ratio.reference.mpl.rational_constant.h0"></a>
-          <span class="phrase"><a name="ratio.reference.mpl.rational_constant.description"></a></span><a class="link" href="reference.html#ratio.reference.mpl.rational_constant.description">Description</a>
-        </h6>
-<p>
-          A <a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational Constant</a>
-          is a holder class for a compile-time value of a rational type. Every <a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational Constant</a>
-          is also a nullary Metafunction, returning itself. A rational constant object
-          is implicitly convertible to the corresponding run-time value of the rational
-          type.
-        </p>
-<h6>
-<a name="ratio.reference.mpl.rational_constant.h1"></a>
-          <span class="phrase"><a name="ratio.reference.mpl.rational_constant.expression_requirements"></a></span><a class="link" href="reference.html#ratio.reference.mpl.rational_constant.expression_requirements">Expression
-          requirements</a>
-        </h6>
-<p>
-          In the following table and subsequent specifications, r is a model of
-          <a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational Constant</a>.
-        </p>
-<div class="informaltable"><table class="table">
-<colgroup>
-<col>
-<col>
-<col>
-</colgroup>
-<thead><tr>
-<th>
-                  <p>
-                    Expression
-                  </p>
-                </th>
-<th>
-                  <p>
-                    Type
-                  </p>
-                </th>
-<th>
-                  <p>
-                    Complexity
-                  </p>
-                </th>
-</tr></thead>
-<tbody>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">tag</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">rational_c_tag</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">value_type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    A rational type
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">num_type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    An integral type
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">den_type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    An integral type
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">num</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    An Integral constant expression
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">den</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    An Integral constant expression
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    <a class="link" href="reference.html#ratio.reference.mpl.rational_constant" title="Rational Constant Concept">Rational
-                    Constant</a>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">value_type</span> <span class="keyword">const</span>
-                    <span class="identifier">c</span><span class="special">=</span><span class="identifier">r</span><span class="special">()</span></code>
-                  </p>
-                </td>
-<td>
-                </td>
-<td>
-                  <p>
-                    Constant time
-                  </p>
-                </td>
-</tr>
-</tbody>
-</table></div>
-<h6>
-<a name="ratio.reference.mpl.rational_constant.h2"></a>
-          <span class="phrase"><a name="ratio.reference.mpl.rational_constant.expression_semantics"></a></span><a class="link" href="reference.html#ratio.reference.mpl.rational_constant.expression_semantics">Expression
-          semantics</a>
-        </h6>
-<div class="informaltable"><table class="table">
-<colgroup>
-<col>
-<col>
-</colgroup>
-<thead><tr>
-<th>
-                  <p>
-                    Expression
-                  </p>
-                </th>
-<th>
-                  <p>
-                    Semantics
-                  </p>
-                </th>
-</tr></thead>
-<tbody>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">tag</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    r's tag type; r::tag::value is r's conversion rank.
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">value_type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    A cv-unqualified type of <code class="computeroutput"><span class="identifier">r</span><span class="special">()</span></code>
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">num_type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    A cv-unqualified type of <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">num</span></code>
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">den_type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    A cv-unqualified type of <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">den</span></code>
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">num</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The numerator of the rational constant
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">den</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    The denominator of the rational constant
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">type</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    equal_to&lt;n::type,n&gt;::value == true.
-                  </p>
-                </td>
-</tr>
-<tr>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">value_type</span> <span class="keyword">const</span>
-                    <span class="identifier">c</span><span class="special">=</span><span class="identifier">r</span><span class="special">()</span></code>
-                  </p>
-                </td>
-<td>
-                  <p>
-                    <code class="computeroutput"><span class="identifier">r</span><span class="special">::</span><span class="identifier">value_type</span> <span class="keyword">const</span>
-                    <span class="identifier">c</span><span class="special">=</span><span class="identifier">r</span><span class="special">::</span><span class="identifier">value_type</span><span class="special">(</span><span class="identifier">r</span><span class="special">::</span><span class="identifier">num</span><span class="special">,</span><span class="identifier">r</span><span class="special">::</span><span class="identifier">den</span><span class="special">)</span></code>
-                  </p>
-                </td>
-</tr>
-</tbody>
-</table></div>
-<h6>
-<a name="ratio.reference.mpl.rational_constant.h3"></a>
-          <span class="phrase"><a name="ratio.reference.mpl.rational_constant.models"></a></span><a class="link" href="reference.html#ratio.reference.mpl.rational_constant.models">Models</a>
-        </h6>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-              <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio" title="Class Template ratio&lt;&gt;"><code class="computeroutput"><span class="identifier">ratio</span></code></a>&lt;&gt;
-            </li></ul></div>
 </div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.rational_constant_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.rational_constant_hpp" title="Header &lt;boost/ratio/mpl/rational_constant.hpp&gt;">Header
-        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">rational_constant</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<p>
-          This header includes all the rational constant related header files
-        </p>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">rational_c_tag</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">numeric_cast</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">arithmetic</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">comparison</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-</pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_rational_c_tag_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_rational_c_tag_hpp" title="Header &lt;boost/ratio/mpl/rational_c_tag.hpp&gt;">Header
-        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">rational_c_tag</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-
-    <span class="keyword">struct</span> <span class="identifier">rational_c_tag</span> <span class="special">:</span> <span class="identifier">int_</span><span class="special">&lt;</span><span class="number">10</span><span class="special">&gt;</span> <span class="special">{};</span>
-
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_numeric_cast_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_numeric_cast_hpp" title="Header &lt;boost/ratio/mpl/numeric_cast.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">numeric_cast</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_numeric_cast_hpp.numeric_cast"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">numeric_cast</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span> <span class="keyword">struct</span> <span class="identifier">numeric_cast</span><span class="special">&lt;</span> <span class="identifier">integral_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_numeric_cast_hpp.numeric_cast"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_numeric_cast_hpp.numeric_cast" title="mpl::numeric_cast&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">numeric_cast</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            A Integral Constant is seen as a ratio with numerator the Integral Constant
-            value and denominator 1.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span> <span class="keyword">struct</span> <span class="identifier">numeric_cast</span><span class="special">&lt;</span> <span class="identifier">integral_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">N</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <span class="identifier">ratio</span><span class="special">&lt;</span> <span class="identifier">N</span><span class="special">::</span><span class="identifier">value</span><span class="special">,</span> <span class="number">1</span> <span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_arithmetic_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_arithmetic_hpp" title="Header &lt;boost/ratio/mpl/arithmetic.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">arithmetic</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<p>
-          This header includes all the rational constant arithmetic MPL specializations.
-        </p>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">plus</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">minus</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">times</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">divides</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">negate</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">abs</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">sign</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">gcd</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">lcm</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-</pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_plus_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_plus_hpp" title="Header &lt;boost/ratio/mpl/plus.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">plus</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_plus_hpp.plus_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">plus_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">plus_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_plus_hpp.plus_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_plus_hpp.plus_impl" title="mpl::plus_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">plus_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_add</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">plus_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_add</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_minus_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_minus_hpp" title="Header &lt;boost/ratio/mpl/minus.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">minus</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_minus_hpp.minus_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">minus_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">minus_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_minus_hpp.minus_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_minus_hpp.minus_impl" title="mpl::minus_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">minus_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_subtract</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">plus_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_subtract</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_times_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_times_hpp" title="Header &lt;boost/ratio/mpl/times.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">times</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_times_hpp.times_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">times_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">times_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_times_hpp.times_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_times_hpp.times_impl" title="mpl::times_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">times_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_multiply</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">times_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_multiply</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_divides_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_divides_hpp" title="Header &lt;boost/ratio/mpl/divides.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">divides</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_divides_hpp.divides_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">divides_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">divides_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_divides_hpp.divides_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_divides_hpp.divides_impl" title="mpl::divides_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">divides_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_divide</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">divides_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_divide</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_gcd_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_gcd_hpp" title="Header &lt;boost/ratio/mpl/gcd.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">gcd</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_gcd_hpp.gcd_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">gcd_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">gcd_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_gcd_hpp.gcd_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_gcd_hpp.gcd_impl" title="mpl::gcd_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">gcd_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_gcd</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">gcd_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_gcd</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_lcm_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_lcm_hpp" title="Header &lt;boost/ratio/mpl/lcm.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">lcm</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_lcm_hpp.lcm_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">lcm_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">lcm_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_lcm_hpp.lcm_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_lcm_hpp.lcm_impl" title="mpl::lcm_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">lcm_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_lcm</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">lcm_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_lcm</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_negate_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_negate_hpp" title="Header &lt;boost/ratio/mpl/negate.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">negate</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_negate_hpp.negate_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">negate_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">negate_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_negate_hpp.negate_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_negate_hpp.negate_impl" title="mpl::negate_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">negate_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_negate</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">negate_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_negate</span></code></a><span class="special">&lt;</span><span class="identifier">R</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_abs_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_abs_hpp" title="Header &lt;boost/ratio/mpl/abs.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">abs</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_abs_hpp.abs_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">abs_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">abs_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_abs_hpp.abs_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_abs_hpp.abs_impl" title="mpl::abs_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">abs_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_abs</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">abs_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_abs</span></code></a><span class="special">&lt;</span><span class="identifier">R</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_sign_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_sign_hpp" title="Header &lt;boost/ratio/mpl/sign.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">sign</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_sign_hpp.sign_impl"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">sign_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">sign_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_sign_hpp.sign_impl"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_sign_hpp.sign_impl" title="mpl::sign_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">sign_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_sign</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">sign_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_arithmetic" title="ratio Arithmetic"><code class="computeroutput"><span class="identifier">ratio_sign</span></code></a><span class="special">&lt;</span><span class="identifier">R</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_comparison_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_comparison_hpp" title="Header &lt;boost/ratio/mpl/comparison.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">comparison</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<p>
-          This header includes all the rational constant comparison MPL specializations.
-        </p>
-<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">equal_to</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">not_equal_to</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">less</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">less_equal</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">greater</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">greater_equal</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
-</pre>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_equal_to_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_equal_to_hpp" title="Header &lt;boost/ratio/mpl/equal_to.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">equal_to</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_equal_to_hpp.equal_to"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">equal_to_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">equal_to_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_equal_to_hpp.equal_to"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_equal_to_hpp.equal_to" title="mpl::equal_to_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">equal_to_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_equal</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">equal_to_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_equal</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_not_equal_to_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_not_equal_to_hpp" title="Header &lt;boost/ratio/mpl/not_equal_to.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">not_equal_to</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_not_equal_to_hpp.not_equal_to"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">not_equal_to_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">not_equal_to_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_not_equal_to_hpp.not_equal_to"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_not_equal_to_hpp.not_equal_to" title="mpl::not_equal_to_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">not_equal_to_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_not_equal</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">not_equal_to_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_not_equal</span></code></a><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_less_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_less_hpp" title="Header &lt;boost/ratio/mpl/less.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">less</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_less_hpp.less"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">less_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">less_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_less_hpp.less"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_less_hpp.less" title="mpl::less_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">less_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_less</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">less_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <span class="identifier">ratio_less</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_less_equal_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_less_equal_hpp" title="Header &lt;boost/ratio/mpl/less_equal.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">less_equal</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_less_equal_hpp.less_equal"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">less_equal_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">less_equal_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_less_equal_hpp.less_equal"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_less_equal_hpp.less_equal" title="mpl::less_equal_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">less_equal_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_less_equal</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">less_equal_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <span class="identifier">ratio_less_equal</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_greater_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_greater_hpp" title="Header &lt;boost/ratio/mpl/greater.hpp&gt;">Header <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">greater</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_greater_hpp.greater"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">greater_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">greater_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_greater_hpp.greater"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_greater_hpp.greater" title="mpl::greater_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">greater_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_greater</span></code></a> template class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">greater_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <span class="identifier">ratio_greater</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="ratio.reference.mpl.mpl_greater_equal_hpp"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_greater_equal_hpp" title="Header &lt;boost/ratio/mpl/greater_equal.hpp&gt;">Header
-        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">ratio</span><span class="special">/</span><span class="identifier">mpl</span><span class="special">/</span><span class="identifier">greater_equal</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span></code></a>
-</h4></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="reference.html#ratio.reference.mpl.mpl_greater_equal_hpp.greater_equal"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">greater_equal_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a></span></dt></dl></div>
-<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">boost</span> <span class="special">{</span>
-<span class="keyword">namespace</span> <span class="identifier">mpl</span> <span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;&gt;</span>
-    <span class="keyword">struct</span> <span class="identifier">greater_equal_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;;</span>
-<span class="special">}</span>
-<span class="special">}</span>
-</pre>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="ratio.reference.mpl.mpl_greater_equal_hpp.greater_equal"></a><a class="link" href="reference.html#ratio.reference.mpl.mpl_greater_equal_hpp.greater_equal" title="mpl::greater_equal_impl&lt;&gt; Specialization"><code class="computeroutput"><span class="identifier">mpl</span><span class="special">::</span><span class="identifier">greater_equal_impl</span><span class="special">&lt;&gt;</span></code>
-          Specialization</a>
-</h5></div></div></div>
-<p>
-            The specialization relays on the <a class="link" href="reference.html#ratio.reference.std.ratio_hpp.ratio_comparison" title="ratio Comparison"><code class="computeroutput"><span class="identifier">ratio_greater_equal</span></code></a> template
-            class.
-          </p>
-<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;&gt;</span>
-<span class="keyword">struct</span> <span class="identifier">greater_equal_impl</span><span class="special">&lt;</span> <span class="identifier">rational_c_tag</span><span class="special">,</span><span class="identifier">rational_c_tag</span> <span class="special">&gt;</span>
-<span class="special">{</span>
-    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">R1</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">R2</span> <span class="special">&gt;</span> <span class="keyword">struct</span> <span class="identifier">apply</span>
-        <span class="special">:</span> <span class="identifier">ratio_greater_equal</span><span class="special">&lt;</span><span class="identifier">R1</span><span class="special">,</span> <span class="identifier">R2</span><span class="special">&gt;</span>
-    <span class="special">{</span>
-    <span class="special">};</span>
-<span class="special">};</span>
-</pre>
-</div>
-</div>
-</div>
-</div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2008 Howard Hinnant<br>Copyright &#169; 2006, 2008 Beman Dawes<br>Copyright &#169; 2009-2012 Vicente
+<div class="copyright-footer">Copyright © 2008 Howard Hinnant<br>Copyright © 2006, 2008 Beman Dawes<br>Copyright © 2009-2012 Vicente
       J. Botet Escriba<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="users_guide.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../ratio.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="appendices.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

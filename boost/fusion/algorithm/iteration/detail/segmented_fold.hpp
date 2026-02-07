@@ -10,9 +10,14 @@
 #include <boost/fusion/support/config.hpp>
 #include <boost/fusion/algorithm/iteration/fold_fwd.hpp>
 #include <boost/fusion/support/segmented_fold_until.hpp>
+#include <boost/mpl/bool.hpp>
 
 namespace boost { namespace fusion { namespace detail
 {
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4512) // assignment operator could not be generated.
+#endif
     template <typename Fun>
     struct segmented_fold_fun
     {
@@ -36,13 +41,16 @@ namespace boost { namespace fusion { namespace detail
             }
         };
     };
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
     // The default implementation of this lives in detail/fold.hpp
-    template <typename Sequence, typename State, typename Fun, bool IsSegmented>
+    template <typename Sequence, typename State, typename Fun, bool IsSequence, bool IsSegmented>
     struct result_of_fold;
 
     template <typename Sequence, typename State, typename Fun>
-    struct result_of_fold<Sequence, State, Fun, true>
+    struct result_of_fold<Sequence, State, Fun, true, true>
     {
         typedef
             typename result_of::segmented_fold_until<
@@ -53,7 +61,7 @@ namespace boost { namespace fusion { namespace detail
         type;
 
         BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED
-        static type call(State& state, Sequence& seq, Fun fun)
+        static type call(Sequence& seq, State& state, Fun& fun)
         {
             return fusion::segmented_fold_until(seq, state, segmented_fold_fun<Fun>(fun));
         }

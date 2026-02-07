@@ -41,12 +41,15 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/linear_feedback_shift.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/mixmax.hpp>
 #include <boost/random/ranlux.hpp>
 #include <boost/random/shuffle_order.hpp>
 #include <boost/random/shuffle_output.hpp>
 #include <boost/random/subtract_with_carry.hpp>
 #include <boost/random/taus88.hpp>
 #include <boost/random/xor_combine.hpp>
+#include <boost/random/splitmix64.hpp>
+#include <boost/random/xoshiro.hpp>
 
 // misc
 #include <boost/random/generate_canonical.hpp>
@@ -56,6 +59,7 @@
 
 // distributions
 #include <boost/random/bernoulli_distribution.hpp>
+#include <boost/random/beta_distribution.hpp>
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/cauchy_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
@@ -65,6 +69,8 @@
 #include <boost/random/fisher_f_distribution.hpp>
 #include <boost/random/gamma_distribution.hpp>
 #include <boost/random/geometric_distribution.hpp>
+#include <boost/random/hyperexponential_distribution.hpp>
+#include <boost/random/laplace_distribution.hpp>
 #include <boost/random/lognormal_distribution.hpp>
 #include <boost/random/negative_binomial_distribution.hpp>
 #include <boost/random/non_central_chi_squared_distribution.hpp>
@@ -82,5 +88,9 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_smallint.hpp>
 #include <boost/random/weibull_distribution.hpp>
+#include <boost/random/inverse_gaussian_distribution.hpp>
+#include <boost/random/generalized_inverse_gaussian_distribution.hpp>
+
+#include <boost/random/generate_canonical.hpp>
 
 #endif // BOOST_RANDOM_HPP

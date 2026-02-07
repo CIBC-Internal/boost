@@ -19,11 +19,12 @@
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp> // Boost.Test
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/math/distributions/skew_normal.hpp>
 using boost::math::skew_normal_distribution;
 using boost::math::skew_normal;
+#include <boost/math/tools/test.hpp> 
 
 #include <iostream>
 #include <iomanip>
@@ -88,10 +89,13 @@ void test_spots(RealType)
    RealType tolerance = 1e-4f; // 1e-4 (as %)
 
   // Check some bad parameters to the distribution,
-
-   BOOST_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(0, 0), std::domain_error); // zero sd
-   BOOST_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(0, -1), std::domain_error); // negative sd
-
+#ifndef BOOST_NO_EXCEPTIONS
+   BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(0, 0), std::domain_error); // zero sd
+   BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(0, -1), std::domain_error); // negative sd
+#else
+   BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType>(0, 0), std::domain_error); // zero sd
+   BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType>(0, -1), std::domain_error); // negative sd
+#endif
   // Tests on extreme values of random variate x, if has numeric_limit infinity etc.
     skew_normal_distribution<RealType> N01;
   if(std::numeric_limits<RealType>::has_infinity)
@@ -102,20 +106,32 @@ void test_spots(RealType)
     BOOST_CHECK_EQUAL(cdf(N01, -std::numeric_limits<RealType>::infinity()), 0); // x = - infinity, cdf = 0
     BOOST_CHECK_EQUAL(cdf(complement(N01, +std::numeric_limits<RealType>::infinity())), 0); // x = + infinity, c cdf = 0
     BOOST_CHECK_EQUAL(cdf(complement(N01, -std::numeric_limits<RealType>::infinity())), 1); // x = - infinity, c cdf = 1
-    BOOST_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
-    BOOST_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
-    BOOST_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#ifndef BOOST_NO_EXCEPTIONS
+    BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType> nbad1(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#else
+    BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType>(std::numeric_limits<RealType>::infinity(), static_cast<RealType>(1)), std::domain_error); // +infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType>(-std::numeric_limits<RealType>::infinity(),  static_cast<RealType>(1)), std::domain_error); // -infinite mean
+    BOOST_MATH_CHECK_THROW(boost::math::skew_normal_distribution<RealType>(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()), std::domain_error); // infinite sd
+#endif
   }
 
   if (std::numeric_limits<RealType>::has_quiet_NaN)
   {
     // No longer allow x to be NaN, then these tests should throw.
-    BOOST_CHECK_THROW(pdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
-    BOOST_CHECK_THROW(cdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
-    BOOST_CHECK_THROW(cdf(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // x = + infinity
-    BOOST_CHECK_THROW(quantile(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // p = + infinity
-    BOOST_CHECK_THROW(quantile(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // p = + infinity
+    BOOST_MATH_CHECK_THROW(pdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
+    BOOST_MATH_CHECK_THROW(cdf(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // x = NaN
+    BOOST_MATH_CHECK_THROW(cdf(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // x = + infinity
+    BOOST_MATH_CHECK_THROW(quantile(N01, +std::numeric_limits<RealType>::quiet_NaN()), std::domain_error); // p = + infinity
+    BOOST_MATH_CHECK_THROW(quantile(complement(N01, +std::numeric_limits<RealType>::quiet_NaN())), std::domain_error); // p = + infinity
   }
+
+  BOOST_CHECK_EQUAL(mean(N01), 0);
+  BOOST_CHECK_EQUAL(mode(N01), 0);
+  BOOST_CHECK_EQUAL(variance(N01), 1);
+  BOOST_CHECK_EQUAL(skewness(N01), 0);
+  BOOST_CHECK_EQUAL(kurtosis_excess(N01), 0);
 
    cout << "Tolerance for type " << typeid(RealType).name()  << " is " << tolerance << " %" << endl;
 
@@ -333,12 +349,14 @@ void test_spots(RealType)
       BOOST_MATH_STD_USING // ADL of std math lib names.
 
       // Test values from R = see skew_normal_drv.cpp which included the R code used.
+      // Note test values have limited precision.
+      if(boost::math::tools::digits<RealType>() <= 64)
       {
         dist = skew_normal_distribution<RealType>(static_cast<RealType>(1.1l), static_cast<RealType>(2.2l), static_cast<RealType>(-3.3l));
 
         BOOST_CHECK_CLOSE(      // mean:
            mean(dist)
-           , static_cast<RealType>(-0.579908992539856825862549L), tol10 * 2);
+           , static_cast<RealType>(-0.5799089925398568258625490172876619L), tol10 * 2);
 
         std::cout << std::setprecision(17) << "Variance = " << variance(dist) << std::endl;
          BOOST_CHECK_CLOSE(      // variance: N[variance[skewnormaldistribution[1.1, 2.2, -3.3]], 50]
@@ -347,27 +365,27 @@ void test_spots(RealType)
 
         BOOST_CHECK_CLOSE(      // skewness:
            skewness(dist)
-           , static_cast<RealType>(-0.709854548171537509192897824663L), tol100);
+           , static_cast<RealType>(-0.709854548171537509192897824663027155L), tol100);
         BOOST_CHECK_CLOSE(      // kurtosis:
            kurtosis(dist)
-           , static_cast<RealType>(3.5538752625241790601377L), tol100);
+           , static_cast<RealType>(3.55387526252417906013770535120683805L), tol100);
         BOOST_CHECK_CLOSE(      // kurtosis excess:
            kurtosis_excess(dist)
-           , static_cast<RealType>(0.5538752625241790601377L), tol100);
+           , static_cast<RealType>(0.553875262524179060137705351206838143L), tol100);
 
         BOOST_CHECK_CLOSE(
           pdf(dist, static_cast<RealType>(0.4L)),
-          static_cast<RealType>(0.294140110156599539564571L),
+          static_cast<RealType>(0.294140110156599539564571034730246656L),
           tol10);
 
         BOOST_CHECK_CLOSE(
           cdf(dist, static_cast<RealType>(0.4L)),
-          static_cast<RealType>(0.7339186189278737976326676452L),
+          static_cast<RealType>(0.733918618927873797632667645226588243L),
           tol100);
 
         BOOST_CHECK_CLOSE(
           quantile(dist, static_cast<RealType>(0.3L)),
-          static_cast<RealType>(-1.180104068086875314419247L),
+          static_cast<RealType>(-1.18010406808687531441924729956233392L),
           tol100);
 
 
@@ -377,74 +395,68 @@ void test_spots(RealType)
 
        // cout << "pdf(dist, 0) = " << pdf(dist, 0) <<  ", pdf(dist, 0.45) = " << pdf(dist, 0.45) << endl;
        // BOOST_CHECK_CLOSE(mode(dist), boost::math::constants::root_two<RealType>() / 2, tol5);
-        BOOST_CHECK_CLOSE(mode(dist), static_cast<RealType>(0.41697299497388863932L), tol100);
+        BOOST_CHECK_CLOSE(mode(dist), static_cast<RealType>(0.416972994973888639318345129445233074L), tol100);
       }
 
 
       }
-      {
-        dist = skew_normal_distribution<RealType>(static_cast<RealType>(1.1l), static_cast<RealType>(0.02l), static_cast<RealType>(0.03l));
+      dist = skew_normal_distribution<RealType>(static_cast<RealType>(1.1l), static_cast<RealType>(0.02l), static_cast<RealType>(0.03l));
 
-        BOOST_CHECK_CLOSE(      // mean:
+      BOOST_CHECK_CLOSE(      // mean:
            mean(dist)
-           , static_cast<RealType>(1.1004785154529557886162L), tol10);
-        BOOST_CHECK_CLOSE(      // variance:
+           , static_cast<RealType>(1.1004785154529557886162056250600829L), tol10);
+      BOOST_CHECK_CLOSE(      // variance:
           variance(dist)
-           , static_cast<RealType>(0.00039977102296128251645L), tol10);
+           , static_cast<RealType>(0.000399771022961282516451686289719995601L), tol10);
 
-        BOOST_CHECK_CLOSE(      // skewness:
+      BOOST_CHECK_CLOSE(      // skewness:
            skewness(dist)
-           , static_cast<RealType>(5.8834811259890359782e-006L), tol100);
-        BOOST_CHECK_CLOSE(      // kurtosis:
+           , static_cast<RealType>(5.88348112598903597820852388986073439e-006L), tol100);
+      BOOST_CHECK_CLOSE(      // kurtosis:
            kurtosis(dist)
-           , static_cast<RealType>(3.L + 9.2903475812137800239002e-008L), tol100);
-        BOOST_CHECK_CLOSE(      // kurtosis excess:
+           , static_cast<RealType>(3.L + 9.290347581213780023900209941e-008L), tol100);
+      BOOST_CHECK_CLOSE(      // kurtosis excess:
            kurtosis_excess(dist)
-           , static_cast<RealType>(9.2903475812137800239002e-008L), tol100);
-      }
-      {
-        dist = skew_normal_distribution<RealType>(static_cast<RealType>(10.1l), static_cast<RealType>(5.l), static_cast<RealType>(-0.03l));
-        BOOST_CHECK_CLOSE(      // mean:
+           , static_cast<RealType>(9.29034758121378002390020993765449518e-008L), tol100);
+      dist = skew_normal_distribution<RealType>(static_cast<RealType>(10.1l), static_cast<RealType>(5.l), static_cast<RealType>(-0.03l));
+      BOOST_CHECK_CLOSE(      // mean:
            mean(dist)
-           , static_cast<RealType>(9.9803711367610528459485937L), tol10);
-        BOOST_CHECK_CLOSE(      // variance:
+           , static_cast<RealType>(9.98037113676105284594859373497928476L), tol10);
+      BOOST_CHECK_CLOSE(      // variance:
           variance(dist)
-           , static_cast<RealType>(24.98568893508015727823L), tol10);
+           , static_cast<RealType>(24.9856889350801572782303931074997234L), tol10);
 
-        BOOST_CHECK_CLOSE(      // skewness:
+      BOOST_CHECK_CLOSE(      // skewness:
            skewness(dist)
-           , static_cast<RealType>(-5.8834811259890359782085e-006L), tol100);
-        BOOST_CHECK_CLOSE(      // kurtosis:
+           , static_cast<RealType>(-5.88348112598903597820852388986073439e-006L), tol100);
+      BOOST_CHECK_CLOSE(      // kurtosis:
            kurtosis(dist)
-           , static_cast<RealType>(3.L + 9.2903475812137800239002e-008L), tol100);
-        BOOST_CHECK_CLOSE(      // kurtosis excess:
+           , static_cast<RealType>(3.L + 9.290347581213780023900209941e-008L), tol100);
+      BOOST_CHECK_CLOSE(      // kurtosis excess:
            kurtosis_excess(dist)
-           , static_cast<RealType>(9.2903475812137800239002e-008L), tol100);
-      }
-      {
-        dist = skew_normal_distribution<RealType>(static_cast<RealType>(-10.1l), static_cast<RealType>(5.l), static_cast<RealType>(30.l));
-        BOOST_CHECK_CLOSE(      // mean:
+           , static_cast<RealType>(9.29034758121378002390020993765449518e-008L), tol100);
+      dist = skew_normal_distribution<RealType>(static_cast<RealType>(-10.1l), static_cast<RealType>(5.l), static_cast<RealType>(30.l));
+      BOOST_CHECK_CLOSE(      // mean:
            mean(dist)
-           , static_cast<RealType>(-6.11279169674138408531365L), 2 * tol10);
-        BOOST_CHECK_CLOSE(      // variance:
+           , static_cast<RealType>(-6.11279169674138408531365149047090859L), 2 * tol10);
+      BOOST_CHECK_CLOSE(      // variance:
           variance(dist)
-          , static_cast<RealType>(9.10216994642554914628242L), tol10 * 2);
+          , static_cast<RealType>(9.10216994642554914628242097277880642L), tol10 * 2);
 
-        BOOST_CHECK_CLOSE(      // skewness:
+      BOOST_CHECK_CLOSE(      // skewness:
            skewness(dist)
-           , static_cast<RealType>(0.99072425443686904424L), tol100);
-        BOOST_CHECK_CLOSE(      // kurtosis:
+           , static_cast<RealType>(0.990724254436869044244695246354219556L), tol100);
+      BOOST_CHECK_CLOSE(      // kurtosis:
            kurtosis(dist)
-           , static_cast<RealType>(3.L + 0.8638862008406084244563L), tol100);
-        BOOST_CHECK_CLOSE(      // kurtosis excess:
+           , static_cast<RealType>(3.L + 0.8638862008406084244563090239530549L), tol100);
+      BOOST_CHECK_CLOSE(      // kurtosis excess:
            kurtosis_excess(dist)
-           , static_cast<RealType>(0.8638862008406084244563L), tol100);
-      }
+           , static_cast<RealType>(0.863886200840608424456309023953054896L), tol100);
 
-      BOOST_CHECK_THROW(cdf(skew_normal_distribution<RealType>(0, 0, 0), 0), std::domain_error);
-      BOOST_CHECK_THROW(cdf(skew_normal_distribution<RealType>(0, -1, 0), 0), std::domain_error);
-      BOOST_CHECK_THROW(quantile(skew_normal_distribution<RealType>(0, 1, 0), -1), std::domain_error);
-      BOOST_CHECK_THROW(quantile(skew_normal_distribution<RealType>(0, 1, 0), 2), std::domain_error);
+      BOOST_MATH_CHECK_THROW(cdf(skew_normal_distribution<RealType>(0, 0, 0), 0), std::domain_error);
+      BOOST_MATH_CHECK_THROW(cdf(skew_normal_distribution<RealType>(0, -1, 0), 0), std::domain_error);
+      BOOST_MATH_CHECK_THROW(quantile(skew_normal_distribution<RealType>(0, 1, 0), -1), std::domain_error);
+      BOOST_MATH_CHECK_THROW(quantile(skew_normal_distribution<RealType>(0, 1, 0), 2), std::domain_error);
       check_out_of_range<skew_normal_distribution<RealType> >(1, 1, 1);
     }
 
@@ -497,7 +509,7 @@ BOOST_AUTO_TEST_CASE( test_main )
   std::cout << "<note>The long double tests have been disabled on this platform "
     "either because the long double overloads of the usual math functions are "
     "not available at all, or because they are too inaccurate for these tests "
-    "to pass.</note>" << std::cout;
+    "to pass.</note>" << std::endl;
 #endif
   /*      */
   

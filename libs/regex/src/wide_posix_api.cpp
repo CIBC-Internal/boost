@@ -16,6 +16,7 @@
   *   DESCRIPTION: Implements the wide character POSIX API wrappers.
   */
 
+#define _CRT_SECURE_NO_WARNINGS // for std::wcscpy
 #define BOOST_REGEX_SOURCE
 
 #include <boost/regex/config.hpp>
@@ -25,22 +26,23 @@
 #include <boost/regex.hpp>
 #include <boost/cregex.hpp>
 
-#include <cwchar>
-#include <cstring>
+#ifndef BOOST_REGEX_STANDALONE
+#include <boost/core/snprintf.hpp>
+#else
+namespace boost { namespace core { using std::swprintf; } }
+#endif
+
+#ifndef BOOST_WORKAROUND
+#define BOOST_WORKAROUND(x, y) false
+#endif
+
 #include <cstdio>
+#include <cstring>
+#include <cwchar>
 
 #ifdef BOOST_INTEL
 #pragma warning(disable:981)
 #endif
-
-#if defined(BOOST_NO_STDC_NAMESPACE) || defined(__NetBSD__)
-namespace std{
-#  ifndef BOOST_NO_SWPRINTF
-      using ::swprintf;
-#  endif
-}
-#endif
-
 
 namespace boost{
 
@@ -76,27 +78,28 @@ const wchar_t* wnames[] = {
 
 typedef boost::basic_regex<wchar_t, c_regex_traits<wchar_t> > wc_regex_type;
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#pragma warning(disable:26812)
+#endif
 BOOST_REGEX_DECL int BOOST_REGEX_CCALL regcompW(regex_tW* expression, const wchar_t* ptr, int f)
 {
-   if(expression->re_magic != wmagic_value)
-   {
-      expression->guts = 0;
 #ifndef BOOST_NO_EXCEPTIONS
-      try{
+   try{
 #endif
       expression->guts = new wc_regex_type();
 #ifndef BOOST_NO_EXCEPTIONS
-      } catch(...)
-      {
-         return REG_ESPACE;
-      }
-#else
-      if(0 == expression->guts)
-         return REG_E_MEMORY;
-#endif
+   } catch(...)
+   {
+      expression->guts = 0;
+      return REG_ESPACE;
    }
+#else
+   if(0 == expression->guts)
+      return REG_E_MEMORY;
+#endif
    // set default flags:
-   boost::uint_fast32_t flags = (f & REG_PERLEX) ? 0 : ((f & REG_EXTENDED) ? wregex::extended : wregex::basic);
+   unsigned flags = (f & REG_PERLEX) ? 0 : ((f & REG_EXTENDED) ? wregex::extended : wregex::basic);
    expression->eflags = (f & REG_NEWLINE) ? match_not_dot_newline : match_default;
 
    // and translate those that are actually set:
@@ -153,6 +156,9 @@ BOOST_REGEX_DECL int BOOST_REGEX_CCALL regcompW(regex_tW* expression, const wcha
    return result;
 
 }
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorW(int code, const regex_tW* e, wchar_t* buf, regsize_t buf_size)
 {
@@ -164,16 +170,11 @@ BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorW(int code, const regex_tW*
       {
          result = std::wcslen(wnames[code]) + 1;
          if(buf_size >= result)
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) && !defined(_WIN32_WCE) && !defined(UNDER_CE)
-            ::wcscpy_s(buf, buf_size, wnames[code]);
-#else
             std::wcscpy(buf, wnames[code]);
-#endif
          return result;
       }
       return result;
    }
-#if !defined(BOOST_NO_SWPRINTF)
    if(code == REG_ATOI)
    {
       wchar_t localbuf[5];
@@ -186,31 +187,22 @@ BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorW(int code, const regex_tW*
 #if defined(_WIN32_WCE) && !defined(UNDER_CE)
             (std::swprintf)(localbuf, L"%d", i);
 #else
-            (std::swprintf)(localbuf, 5, L"%d", i);
+            (boost::core::swprintf)(localbuf, 5, L"%d", i);
 #endif
             if(std::wcslen(localbuf) < buf_size)
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) && !defined(_WIN32_WCE) && !defined(UNDER_CE)
-               ::wcscpy_s(buf, buf_size, localbuf);
-#else
                std::wcscpy(buf, localbuf);
-#endif
             return std::wcslen(localbuf) + 1;
          }
       }
 #if defined(_WIN32_WCE) && !defined(UNDER_CE)
       (std::swprintf)(localbuf, L"%d", 0);
 #else
-      (std::swprintf)(localbuf, 5, L"%d", 0);
+      (boost::core::swprintf)(localbuf, 5, L"%d", 0);
 #endif
       if(std::wcslen(localbuf) < buf_size)
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) && !defined(_WIN32_WCE) && !defined(UNDER_CE)
-         ::wcscpy_s(buf, buf_size, localbuf);
-#else
          std::wcscpy(buf, localbuf);
-#endif
       return std::wcslen(localbuf) + 1;
    }
-#endif
    if(code <= (int)REG_E_UNKNOWN)
    {
       std::string p;
@@ -218,12 +210,12 @@ BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorW(int code, const regex_tW*
          p = static_cast<wc_regex_type*>(e->guts)->get_traits().error_string(static_cast< ::boost::regex_constants::error_type>(code));
       else
       {
-         p = re_detail::get_default_error_string(static_cast< ::boost::regex_constants::error_type>(code));
+         p = BOOST_REGEX_DETAIL_NS::get_default_error_string(static_cast< ::boost::regex_constants::error_type>(code));
       }
       std::size_t len = p.size();
       if(len < buf_size)
       {
-         re_detail::copy(p.c_str(), p.c_str() + p.size() + 1, buf);
+         BOOST_REGEX_DETAIL_NS::copy(p.c_str(), p.c_str() + p.size() + 1, buf);
       }
       return len + 1;
    }
@@ -280,8 +272,8 @@ BOOST_REGEX_DECL int BOOST_REGEX_CCALL regexecW(const regex_tW* expression, cons
       std::size_t i;
       for(i = 0; (i < n) && (i < expression->re_nsub + 1); ++i)
       {
-         array[i].rm_so = (m[i].matched == false) ? -1 : (m[i].first - buf);
-         array[i].rm_eo = (m[i].matched == false) ? -1 : (m[i].second - buf);
+         array[i].rm_so = m[i].matched ? (m[i].first - buf) : -1;
+         array[i].rm_eo = m[i].matched ? (m[i].second - buf) : -1;
       }
       // and set anything else to -1:
       for(i = expression->re_nsub + 1; i < n; ++i)
@@ -309,7 +301,3 @@ BOOST_REGEX_DECL void BOOST_REGEX_CCALL regfreeW(regex_tW* expression)
 } // namespace boost;
 
 #endif
-
-
-
-

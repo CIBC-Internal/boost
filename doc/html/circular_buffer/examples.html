@@ -1,13 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>More Examples</title>
 <link rel="stylesheet" href="../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="../index.html" title="The Boost C++ Libraries BoostBook Documentation Subset">
-<link rel="up" href="../circular_buffer.html" title="Chapter&#160;7.&#160;Boost.Circular Buffer">
+<link rel="up" href="../circular_buffer.html" title="Chapter 6. Boost.Circular Buffer">
 <link rel="prev" href="implementation.html" title="Implementation">
 <link rel="next" href="headers.html" title="Header Files">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -81,10 +83,10 @@
 <span class="special">}</span>
 </pre>
 <p>
-      The <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code> has
+      The <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code> has
       a capacity of three <code class="computeroutput"><span class="keyword">int</span></code>. Therefore,
       the size of the buffer will never exceed three. The <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">accumulate</span></code>
-      algorithm evaluates the sum of the stored elements. The semantics of the <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code> can be inferred from
+      algorithm evaluates the sum of the stored elements. The semantics of the <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code> can be inferred from
       the assertions.
     </p>
 <p>
@@ -124,6 +126,7 @@
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">bind</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
 
 <span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">timer</span><span class="special">/</span><span class="identifier">timer</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span> <span class="comment">// for auto_cpu_timer</span>
+<span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">iostream</span><span class="special">&gt;</span>
 
 <span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">T</span><span class="special">&gt;</span>
 <span class="keyword">class</span> <span class="identifier">bounded_buffer</span>
@@ -176,24 +179,24 @@
       <a href="../../../libs/utility/call_traits.htm" target="_top">Boost.call_traits utility</a>.
     </p>
 <p>
-      The <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html#idp37372688-bb">push_front()</a></code>
+      The <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html#doxygen.boost_circular_buffer_c___reference.classboost_1_1circular__buffer_1ade5de511163a6ae84430f593a818aaaa">push_front()</a></code>
       method is called by the producer thread in order to insert a new item into
       the buffer. The method locks the mutex and waits until there is a space for
       the new item. (The mutex is unlocked during the waiting stage and has to be
       regained when the condition is met.) If there is a space in the buffer available,
       the execution continues and the method inserts the item at the end of the
-      <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code>. Then it
+      <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code>. Then it
       increments the number of unread items and unlocks the mutex (in case an exception
       is thrown before the mutex is unlocked, the mutex is unlocked automatically
       by the destructor of the scoped_lock). At last the method notifies one of the
       consumer threads waiting for a new item to be inserted into the buffer.
     </p>
 <p>
-      The <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html#idp37415056-bb">pop_back()</a></code>
+      The <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html#doxygen.boost_circular_buffer_c___reference.classboost_1_1circular__buffer_1adf0da00cb501bea75afbbfab9f546a07">pop_back()</a></code>
       method is called by the consumer thread in order to read the next item from
       the buffer. The method locks the mutex and waits until there is an unread item
       in the buffer. If there is at least one unread item, the method decrements
-      the number of unread items and reads the next item from the <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code>.
+      the number of unread items and reads the next item from the <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code>.
       Then it unlocks the mutex and notifies one of the producer threads waiting
       for the buffer to free a space for the next item.
     </p>
@@ -202,8 +205,8 @@
       the item</strong></span> but the item is left in the circular_buffer which then
       <span class="bold"><strong>replaces it with a new one</strong></span> (inserted by a
       producer) when the circular_buffer is full. This technique is more effective
-      than removing the item explicitly by calling the <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html#idp37415056-bb">circular_buffer::pop_back()</a></code>
-      method of the <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code>.
+      than removing the item explicitly by calling the <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html#doxygen.boost_circular_buffer_c___reference.classboost_1_1circular__buffer_1adf0da00cb501bea75afbbfab9f546a07">circular_buffer::pop_back()</a></code>
+      method of the <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code>.
     </p>
 <p>
       This claim is based on the assumption that an assignment (replacement) of a
@@ -213,7 +216,7 @@
 <p>
       For comparison of bounded buffers based on different containers compile and
       run <a href="../../../libs/circular_buffer/test/bounded_buffer_comparison.cpp" target="_top">bounded_buffer_comparison.cpp</a>.
-      The test should reveal the bounded buffer based on the <code class="computeroutput"><a class="link" href="../boost/circular_buffer.html" title="Class template circular_buffer">circular_buffer</a></code>
+      The test should reveal the bounded buffer based on the <code class="computeroutput"><a class="link" href="../doxygen/boost_circular_buffer_c___reference/classboost_1_1circular__buffer.html" title="Class template circular_buffer">circular_buffer</a></code>
       is most effective closely followed by the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">deque</span></code> based
       bounded buffer. (In reality, the result may differ sometimes because the test
       is always affected by external factors such as immediate CPU load.)
@@ -243,14 +246,11 @@
       .
     </p>
 </div>
-<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2003-2013 Jan Gaspar<p>
+<div class="copyright-footer">Copyright © 2003-2013 Jan Gaspar<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
-</div></td>
-</tr></table>
+</div>
 <hr>
 <div class="spirit-nav">
 <a accesskey="p" href="implementation.html"><img src="../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../circular_buffer.html"><img src="../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="headers.html"><img src="../../../doc/src/images/next.png" alt="Next"></a>

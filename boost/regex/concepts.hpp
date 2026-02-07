@@ -24,12 +24,28 @@
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/type_traits/is_base_and_derived.hpp>
 #include <boost/static_assert.hpp>
-#ifndef BOOST_TEST_TR1_REGEX
+#if !defined(BOOST_TEST_TR1_REGEX) && !defined(BOOST_REGEX_TEST_MODULE)
 #include <boost/regex.hpp>
 #endif
 #include <bitset>
 #include <vector>
-#include <iostream>
+#include <ostream>
+
+#ifdef BOOST_REGEX_CXX03
+#define RW_NS boost
+#else
+#define RW_NS std
+#endif
+
+
+  //
+  // alter this to std::tr1, to test a std implementation:
+  //
+#ifndef BOOST_TEST_TR1_REGEX
+namespace global_regex_namespace = ::boost;
+#else
+namespace global_regex_namespace = ::std::tr1;
+#endif
 
 namespace boost{
 
@@ -70,13 +86,10 @@ inline long hash_value(char_architype val)
 //
 } // namespace boost
 namespace std{
-   template<> struct char_traits<boost::char_architype>
-   {
-      // The intent is that this template is not instantiated,
-      // but this typedef gives us a chance of compilation in
-      // case it is:
-      typedef boost::char_architype char_type;
-   };
+   //
+   // We should never use this, if we do it should be an error:
+   //
+   template<> struct char_traits<boost::char_architype>;
 }
 //
 // Allocator architype:
@@ -99,27 +112,30 @@ public:
       typedef allocator_architype<U> other;
    };
 
-   pointer address(reference r);
-   const_pointer address(const_reference r);
-   pointer allocate(size_type);
-   pointer allocate(size_type, pointer);
-   void deallocate(pointer, size_type);
-   size_type max_size()const;
+   pointer address(reference r){ return &r; }
+   const_pointer address(const_reference r) { return &r; }
+   pointer allocate(size_type n) { return static_cast<pointer>(std::malloc(n)); }
+   pointer allocate(size_type n, pointer) { return static_cast<pointer>(std::malloc(n)); }
+   void deallocate(pointer p, size_type) { std::free(p); }
+   size_type max_size()const { return UINT_MAX; }
 
-   allocator_architype();
-   allocator_architype(const allocator_architype&);
+   allocator_architype(){}
+   allocator_architype(const allocator_architype&){}
 
    template <class Other>
-   allocator_architype(const allocator_architype<Other>&);
+   allocator_architype(const allocator_architype<Other>&){}
 
-   void construct(pointer, const_reference);
-   void destroy(pointer);
+   void construct(pointer p, const_reference r) { new (p)T(r); }
+   void destroy(pointer p) { p->~T(); }
 };
 
 template <class T>
-bool operator == (const allocator_architype<T>&, const allocator_architype<T>&);
+bool operator == (const allocator_architype<T>&, const allocator_architype<T>&) {return true; }
 template <class T>
-bool operator != (const allocator_architype<T>&, const allocator_architype<T>&);
+bool operator != (const allocator_architype<T>&, const allocator_architype<T>&) { return false; }
+
+template <class T>
+void consume_type() {}
 
 namespace boost{
 //
@@ -130,7 +146,7 @@ template <class charT>
 struct regex_traits_architype
 {
 public:
-   regex_traits_architype();
+   regex_traits_architype(){}
    typedef charT char_type;
    // typedef std::size_t size_type;
    typedef std::vector<char_type> string_type;
@@ -168,18 +184,9 @@ public:
 
 private:
    // this type is not copyable:
-   regex_traits_architype(const regex_traits_architype&);
-   regex_traits_architype& operator=(const regex_traits_architype&);
+   regex_traits_architype(const regex_traits_architype&){}
+   regex_traits_architype& operator=(const regex_traits_architype&){ return *this; }
 };
-
-//
-// alter this to std::tr1, to test a std implementation:
-//
-#ifndef BOOST_TEST_TR1_REGEX
-namespace global_regex_namespace = ::boost;
-#else
-namespace global_regex_namespace = ::std::tr1;
-#endif
 
 template <class Bitmask>
 struct BitmaskConcept
@@ -267,7 +274,7 @@ template <class Regex>
 struct regex_traits_computer;
 
 template <class charT, class traits>
-struct regex_traits_computer< global_regex_namespace::basic_regex<charT, traits> >
+struct regex_traits_computer< ::boost::basic_regex<charT, traits> >
 {
    typedef traits type;
 };
@@ -365,6 +372,8 @@ struct BaseRegexConcept
       e1 = except.code();
 
       typedef typename Regex::value_type regex_value_type;
+      regex_value_type val{};
+      ignore_unused_variable_warning(val);
       function_requires< RegexTraitsConcept<global_regex_namespace::regex_traits<char> > >();
       function_requires< BaseRegexConcept<global_regex_namespace::basic_regex<char> > >();
    }
@@ -400,6 +409,10 @@ struct BaseRegexConcept
       ignore_unused_variable_warning(e4);
       Regex e5(in1, in2, m_flags);
       ignore_unused_variable_warning(e5);
+
+      // equals:
+      e1 == e2;
+      e1 != e2;
 
       // assign etc:
       Regex e;
@@ -437,17 +450,28 @@ struct BaseRegexConcept
       ignore_unused_variable_warning(bi);
       sub_diff_type diff = m_sub.length();
       ignore_unused_variable_warning(diff);
-      // match_results tests:
+      // match_results tests - some typedefs are not used, however these
+      // guarante that they exist (some compilers may warn on non-usage)
       typedef typename match_results_type::value_type mr_value_type;
+      consume_type<mr_value_type>();
       typedef typename match_results_type::const_reference mr_const_reference;
+      consume_type<mr_const_reference>();
       typedef typename match_results_type::reference mr_reference;
+      consume_type<mr_reference>();
       typedef typename match_results_type::const_iterator mr_const_iterator;
+      consume_type<mr_const_iterator>();
       typedef typename match_results_type::iterator mr_iterator;
+      consume_type<mr_iterator>();
       typedef typename match_results_type::difference_type mr_difference_type;
+      consume_type<mr_difference_type>();
       typedef typename match_results_type::size_type mr_size_type;
+      consume_type<mr_size_type>();
       typedef typename match_results_type::allocator_type mr_allocator_type;
+      consume_type<mr_allocator_type>();
       typedef typename match_results_type::char_type mr_char_type;
+      consume_type<mr_char_type>();
       typedef typename match_results_type::string_type mr_string_type;
+      consume_type<mr_string_type>();
 
       match_results_type m1;
       mr_allocator_type at;
@@ -483,7 +507,7 @@ struct BaseRegexConcept
       mrci = m_cresults.end();
       ignore_unused_variable_warning(mrci);
 
-      mr_allocator_type at2 = m_cresults.get_allocator();
+      (void) m_cresults.get_allocator();
       m_results.swap(m_results);
       global_regex_namespace::swap(m_results, m_results);
 
@@ -995,37 +1019,36 @@ struct BoostRegexConcept
       out = regex_format(out, m_cresults, func2b);
       out = regex_format(out, m_cresults, func1b, f);
       out = regex_format(out, m_cresults, func1b);
-      out = regex_format(out, m_cresults, boost::ref(func3b), f);
-      out = regex_format(out, m_cresults, boost::ref(func3b));
-      out = regex_format(out, m_cresults, boost::ref(func2b), f);
-      out = regex_format(out, m_cresults, boost::ref(func2b));
-      out = regex_format(out, m_cresults, boost::ref(func1b), f);
-      out = regex_format(out, m_cresults, boost::ref(func1b));
-      out = regex_format(out, m_cresults, boost::cref(func3b), f);
-      out = regex_format(out, m_cresults, boost::cref(func3b));
-      out = regex_format(out, m_cresults, boost::cref(func2b), f);
-      out = regex_format(out, m_cresults, boost::cref(func2b));
-      out = regex_format(out, m_cresults, boost::cref(func1b), f);
-      out = regex_format(out, m_cresults, boost::cref(func1b));
-
+      out = regex_format(out, m_cresults, RW_NS::ref(func3b), f);
+      out = regex_format(out, m_cresults, RW_NS::ref(func3b));
+      out = regex_format(out, m_cresults, RW_NS::ref(func2b), f);
+      out = regex_format(out, m_cresults, RW_NS::ref(func2b));
+      out = regex_format(out, m_cresults, RW_NS::ref(func1b), f);
+      out = regex_format(out, m_cresults, RW_NS::ref(func1b));
+      out = regex_format(out, m_cresults, RW_NS::cref(func3b), f);
+      out = regex_format(out, m_cresults, RW_NS::cref(func3b));
+      out = regex_format(out, m_cresults, RW_NS::cref(func2b), f);
+      out = regex_format(out, m_cresults, RW_NS::cref(func2b));
+      out = regex_format(out, m_cresults, RW_NS::cref(func1b), f);
+      out = regex_format(out, m_cresults, RW_NS::cref(func1b));
       m_string += regex_format(m_cresults, func3b, f);
       m_string += regex_format(m_cresults, func3b);
       m_string += regex_format(m_cresults, func2b, f);
       m_string += regex_format(m_cresults, func2b);
       m_string += regex_format(m_cresults, func1b, f);
       m_string += regex_format(m_cresults, func1b);
-      m_string += regex_format(m_cresults, boost::ref(func3b), f);
-      m_string += regex_format(m_cresults, boost::ref(func3b));
-      m_string += regex_format(m_cresults, boost::ref(func2b), f);
-      m_string += regex_format(m_cresults, boost::ref(func2b));
-      m_string += regex_format(m_cresults, boost::ref(func1b), f);
-      m_string += regex_format(m_cresults, boost::ref(func1b));
-      m_string += regex_format(m_cresults, boost::cref(func3b), f);
-      m_string += regex_format(m_cresults, boost::cref(func3b));
-      m_string += regex_format(m_cresults, boost::cref(func2b), f);
-      m_string += regex_format(m_cresults, boost::cref(func2b));
-      m_string += regex_format(m_cresults, boost::cref(func1b), f);
-      m_string += regex_format(m_cresults, boost::cref(func1b));
+      m_string += regex_format(m_cresults, RW_NS::ref(func3b), f);
+      m_string += regex_format(m_cresults, RW_NS::ref(func3b));
+      m_string += regex_format(m_cresults, RW_NS::ref(func2b), f);
+      m_string += regex_format(m_cresults, RW_NS::ref(func2b));
+      m_string += regex_format(m_cresults, RW_NS::ref(func1b), f);
+      m_string += regex_format(m_cresults, RW_NS::ref(func1b));
+      m_string += regex_format(m_cresults, RW_NS::cref(func3b), f);
+      m_string += regex_format(m_cresults, RW_NS::cref(func3b));
+      m_string += regex_format(m_cresults, RW_NS::cref(func2b), f);
+      m_string += regex_format(m_cresults, RW_NS::cref(func2b));
+      m_string += regex_format(m_cresults, RW_NS::cref(func1b), f);
+      m_string += regex_format(m_cresults, RW_NS::cref(func1b));
 
       out = m_cresults.format(out, func3b, f);
       out = m_cresults.format(out, func3b);
@@ -1033,18 +1056,18 @@ struct BoostRegexConcept
       out = m_cresults.format(out, func2b);
       out = m_cresults.format(out, func1b, f);
       out = m_cresults.format(out, func1b);
-      out = m_cresults.format(out, boost::ref(func3b), f);
-      out = m_cresults.format(out, boost::ref(func3b));
-      out = m_cresults.format(out, boost::ref(func2b), f);
-      out = m_cresults.format(out, boost::ref(func2b));
-      out = m_cresults.format(out, boost::ref(func1b), f);
-      out = m_cresults.format(out, boost::ref(func1b));
-      out = m_cresults.format(out, boost::cref(func3b), f);
-      out = m_cresults.format(out, boost::cref(func3b));
-      out = m_cresults.format(out, boost::cref(func2b), f);
-      out = m_cresults.format(out, boost::cref(func2b));
-      out = m_cresults.format(out, boost::cref(func1b), f);
-      out = m_cresults.format(out, boost::cref(func1b));
+      out = m_cresults.format(out, RW_NS::ref(func3b), f);
+      out = m_cresults.format(out, RW_NS::ref(func3b));
+      out = m_cresults.format(out, RW_NS::ref(func2b), f);
+      out = m_cresults.format(out, RW_NS::ref(func2b));
+      out = m_cresults.format(out, RW_NS::ref(func1b), f);
+      out = m_cresults.format(out, RW_NS::ref(func1b));
+      out = m_cresults.format(out, RW_NS::cref(func3b), f);
+      out = m_cresults.format(out, RW_NS::cref(func3b));
+      out = m_cresults.format(out, RW_NS::cref(func2b), f);
+      out = m_cresults.format(out, RW_NS::cref(func2b));
+      out = m_cresults.format(out, RW_NS::cref(func1b), f);
+      out = m_cresults.format(out, RW_NS::cref(func1b));
 
       m_string += m_cresults.format(func3b, f);
       m_string += m_cresults.format(func3b);
@@ -1052,18 +1075,18 @@ struct BoostRegexConcept
       m_string += m_cresults.format(func2b);
       m_string += m_cresults.format(func1b, f);
       m_string += m_cresults.format(func1b);
-      m_string += m_cresults.format(boost::ref(func3b), f);
-      m_string += m_cresults.format(boost::ref(func3b));
-      m_string += m_cresults.format(boost::ref(func2b), f);
-      m_string += m_cresults.format(boost::ref(func2b));
-      m_string += m_cresults.format(boost::ref(func1b), f);
-      m_string += m_cresults.format(boost::ref(func1b));
-      m_string += m_cresults.format(boost::cref(func3b), f);
-      m_string += m_cresults.format(boost::cref(func3b));
-      m_string += m_cresults.format(boost::cref(func2b), f);
-      m_string += m_cresults.format(boost::cref(func2b));
-      m_string += m_cresults.format(boost::cref(func1b), f);
-      m_string += m_cresults.format(boost::cref(func1b));
+      m_string += m_cresults.format(RW_NS::ref(func3b), f);
+      m_string += m_cresults.format(RW_NS::ref(func3b));
+      m_string += m_cresults.format(RW_NS::ref(func2b), f);
+      m_string += m_cresults.format(RW_NS::ref(func2b));
+      m_string += m_cresults.format(RW_NS::ref(func1b), f);
+      m_string += m_cresults.format(RW_NS::ref(func1b));
+      m_string += m_cresults.format(RW_NS::cref(func3b), f);
+      m_string += m_cresults.format(RW_NS::cref(func3b));
+      m_string += m_cresults.format(RW_NS::cref(func2b), f);
+      m_string += m_cresults.format(RW_NS::cref(func2b));
+      m_string += m_cresults.format(RW_NS::cref(func1b), f);
+      m_string += m_cresults.format(RW_NS::cref(func1b));
 
       out = regex_replace(out, m_in, m_in, ce, func3, f);
       out = regex_replace(out, m_in, m_in, ce, func3);
@@ -1071,18 +1094,18 @@ struct BoostRegexConcept
       out = regex_replace(out, m_in, m_in, ce, func2);
       out = regex_replace(out, m_in, m_in, ce, func1, f);
       out = regex_replace(out, m_in, m_in, ce, func1);
-      out = regex_replace(out, m_in, m_in, ce, boost::ref(func3), f);
-      out = regex_replace(out, m_in, m_in, ce, boost::ref(func3));
-      out = regex_replace(out, m_in, m_in, ce, boost::ref(func2), f);
-      out = regex_replace(out, m_in, m_in, ce, boost::ref(func2));
-      out = regex_replace(out, m_in, m_in, ce, boost::ref(func1), f);
-      out = regex_replace(out, m_in, m_in, ce, boost::ref(func1));
-      out = regex_replace(out, m_in, m_in, ce, boost::cref(func3), f);
-      out = regex_replace(out, m_in, m_in, ce, boost::cref(func3));
-      out = regex_replace(out, m_in, m_in, ce, boost::cref(func2), f);
-      out = regex_replace(out, m_in, m_in, ce, boost::cref(func2));
-      out = regex_replace(out, m_in, m_in, ce, boost::cref(func1), f);
-      out = regex_replace(out, m_in, m_in, ce, boost::cref(func1));
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::ref(func3), f);
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::ref(func3));
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::ref(func2), f);
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::ref(func2));
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::ref(func1), f);
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::ref(func1));
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::cref(func3), f);
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::cref(func3));
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::cref(func2), f);
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::cref(func2));
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::cref(func1), f);
+      out = regex_replace(out, m_in, m_in, ce, RW_NS::cref(func1));
 
       functor3<match_results<typename string_type::const_iterator> > func3s;
       functor2<match_results<typename string_type::const_iterator> > func2s;
@@ -1093,18 +1116,18 @@ struct BoostRegexConcept
       m_string += regex_replace(m_string, ce, func2s);
       m_string += regex_replace(m_string, ce, func1s, f);
       m_string += regex_replace(m_string, ce, func1s);
-      m_string += regex_replace(m_string, ce, boost::ref(func3s), f);
-      m_string += regex_replace(m_string, ce, boost::ref(func3s));
-      m_string += regex_replace(m_string, ce, boost::ref(func2s), f);
-      m_string += regex_replace(m_string, ce, boost::ref(func2s));
-      m_string += regex_replace(m_string, ce, boost::ref(func1s), f);
-      m_string += regex_replace(m_string, ce, boost::ref(func1s));
-      m_string += regex_replace(m_string, ce, boost::cref(func3s), f);
-      m_string += regex_replace(m_string, ce, boost::cref(func3s));
-      m_string += regex_replace(m_string, ce, boost::cref(func2s), f);
-      m_string += regex_replace(m_string, ce, boost::cref(func2s));
-      m_string += regex_replace(m_string, ce, boost::cref(func1s), f);
-      m_string += regex_replace(m_string, ce, boost::cref(func1s));
+      m_string += regex_replace(m_string, ce, RW_NS::ref(func3s), f);
+      m_string += regex_replace(m_string, ce, RW_NS::ref(func3s));
+      m_string += regex_replace(m_string, ce, RW_NS::ref(func2s), f);
+      m_string += regex_replace(m_string, ce, RW_NS::ref(func2s));
+      m_string += regex_replace(m_string, ce, RW_NS::ref(func1s), f);
+      m_string += regex_replace(m_string, ce, RW_NS::ref(func1s));
+      m_string += regex_replace(m_string, ce, RW_NS::cref(func3s), f);
+      m_string += regex_replace(m_string, ce, RW_NS::cref(func3s));
+      m_string += regex_replace(m_string, ce, RW_NS::cref(func2s), f);
+      m_string += regex_replace(m_string, ce, RW_NS::cref(func2s));
+      m_string += regex_replace(m_string, ce, RW_NS::cref(func1s), f);
+      m_string += regex_replace(m_string, ce, RW_NS::cref(func1s));
    }
 
    std::basic_ostream<value_type> m_stream;

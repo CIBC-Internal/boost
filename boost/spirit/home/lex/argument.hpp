@@ -13,13 +13,13 @@
 #pragma once
 #endif
 
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/home/support/string_traits.hpp>
 #include <boost/spirit/home/lex/argument_phoenix.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/phoenix/core/actor.hpp>
+#include <boost/phoenix/core/argument.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -93,16 +93,6 @@ namespace boost { namespace spirit { namespace lex
         template <typename Env>
         void eval(Env const& env) const
         {
-            typedef
-                typename remove_reference<
-                   typename remove_const<
-                        typename mpl::at_c<typename Env::args_type, 4>::type
-                    >::type
-                >::type
-            context_type;
-
-            typedef typename context_type::state_name_type string;
-
             fusion::at_c<4>(env.args()).set_state_name(
                 traits::get_c_string(actor_.eval(env)));
         }

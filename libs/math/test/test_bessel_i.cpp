@@ -3,7 +3,22 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef SYCL_LANGUAGE_VERSION
 #include <pch_light.hpp>
+#else
+#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
+#include "sycl/sycl.hpp"
+#include <boost/math/tools/config.hpp>
+#endif
+
+#ifdef __clang__
+#  pragma clang diagnostic push 
+#  pragma clang diagnostic ignored "-Wliteral-range"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push 
+#  pragma GCC diagnostic ignored "-Woverflow"
+#endif
+
 #include "test_bessel_i.hpp"
 
 //
@@ -60,6 +75,16 @@ void expected_results()
       ".*",                          // test data group
       ".*", 400, 200);               // test function
    //
+   // Cygwin:
+   //
+   add_expected_result(
+      "GNU.*",                      // Compiler
+      ".*",                         // Stdlib
+      "Cygwin*",                    // Platform
+      largest_type,                 // test type(s)
+      ".*",                         // test data group
+      ".*", 400, 200);              // test function
+   //
    // G++ on Linux, results vary a bit by processor type,
    // on Itanium results are *much* better than listed here,
    // but x86 appears to have much less accurate std::pow
@@ -72,7 +97,11 @@ void expected_results()
       "linux",                       // platform
       largest_type,                  // test type(s)
       ".*Random.*",                    // test data group
+      #ifdef SYCL_LANGUAGE_VERSION
+      ".*", 600, 200);
+      #else
       ".*", 400, 200);               // test function
+      #endif
 
    add_expected_result(
       "GNU.*",                       // compiler
@@ -91,10 +120,21 @@ void expected_results()
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
+      ".*Solaris.*",                 // platform
+      largest_type,                  // test type(s)
+      ".*",                          // test data group
+      ".*", 500, 200);               // test function
+   add_expected_result(
+      ".*",                          // compiler
+      ".*",                          // stdlib
       ".*",                          // platform
       largest_type,                  // test type(s)
       ".*",                          // test data group
+      #ifdef SYCL_LANGUAGE_VERSION
+      ".*", 400, 200);
+      #else
       ".*", 20, 10);                 // test function
+      #endif
    //
    // Set error rates a little higher for real_concept - 
    // now that we use a series approximation for small z
@@ -138,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 

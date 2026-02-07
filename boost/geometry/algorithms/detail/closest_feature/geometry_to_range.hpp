@@ -12,8 +12,7 @@
 
 #include <iterator>
 
-#include <boost/assert.hpp>
-
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -49,7 +48,7 @@ private:
                              RangeIterator& it_min,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != last );
+        BOOST_GEOMETRY_ASSERT( first != last );
 
         Distance const zero = Distance(0);
 
@@ -93,7 +92,7 @@ public:
         typename RangeIterator,
         typename Strategy,
         typename Distance
-    >    
+    >
     static inline RangeIterator apply(Geometry const& geometry,
                                       RangeIterator first,
                                       RangeIterator last,
@@ -112,7 +111,7 @@ public:
         typename Geometry,
         typename RangeIterator,
         typename Strategy
-    >    
+    >
     static inline RangeIterator apply(Geometry const& geometry,
                                       RangeIterator first,
                                       RangeIterator last,
@@ -121,14 +120,8 @@ public:
         typename strategy::distance::services::return_type
             <
                 Strategy,
-                typename point_type<Geometry>::type,
-                typename point_type
-                    <
-                        typename std::iterator_traits
-                            <
-                                RangeIterator
-                            >::value_type
-                    >::type
+                point_type_t<Geometry>,
+                point_type_t<typename std::iterator_traits<RangeIterator>::value_type>
             >::type dist_min;
 
         return apply(geometry, first, last, strategy, dist_min);

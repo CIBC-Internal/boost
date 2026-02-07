@@ -1,18 +1,13 @@
 /*=============================================================================
-    Copyright (c) 2001-2014 Joel de Guzman
+    Copyright (c) 2001-2015 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
-// this file deliberately contains non-ascii characters
-// boostinspect:noascii
-
-#include <boost/detail/lightweight_test.hpp>
 #include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/at.hpp>
-//~ #include <boost/fusion/include/std_pair.hpp>
 
 #include <string>
 #include <cstring>
@@ -27,7 +22,7 @@ struct my_rule_class
 {
     template <typename Iterator, typename Exception, typename Context>
     x3::error_handler_result
-    on_error(Iterator&, Iterator const& last, Exception const& x, Context const& context)
+    on_error(Iterator&, Iterator const& last, Exception const& x, Context const&)
     {
         std::cout
             << "Error! Expecting: "
@@ -48,6 +43,43 @@ struct my_rule_class
     }
 };
 
+struct on_success_gets_preskipped_iterator
+{
+    static bool ok;
+
+    template <typename Iterator, typename Attribute, typename Context>
+    void on_success(Iterator before, Iterator& after, Attribute&, Context const&)
+    {
+        ok = ('b' == *before) && (++before == after);
+    }
+};
+bool on_success_gets_preskipped_iterator::ok = false;
+
+struct on_success_advance_iterator
+{
+    template <typename Iterator, typename Attribute, typename Context>
+    void on_success(Iterator const&, Iterator& after, Attribute&, Context const&)
+    {
+        ++after;
+    }
+};
+struct on_success_advance_iterator_mutref
+{
+    template <typename Iterator, typename Attribute, typename Context>
+    void on_success(Iterator&, Iterator& after, Attribute&, Context const&)
+    {
+        ++after;
+    }
+};
+struct on_success_advance_iterator_byval
+{
+    template <typename Iterator, typename Attribute, typename Context>
+    void on_success(Iterator, Iterator& after, Attribute&, Context const&)
+    {
+        ++after;
+    }
+};
+
 int
 main()
 {
@@ -55,13 +87,9 @@ main()
     using spirit_test::test;
 
     using namespace boost::spirit::x3::ascii;
-    //~ using boost::spirit::x3::locals;
     using boost::spirit::x3::rule;
     using boost::spirit::x3::int_;
-    //~ using boost::spirit::x3::uint_;
     using boost::spirit::x3::lit;
-
-    //~ namespace phx = boost::phoenix;
 
     { // show that ra = rb and ra %= rb works as expected
         rule<class a, int> ra;
@@ -81,20 +109,29 @@ main()
         BOOST_TEST(attr == 123);
     }
 
+    { // show that ra %= rb works as expected with semantic actions
+        rule<class a, int> ra;
+        rule<class b, int> rb;
+        int attr;
+
+        auto f = [](auto&){};
+        auto ra_def = (ra %= int_[f]);
+        BOOST_TEST(test_attr("123", ra_def, attr));
+        BOOST_TEST(attr == 123);
+
+        auto ra_def2 = (rb = (ra %= int_[f]));
+        BOOST_TEST(test_attr("123", ra_def2, attr));
+        BOOST_TEST(attr == 123);
+    }
+
 
     { // std::string as container attribute with auto rules
 
         std::string attr;
 
-        // $$$ Maybe no longer relevant $$$
-        //~ rule<char const*, std::string()> text;
-        //~ text %= +(!char_(')') >> !char_('>') >> char_);
-        //~ BOOST_TEST(test_attr("x", text, attr));
-        //~ BOOST_TEST(attr == "x");
-
         // test deduced auto rule behavior
 
-        auto text = rule<class text, std::string>()
+        auto text = rule<class text_id, std::string>()
             = +(!char_(')') >> !char_('>') >> char_);
 
         attr.clear();
@@ -116,45 +153,35 @@ main()
         BOOST_TEST(got_it == 1);
     }
 
-    // $$$ No longer relevant $$$
-// $$$ Do we support rule encoding? $$$
-//~ #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-//~ #pragma setlocale("french")
-//~ #endif
-    //~ { // specifying the encoding
+    { // on_success gets pre-skipped iterator
+        auto r = rule<on_success_gets_preskipped_iterator, char const*>()
+            = lit("b");
+        BOOST_TEST(test("a b", 'a' >> r, lit(' ')));
+        BOOST_TEST(on_success_gets_preskipped_iterator::ok);
+    }
 
-        //~ typedef boost::spirit::char_encoding::iso8859_1 iso8859_1;
-        //~ rule<char const*, iso8859_1> r;
-
-        //~ r = no_case['·'];
-        //~ BOOST_TEST(test("¡", r));
-        //~ r = no_case[char_('·')];
-        //~ BOOST_TEST(test("¡", r));
-
-        //~ r = no_case[char_("Â-Ô")];
-        //~ BOOST_TEST(test("…", r));
-        //~ BOOST_TEST(!test("ˇ", r));
-
-        //~ r = no_case["·¡"];
-        //~ BOOST_TEST(test("¡·", r));
-        //~ r = no_case[lit("·¡")];
-        //~ BOOST_TEST(test("¡·", r));
-    //~ }
-
-//~ #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-//~ #pragma setlocale("")
-//~ #endif
+    { // on_success handler mutable 'after' iterator
+        auto r1 = rule<on_success_advance_iterator, char const*>()
+            = lit("ab");
+        BOOST_TEST(test("abc", r1));
+        auto r2 = rule<on_success_advance_iterator_mutref, char const*>()
+            = lit("ab");
+        BOOST_TEST(test("abc", r2));
+        auto r3 = rule<on_success_advance_iterator_byval, char const*>()
+            = lit("ab");
+        BOOST_TEST(test("abc", r3));
+    }
 
     {
         typedef boost::variant<double, int> v_type;
-        auto r1 = rule<class r1, v_type>()
+        auto r1 = rule<class r1_id, v_type>()
             = int_;
         v_type v;
         BOOST_TEST(test_attr("1", r1, v) && v.which() == 1 &&
             boost::get<int>(v) == 1);
 
         typedef boost::optional<int> ov_type;
-        auto r2 = rule<class r2, ov_type>()
+        auto r2 = rule<class r2_id, ov_type>()
             = int_;
         ov_type ov;
         BOOST_TEST(test_attr("1", r2, ov) && ov && boost::get<int>(ov) == 1);
@@ -164,53 +191,12 @@ main()
     {
         using boost::fusion::vector;
         using boost::fusion::at_c;
-        auto r = rule<class r, vector<int>>()
+        auto r = rule<class r_id, vector<int>>()
             = int_;
 
         vector<int> v(0);
         BOOST_TEST(test_attr("1", r, v) && at_c<0>(v) == 1);
     }
-
-    // $$$ This test does not seem to add anything from the previous test above $$$
-    //~ {
-        //~ using boost::fusion::vector;
-        //~ using boost::fusion::at_c;
-        //~ rule<const char*, vector<unsigned int>()> r = uint_;
-
-        //~ vector<unsigned int> v(0);
-        //~ BOOST_TEST(test_attr("1", r, v) && at_c<0>(v) == 1);
-    //~ }
-
-    // $$$ No longer relevant $$$
-    //~ {
-        //~ using boost::spirit::x3::int_;
-        //~ using boost::spirit::x3::_1;
-        //~ using boost::spirit::x3::_val;
-        //~ using boost::spirit::x3::space;
-        //~ using boost::spirit::x3::space_type;
-
-        //~ rule<const char*, int()> r1 = int_;
-        //~ rule<const char*, int(), space_type> r2 = int_;
-
-        //~ int i = 0;
-        //~ int j = 0;
-        //~ BOOST_TEST(test_attr("456", r1[_val = _1], i) && i == 456);
-        //~ BOOST_TEST(test_attr("   456", r2[_val = _1], j, space) && j == 456);
-    //~ }
-
-
-    /// $$$ disabling test (can't fix): '_' has unused attribute $$$
-    //~ {
-        //~ using boost::spirit::x3::lexeme;
-        //~ using boost::spirit::x3::alnum;
-
-        //~ auto literal_ = rule<class literal_, std::string>()
-            //~ = lexeme[ +(alnum | '_') ];
-
-        //~ std::string attr;
-        //~ BOOST_TEST(test_attr("foo_bar", literal_, attr) && attr == "foo_bar");
-        //~ std::cout << attr << std::endl;
-    //~ }
 
     { // attribute compatibility test
         using boost::spirit::x3::rule;
@@ -218,14 +204,14 @@ main()
 
         auto const expr = int_;
 
-        short i;
+        long long i;
         BOOST_TEST(test_attr("1", expr, i) && i == 1); // ok
 
         const rule< class int_rule, int > int_rule( "int_rule" );
         auto const int_rule_def = int_;
         auto const start  = int_rule = int_rule_def;
 
-        short j;
+        long long j;
         BOOST_TEST(test_attr("1", start, j) && j == 1); // error
     }
 

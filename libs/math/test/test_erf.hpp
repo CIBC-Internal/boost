@@ -1,25 +1,31 @@
-// Copyright John Maddock 2006.
-// Copyright Paul A. Bristow 2007, 2009
+//  Copyright John Maddock 2006.
+//  Copyright Paul A. Bristow 2007, 2009
+//  Copyright Matt Borland 2024.
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#include <boost/math/tools/config.hpp>
 #include <boost/math/concepts/real_concept.hpp>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/type_traits/is_floating_point.hpp>
 #include <boost/array.hpp>
 #include "functor.hpp"
 
-#include "test_erf_hooks.hpp"
 #include "handle_test_result.hpp"
 #include "table_type.hpp"
 
 #ifndef SC_
 #define SC_(x) static_cast<typename table_type<T>::type>(BOOST_JOIN(x, L))
+#endif
+
+#ifdef BOOST_MATH_NO_EXCEPTIONS
+#  undef BOOST_CHECK_THROW
+#  define BOOST_CHECK_THROW(x, y)
 #endif
 
 template <class Real, class T>
@@ -28,7 +34,9 @@ void do_test_erf(const T& data, const char* type_name, const char* test_name)
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef ERF_FUNCTION_TO_TEST
+   pg funcp = ERF_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::erf<value_type>;
 #else
    pg funcp = boost::math::erf;
@@ -42,50 +50,38 @@ void do_test_erf(const T& data, const char* type_name, const char* test_name)
    //
    // test erf against data:
    //
+#if !(defined(ERROR_REPORTING_MODE) && !defined(ERF_FUNCTION_TO_TEST))
    result = boost::math::tools::test_hetero<Real>(
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erf", test_name);
-#ifdef TEST_OTHER
-   if(::boost::is_floating_point<value_type>::value){
-      funcp = other::erf;
-      result = boost::math::tools::test_hetero<Real>(
-         data,
-         bind_func<Real>(funcp, 0),
-         extract_result<Real>(1));
-      print_test_result(result, data[result.worst()], result.worst(), type_name, "other::erf");
-   }
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erf", test_name);
 #endif
    //
    // test erfc against data:
    //
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef ERFC_FUNCTION_TO_TEST
+   funcp = ERFC_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    funcp = boost::math::erfc<value_type>;
 #else
    funcp = boost::math::erfc;
 #endif
+#if !(defined(ERROR_REPORTING_MODE) && !defined(ERFC_FUNCTION_TO_TEST))
    result = boost::math::tools::test_hetero<Real>(
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(2));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erfc", test_name);
-#ifdef TEST_OTHER
-   if(::boost::is_floating_point<value_type>::value){
-      funcp = other::erfc;
-      result = boost::math::tools::test_hetero<Real>(
-         data,
-         bind_func<Real>(funcp, 0),
-         extract_result<Real>(2));
-      print_test_result(result, data[result.worst()], result.worst(), type_name, "other::erfc");
-   }
-#endif
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erfc", test_name);
    std::cout << std::endl;
+#endif
 }
+
 
 template <class Real, class T>
 void do_test_erf_inv(const T& data, const char* type_name, const char* test_name)
 {
+#if !(defined(ERROR_REPORTING_MODE) && !defined(ERF_INV_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
@@ -96,7 +92,9 @@ void do_test_erf_inv(const T& data, const char* type_name, const char* test_name
    //
    // test erf_inv against data:
    //
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef ERF_INV_FUNCTION_TO_TEST
+   pg funcp = ERF_INV_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::erf_inv<value_type>;
 #else
    pg funcp = boost::math::erf_inv;
@@ -105,21 +103,18 @@ void do_test_erf_inv(const T& data, const char* type_name, const char* test_name
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erf_inv", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erf_inv", test_name);
    std::cout << std::endl;
+#endif
 }
 
 template <class Real, class T>
 void do_test_erfc_inv(const T& data, const char* type_name, const char* test_name)
 {
+#if !(defined(ERROR_REPORTING_MODE) && !defined(ERFC_INV_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
-   pg funcp = boost::math::erf<value_type>;
-#else
-   pg funcp = boost::math::erf;
-#endif
 
    boost::math::tools::test_result<value_type> result;
    std::cout << "Testing " << test_name << " with type " << type_name
@@ -127,17 +122,20 @@ void do_test_erfc_inv(const T& data, const char* type_name, const char* test_nam
    //
    // test erfc_inv against data:
    //
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
-   funcp = boost::math::erfc_inv<value_type>;
+#ifdef ERFC_INV_FUNCTION_TO_TEST
+   pg funcp = ERFC_INV_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+   pg funcp = boost::math::erfc_inv<value_type>;
 #else
-   funcp = boost::math::erfc_inv;
+   pg funcp = boost::math::erfc_inv;
 #endif
    result = boost::math::tools::test_hetero<Real>(
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erfc_inv", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erfc_inv", test_name);
    std::cout << std::endl;
+#endif
 }
 
 template <class T>
@@ -175,6 +173,33 @@ void test_erf(T, const char* name)
    {
       do_test_erfc_inv<T>(erfc_inv_big_data, name, "Inverse Erfc Function: extreme values");
    }
+
+   BOOST_IF_CONSTEXPR(std::numeric_limits<T>::has_quiet_NaN)
+   {
+      BOOST_CHECK_THROW(boost::math::erf(std::numeric_limits<T>::quiet_NaN()), std::domain_error);
+      BOOST_CHECK_THROW(boost::math::erfc(std::numeric_limits<T>::quiet_NaN()), std::domain_error);
+   }
+   BOOST_CHECK_THROW(boost::math::erfc_inv(T(-0.5)), std::domain_error);
+   BOOST_CHECK_THROW(boost::math::erfc_inv(T(2.1)), std::domain_error);
+   BOOST_CHECK_THROW(boost::math::erf_inv(T(-1.1)), std::domain_error);
+   BOOST_CHECK_THROW(boost::math::erf_inv(T(1.1)), std::domain_error);
+   BOOST_IF_CONSTEXPR(std::numeric_limits<T>::has_infinity)
+   {
+      BOOST_CHECK_EQUAL(boost::math::erfc_inv(T(0)), std::numeric_limits<T>::infinity());
+      BOOST_CHECK_EQUAL(boost::math::erfc_inv(T(2)), -std::numeric_limits<T>::infinity());
+      BOOST_CHECK_EQUAL(boost::math::erf_inv(T(1)), std::numeric_limits<T>::infinity());
+      BOOST_CHECK_EQUAL(boost::math::erf_inv(T(-1)), -std::numeric_limits<T>::infinity());
+      BOOST_CHECK_EQUAL(boost::math::erf_inv(T(0)), T(0));
+
+      BOOST_CHECK_EQUAL(boost::math::erf(std::numeric_limits<T>::infinity()), T(1));
+      BOOST_CHECK_EQUAL(boost::math::erf(-std::numeric_limits<T>::infinity()), T(-1));
+      BOOST_CHECK_EQUAL(boost::math::erfc(std::numeric_limits<T>::infinity()), T(0));
+      BOOST_CHECK_EQUAL(boost::math::erfc(-std::numeric_limits<T>::infinity()), T(2));
+   }
+   BOOST_CHECK_EQUAL(boost::math::erf(boost::math::tools::max_value<T>()), T(1));
+   BOOST_CHECK_EQUAL(boost::math::erf(-boost::math::tools::max_value<T>()), T(-1));
+   BOOST_CHECK_EQUAL(boost::math::erfc(boost::math::tools::max_value<T>()), T(0));
+   BOOST_CHECK_EQUAL(boost::math::erfc(-boost::math::tools::max_value<T>()), T(2));
 }
 
 template <class T>

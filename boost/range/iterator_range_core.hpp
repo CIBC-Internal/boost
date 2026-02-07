@@ -26,8 +26,11 @@
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/not.hpp>
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/or.hpp>
+#include <boost/mpl/identity.hpp>
 #include <boost/type_traits/is_abstract.hpp>
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/is_base_and_derived.hpp>
@@ -41,7 +44,8 @@
 #include <boost/range/has_range_iterator.hpp>
 #include <boost/range/algorithm/equal.hpp>
 #include <boost/range/detail/safe_bool.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/core/enable_if.hpp>
+#include <boost/next_prior.hpp>
 #include <iterator>
 #include <algorithm>
 #include <cstddef>
@@ -66,13 +70,13 @@ namespace boost
             template< class ForwardRange >
             static IteratorT adl_begin( ForwardRange& r )
             {
-                return static_cast<IteratorT>( boost::begin( r ) );
+                return IteratorT( boost::begin( r ) );
             }
 
             template< class ForwardRange >
             static IteratorT adl_end( ForwardRange& r )
             {
-                return static_cast<IteratorT>( boost::end( r ) );
+                return IteratorT( boost::end( r ) );
             }
         };
 
@@ -636,8 +640,6 @@ public:
             return iterator_range_detail::greater_or_equal_than( l, r );
         }
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
-#else
         template< class Iterator1T, class Iterator2T >
         inline bool
         operator==( const iterator_range<Iterator1T>& l, const iterator_range<Iterator2T>& r )
@@ -742,8 +744,6 @@ public:
             return iterator_range_detail::greater_or_equal_than( l, r );
         }
 
-#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
-
 //  iterator range utilities -----------------------------------------//
 
         //! iterator_range construct helper
@@ -768,17 +768,6 @@ public:
             return iterator_range<IteratorT>(first, boost::next(first, n));
         }
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
-
-        template< typename Range >
-        inline iterator_range< BOOST_DEDUCED_TYPENAME range_iterator<Range>::type >
-        make_iterator_range( Range& r )
-        {
-            return iterator_range< BOOST_DEDUCED_TYPENAME range_iterator<Range>::type >
-                ( boost::begin( r ), boost::end( r ) );
-        }
-
-#else
         //! iterator_range construct helper
         /*!
             Construct an \c iterator_range from a \c Range containing the begin
@@ -799,8 +788,6 @@ public:
            return iterator_range< BOOST_DEDUCED_TYPENAME range_iterator<const ForwardRange>::type >
                 ( r, iterator_range_detail::const_range_tag() );
         }
-
-#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
         namespace iterator_range_detail
         {
@@ -826,19 +813,6 @@ public:
             }
         }
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
-
-        template< class Range >
-        inline iterator_range< BOOST_DEDUCED_TYPENAME range_iterator<Range>::type >
-        make_iterator_range( Range& r,
-                    BOOST_DEDUCED_TYPENAME range_difference<Range>::type advance_begin,
-                    BOOST_DEDUCED_TYPENAME range_difference<Range>::type advance_end )
-        {
-            return iterator_range_detail::make_range_impl( r, advance_begin, advance_end );
-        }
-
-#else
-
         template< class Range >
         inline iterator_range< BOOST_DEDUCED_TYPENAME range_iterator<Range>::type >
         make_iterator_range( Range& r,
@@ -856,8 +830,6 @@ public:
         {
             return iterator_range_detail::make_range_impl( r, advance_begin, advance_end );
         }
-
-#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
         //! copy a range into a sequence
         /*!

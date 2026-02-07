@@ -16,10 +16,10 @@
 #include <boost/intrusive/avl_set.hpp>
 #include <boost/intrusive/sg_set.hpp>
 #include <boost/intrusive/splay_set.hpp>
+#include <boost/intrusive/bs_set.hpp>
 #include <boost/intrusive/treap_set.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/pointer_traits.hpp>
-#include <boost/static_assert.hpp>
 #include "smart_ptr.hpp"
 #include <vector>
 
@@ -27,6 +27,7 @@ using namespace boost::intrusive;
 
 struct my_tag;
 struct my_tag2;
+struct my_tag3;
 
 typedef make_bs_set_base_hook
    < void_pointer<smart_ptr<void> >, link_mode<normal_link>
@@ -34,6 +35,9 @@ typedef make_bs_set_base_hook
 typedef make_bs_set_base_hook
    < void_pointer<smart_ptr<void> >, link_mode<normal_link>
    , tag<my_tag2> >::type SplayHook;
+typedef make_bs_set_base_hook
+   < void_pointer<smart_ptr<void> >, link_mode<normal_link>
+   , tag<my_tag3> >::type BsHook;
 
 class MyClass
 :  public make_list_base_hook
@@ -50,6 +54,7 @@ class MyClass
    < void_pointer<smart_ptr<void> >, link_mode<normal_link> >::type
 ,  public TreapHook
 ,  public SplayHook
+,  public BsHook
 {
    int int_;
 
@@ -65,7 +70,7 @@ class MyClass
    {  return l.int_ == r.int_; }
 
    friend std::size_t hash_value(const MyClass &v)
-   {  return boost::hash_value(v.int_); }
+   {  return std::size_t(v.int_); }
 
    friend bool priority_order(const MyClass &l, const MyClass &r)
    {  return l.int_ < r.int_; }
@@ -83,6 +88,8 @@ typedef make_treap_set<MyClass
    , base_hook<TreapHook> >::type         TreapSet;
 typedef make_splay_set<MyClass
    , base_hook<SplayHook> >::type         SplaySet;
+typedef make_bs_set<MyClass
+   , base_hook<BsHook> >::type            BsSet;
 
 int main()
 {
@@ -103,6 +110,7 @@ int main()
 
    AvlSet      my_avlset;
    SplaySet    my_splayset;
+   BsSet       my_bsset;
    SgSet       my_sgset;
    TreapSet    my_treapset;
 
@@ -114,6 +122,7 @@ int main()
       my_uset.insert(*it);
       my_avlset.insert(*it);
       my_splayset.insert(*it);
+      my_bsset.insert(*it);
       my_sgset.insert(*it);
       my_treapset.insert(*it);
    }
@@ -126,6 +135,7 @@ int main()
 
       AvlSet::const_reverse_iterator avlset_rit(my_avlset.crbegin());
       SplaySet::const_reverse_iterator splayset_rit(my_splayset.crbegin());
+      BsSet::const_reverse_iterator bsset_rit(my_bsset.crbegin());
       SgSet::const_reverse_iterator sgset_rit(my_sgset.crbegin());
       TreapSet::const_reverse_iterator treapset_rit(my_treapset.crbegin());
 
@@ -134,7 +144,7 @@ int main()
       //Test the objects inserted in the base hook list
       for( ; vect_it != vect_itend
          ; ++vect_it, ++list_it, ++slist_it, ++set_rit
-         , ++avlset_rit, ++splayset_rit, ++sgset_rit, ++treapset_rit
+         , ++avlset_rit, ++splayset_rit, ++bsset_rit, ++sgset_rit, ++treapset_rit
          ){
          if(&*list_it  != &*vect_it)   return 1;
          if(&*slist_it != &*vect_it)   return 1;
@@ -142,58 +152,59 @@ int main()
          if(my_uset.find(*set_rit) == my_uset.cend())  return 1;
          if(&*avlset_rit   != &*vect_it)  return 1;
          if(&*splayset_rit != &*vect_it)  return 1;
+         if(&*bsset_rit != &*vect_it)  return 1;
          if(&*sgset_rit    != &*vect_it)  return 1;
          if(&*treapset_rit != &*vect_it)  return 1;
       }
    }
 
    //Check defined types and implicitly defined types are equal
-   BOOST_STATIC_ASSERT((detail::is_same<make_list_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<make_list_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
                      ,make_list_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT((detail::is_same<make_slist_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<make_slist_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
                      ,make_slist_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT((detail::is_same<make_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<make_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
                      ,make_set_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT((detail::is_same<make_unordered_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<make_unordered_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
                      ,make_unordered_set_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT((detail::is_same<make_avl_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<make_avl_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
                      ,make_avl_set_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT((detail::is_same<make_bs_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT((detail::is_same<make_bs_set_base_hook<void_pointer<void*>, link_mode<safe_link> >::type
                      ,make_bs_set_base_hook<>::type
                      >::value));
 
    //Check defined types and implicitly defined types are unequal
-   BOOST_STATIC_ASSERT(!(detail::is_same<make_list_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT(!(detail::is_same<make_list_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
                      ,make_list_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT(!(detail::is_same<make_slist_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT(!(detail::is_same<make_slist_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
                      ,make_slist_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT(!(detail::is_same<make_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT(!(detail::is_same<make_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
                      ,make_set_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT(!(detail::is_same<make_unordered_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT(!(detail::is_same<make_unordered_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
                      ,make_unordered_set_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT(!(detail::is_same<make_avl_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT(!(detail::is_same<make_avl_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
                      ,make_avl_set_base_hook<>::type
                      >::value));
 
-   BOOST_STATIC_ASSERT(!(detail::is_same<make_bs_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
+   BOOST_INTRUSIVE_STATIC_ASSERT(!(detail::is_same<make_bs_set_base_hook<void_pointer<void*>, link_mode<normal_link> >::type
                      ,make_bs_set_base_hook<>::type
                      >::value));
 

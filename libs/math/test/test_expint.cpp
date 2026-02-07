@@ -3,7 +3,16 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef SYCL_LANGUAGE_VERSION
 #include <pch_light.hpp>
+#else
+#include "sycl/sycl.hpp"
+#endif
+
+#ifndef BOOST_MATH_OVERFLOW_ERROR_POLICY
+#define BOOST_MATH_OVERFLOW_ERROR_POLICY ignore_error
+#endif
+
 #include "test_expint.hpp"
 
 //
@@ -34,19 +43,6 @@ void expected_results()
    // Define the max and mean errors expected for
    // various compilers and platforms.
    //
-   const char* largest_type;
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-   if(boost::math::policies::digits<double, boost::math::policies::policy<> >() == boost::math::policies::digits<long double, boost::math::policies::policy<> >())
-   {
-      largest_type = "(long\\s+)?double";
-   }
-   else
-   {
-      largest_type = "long double";
-   }
-#else
-   largest_type = "(long\\s+)?double";
-#endif
 
    //
    // On MacOS X erfc has much higher error levels than
@@ -91,8 +87,12 @@ void expected_results()
       ".*",                          // platform
       "float|double|long double",    // test type(s)
       ".*Ei.*",                      // test data group
+#ifndef SYCL_LANGUAGE_VERSION
       ".*", 6, 3);                   // test function
-   if(std::numeric_limits<long double>::digits > 100)
+#else
+      ".*", 10, 3);
+#endif
+   BOOST_IF_CONSTEXPR (std::numeric_limits<long double>::digits > 100)
    {
       add_expected_result(
          ".*",                          // compiler
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    test_expint(0.1F, "float");
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 }
 

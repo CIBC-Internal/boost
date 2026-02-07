@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,10 +19,16 @@
 #define BOOST_GEOMETRY_GEOMETRIES_SEGMENT_HPP
 
 #include <cstddef>
+#include <utility>
+#include <type_traits>
 
 #include <boost/concept/assert.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_const.hpp>
+
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/make.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
@@ -35,19 +45,29 @@ namespace model
  by two distinct end points, and contains every point on the line between its end points.
 \note There is also a point-referring-segment, class referring_segment,
    containing point references, where points are NOT copied
+
+\qbk{[include reference/geometries/segment.qbk]}
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_segment Segment Concept]
+}
 */
 template<typename Point>
 class segment : public std::pair<Point, Point>
 {
-public :
-    inline segment()
-    {}
+    BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
-    inline segment(Point const& p1, Point const& p2)
-    {
-        this->first = p1;
-        this->second = p2;
-    }
+public :
+
+    /// \constructor_default_no_init
+    constexpr segment() = default;
+
+    /*!
+        \brief Constructor taking the first and the second point
+    */
+    constexpr segment(Point const& p1, Point const& p2)
+        : std::pair<Point, Point>(p1, p2)
+    {}
 };
 
 
@@ -68,11 +88,11 @@ template<typename ConstOrNonConstPoint>
 class referring_segment
 {
     BOOST_CONCEPT_ASSERT( (
-        typename boost::mpl::if_
+        typename std::conditional
             <
-                boost::is_const<ConstOrNonConstPoint>,
-                concept::Point<ConstOrNonConstPoint>,
-                concept::ConstPoint<ConstOrNonConstPoint>
+                std::is_const<ConstOrNonConstPoint>::value,
+                concepts::Point<ConstOrNonConstPoint>,
+                concepts::ConstPoint<ConstOrNonConstPoint>
             >
     ) );
 
@@ -83,6 +103,9 @@ public:
     point_type& first;
     point_type& second;
 
+    /*!
+        \brief Constructor taking the first and the second point
+    */
     inline referring_segment(point_type& p1, point_type& p2)
         : first(p1)
         , second(p2)
@@ -101,7 +124,7 @@ namespace traits
 template <typename Point>
 struct tag<model::segment<Point> >
 {
-    typedef segment_tag type;
+    using type = segment_tag;
 };
 
 template <typename Point>
@@ -114,14 +137,14 @@ template <typename Point, std::size_t Dimension>
 struct indexed_access<model::segment<Point>, 0, Dimension>
 {
     typedef model::segment<Point> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
-    static inline coordinate_type get(segment_type const& s)
+    static constexpr coordinate_type get(segment_type const& s)
     {
         return geometry::get<Dimension>(s.first);
     }
 
-    static inline void set(segment_type& s, coordinate_type const& value)
+    static void set(segment_type& s, coordinate_type const& value)
     {
         geometry::set<Dimension>(s.first, value);
     }
@@ -132,24 +155,39 @@ template <typename Point, std::size_t Dimension>
 struct indexed_access<model::segment<Point>, 1, Dimension>
 {
     typedef model::segment<Point> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
-    static inline coordinate_type get(segment_type const& s)
+    static constexpr coordinate_type get(segment_type const& s)
     {
         return geometry::get<Dimension>(s.second);
     }
 
-    static inline void set(segment_type& s, coordinate_type const& value)
+    static void set(segment_type& s, coordinate_type const& value)
     {
         geometry::set<Dimension>(s.second, value);
     }
 };
 
 
+template <typename Point>
+struct make<model::segment<Point> >
+{
+    typedef model::segment<Point> segment_type;
+
+    static const bool is_specialized = true;
+
+    static constexpr segment_type apply(Point const& p1, Point const& p2)
+    {
+        return segment_type(p1, p2);
+    }
+};
+
+
+
 template <typename ConstOrNonConstPoint>
 struct tag<model::referring_segment<ConstOrNonConstPoint> >
 {
-    typedef segment_tag type;
+    using type = segment_tag;
 };
 
 template <typename ConstOrNonConstPoint>
@@ -162,7 +200,7 @@ template <typename ConstOrNonConstPoint, std::size_t Dimension>
 struct indexed_access<model::referring_segment<ConstOrNonConstPoint>, 0, Dimension>
 {
     typedef model::referring_segment<ConstOrNonConstPoint> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static inline coordinate_type get(segment_type const& s)
     {
@@ -180,7 +218,7 @@ template <typename ConstOrNonConstPoint, std::size_t Dimension>
 struct indexed_access<model::referring_segment<ConstOrNonConstPoint>, 1, Dimension>
 {
     typedef model::referring_segment<ConstOrNonConstPoint> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static inline coordinate_type get(segment_type const& s)
     {

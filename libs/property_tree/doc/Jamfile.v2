@@ -15,7 +15,7 @@ import quickbook ;
 
 doxygen autodoc
     :
-        [ glob ../../../boost/property_tree/*.hpp ]
+        [ glob ../include/boost/property_tree/*.hpp ]
     :
         <doxygen:param>EXTRACT_ALL=YES
         <doxygen:param>"PREDEFINED=\"BOOST_PROPERTY_TREE_DOXYGEN_INVOKED\" \\
@@ -45,3 +45,13 @@ boostbook standalone
       <dependency>autodoc
       <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/property_tree/doc/html
     ;
+
+###############################################################################
+alias boostdoc
+    : property_tree
+    :
+    : <dependency>autodoc
+    : ;
+explicit boostdoc ;
+alias boostrelease ;
+explicit boostrelease ;

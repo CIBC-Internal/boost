@@ -18,11 +18,10 @@
 
 // #define BOOST_SPIRIT_DEBUG
 
-#include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_utree.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_function.hpp>
+#include <boost/phoenix/operator.hpp>
+#include <boost/phoenix/function.hpp>
 
 #include <iostream>
 #include <string>
@@ -31,7 +30,7 @@
 namespace boost { namespace phoenix 
 {
     // There's a bug in the Phoenix V2 type deduction mechanism that prevents 
-    // correct return type deduction for for the math operations below. Newer
+    // correct return type deduction for the math operations below. Newer
     // versions of Phoenix will be switching to BOOST_TYPEOF. In the meantime, 
     // we will use the specializations helping with return type deduction 
     // below:

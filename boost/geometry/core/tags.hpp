@@ -4,9 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -24,6 +23,9 @@ namespace boost { namespace geometry
 {
 
 // Tags defining strategies linked to coordinate systems
+
+/// Tag used for undefined coordinate system
+struct cs_undefined_tag {};
 
 /// Tag used for casting spherical/geographic coordinate systems
 struct spherical_tag {};
@@ -66,6 +68,9 @@ struct pointlike_tag {};
 /// For linear types (linestring, multi-linestring, segment)
 struct linear_tag {};
 
+// Subset of linear types (polygon, multi_polygon)
+struct polylinear_tag : linear_tag {};
+
 /// For areal types (polygon, multi_polygon, box, ring)
 struct areal_tag {};
 
@@ -86,7 +91,7 @@ struct geometry_not_recognized_tag {};
 struct point_tag : single_tag, pointlike_tag {};
 
 /// OGC Linestring identifying tag
-struct linestring_tag : single_tag, linear_tag {};
+struct linestring_tag : single_tag, polylinear_tag {};
 
 /// OGC Polygon identifying tag
 struct polygon_tag : single_tag, polygonal_tag {};
@@ -100,18 +105,24 @@ struct box_tag : single_tag, areal_tag {};
 /// Convenience segment (2-points) identifying tag
 struct segment_tag : single_tag, linear_tag {};
 
+/// OGC Polyhedral surface identifying tag
+struct polyhedral_surface_tag : single_tag, volumetric_tag {};
+
 
 /// OGC Multi point identifying tag
 struct multi_point_tag : multi_tag, pointlike_tag  {};
 
 /// OGC Multi linestring identifying tag
-struct multi_linestring_tag : multi_tag, linear_tag {};
+struct multi_linestring_tag : multi_tag, polylinear_tag {};
 
 /// OGC Multi polygon identifying tag
 struct multi_polygon_tag : multi_tag, polygonal_tag {};
 
 /// OGC Geometry Collection identifying tag
 struct geometry_collection_tag : multi_tag {};
+
+/// Tag identifying dynamic geometries, e.g. variants
+struct dynamic_geometry_tag {};
 
 
 /*!
@@ -127,22 +138,25 @@ struct single_tag_of
 template <>
 struct single_tag_of<multi_point_tag>
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 template <>
 struct single_tag_of<multi_linestring_tag>
 {
-    typedef linestring_tag type;
+    using type = linestring_tag;
 };
 
 template <>
 struct single_tag_of<multi_polygon_tag>
 {
-    typedef polygon_tag type;
+    using type = polygon_tag;
 };
 
 #endif
+
+template <typename Tag>
+using single_tag_of_t = typename single_tag_of<Tag>::type;
 
 
 }} // namespace boost::geometry

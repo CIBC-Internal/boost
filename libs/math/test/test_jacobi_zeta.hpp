@@ -8,11 +8,17 @@
 // Constants are too big for float case, but this doesn't matter for test.
 #endif
 
+#include <boost/math/tools/config.hpp>
+
+#ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
 #include <boost/math/concepts/real_concept.hpp>
+#endif
+
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
+#include <boost/math/special_functions/jacobi_zeta.hpp>
 #include <boost/math/constants/constants.hpp>
 //#include <boost/math/special_functions/next.hpp>
 #include <boost/array.hpp>
@@ -28,11 +34,14 @@
 template <class Real, typename T>
 void do_test_jacobi_zeta(const T& data, const char* type_name, const char* test)
 {
+#if !(defined(ERROR_REPORTING_MODE) && !defined(JACOBI_ZETA_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    std::cout << "Testing: " << test << std::endl;
 
-#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#ifdef JACOBI_ZETA_FUNCTION_TO_TEST
+   value_type(*fp2)(value_type, value_type) = JACOBI_ZETA_FUNCTION_TO_TEST;
+#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
     value_type (*fp2)(value_type, value_type) = boost::math::ellint_d<value_type, value_type>;
 #else
    value_type(*fp2)(value_type, value_type) = boost::math::jacobi_zeta;
@@ -44,9 +53,10 @@ void do_test_jacobi_zeta(const T& data, const char* type_name, const char* test)
       bind_func<Real>(fp2, 1, 0),
       extract_result<Real>(2));
    handle_test_result(result, data[result.worst()], result.worst(),
-      type_name, "boost::math::jacobi_zeta", test);
+      type_name, "jacobi_zeta", test);
 
    std::cout << std::endl;
+#endif
 }
 
 template <typename T>
@@ -55,7 +65,7 @@ void test_spots(T, const char* type_name)
     BOOST_MATH_STD_USING
     // Function values calculated on http://functions.wolfram.com/
     // Note that Mathematica's EllipticE accepts k^2 as the second parameter.
-    static const boost::array<boost::array<T, 3>, 18> data1 = {{
+    static const std::array<std::array<T, 3>, 18> data1 = {{
        { { SC_(0.5), SC_(0.5), SC_(0.055317014255129651475392155709691519) } },
        { { SC_(-0.5), SC_(0.5), SC_(-0.055317014255129651475392155709691519) } },
         { { SC_(0), SC_(0.5), SC_(0) } },

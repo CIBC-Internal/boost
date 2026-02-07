@@ -1,89 +1,68 @@
 /*
-            Copyright Martin Husemann 2013.
+       Copyright Claudio Jeker 2024
    Distributed under the Boost Software License, Version 1.0.
       (See accompanying file LICENSE_1_0.txt or copy at
           http://www.boost.org/LICENSE_1_0.txt)
 */
 
-/*******************************************************************
- *                                                                 *
- *  -------------------------------------------------------------  *
- *  |  Offset (in 4 or 8 byte units) | Content                  |  *
- *  -------------------------------------------------------------  *
- *  | 0                              | %sp                      |  *
- *  -------------------------------------------------------------  *
- *  | 1                              | %pc                      |  *
- *  -------------------------------------------------------------  *
- *  | 2                              | %i7 (return address)     |  *
- *  -------------------------------------------------------------  *
- *  | 3                              | %g1                      |  *
- *  -------------------------------------------------------------  *
- *  | 4                              | %g2                      |  *
- *  -------------------------------------------------------------  *
- *  | 5                              | %g3                      |  *
- *  -------------------------------------------------------------  *
- *  | 6                              | %g6                      |  *
- *  -------------------------------------------------------------  *
- *  | 7                              | %g7                      |  *
- *  -------------------------------------------------------------  *
- *    The local and in registers are stored on the stack.          *
- *******************************************************************/
+/*
+ * fcontext_t *make_fcontext(void *sp, size_t size, void (*fn)(transfer_t));
+ */
+#define CC64FSZ 176
+#define BIAS 2047
+#define FP 112
+#define SP 128
+#define I7 136
 
-#define	OFF(N)	(8*(N))
-#define	CCFSZ	176		// C Compiler Frame Size
-#define	BIAS	(2048-1)	// Stack offset for 64 bit programs
-#define	FC_SZ	448		// sizeof(fcontext_t)
-#define	FC_STK	384		// offsetof(fcontext_t, fc_stack)
-#define	FC_FPU	0		// offsetof(fcontext_t, fc_fp)
-#define	FC_FSR	264		// offsetof(fcontext_t, fc_fp.fp_fsr)
-#define	FC_FPRS	256		// offsetof(fcontext_t, fc_fp.fp_fprs)
-#define	FC_GREG	320		// offsetof(fcontext_t, fc_greg)
-#define	BLOCK_SIZE	64
-
-	.register %g2,#ignore
-	.register %g3,#ignore
-	.register %g6,#ignore
-
+.file "make_sparc64_sysv_elf_gas.S"
 .text
-.globl make_fcontext
-.align 4
-.type make_fcontext,@function
-// fcontext_t *
-// make_fcontext( void * sp, std::size_t size, void (* fn)( intptr_t) )
+.align  4
+.global make_fcontext
+.type   make_fcontext, %function
 make_fcontext:
-    save %sp, -CCFSZ, %sp
-    // %i0 initial stack pointer
-    // %i1 stack size limit
-    // %i2 function pointer for context start function
+	save	%sp, -CC64FSZ, %sp
 
-    sub %i0, FC_SZ, %i4		// allocate fcontext_t at on the new stack and keep pointer as return value
-    andn %i4, BLOCK_SIZE-1, %i5	// force block ops usable alignement and keep pointer to fcontext in %i5
+	# shift address in %i0 (allocated stack) to lower 16 byte boundary
+	and	%i0, -0xf, %i0
 
-    stx %i0, [%i5+FC_STK+OFF(0)]	// save fs_stack.sp
-    stx %i1, [%i5+FC_STK+OFF(1)]	// save fs_stack.size
-    sub %i5, CCFSZ+BIAS, %o1	   	// leave space for one register window (and offset stack for 64bit)
-    stx %o1, [%i5+FC_GREG+OFF(0)]	// save new stack pointer
-    stx %i2, [%i5+FC_GREG+OFF(1)]	// save new %pc (function pointer)
-    stx %g1, [%i5+FC_GREG+OFF(3)]
-    stx %g2, [%i5+FC_GREG+OFF(4)]
-    stx %g3, [%i5+FC_GREG+OFF(5)]
-    stx %g6, [%i5+FC_GREG+OFF(6)]
-    stx %g7, [%i5+FC_GREG+OFF(7)]
+	# reserve space for two frames on the stack
+	# the first frame is for the call the second one holds the data
+	# for jump_fcontext
+	sub	%i0, 2 * CC64FSZ, %i0
 
-    // synthesize "return address": jump to finish
-1:  rd %pc, %i4
-    add %i4, finish-1b-8, %i4
-    stx %i4, [%i5+FC_GREG+OFF(2)]
+	# third argument of make_fcontext() is the context-function to call
+	# store it in the first stack frame, also clear %fp there to indicate
+	# the end of the stack.
+	stx	%i2, [%i0 + CC64FSZ + I7]
+	stx	%g0, [%i0 + CC64FSZ + FP]
 
-    ret
-    restore %g0, %i5, %o0	// return fcontext_t
+	# On OpenBSD stackghost prevents overriding the return address on
+	# a stack frame. So this code uses an extra trampoline to load
+	# to call the context-function and then do the _exit(0) dance.
+	# Extract the full address of the trampoline via pc relative addressing
+1:
+	rd	%pc, %l0
+	add	%l0, (trampoline - 1b - 8), %l0
+	stx	%l0, [%i0 + I7]
 
-finish:
-    mov %g0, %o0
-    call _exit
-     nop
+	# Save framepointer to first stack frame but first subtract the BIAS
+	add	%i0, CC64FSZ - BIAS, %l0
+	stx	%l0, [%i0 + SP]
 
-.size make_fcontext,.-make_fcontext
+	# Return context-data which is also includes the BIAS
+	ret
+	 restore %i0, -BIAS, %o0
 
-/* Mark that we don't need executable stack.  */
+trampoline:
+	ldx	[%sp + BIAS + I7], %l0
+
+	# no need to setup transfer_t, already in %o0 and %o1
+	jmpl	%l0, %o7
+	 nop
+
+	call	_exit
+	 clr	%o0
+	unimp
+.size	make_fcontext,.-make_fcontext
+# Mark that we don't need executable stack.
 .section .note.GNU-stack,"",%progbits

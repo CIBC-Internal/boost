@@ -11,7 +11,7 @@
 #ifndef BOOST_IOSTREAMS_NEWLINE_FILTER_HPP_INCLUDED
 #define BOOST_IOSTREAMS_NEWLINE_FILTER_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -48,8 +48,8 @@ const char LF                   = 0x0A;
 
 // Exactly one of the following three flags must be present.
 
-const int posix             = 1;    // Use CR as line separator.
-const int mac               = 2;    // Use LF as line separator.
+const int posix             = 1;    // Use LF as line separator.
+const int mac               = 2;    // Use CR as line separator.
 const int dos               = 4;    // Use CRLF as line separator.
 const int mixed             = 8;    // Mixed line endings.
 const int final_newline     = 16;
@@ -156,8 +156,8 @@ public:
         if (c == CR) {
             flags_ |= f_has_CR;
 
-            int d;
-            if ((d = iostreams::get(src)) == WOULD_BLOCK)
+            int d = iostreams::get(src);
+            if (d == WOULD_BLOCK)
                 return WOULD_BLOCK;
 
             if (d == LF) {
@@ -214,7 +214,6 @@ public:
     template<typename Sink>
     void close(Sink& dest, BOOST_IOS::openmode)
     {
-        typedef typename iostreams::category_of<Sink>::type category;
         if ((flags_ & f_write) != 0 && (flags_ & f_has_CR) != 0)
             newline_if_sink(dest);
         flags_ &= ~f_has_LF; // Restore original flags.
@@ -261,10 +260,12 @@ private:
             break;
         case iostreams::newline::dos:
             if ((flags_ & f_has_LF) != 0) {
-                if ((success = boost::iostreams::put(dest, LF)))
+                success = boost::iostreams::put(dest, LF);
+                if (success)
                     flags_ &= ~f_has_LF;
             } else if (boost::iostreams::put(dest, CR)) {
-                if (!(success = boost::iostreams::put(dest, LF)))
+                success = boost::iostreams::put(dest, LF);
+                if (!success)
                     flags_ |= f_has_LF;
             }
             break;

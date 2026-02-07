@@ -4,6 +4,9 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#include <boost/math/tools/config.hpp>
+#ifndef BOOST_MATH_NO_REAL_CONCEPT_TESTS
+
 #include <boost/math/concepts/real_concept.hpp> // for real_concept
 #include <boost/math/constants/constants.hpp>
 
@@ -11,7 +14,7 @@
 #include <boost/test/unit_test.hpp> // Boost.Test
 #include <boost/test/results_collector.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <iostream>
 #include <iomanip>
 
@@ -503,7 +506,11 @@ BOOST_AUTO_TEST_CASE( test_main )
       BOOST_CHECK_CLOSE_FRACTION(abs(r2), abs(l2), tol);
       rc_t rc_result;
       long double ld_result;
+#ifdef __MINGW32__
+      BOOST_CHECK_CLOSE_FRACTION(modf(r2, &rc_result), boost::math::modf(l2, &ld_result), tol);
+#else
       BOOST_CHECK_CLOSE_FRACTION(modf(r2, &rc_result), modf(l2, &ld_result), tol);
+#endif
       BOOST_CHECK_CLOSE_FRACTION(rc_result, ld_result, tol);
       int i1, i2;
       BOOST_CHECK_CLOSE_FRACTION(frexp(r3, &i1), frexp(l3, &i2), tol);
@@ -566,9 +573,12 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::cout;
+      "to pass.</note>" << std::endl;
 #endif
 
    
 } // BOOST_AUTO_TEST_CASE( test_main )
 
+#else
+int main(void) { return 0; }
+#endif // BOOST_MATH_NO_REAL_CONCEPT_TESTS

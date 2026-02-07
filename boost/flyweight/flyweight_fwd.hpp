@@ -1,4 +1,4 @@
-/* Copyright 2006-2014 Joaquin M Lopez Munoz.
+/* Copyright 2006-2024 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -14,6 +14,7 @@
 #endif
 
 #include <boost/config.hpp> /* keep it first to prevent nasty warns in MSVC */
+#include <boost/config/workaround.hpp>
 #include <boost/detail/templated_streams.hpp>
 #include <boost/parameter/parameters.hpp>
 #include <boost/preprocessor/punctuation/comma.hpp>
@@ -138,7 +139,7 @@ BOOST_FLYWEIGHT_COMPLETE_COMP_OPS_DECL(
 template<typename T,BOOST_FLYWEIGHT_TYPENAME_TEMPL_ARGS(_)>
 inline void swap(
   flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)>& x,
-  flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)>& y);
+  flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)>& y)BOOST_NOEXCEPT;
 
 template<
   BOOST_TEMPLATED_STREAM_ARGS(ElemType,Traits)
@@ -167,9 +168,16 @@ using flyweights::flyweight;
 #if !defined(BOOST_FLYWEIGHT_DISABLE_HASH_SUPPORT)
 #if !defined(BOOST_NO_CXX11_HDR_FUNCTIONAL)
 
+#if BOOST_WORKAROUND(_CPPLIB_VER,==520)
+/* Dinkumware 5.20 defines std::hash as class rather than struct */
+#define BOOST_FLYWEIGHT_STD_HASH_STRUCT_KEYWORD class
+#else
+#define BOOST_FLYWEIGHT_STD_HASH_STRUCT_KEYWORD struct
+#endif
+
 #if !defined(_LIBCPP_VERSION)
 namespace std{
-template <class T> struct hash;
+template <class T> BOOST_FLYWEIGHT_STD_HASH_STRUCT_KEYWORD hash;
 }
 #else 
 /* As discussed in http://lists.boost.org/Archives/boost/2011/02/177218.php */
@@ -179,7 +187,8 @@ template <class T> struct hash;
 namespace std{
 
 template<typename T,BOOST_FLYWEIGHT_TYPENAME_TEMPL_ARGS(_)>
-struct hash<boost::flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)> >;
+BOOST_FLYWEIGHT_STD_HASH_STRUCT_KEYWORD
+hash<boost::flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)> >;
 
 } /* namespace std */
 #endif /* !defined(BOOST_NO_CXX11_HDR_FUNCTIONAL) */
@@ -190,8 +199,8 @@ namespace flyweights{
 #endif
 
 template<typename T,BOOST_FLYWEIGHT_TYPENAME_TEMPL_ARGS(_)>
-inline std::size_t hash_value(
-  const flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)>& x);
+inline std::size_t
+hash_value(const flyweight<T,BOOST_FLYWEIGHT_TEMPL_ARGS(_)>& x)BOOST_NOEXCEPT;
 
 #if !defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)
 } /* namespace flyweights */

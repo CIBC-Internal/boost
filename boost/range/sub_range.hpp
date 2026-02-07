@@ -27,6 +27,8 @@
 #include <boost/range/reference.hpp>
 #include <boost/range/algorithm/equal.hpp>
 #include <boost/assert.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/identity.hpp>
 #include <boost/type_traits/is_reference.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
@@ -182,8 +184,8 @@ public:
 
 #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1500) ) 
         sub_range(const sub_range& r)
-            : base(impl::adl_begin(static_cast<const base&>(r)),
-                   impl::adl_end(static_cast<const base&>(r)))
+            : base(impl::adl_begin(const_cast<base&>(static_cast<const base&>(r))),
+                   impl::adl_end(const_cast<base&>(static_cast<const base&>(r))))
         { }  
 #endif
 

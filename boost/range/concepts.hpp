@@ -23,7 +23,11 @@
 #include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/range/detail/misc_concept.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/is_integral.hpp>
+
+#include <iterator>
 
 /*!
  * \file
@@ -82,7 +86,7 @@ namespace boost {
     #endif
 #endif
 
-    #ifdef __BORLANDC__
+    #ifdef BOOST_BORLANDC
         #define BOOST_RANGE_ENABLE_CONCEPT_ASSERT 0
     #endif
 
@@ -164,10 +168,10 @@ namespace boost {
                 // work
                 (void)(i++);
 
-                BOOST_DEDUCED_TYPENAME boost::detail::iterator_traits<Iterator>::reference r1(*i);
+                BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::reference r1(*i);
                 boost::ignore_unused_variable_warning(r1);
 
-                BOOST_DEDUCED_TYPENAME boost::detail::iterator_traits<Iterator>::reference r2(*(++i));
+                BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::reference r2(*(++i));
                 boost::ignore_unused_variable_warning(r2);
             }
         private:
@@ -181,7 +185,7 @@ namespace boost {
             , DefaultConstructible<Iterator>
         {
 #if BOOST_RANGE_ENABLE_CONCEPT_ASSERT
-            typedef BOOST_DEDUCED_TYPENAME boost::detail::iterator_traits<Iterator>::difference_type difference_type;
+            typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::difference_type difference_type;
 
             BOOST_MPL_ASSERT((is_integral<difference_type>));
             BOOST_MPL_ASSERT_RELATION(std::numeric_limits<difference_type>::is_signed, ==, true);
@@ -200,7 +204,7 @@ namespace boost {
                 // is convertible to reference.
                 Iterator i2(i++);
                 boost::ignore_unused_variable_warning(i2);
-                BOOST_DEDUCED_TYPENAME boost::detail::iterator_traits<Iterator>::reference r(*(i++));
+                BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::reference r(*(i++));
                 boost::ignore_unused_variable_warning(r);
             }
         private:
@@ -250,7 +254,7 @@ namespace boost {
                  n = i - j;
              }
          private:
-             BOOST_DEDUCED_TYPENAME RandomAccessIteratorConcept::difference_type n;
+             BOOST_DEDUCED_TYPENAME BidirectionalIteratorConcept<Iterator>::difference_type n;
              Iterator i;
              Iterator j;
  #endif

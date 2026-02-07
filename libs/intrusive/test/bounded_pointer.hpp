@@ -31,6 +31,7 @@ class bounded_reference;
 template < typename T >
 class bounded_allocator;
 
+struct maintain_offset_t{};
 
 template < typename T >
 class bounded_pointer
@@ -41,6 +42,7 @@ class bounded_pointer
 
    public:
    typedef typename boost::intrusive::detail::remove_const< T >::type mut_val_t;
+   typedef bounded_pointer< mut_val_t > non_const_t;
    typedef const mut_val_t const_val_t;
 
    typedef bounded_reference<T>  reference;
@@ -54,25 +56,25 @@ class bounded_pointer
    {}
 
    template<class T2>
-   bounded_pointer(const bounded_pointer<T2> &other, typename boost::intrusive::detail::enable_if_c
-      <boost::intrusive::detail::is_convertible<T2*, T*>::value>::type* = 0)
+   bounded_pointer( const bounded_pointer<T2> &other
+                  , typename boost::intrusive::detail::enable_if_convertible<T2*, T*>::type* = 0)
       :  m_offset(other.m_offset)
+   {}
+
+   bounded_pointer(maintain_offset_t, unsigned char offset)
+      :  m_offset(offset)
    {}
 
    bounded_pointer& operator = (const bounded_pointer& other)
    { m_offset = other.m_offset; return *this; }
 
    template <class T2>
-   typename boost::intrusive::detail::enable_if_c
-      <boost::intrusive::detail::is_convertible<T2*, T*>::value, bounded_pointer&>::type
+   typename boost::intrusive::detail::enable_if_convertible<T2*, T*, bounded_pointer&>::type
       operator= (const bounded_pointer<T2> & other)
    {  m_offset = other.m_offset;  return *this;  }
 
-   const bounded_pointer< typename boost::intrusive::detail::remove_const< T >::type >& unconst() const
-   { return *reinterpret_cast< const bounded_pointer< typename boost::intrusive::detail::remove_const< T >::type >* >(this); }
-
-   bounded_pointer< typename boost::intrusive::detail::remove_const< T >::type >& unconst()
-   { return *reinterpret_cast< bounded_pointer< typename boost::intrusive::detail::remove_const< T >::type >* >(this); }
+   non_const_t unconst() const
+   {  return non_const_t (maintain_offset_t(), this->m_offset);  }
 
    static mut_val_t* base()
    {
@@ -172,15 +174,14 @@ class bounded_reference
    { assert(m_offset != max_offset); raw() = rhs.raw(); return *this; }
 
    template<class T2>
-   bounded_reference(const bounded_reference<T2> &other, typename boost::intrusive::detail::enable_if_c
-      <boost::intrusive::detail::is_convertible<T2&, T&>::value>::type* = 0)
+   bounded_reference( const bounded_reference<T2> &other
+                    , typename boost::intrusive::detail::enable_if_convertible<T2*, T*>::type* = 0)
       :  m_offset(other.m_offset)
    {}
 
    template <class T2>
-   typename boost::intrusive::detail::enable_if_c
-      <boost::intrusive::detail::is_convertible<T2&, T&>::value, bounded_reference&>::type
-   operator= (const bounded_reference<T2> & other)
+   typename boost::intrusive::detail::enable_if_convertible<T2*, T*, bounded_reference&>::type
+      operator= (const bounded_reference<T2> & other)
    {  m_offset = other.m_offset;  return *this;  }
 
    friend std::ostream& operator << (std::ostream& os, const bounded_reference< T >& ref)
@@ -220,6 +221,7 @@ class bounded_allocator
       assert(i < max_offset);
       p.m_offset = i;
       m_in_use[p.m_offset] = true;
+      ++m_in_use_count;
       return p;
    }
 
@@ -229,6 +231,7 @@ class bounded_allocator
       assert(n == 1);(void)n;
       assert(m_in_use[p.m_offset]);
       m_in_use[p.m_offset] = false;
+      --m_in_use_count;
    }
 
    // static methods
@@ -270,7 +273,22 @@ class bounded_allocator
    friend class bounded_pointer< const T >;
    static T* m_base;
    static boost::container::vector< bool > m_in_use;
+   static std::size_t m_in_use_count;
 }; // class bounded_allocator
+
+template <class BoundedAllocator>
+class bounded_allocator_scope
+{
+   public:
+   bounded_allocator_scope()
+   {  BoundedAllocator::init();  }
+
+   ~bounded_allocator_scope()
+   {
+      assert(BoundedAllocator::is_clear());
+      BoundedAllocator::destroy();
+   }
+};
 
 template < typename T >
 T* bounded_allocator< T >::m_base = 0;
@@ -278,6 +296,8 @@ T* bounded_allocator< T >::m_base = 0;
 template < typename T >
 boost::container::vector< bool > bounded_allocator< T >::m_in_use;
 
+template < typename T >
+std::size_t bounded_allocator< T >::m_in_use_count;
 
 template < typename T >
 class bounded_reference_cont
@@ -308,7 +328,7 @@ class bounded_reference_cont
    using Base::operator[];
    using Base::push_back;
 
-   bounded_reference_cont(size_t n = 0)
+   explicit bounded_reference_cont(size_t n = 0)
       : Base(), m_allocator()
    {
       for (size_t i = 0; i < n; ++i){
@@ -336,6 +356,17 @@ class bounded_reference_cont
       for (InputIterator it = it_start; it != it_end; ++it){
          pointer p = m_allocator.allocate(1);
          new (p.raw()) val_type(*it);
+         Base::push_back(*p);
+      }
+   }
+
+   template <typename InputIterator>   
+   void assign(InputIterator it_start, InputIterator it_end)
+   {
+      this->clear();
+      for (InputIterator it = it_start; it != it_end;){
+         pointer p = m_allocator.allocate(1);
+         new (p.raw()) val_type(*it++);
          Base::push_back(*p);
       }
    }

@@ -17,11 +17,11 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>    //std::remove
-#include <boost/container/detail/alloc_lib_auto_link.hpp>
+#include <boost/container/detail/dlmalloc.hpp>
 
 namespace boost { namespace container { namespace test {
 
-static const int NumIt = 2000;
+static const std::size_t NumIt = 200;
 
 enum deallocation_type { DirectDeallocation, InverseDeallocation, MixedDeallocation, EndDeallocationType };
 
@@ -30,17 +30,17 @@ enum deallocation_type { DirectDeallocation, InverseDeallocation, MixedDeallocat
 
 bool test_allocation()
 {
-   if(!boost_cont_all_deallocated())
+   if(!dlmalloc_all_deallocated())
       return false;
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    for( deallocation_type t = DirectDeallocation
       ; t != EndDeallocationType
       ; t = (deallocation_type)((int)t + 1)){
       std::vector<void*> buffers;
       //std::size_t free_memory = a.get_free_memory();
 
-      for(int i = 0; i != NumIt; ++i){
-         void *ptr = boost_cont_malloc(i);
+      for(std::size_t i = 0; i != NumIt; ++i){
+         void *ptr = dlmalloc_malloc(i);
          if(!ptr)
             break;
          buffers.push_back(ptr);
@@ -49,44 +49,44 @@ bool test_allocation()
       switch(t){
          case DirectDeallocation:
          {
-            for(int j = 0, max = (int)buffers.size()
+            for(std::size_t j = 0, max = buffers.size()
                ;j < max
                ;++j){
-               boost_cont_free(buffers[j]);
+               dlmalloc_free(buffers[j]);
             }
          }
          break;
          case InverseDeallocation:
          {
-            for(int j = (int)buffers.size()
+            for(std::size_t j = buffers.size()
                ;j--
                ;){
-               boost_cont_free(buffers[j]);
+               dlmalloc_free(buffers[j]);
             }
          }
          break;
          case MixedDeallocation:
          {
-            for(int j = 0, max = (int)buffers.size()
+            for(std::size_t j = 0, max = buffers.size()
                ;j < max
                ;++j){
-               int pos = (j%4)*((int)buffers.size())/4;
-               boost_cont_free(buffers[pos]);
-               buffers.erase(buffers.begin()+pos);
+               std::size_t pos = (j%4)*(buffers.size())/4;
+               dlmalloc_free(buffers[pos]);
+               buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
             }
          }
          break;
          default:
          break;
       }
-      if(!boost_cont_all_deallocated())
+      if(!dlmalloc_all_deallocated())
          return false;
       //bool ok = free_memory == a.get_free_memory() &&
                //a.all_memory_deallocated() && a.check_sanity();
       //if(!ok)  return ok;
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();
 }
 
 //This test allocates until there is no more memory
@@ -95,28 +95,28 @@ bool test_allocation()
 
 bool test_allocation_shrink()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    std::vector<void*> buffers;
 
    //Allocate buffers with extra memory
-   for(int i = 0; i != NumIt; ++i){
-      void *ptr = boost_cont_malloc(i*2);
+   for(std::size_t i = 0; i != NumIt; ++i){
+      void *ptr = dlmalloc_malloc(i*2u);
       if(!ptr)
          break;
       buffers.push_back(ptr);
    }
 
    //Now shrink to half
-   for(int i = 0, max = (int)buffers.size()
+   for(std::size_t i = 0, max = buffers.size()
       ;i < max
       ; ++i){
-      std::size_t try_received_size;
-      void* try_result = boost_cont_allocation_command
+      std::size_t try_received_size = 0;
+      void* try_result = dlmalloc_allocation_command
                ( BOOST_CONTAINER_TRY_SHRINK_IN_PLACE, 1, i*2
                , i, &try_received_size, (char*)buffers[i]).first;
 
-      std::size_t received_size;
-      void* result = boost_cont_allocation_command
+      std::size_t received_size = 0;
+      void* result = dlmalloc_allocation_command
          ( BOOST_CONTAINER_SHRINK_IN_PLACE, 1, i*2
          , i, &received_size, (char*)buffers[i]).first;
 
@@ -137,15 +137,15 @@ bool test_allocation_shrink()
    }
 
    //Deallocate it in non sequential order
-   for(int j = 0, max = (int)buffers.size()
+   for(std::size_t j = 0, max = buffers.size()
       ;j < max
       ;++j){
-      int pos = (j%4)*((int)buffers.size())/4;
-      boost_cont_free(buffers[pos]);
-      buffers.erase(buffers.begin()+pos);
+      std::size_t pos = (j%4u)*(buffers.size())/4u;
+      dlmalloc_free(buffers[pos]);
+      buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
 }
 
 //This test allocates until there is no more memory
@@ -154,26 +154,26 @@ bool test_allocation_shrink()
 
 bool test_allocation_expand()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    std::vector<void*> buffers;
 
    //Allocate buffers with extra memory
-   for(int i = 0; i != NumIt; ++i){
-      void *ptr = boost_cont_malloc(i);
+   for(std::size_t i = 0; i != NumIt; ++i){
+      void *ptr = dlmalloc_malloc(i);
       if(!ptr)
          break;
       buffers.push_back(ptr);
    }
 
    //Now try to expand to the double of the size
-   for(int i = 0, max = (int)buffers.size()
+   for(std::size_t i = 0, max = buffers.size()
       ;i < max
       ;++i){
-      std::size_t received_size;
+      std::size_t received_size = 0;
       std::size_t min_size = i+1;
       std::size_t preferred_size = i*2;
       preferred_size = min_size > preferred_size ? min_size : preferred_size;
-      while(boost_cont_allocation_command
+      while(dlmalloc_allocation_command
          ( BOOST_CONTAINER_EXPAND_FWD, 1, min_size
          , preferred_size, &received_size, (char*)buffers[i]).first){
          //Check received size is bigger than minimum
@@ -187,15 +187,15 @@ bool test_allocation_expand()
    }
 
    //Deallocate it in non sequential order
-   for(int j = 0, max = (int)buffers.size()
+   for(std::size_t j = 0, max = buffers.size()
       ;j < max
       ;++j){
-      int pos = (j%4)*((int)buffers.size())/4;
-      boost_cont_free(buffers[pos]);
-      buffers.erase(buffers.begin()+pos);
+      std::size_t pos = (j%4u)*(buffers.size())/4u;
+      dlmalloc_free(buffers[pos]);
+      buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
 }
 
 //This test allocates until there is no more memory
@@ -208,13 +208,13 @@ bool test_allocation_shrink_and_expand()
    std::vector<bool>        size_reduced;
 
    //Allocate buffers wand store received sizes
-   for(int i = 0; i != NumIt; ++i){
-      std::size_t received_size;
-      void *ptr = boost_cont_allocation_command
-         (BOOST_CONTAINER_ALLOCATE_NEW, 1, i, i*2, &received_size, 0).first;
+   for(std::size_t i = 0; i != NumIt; ++i){
+      std::size_t received_size = 0;
+      void *ptr = dlmalloc_allocation_command
+         (BOOST_CONTAINER_ALLOCATE_NEW, 1u, i, i*2u, &received_size, 0).first;
       if(!ptr){
-         ptr = boost_cont_allocation_command
-            ( BOOST_CONTAINER_ALLOCATE_NEW, 1, 1, i*2, &received_size, 0).first;
+         ptr = dlmalloc_allocation_command
+            ( BOOST_CONTAINER_ALLOCATE_NEW, 1u, 1u, i*2, &received_size, 0).first;
          if(!ptr)
             break;
       }
@@ -223,13 +223,13 @@ bool test_allocation_shrink_and_expand()
    }
 
    //Now shrink to half
-   for(int i = 0, max = (int)buffers.size()
+   for(std::size_t i = 0, max = buffers.size()
       ; i < max
       ; ++i){
-      std::size_t received_size;
+      std::size_t received_size = 0;
       bool size_reduced_flag;
       if(true == (size_reduced_flag = !!
-         boost_cont_allocation_command
+         dlmalloc_allocation_command
          ( BOOST_CONTAINER_SHRINK_IN_PLACE, 1, received_sizes[i]
          , i, &received_size, (char*)buffers[i]).first)){
          if(received_size > std::size_t(received_sizes[i])){
@@ -243,13 +243,13 @@ bool test_allocation_shrink_and_expand()
    }
 
    //Now try to expand to the original size
-   for(int i = 0, max = (int)buffers.size()
+   for(std::size_t i = 0, max = buffers.size()
       ;i < max
       ;++i){
       if(!size_reduced[i])  continue;
-      std::size_t received_size;
+      std::size_t received_size = 0;
       std::size_t request_size =  received_sizes[i];
-      if(boost_cont_allocation_command
+      if(dlmalloc_allocation_command
          ( BOOST_CONTAINER_EXPAND_FWD, 1, request_size
          , request_size, &received_size, (char*)buffers[i]).first){
          if(received_size != request_size){
@@ -262,15 +262,15 @@ bool test_allocation_shrink_and_expand()
    }
 
    //Deallocate it in non sequential order
-   for(int j = 0, max = (int)buffers.size()
+   for(std::size_t j = 0, max = buffers.size()
       ;j < max
       ;++j){
-      int pos = (j%4)*((int)buffers.size())/4;
-      boost_cont_free(buffers[pos]);
-      buffers.erase(buffers.begin()+pos);
+      std::size_t pos = (j%4u)*(buffers.size())/4u;
+      dlmalloc_free(buffers[pos]);
+      buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
    }
 
-   return 0 != boost_cont_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
+   return 0 != dlmalloc_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
 }
 
 //This test allocates until there is no more memory
@@ -280,12 +280,12 @@ bool test_allocation_shrink_and_expand()
 
 bool test_allocation_deallocation_expand()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    std::vector<void*> buffers;
 
    //Allocate buffers with extra memory
-   for(int i = 0; i != NumIt; ++i){
-      void *ptr = boost_cont_malloc(i);
+   for(std::size_t i = 0; i != NumIt; ++i){
+      void *ptr = dlmalloc_malloc(i);
       if(!ptr)
          break;
       buffers.push_back(ptr);
@@ -293,27 +293,27 @@ bool test_allocation_deallocation_expand()
 
    //Now deallocate the half of the blocks
    //so expand maybe can merge new free blocks
-   for(int i = 0, max = (int)buffers.size()
+   for(std::size_t i = 0, max = buffers.size()
       ;i < max
       ;++i){
       if(i%2){
-         boost_cont_free(buffers[i]);
+         dlmalloc_free(buffers[i]);
          buffers[i] = 0;
       }
    }
 
    //Now try to expand to the double of the size
-   for(int i = 0, max = (int)buffers.size()
+   for(std::size_t i = 0, max = buffers.size()
       ;i < max
       ;++i){
       //
       if(buffers[i]){
-         std::size_t received_size;
+         std::size_t received_size = 0;
          std::size_t min_size = i+1;
          std::size_t preferred_size = i*2;
          preferred_size = min_size > preferred_size ? min_size : preferred_size;
 
-         while(boost_cont_allocation_command
+         while(dlmalloc_allocation_command
             ( BOOST_CONTAINER_EXPAND_FWD, 1, min_size
             , preferred_size, &received_size, (char*)buffers[i]).first){
             //Check received size is bigger than minimum
@@ -332,15 +332,15 @@ bool test_allocation_deallocation_expand()
                 ,buffers.end());
 
    //Deallocate it in non sequential order
-   for(int j = 0, max = (int)buffers.size()
+   for(std::size_t j = 0, max = buffers.size()
       ;j < max
       ;++j){
-      int pos = (j%4)*((int)buffers.size())/4;
-      boost_cont_free(buffers[pos]);
-      buffers.erase(buffers.begin()+pos);
+      std::size_t pos = (j%4u)*(buffers.size())/4u;
+      dlmalloc_free(buffers[pos]);
+      buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
 }
 
 //This test allocates until there is no more memory
@@ -352,14 +352,14 @@ bool test_allocation_deallocation_expand()
 
 bool test_allocation_with_reuse()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    //We will repeat this test for different sized elements
-   for(int sizeof_object = 1; sizeof_object < 20; ++sizeof_object){
+   for(std::size_t sizeof_object = 1; sizeof_object < 20; ++sizeof_object){
       std::vector<void*> buffers;
 
       //Allocate buffers with extra memory
-      for(int i = 0; i != NumIt; ++i){
-         void *ptr = boost_cont_malloc(i*sizeof_object);
+      for(std::size_t i = 0; i != NumIt; ++i){
+         void *ptr = dlmalloc_malloc(i*sizeof_object);
          if(!ptr)
             break;
          buffers.push_back(ptr);
@@ -367,10 +367,10 @@ bool test_allocation_with_reuse()
 
       //Now deallocate all except the latest
       //Now try to expand to the double of the size
-      for(int i = 0, max = (int)buffers.size() - 1
+      for(std::size_t i = 0, max = buffers.size() - 1
          ;i < max
          ;++i){
-         boost_cont_free(buffers[i]);
+         dlmalloc_free(buffers[i]);
       }
 
       //Save the unique buffer and clear vector
@@ -379,10 +379,10 @@ bool test_allocation_with_reuse()
 
       //Now allocate with reuse
       std::size_t received_size = 0;
-      for(int i = 0; i != NumIt; ++i){
-         std::size_t min_size = (received_size/sizeof_object + 1)*sizeof_object;
-         std::size_t prf_size = (received_size/sizeof_object + (i+1)*2)*sizeof_object;
-         boost_cont_command_ret_t ret = boost_cont_allocation_command
+      for(std::size_t i = 0; i != NumIt; ++i){
+         std::size_t min_size = (received_size/sizeof_object + 1u)*sizeof_object;
+         std::size_t prf_size = (received_size/sizeof_object + (i+1u)*2u)*sizeof_object;
+         dlmalloc_command_ret_t ret = dlmalloc_allocation_command
             ( BOOST_CONTAINER_EXPAND_BWD, sizeof_object, min_size
             , prf_size, &received_size, (char*)ptr);
          //If we have memory, this must be a buffer reuse
@@ -396,9 +396,9 @@ bool test_allocation_with_reuse()
          ptr = ret.first;
       }
       //There should be only a single block so deallocate it
-      boost_cont_free(ptr);
-      boost_cont_malloc_check();
-      if(!boost_cont_all_deallocated())
+      dlmalloc_free(ptr);
+      dlmalloc_malloc_check();
+      if(!dlmalloc_all_deallocated())
          return false;
    }
    return true;
@@ -410,26 +410,26 @@ bool test_allocation_with_reuse()
 
 bool test_aligned_allocation()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    //Allocate aligned buffers in a loop
    //and then deallocate it
-   for(unsigned int i = 1; i != (1 << (sizeof(int)/2)); i <<= 1){
-      for(unsigned int j = 1; j != 512; j <<= 1){
-         void *ptr = boost_cont_memalign(i-1, j);
+   for(std::size_t i = 1u; i != (1u << (sizeof(int)/2u)); i <<= 1u){
+      for(std::size_t j = 1u; j != 512u; j <<= 1){
+         void *ptr = dlmalloc_memalign(i-1, j);
          if(!ptr){
             return false;
          }
 
          if(((std::size_t)ptr & (j - 1)) != 0)
             return false;
-         boost_cont_free(ptr);
+         dlmalloc_free(ptr);
          //if(!a.all_memory_deallocated() || !a.check_sanity()){
          //   return false;
          //}
       }
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
 }
 
 //This test allocates memory with different alignments
@@ -437,17 +437,17 @@ bool test_aligned_allocation()
 
 bool test_continuous_aligned_allocation()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    std::vector<void*> buffers;
    //Allocate aligned buffers in a loop
    //and then deallocate it
    bool continue_loop = true;
-   unsigned int MaxAlign = 4096;
-   unsigned int MaxSize  = 4096;
-   for(unsigned i = 1; i < MaxSize; i <<= 1){
-      for(unsigned int j = 1; j < MaxAlign; j <<= 1){
-         for(int k = 0; k != NumIt; ++k){
-            void *ptr = boost_cont_memalign(i-1, j);
+   std::size_t MaxAlign = 4096;
+   std::size_t MaxSize  = 4096;
+   for(std::size_t i = 1; i < MaxSize; i <<= 1){
+      for(std::size_t j = 1; j < MaxAlign; j <<= 1){
+         for(std::size_t k = 0; k != NumIt; ++k){
+            void *ptr = dlmalloc_memalign(i-1, j);
             buffers.push_back(ptr);
             if(!ptr){
                continue_loop = false;
@@ -458,8 +458,8 @@ bool test_continuous_aligned_allocation()
                return false;
          }
          //Deallocate all
-         for(int k = (int)buffers.size(); k--;){
-            boost_cont_free(buffers[k]);
+         for(std::size_t k = buffers.size(); k--;){
+            dlmalloc_free(buffers[k]);
          }
          buffers.clear();
          //if(!a.all_memory_deallocated() && a.check_sanity())
@@ -468,15 +468,15 @@ bool test_continuous_aligned_allocation()
             break;
       }
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();//a.all_memory_deallocated() && a.check_sanity();
 }
 
 //This test allocates multiple values until there is no more memory
 //and after that deallocates all in the inverse order
 bool test_many_equal_allocation()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    for( deallocation_type t = DirectDeallocation
       ; t != EndDeallocationType
       ; t = (deallocation_type)((int)t + 1)){
@@ -485,8 +485,8 @@ bool test_many_equal_allocation()
       std::vector<void*> buffers2;
 
       //Allocate buffers with extra memory
-      for(int i = 0; i != NumIt; ++i){
-         void *ptr = boost_cont_malloc(i);
+      for(std::size_t i = 0; i != NumIt; ++i){
+         void *ptr = dlmalloc_malloc(i);
          if(!ptr)
             break;
          //if(!a.check_sanity())
@@ -496,11 +496,11 @@ bool test_many_equal_allocation()
 
       //Now deallocate the half of the blocks
       //so expand maybe can merge new free blocks
-      for(int i = 0, max = (int)buffers2.size()
+      for(std::size_t i = 0, max = buffers2.size()
          ;i < max
          ;++i){
          if(i%2){
-            boost_cont_free(buffers2[i]);
+            dlmalloc_free(buffers2[i]);
             buffers2[i] = 0;
          }
       }
@@ -509,11 +509,11 @@ bool test_many_equal_allocation()
          //return false;
 
       std::vector<void*> buffers;
-      for(int i = 0; i != NumIt/10; ++i){
-         boost_cont_memchain chain;
+      for(std::size_t i = 0; i != NumIt/10; ++i){
+         dlmalloc_memchain chain;
          BOOST_CONTAINER_MEMCHAIN_INIT(&chain);
-         boost_cont_multialloc_nodes((i+1)*2, i+1, DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
-         boost_cont_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
+         dlmalloc_multialloc_nodes((i+1)*2, i+1, BOOST_CONTAINER_DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
+         dlmalloc_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
          if(BOOST_CONTAINER_MEMCHAIN_IS_END_IT(chain, it))
             break;
 
@@ -532,30 +532,30 @@ bool test_many_equal_allocation()
       switch(t){
          case DirectDeallocation:
          {
-            for(int j = 0, max = (int)buffers.size()
+            for(std::size_t j = 0, max = buffers.size()
                ;j < max
                ;++j){
-               boost_cont_free(buffers[j]);
+               dlmalloc_free(buffers[j]);
             }
          }
          break;
          case InverseDeallocation:
          {
-            for(int j = (int)buffers.size()
+            for(std::size_t j = buffers.size()
                ;j--
                ;){
-               boost_cont_free(buffers[j]);
+               dlmalloc_free(buffers[j]);
             }
          }
          break;
          case MixedDeallocation:
          {
-            for(int j = 0, max = (int)buffers.size()
+            for(std::size_t j = 0, max = buffers.size()
                ;j < max
                ;++j){
-               int pos = (j%4)*((int)buffers.size())/4;
-               boost_cont_free(buffers[pos]);
-               buffers.erase(buffers.begin()+pos);
+               std::size_t pos = (j%4u)*(buffers.size())/4u;
+               dlmalloc_free(buffers[pos]);
+               buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
             }
          }
          break;
@@ -566,20 +566,20 @@ bool test_many_equal_allocation()
       //Deallocate the rest of the blocks
 
       //Deallocate it in non sequential order
-      for(int j = 0, max = (int)buffers2.size()
+      for(std::size_t j = 0, max = buffers2.size()
          ;j < max
          ;++j){
-         int pos = (j%4)*((int)buffers2.size())/4;
-         boost_cont_free(buffers2[pos]);
-         buffers2.erase(buffers2.begin()+pos);
+         std::size_t pos = (j%4u)*(buffers2.size())/4u;
+         dlmalloc_free(buffers2[pos]);
+         buffers2.erase(buffers2.begin()+(std::ptrdiff_t)pos);
       }
 
       //bool ok = free_memory == a.get_free_memory() &&
                //a.all_memory_deallocated() && a.check_sanity();
       //if(!ok)  return ok;
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();
 }
 
 //This test allocates multiple values until there is no more memory
@@ -587,7 +587,7 @@ bool test_many_equal_allocation()
 
 bool test_many_different_allocation()
 {
-   boost_cont_malloc_check();
+   dlmalloc_malloc_check();
    const std::size_t ArraySize = 11;
    std::size_t requested_sizes[ArraySize];
    for(std::size_t i = 0; i < ArraySize; ++i){
@@ -602,8 +602,8 @@ bool test_many_different_allocation()
       std::vector<void*> buffers2;
 
       //Allocate buffers with extra memory
-      for(int i = 0; i != NumIt; ++i){
-         void *ptr = boost_cont_malloc(i);
+      for(std::size_t i = 0; i != NumIt; ++i){
+         void *ptr = dlmalloc_malloc(i);
          if(!ptr)
             break;
          buffers2.push_back(ptr);
@@ -611,21 +611,21 @@ bool test_many_different_allocation()
 
       //Now deallocate the half of the blocks
       //so expand maybe can merge new free blocks
-      for(int i = 0, max = (int)buffers2.size()
+      for(std::size_t i = 0, max = buffers2.size()
          ;i < max
          ;++i){
          if(i%2){
-            boost_cont_free(buffers2[i]);
+            dlmalloc_free(buffers2[i]);
             buffers2[i] = 0;
          }
       }
 
       std::vector<void*> buffers;
-      for(int i = 0; i != NumIt; ++i){
-         boost_cont_memchain chain;
+      for(std::size_t i = 0; i != NumIt; ++i){
+         dlmalloc_memchain chain;
          BOOST_CONTAINER_MEMCHAIN_INIT(&chain);
-         boost_cont_multialloc_arrays(ArraySize, requested_sizes, 1, DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
-         boost_cont_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
+         dlmalloc_multialloc_arrays(ArraySize, requested_sizes, 1, BOOST_CONTAINER_DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
+         dlmalloc_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
          if(BOOST_CONTAINER_MEMCHAIN_IS_END_IT(chain, it))
             break;
          std::size_t n = 0;
@@ -640,30 +640,30 @@ bool test_many_different_allocation()
       switch(t){
          case DirectDeallocation:
          {
-            for(int j = 0, max = (int)buffers.size()
+            for(std::size_t j = 0, max = buffers.size()
                ;j < max
                ;++j){
-               boost_cont_free(buffers[j]);
+               dlmalloc_free(buffers[j]);
             }
          }
          break;
          case InverseDeallocation:
          {
-            for(int j = (int)buffers.size()
+            for(std::size_t j = buffers.size()
                ;j--
                ;){
-               boost_cont_free(buffers[j]);
+               dlmalloc_free(buffers[j]);
             }
          }
          break;
          case MixedDeallocation:
          {
-            for(int j = 0, max = (int)buffers.size()
+            for(std::size_t j = 0, max = buffers.size()
                ;j < max
                ;++j){
-               int pos = (j%4)*((int)buffers.size())/4;
-               boost_cont_free(buffers[pos]);
-               buffers.erase(buffers.begin()+pos);
+               std::size_t pos = (j%4)*(buffers.size())/4;
+               dlmalloc_free(buffers[pos]);
+               buffers.erase(buffers.begin()+(std::ptrdiff_t)pos);
             }
          }
          break;
@@ -674,65 +674,65 @@ bool test_many_different_allocation()
       //Deallocate the rest of the blocks
 
       //Deallocate it in non sequential order
-      for(int j = 0, max = (int)buffers2.size()
+      for(std::size_t j = 0, max = buffers2.size()
          ;j < max
          ;++j){
-         int pos = (j%4)*((int)buffers2.size())/4;
-         boost_cont_free(buffers2[pos]);
-         buffers2.erase(buffers2.begin()+pos);
+         std::size_t pos = (j%4u)*(buffers2.size())/4u;
+         dlmalloc_free(buffers2[pos]);
+         buffers2.erase(buffers2.begin()+(std::ptrdiff_t)pos);
       }
 
       //bool ok = free_memory == a.get_free_memory() &&
                //a.all_memory_deallocated() && a.check_sanity();
       //if(!ok)  return ok;
    }
-   boost_cont_malloc_check();
-   return 0 != boost_cont_all_deallocated();
+   dlmalloc_malloc_check();
+   return 0 != dlmalloc_all_deallocated();
 }
 
 bool test_many_deallocation()
 {
    const std::size_t ArraySize = 11;
-   std::vector<boost_cont_memchain> buffers;
+   std::vector<dlmalloc_memchain> buffers;
    std::size_t requested_sizes[ArraySize];
    for(std::size_t i = 0; i < ArraySize; ++i){
       requested_sizes[i] = 4*i;
    }
 
-   for(int i = 0; i != NumIt; ++i){
-      boost_cont_memchain chain;
+   for(std::size_t i = 0; i != NumIt; ++i){
+      dlmalloc_memchain chain;
       BOOST_CONTAINER_MEMCHAIN_INIT(&chain);
-      boost_cont_multialloc_arrays(ArraySize, requested_sizes, 1, DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
-      boost_cont_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
+      dlmalloc_multialloc_arrays(ArraySize, requested_sizes, 1, BOOST_CONTAINER_DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
+      dlmalloc_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
       if(BOOST_CONTAINER_MEMCHAIN_IS_END_IT(chain, it))
          return false;
       buffers.push_back(chain);
    }
-   for(int i = 0; i != NumIt; ++i){
-      boost_cont_multidealloc(&buffers[i]);
+   for(std::size_t i = 0; i != NumIt; ++i){
+      dlmalloc_multidealloc(&buffers[i]);
    }
    buffers.clear();
 
-   boost_cont_malloc_check();
-   if(!boost_cont_all_deallocated())
+   dlmalloc_malloc_check();
+   if(!dlmalloc_all_deallocated())
       return false;
 
-   for(int i = 0; i != NumIt; ++i){
-      boost_cont_memchain chain;
+   for(std::size_t i = 0; i != NumIt; ++i){
+      dlmalloc_memchain chain;
       BOOST_CONTAINER_MEMCHAIN_INIT(&chain);
-      boost_cont_multialloc_nodes(ArraySize, i*4+1, DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
-      boost_cont_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
+      dlmalloc_multialloc_nodes(ArraySize, i*4+1, BOOST_CONTAINER_DL_MULTIALLOC_DEFAULT_CONTIGUOUS, &chain);
+      dlmalloc_memchain_it it = BOOST_CONTAINER_MEMCHAIN_BEGIN_IT(&chain);
       if(BOOST_CONTAINER_MEMCHAIN_IS_END_IT(chain, it))
          return false;
       buffers.push_back(chain);
    }
-   for(int i = 0; i != NumIt; ++i){
-      boost_cont_multidealloc(&buffers[i]);
+   for(std::size_t i = 0; i != NumIt; ++i){
+      dlmalloc_multidealloc(&buffers[i]);
    }
    buffers.clear();
 
-   boost_cont_malloc_check();
-   if(!boost_cont_all_deallocated())
+   dlmalloc_malloc_check();
+   if(!dlmalloc_all_deallocated())
       return false;
 
    return true;
@@ -835,7 +835,7 @@ bool test_all_allocation()
       return false;
    }
 
-   return 0 != boost_cont_all_deallocated();
+   return 0 != dlmalloc_all_deallocated();
 }
 
 }}}   //namespace boost { namespace container { namespace test {

@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2014.
-// Modifications copyright (c) 2013-2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2018.
+// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -23,6 +23,7 @@
 
 #include <cstddef>
 
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -44,21 +45,44 @@ template
 <
     typename Geometry1, typename Geometry2,
     std::size_t DimensionCount = dimension<Geometry1>::type::value,
-    typename Tag1 = typename tag_cast
+    typename Tag1 = tag_cast_t
         <
-            typename tag<Geometry1>::type,
+            tag_t<Geometry1>,
             segment_tag, box_tag, linear_tag, areal_tag
-        >::type,
-    typename Tag2 = typename tag_cast
+        >,
+    typename Tag2 = tag_cast_t
         <
-            typename tag<Geometry2>::type,
+            tag_t<Geometry2>,
             segment_tag, box_tag, linear_tag, areal_tag
-        >::type,
+        >,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct disjoint
     : not_implemented<Geometry1, Geometry2>
 {};
+
+
+// If reversal is needed, perform it
+template
+<
+    typename Geometry1, typename Geometry2,
+    std::size_t DimensionCount,
+    typename Tag1, typename Tag2
+>
+struct disjoint<Geometry1, Geometry2, DimensionCount, Tag1, Tag2, true>
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
+    {
+        return disjoint
+            <
+                Geometry2, Geometry1,
+                DimensionCount,
+                Tag2, Tag1
+            >::apply(g2, g1, strategy);
+    }
+};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
