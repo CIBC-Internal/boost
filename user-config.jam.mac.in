@@ -1,0 +1,10 @@
+# ---------------------
+# Python configuration.
+# ---------------------
+
+using python
+     : @SCI_PYTHON_VERSION_SHORT@
+     : python3
+     : "@SCI_PYTHON_INCLUDE@"
+     : "@SCI_PYTHON_LIBRARY_DIR@/../bin"
+     ;
