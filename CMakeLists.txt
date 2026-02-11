@@ -26,7 +26,7 @@
 
 # borrowed cmake directives from https://github.com/maidsafe/MaidSafe/blob/master/cmake_modules/add_boost.cmake
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 project(Boost)
 
 if(APPLE)
